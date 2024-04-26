@@ -14,8 +14,8 @@ from appFunctions import plot_regional_outlines, plot_interactive_department
 
 
 # # FOR LOCAL DEVELOPMENT ONLY - RISK MAN-IN-MIDDLE ATTACKS
-# import ssl
-# ssl._create_default_https_context = ssl._create_unverified_context
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 # Load restaurant data
@@ -48,14 +48,6 @@ dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department
 region_to_name = {region: region for region in geo_df['region'].unique()}
 
 
-star_descriptions = {
-    3: "⭐⭐⭐ - Exceptional cuisine, worth a special journey",
-    2: "⭐⭐ - Excellent cooking, worth a detour",
-    1: "⭐ - High-quality cooking, worth a stop",
-    0.5: "- Bib Gourmand - Exceptionally good food at moderate prices"
-}
-
-
 # Initialize the Dash app
 server = Flask(__name__)
 app = dash.Dash(
@@ -65,11 +57,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 # App set up
@@ -77,7 +69,7 @@ app.title = 'Michelin Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),  # Tracks the url
-    html.Div(id='page-content', children=get_main_layout(unique_regions, star_descriptions))  # Set initial content
+    html.Div(id='page-content', children=get_main_layout(unique_regions))  # Set initial content
 ])
 
 
@@ -125,10 +117,10 @@ def update_map(selected_department, selected_region):
             mapbox_style="carto-positron",
             mapbox_center_lat=46.603354,  # Approximate latitude for France center
             mapbox_center_lon=1.888334,  # Approximate longitude for France center
-            margin={"r": 20, "t": 20, "l": 20, "b": 20},  # Remove margins
+            margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         )
 
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
