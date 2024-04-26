@@ -12,7 +12,7 @@ def get_main_layout(unique_regions, star_descriptions):
             "France is divided administratively into regions and departments.",
             html.Br(),  # Another line break for spacing if needed
             html.Br(),  # Add as many <br> as needed for desired spacing
-            "Select a region to see the Michelin-starred restaurants and their details."  # Instructional sentence
+            "Select a region to see the Michelin-starred restaurants by department."  # Instructional sentence
         ], className='title-description')],
         className='container-style'
     )
@@ -24,7 +24,8 @@ def get_main_layout(unique_regions, star_descriptions):
                 id='region-dropdown',
                 options=[{'label': region, 'value': region} for region in unique_regions],
                 value=unique_regions[0],  # Default value
-                className='dropdown-style'
+                className='dropdown-style',
+                clearable=False
             )),
             dbc.Col(dcc.Dropdown(
                 id='department-dropdown',
@@ -43,7 +44,10 @@ def get_main_layout(unique_regions, star_descriptions):
                 config={
                     'displayModeBar': True,
                     'scrollZoom': True,
-                    # Other config options...
+                    'modeBarButtonsToRemove': ['pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d',
+                                               'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian',
+                                               'toggleSpikelines', 'toImage'],
+                    'modeBarButtonsToAdd': ['zoom2d', 'resetScale2d']
                 }
             ))
         ])
