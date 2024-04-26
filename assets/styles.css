@@ -1,0 +1,66 @@
+/* Global styles */
+body {
+    font-family: 'Courier New', monospace;
+}
+
+/* General container styles */
+.container-style {
+    padding: 1rem;
+    margin: 1rem;
+    border: 1px solid #ccc; /* Optional: if you want a border around the containers */
+    border-radius: 0.5rem; /* Optional: if you desire rounded corners */
+    background-color: white; /* Optional: if you want a specific background */
+}
+
+/* Title styles */
+.title-section {
+    text-align: center;
+    color: black;
+    margin: auto;
+    margin-bottom: 20px;
+    flex: 1 0 auto;
+    min-width: 0;
+}
+
+/* Dropdown styles */
+.dropdown-style {
+    margin-bottom: 20px;
+}
+
+/* Map display styles */
+.map-display {
+    height: 80vh;
+    margin-bottom: 20px;
+}
+
+/* Star description styles */
+.star-descriptions-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.star-description-item {
+    display: flex;
+    align-items: center;  /* Centers the items vertically */
+    margin-bottom: 10px;
+}
+
+.star-description-text {
+    margin-left: 10px;  /* Gives some space between the image and the text */
+}
+
+.star-image {
+    width: 20px;  /* Or whatever size looks best */
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: 768px) {
+    .map-display {
+        height: 60vh;
+    }
+    .star-description-text {
+        font-size: 16px;
+    }
+}
+
