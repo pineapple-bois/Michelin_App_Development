@@ -40,7 +40,7 @@ def plot_regional_outlines(region_df, region):
         mapbox_zoom=5,  # Zoom level to show all of France
         mapbox_center_lat=46.603354,  # Approximate latitude for France center
         mapbox_center_lon=1.888334,  # Approximate longitude for France center
-        margin={"r":20,"t":20,"l":20,"b":20},  # Remove margins
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )
     return fig
@@ -118,7 +118,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         mapbox_zoom=8,
         mapbox_center_lat=dept_data['latitude'].mean(),
         mapbox_center_lon=dept_data['longitude'].mean(),
-        margin={"r": 20, "t": 20, "l": 20, "b": 20},  # Remove margins
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
     )
 
     return fig
