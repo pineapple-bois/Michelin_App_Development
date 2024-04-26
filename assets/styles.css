@@ -6,7 +6,7 @@ body {
 /* General container styles */
 .container-style {
     padding: 1rem;
-    background-color: #EAECEE; /* Optional: if you want a specific background */
+    background-color: #EAECEE;
 }
 
 /* Title styles */
@@ -14,8 +14,8 @@ body {
     text-align: center;
     color: black;
     font-weight: 600;
-    margin: auto;
-    margin-bottom: 10px;
+    /* margin: auto; */
+    margin-bottom: 5px;
     flex: 1 0 auto;
     min-width: 0;
 }
@@ -37,7 +37,7 @@ body {
 /* Map display styles */
 .map-display {
     height: 80vh;
-    margin-bottom: 5px;
+    margin-bottom: 0px;
 }
 
 /* Star description styles */
