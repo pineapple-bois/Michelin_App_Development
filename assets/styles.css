@@ -6,38 +6,45 @@ body {
 /* General container styles */
 .container-style {
     padding: 1rem;
-    margin: 1rem;
-    border: 1px solid #ccc; /* Optional: if you want a border around the containers */
-    border-radius: 0.5rem; /* Optional: if you desire rounded corners */
-    background-color: white; /* Optional: if you want a specific background */
+    background-color: #EAECEE; /* Optional: if you want a specific background */
 }
 
 /* Title styles */
 .title-section {
     text-align: center;
     color: black;
+    font-weight: 600;
     margin: auto;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     flex: 1 0 auto;
     min-width: 0;
 }
 
+/* Title description styles */
+.title-description {
+    text-align: center;
+    color: black; /* Or any color you prefer */
+    font-size: 1rem; /* Or any size you prefer */
+    margin-top: 0.5rem; /* Provides space between the title and description */
+    margin-bottom: 1rem; /* Extra space below the description before the next section */
+}
+
 /* Dropdown styles */
 .dropdown-style {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 /* Map display styles */
 .map-display {
     height: 80vh;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 /* Star description styles */
 .star-descriptions-container {
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 .star-description-item {
@@ -51,7 +58,7 @@ body {
 }
 
 .star-image {
-    width: 20px;  /* Or whatever size looks best */
+    width: 20px;
 }
 
 /* Responsive behavior for smaller screens */
