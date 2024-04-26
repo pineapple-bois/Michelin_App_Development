@@ -1,6 +1,9 @@
 /* Global styles */
 body {
     font-family: 'Courier New', monospace;
+    margin-top: 60px;
+    margin-left: 40px;
+    margin-right: 20px;
 }
 
 /* General container styles */
@@ -11,14 +14,17 @@ body {
 
 /* Title styles */
 .title-section {
-    text-align: center;
+    text-align: left;
     color: black;
     font-weight: 600;
-    /* margin: auto; */
-    margin-bottom: 5px;
     flex: 1 0 auto;
     min-width: 0;
 }
+
+.year-text {
+    color: red; /* Makes the year 2024 red */
+}
+
 
 /* Title description styles */
 .title-description {
@@ -31,7 +37,7 @@ body {
 
 /* Dropdown styles */
 .dropdown-style {
-    margin-bottom: 0px;
+    margin-bottom: 5px;
 }
 
 /* Map display styles */
@@ -40,26 +46,43 @@ body {
     margin-bottom: 0px;
 }
 
-/* Star description styles */
-.star-descriptions-container {
-    display: flex;
-    flex-direction: column;
-    margin-top: 5px;
+.michelin_star {
+    width: 20px;
+    vertical-align: middle;
 }
 
-.star-description-item {
-    display: flex;
-    align-items: center;  /* Centers the items vertically */
-    margin-bottom: 10px;
+.bib-image {
+    width: 20px;
+    vertical-align: middle;
+}
+
+.star-description-title {
+    font-weight: bold;
+    margin-bottom: 0; /* Remove bottom margin */
+    font-size: 16px; /* Adjust as needed */
 }
 
 .star-description-text {
-    margin-left: 10px;  /* Gives some space between the image and the text */
+    font-size: 14px; /* Smaller text for description */
+    color: #555; /* Darker grey for the description text */
+    margin-top: 4px; /* Space after the title */
 }
 
-.star-image {
-    width: 20px;
+.description-container,
+.instructions-container,
+.dropdown-container,
+.ratings-container {
+    margin-bottom: 20px; /* Adds space between the sections */
+    padding: 10px;
+    background-color: #f8f9fa; /* Light grey background for each container */
+    border-radius: 5px;
 }
+
+.sidebar-container {
+    display: flex;
+    flex-direction: column; /* Stack the containers vertically */
+}
+
 
 /* Responsive behavior for smaller screens */
 @media (max-width: 768px) {
