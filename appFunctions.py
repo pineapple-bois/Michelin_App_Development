@@ -101,7 +101,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
     # Modify the hover text function
     dept_data['hover_text'] = dept_data.apply(
         lambda row: f"<span style=\"font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: {text_color_map[row['stars']]};\">"
-                    f"<span style='font-size: 16px;'>{row['name']}</span><br>"
+                    f"<span style='font-size: 16px;'>{'🍽️' if row['stars'] == 0.5 else '★' * int(row['stars'])} {row['name']}</span><br>"
                     f"<span style='font-size: 13px;'>{row['cuisine']}</span><br>"
                     f"<span style='font-size: 13px;'>{row['price']}</span><br>"
                     f"<br>"
@@ -125,7 +125,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
             lat=subset['latitude'],
             lon=subset['longitude'],
             mode='markers',
-            marker=go.scattermapbox.Marker(size=9, color=color),
+            marker=go.scattermapbox.Marker(size=11, color=color),
             text=subset['hover_text'],
             hovertemplate='%{text}',
             name=label_name,
@@ -141,6 +141,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         ),
         width=800,
         height=600,
+        hoverdistance=40,
         mapbox_style="carto-positron",
         mapbox_zoom=8,
         mapbox_center_lat=dept_data['latitude'].mean(),
