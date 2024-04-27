@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 def michelin_star():
     return html.Img(src="https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg",
                     className='michelin-star',
-                    style={'width': '20px', 'vertical-align': 'middle'})
+                    style={'width': '20px', 'vertical-align': 'middle', 'margin-right': '3px'})
 
 
 def bib_gourmand():
@@ -48,7 +48,7 @@ def get_main_layout(unique_regions):
         dbc.Row([
             # First Column
             dbc.Col([
-                html.P([michelin_star(), michelin_star(), michelin_star(),],className='star-description-title'),
+                html.P([michelin_star(), michelin_star(), michelin_star()], className='star-description-title'),
                 html.P('Exceptional cuisine', className='star-description-title'),
                 html.P('Worth a special journey', className='star-description-text'),
                 html.Br(),
