@@ -9,7 +9,7 @@ body {
 /* General container styles */
 .container-style {
     padding: 1rem;
-    background-color: #EAECEE;
+    background-color: white/*#EAECEE*/;
 }
 
 /* Title styles */
@@ -26,22 +26,13 @@ body {
 }
 
 .year-text {
-    color: red; /* Makes the year 2024 red */
-}
-
-/* Title description styles */
-.title-description {
-    text-align: center;
-    color: black; /* Or any color you prefer */
-    font-size: 1rem; /* Or any size you prefer */
-    margin-top: 0.5rem; /* Provides space between the title and description */
-    margin-bottom: 1rem; /* Extra space below the description before the next section */
+    color: #C2282D;
 }
 
 /* Info container styles */
 .info-container {
     padding: 0;
-    background-color: #EAECEE; /* Or any color you prefer */
+    background-color: white/*#EAECEE*/;
     margin-top: 20px; /* Adds space between the map and the new div */
     display: flex; /* Use flexbox to align children horizontally */
     align-items: center; /* Vertically centers the children */
@@ -50,11 +41,7 @@ body {
 
 .info-image {
     /* Set width or height as needed, and add other styling */
-    margin-right: 1rem; /* Space between image and text */
-}
-
-.info-text {
-    margin-right: 0.25rem; /* Space between text and the link */
+    margin-right: 0.5rem; /* Space between image and text */
 }
 
 .info-link {
@@ -118,7 +105,7 @@ body {
 
 /* Ensure the sidebar has a defined background and matches the map height */
 .sidebar-container {
-    background-color: #EAECEE; /* Set the background color */
+    background-color: white/*#EAECEE*/; /* Set the background color */
     height: 80vh; /* Match the height of the map */
     display: flex;
     flex-direction: column;
@@ -137,7 +124,7 @@ body {
 .dropdown-container,
 .ratings-container {
     padding: 0; /* Remove padding */
-    background-color: #f8f9fa;
+    background-color: white/*#f8f9fa*/;
 }
 
 .ratings-container {
@@ -162,7 +149,7 @@ body {
 }
 
 .instructions-container {
-    margin-bottom: 90px;
+    margin-bottom: 100px;
 }
 
 .instructions {
