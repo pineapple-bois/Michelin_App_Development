@@ -128,7 +128,6 @@ body {
 }
 
 .ratings-container {
-    font-family: "Open Sans", sans-serif;
     margin-top: auto; /* Pushes the ratings container to the bottom */
     margin-bottom: 0; /* Ensures it lines up at the bottom */
     padding: 0;
