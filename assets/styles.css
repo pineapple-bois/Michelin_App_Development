@@ -18,9 +18,9 @@ body {
     font-size: 60px;
     text-align: left;
     margin-left: 12px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     color: black;
-    font-weight: 600;
+    font-weight: 400;
     flex: 1 0 auto;
     min-width: 0;
 }
@@ -48,6 +48,7 @@ body {
     /* Style your link */
     text-decoration: none; /* Optional: removes the underline from the link */
     color: #007bff; /* Bootstrap default link color, change as needed */
+    font-size: 12px;
 }
 
 .info-link:hover {
@@ -56,11 +57,14 @@ body {
 
 /* Smaller footer text within the info container */
 .info-footer {
-    font-size: 10px; /* Make the font size smaller */
+    font-size: 9px; /* Make the font size smaller */
     color: #555; /* A grey that is less prominent than the main text color */
     opacity: 0.7; /* Optional: make the text slightly transparent to be less prominent */
 }
 
+.info-text {
+    font-size: 12px;
+}
 
 /* Dropdown styles */
 .dropdown-style {
@@ -92,14 +96,14 @@ body {
 .star-description-title {
     font-weight: bold;
     font-size: 12px; /* Adjust as needed */
-    margin-top: 1px;
+    margin-top: 2px;
     margin-bottom: 0; /* Remove bottom margin */
 }
 
 .star-description-text {
     font-size: 10px; /* Smaller text for description */
     color: #555; /* Darker grey for the description text */
-    margin-top: 2px; /* Space after the title */
+    margin-top: 0px; /* Space after the title */
     margin-bottom: 0; /* Remove bottom margin */
 }
 
