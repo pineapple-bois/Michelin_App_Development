@@ -14,11 +14,29 @@ def bib_gourmand():
                     style={'width': '20px', 'vertical-align': 'middle'})
 
 
+def get_info_div():
+    return html.Div(
+        children=[
+            html.Img(src="assets/github-mark.png", className='info-image', style={'width': '30px'}),
+            html.Span("The Michelin Guide to France was built from this ", className='info-text'),
+            dcc.Link("GitHub Repository", href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
+                     target="_blank", className='info-link')
+        ],
+        className='info-container',
+        style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'flex-start', 'padding': '1rem'}
+    )
+
+
 def get_main_layout(unique_regions):
     # Title Section with Container Style
     title_section = html.Div(children=[
         html.H1(["Michelin Guide to France. ", html.Span("2024", className='year-text')], className='title-section')
     ], className='container-style')
+
+    # Footer Section
+    footer_section = html.Div(children=[
+        get_info_div()
+    ], className='footer-section', style={'width': '100%'})
 
     ratings_layout = html.Div([
         dbc.Row([
@@ -96,5 +114,6 @@ def get_main_layout(unique_regions):
     # Combine all sections into the main layout
     return html.Div([
         title_section,
-        map_and_star_section  # Replace map_display_section with map_and_star_section
+        map_and_star_section,  # Replace map_display_section with map_and_star_section
+        footer_section
     ])

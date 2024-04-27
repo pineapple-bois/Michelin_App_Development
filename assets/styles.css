@@ -1,7 +1,7 @@
 /* Global styles */
 body {
     font-family: 'Courier New', monospace;
-    margin-top: 60px;
+    margin-top: 70px;
     margin-left: 50px;
     margin-right: 50px;
 }
@@ -34,6 +34,35 @@ body {
     font-size: 1rem; /* Or any size you prefer */
     margin-top: 0.5rem; /* Provides space between the title and description */
     margin-bottom: 1rem; /* Extra space below the description before the next section */
+}
+
+/* Info container styles */
+.info-container {
+    padding: 0;
+    background-color: #EAECEE; /* Or any color you prefer */
+    margin-top: 10px; /* Adds space between the map and the new div */
+    display: flex; /* Use flexbox to align children horizontally */
+    align-items: center; /* Vertically centers the children */
+    justify-content: flex-start; /* Aligns children to the left */
+}
+
+.info-image {
+    /* Set width or height as needed, and add other styling */
+    margin-right: 1rem; /* Space between image and text */
+}
+
+.info-text {
+    margin-right: 0.5rem; /* Space between text and the link */
+}
+
+.info-link {
+    /* Style your link */
+    text-decoration: none; /* Optional: removes the underline from the link */
+    color: #007bff; /* Bootstrap default link color, change as needed */
+}
+
+.info-link:hover {
+    text-decoration: underline; /* Underline on hover for clarity */
 }
 
 /* Dropdown styles */
