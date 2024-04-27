@@ -1,7 +1,7 @@
 /* Global styles */
 body {
     font-family: 'Libre Franklin', sans-serif;
-    margin-top: 70px;
+    margin-top: 20px;
     margin-left: 50px;
     margin-right: 50px;
 }
@@ -33,7 +33,7 @@ body {
 .info-container {
     padding: 0;
     background-color: white/*#EAECEE*/;
-    margin-top: 20px; /* Adds space between the map and the new div */
+    margin-top: 10px; /* Adds space between the map and the new div */
     display: flex; /* Use flexbox to align children horizontally */
     align-items: center; /* Vertically centers the children */
     justify-content: flex-start; /* Aligns children to the left */
