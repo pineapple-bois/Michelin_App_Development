@@ -18,9 +18,15 @@ def get_info_div():
     return html.Div(
         children=[
             html.Img(src="assets/github-mark.png", className='info-image', style={'width': '30px'}),
-            html.Span("The Michelin Guide to France was built from this ", className='info-text'),
-            dcc.Link("GitHub Repository", href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
-                     target="_blank", className='info-link')
+            html.Div(
+                children=[
+                    html.Span("The Michelin Guide to France was built from this ", className='info-text'),
+                    dcc.Link("GitHub Repository", href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
+                             target="_blank", className='info-link'),
+                    html.Div("© pineapple-bois 2024", className='info-footer')
+                ],
+                style={'flexDirection': 'column'}  # This will stack the text and the new line on top of each other
+            )
         ],
         className='info-container',
         style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'flex-start', 'padding': '1rem'}
@@ -88,7 +94,7 @@ def get_main_layout(unique_regions):
 
                 # Container for Region Dropdown
                 html.Div([
-                    html.H6("Select a Region", className='regions-title'),
+                    html.H6("Select a Region", className='dropdown-title'),
                     dcc.Dropdown(
                         id='region-dropdown',
                         options=[{'label': region, 'value': region} for region in unique_regions],
@@ -100,7 +106,7 @@ def get_main_layout(unique_regions):
 
                 # Container for Department Dropdown
                 html.Div([
-                    html.H6("Select a Department", className='departments-title'),
+                    html.H6("Select a Department", className='dropdown-title'),
                     dcc.Dropdown(
                         id='department-dropdown',
                         className='dropdown-style'

@@ -1,6 +1,6 @@
 /* Global styles */
 body {
-    font-family: 'Courier New', monospace;
+    font-family: 'Libre Franklin', sans-serif;
     margin-top: 70px;
     margin-left: 50px;
     margin-right: 50px;
@@ -14,8 +14,11 @@ body {
 
 /* Title styles */
 .title-section {
+    font-family: "Kaisei Decol", serif;
+    font-size: 60px;
     text-align: left;
     margin-left: 12px;
+    margin-bottom: 40px;
     color: black;
     font-weight: 600;
     flex: 1 0 auto;
@@ -25,7 +28,6 @@ body {
 .year-text {
     color: red; /* Makes the year 2024 red */
 }
-
 
 /* Title description styles */
 .title-description {
@@ -40,7 +42,7 @@ body {
 .info-container {
     padding: 0;
     background-color: #EAECEE; /* Or any color you prefer */
-    margin-top: 10px; /* Adds space between the map and the new div */
+    margin-top: 20px; /* Adds space between the map and the new div */
     display: flex; /* Use flexbox to align children horizontally */
     align-items: center; /* Vertically centers the children */
     justify-content: flex-start; /* Aligns children to the left */
@@ -52,7 +54,7 @@ body {
 }
 
 .info-text {
-    margin-right: 0.5rem; /* Space between text and the link */
+    margin-right: 0.25rem; /* Space between text and the link */
 }
 
 .info-link {
@@ -64,6 +66,14 @@ body {
 .info-link:hover {
     text-decoration: underline; /* Underline on hover for clarity */
 }
+
+/* Smaller footer text within the info container */
+.info-footer {
+    font-size: 10px; /* Make the font size smaller */
+    color: #555; /* A grey that is less prominent than the main text color */
+    opacity: 0.7; /* Optional: make the text slightly transparent to be less prominent */
+}
+
 
 /* Dropdown styles */
 .dropdown-style {
@@ -94,14 +104,16 @@ body {
 
 .star-description-title {
     font-weight: bold;
+    font-size: 12px; /* Adjust as needed */
+    margin-top: 1px;
     margin-bottom: 0; /* Remove bottom margin */
-    font-size: 16px; /* Adjust as needed */
 }
 
 .star-description-text {
-    font-size: 14px; /* Smaller text for description */
+    font-size: 10px; /* Smaller text for description */
     color: #555; /* Darker grey for the description text */
-    margin-top: 4px; /* Space after the title */
+    margin-top: 2px; /* Space after the title */
+    margin-bottom: 0; /* Remove bottom margin */
 }
 
 /* Ensure the sidebar has a defined background and matches the map height */
@@ -126,13 +138,17 @@ body {
 .ratings-container {
     padding: 0; /* Remove padding */
     background-color: #f8f9fa;
-    /*border-radius: 10px;*/
 }
 
 .ratings-container {
+    font-family: "Open Sans", sans-serif;
     margin-top: auto; /* Pushes the ratings container to the bottom */
     margin-bottom: 0; /* Ensures it lines up at the bottom */
     padding: 0;
+}
+
+.ratings-row {
+    margin-bottom: 0; /* Ensures it lines up at the bottom */
 }
 
 /* Description and instructions containers */
@@ -140,8 +156,23 @@ body {
     margin-bottom: 30px;
 }
 
+.site-description {
+    font-size: 25px;
+    font-weight: 700;
+}
+
 .instructions-container {
     margin-bottom: 90px;
+}
+
+.instructions {
+    font-size: 16px;
+    font-weight: 300;
+}
+
+.dropdown-title {
+    font-size: 16px;
+    font-weight: 700;
 }
 
 /* Dropdown containers */
