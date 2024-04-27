@@ -1,6 +1,8 @@
 import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
+from dash import html, dcc
+from layouts.layout_main import michelin_star, bib_gourmand
 
 
 def plot_regional_outlines(region_df, region):
@@ -78,30 +80,55 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                     showlegend=False
                 ))
 
-    # Define custom color map based on stars, including Bibs
-    color_map = {0.5: "green", 1: "yellow", 2: "orange", 3: "red"}
+    # Tooltip section
+    color_map = {
+        0.5: "#640A64",
+        1: "#FFB84D",
+        2: "#FE6F64",
+        3: "#C2282D"  # (r, g, b, opacity)
+    }
+
+    text_color_map = {
+        0.5: "#FFB84D",
+        1: "#640A64",
+        2: "#640A64",
+        3: "#FFB84D"
+    }
+
     dept_data = data_df[(data_df['department_num'] == str(department_code)) & (data_df['stars'].isin(selected_stars))].copy()
     dept_data['color'] = dept_data['stars'].map(color_map)
 
     # Modify the hover text function
     dept_data['hover_text'] = dept_data.apply(
-        lambda row: f"<span style='font-family: Courier New, monospace;'><b>{row['name']}</b><br>{'⭐' * int(row['stars']) if row['stars'] != 0.5 else 'Bib Gourmand'}<br>"
-                    f"Address: {row['address']}<br>Location: {row['location']}<br>Cuisine: {row['cuisine']}<br>"
-                    f"<a href='{row['url']}' target='_blank' style='font-family: Courier New, monospace;'>Visit website</a><br>"
-                    f"Price: {row['price']}</span>",
+        lambda row: f"<span style=\"font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: {text_color_map[row['stars']]};\">"
+                    f"<span style='font-size: 16px;'>{row['name']}</span><br>"
+                    f"<span style='font-size: 13px;'>{row['cuisine']}</span><br>"
+                    f"<span style='font-size: 13px;'>{row['price']}</span><br>"
+                    f"<br>"
+                    f"{row['address']}, {row['location']}<br>"
+                    f"<br>"
+                    f"<a href='{row['url']}' target='_blank' style='font-family: Libre Franklin, sans-serif; font-size: 15px; color: {text_color_map[row['stars']]};'>Visit website</a><br>",
         axis=1
     )
 
     # Overlay restaurant points without adding them to the legend
     for star, color in color_map.items():
         subset = dept_data[dept_data['stars'] == star]
+
+        # Adjust hover text for Bib Gourmand
+        if star == 0.5:
+            label_name = '🍽️'
+        else:
+            label_name = f"{'★' * int(star)}"
+
         fig.add_trace(go.Scattermapbox(
             lat=subset['latitude'],
             lon=subset['longitude'],
             mode='markers',
-            marker=go.scattermapbox.Marker(size=10, color=color),
+            marker=go.scattermapbox.Marker(size=9, color=color),
             text=subset['hover_text'],
-            hovertemplate='%{text}<extra></extra>',  # This hides the trace name from the hover label
+            hovertemplate='%{text}',
+            name=label_name,
             showlegend=False  # This ensures that the trace isn't added to the legend
         ))
 
