@@ -52,7 +52,9 @@ region_to_name = {region: region for region in geo_df['region'].unique()}
 server = Flask(__name__)
 app = dash.Dash(
     __name__,
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[dbc.themes.BOOTSTRAP,
+                          "https://fonts.googleapis.com/css2?family=Kaisei+Decol&display=swap",
+                          "https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"],
     server=server)
 
 
