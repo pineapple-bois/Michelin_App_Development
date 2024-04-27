@@ -76,7 +76,13 @@ def get_main_layout(unique_regions):
                 id='map-display',
                 responsive=True,
                 className='map-display',
-                # ... [graph config]
+                config={
+                    'displayModeBar': True,
+                    'scrollZoom': True,
+                    'modeBarButtonsToRemove': ['pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d',
+                                               'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian',
+                                               'toggleSpikelines', 'toImage'],
+                    'modeBarButtonsToAdd': ['zoom2d', 'resetScale2d']}
             ), width=8),  # Set width as needed
             dbc.Col([
                 # Container for Site Description
