@@ -2,8 +2,8 @@
 body {
     font-family: 'Courier New', monospace;
     margin-top: 60px;
-    margin-left: 40px;
-    margin-right: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
 /* General container styles */
@@ -15,6 +15,7 @@ body {
 /* Title styles */
 .title-section {
     text-align: left;
+    margin-left: 12px;
     color: black;
     font-weight: 600;
     flex: 1 0 auto;
@@ -41,9 +42,15 @@ body {
 }
 
 /* Map display styles */
-.map-display {
+.map-display,
+.sidebar-container {
     height: 80vh;
-    margin-bottom: 0px;
+    padding: 0;
+    margin: 0;
+}
+
+.map-display {
+    margin-right: 20px;
 }
 
 .michelin_star {
@@ -68,21 +75,54 @@ body {
     margin-top: 4px; /* Space after the title */
 }
 
+/* Ensure the sidebar has a defined background and matches the map height */
+.sidebar-container {
+    background-color: #EAECEE; /* Set the background color */
+    height: 80vh; /* Match the height of the map */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures the top content aligns with the top and the bottom content with the bottom */
+}
+
+/* Remove any padding and margin that might push the content out of the sidebar */
+.sidebar-container > * {
+    padding: 0;
+    margin: 0; /* Remove margins to make sure content does not "spill" out */
+}
+
+/* Remove padding and margin from the containers */
 .description-container,
 .instructions-container,
 .dropdown-container,
 .ratings-container {
-    margin-bottom: 20px; /* Adds space between the sections */
-    padding: 10px;
-    background-color: #f8f9fa; /* Light grey background for each container */
-    border-radius: 5px;
+    padding: 0; /* Remove padding */
+    background-color: #f8f9fa;
+    /*border-radius: 10px;*/
 }
 
-.sidebar-container {
-    display: flex;
-    flex-direction: column; /* Stack the containers vertically */
+.ratings-container {
+    margin-top: auto; /* Pushes the ratings container to the bottom */
+    margin-bottom: 0; /* Ensures it lines up at the bottom */
+    padding: 0;
 }
 
+/* Description and instructions containers */
+.description-container {
+    margin-bottom: 30px;
+}
+
+.instructions-container {
+    margin-bottom: 90px;
+}
+
+/* Dropdown containers */
+.dropdown-container {
+    margin-bottom: 20px; /* Add some space between dropdowns */
+}
+
+.container-style {
+    padding: 0; /* If you want to remove padding globally */
+}
 
 /* Responsive behavior for smaller screens */
 @media (max-width: 768px) {

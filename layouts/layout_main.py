@@ -91,7 +91,7 @@ def get_main_layout(unique_regions):
                 ratings_layout
             ], className='sidebar-container', width=4)
         ])
-    ], className='container-style')
+    ], className='sidebar-container')
 
     # Combine all sections into the main layout
     return html.Div([
