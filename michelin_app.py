@@ -14,8 +14,8 @@ from appFunctions import plot_regional_outlines, plot_interactive_department, ge
 
 
 # # FOR LOCAL DEVELOPMENT ONLY - RISK MAN-IN-MIDDLE ATTACKS
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
+# import ssl
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 
 # Load restaurant data
@@ -59,11 +59,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-# @server.before_request
-# def before_request():
-#     if not request.is_secure:
-#         url = request.url.replace('http://', 'https://', 1)
-#         return redirect(url, code=301)
+@server.before_request
+def before_request():
+    if not request.is_secure:
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
 
 
 # App set up
@@ -148,4 +148,4 @@ def update_sidebar(clickData, selected_department):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
