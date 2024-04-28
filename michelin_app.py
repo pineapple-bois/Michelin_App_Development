@@ -125,19 +125,25 @@ def update_map(selected_department, selected_region):
 
 @app.callback(
     Output('restaurant-details', 'children'),
-    Input('map-display', 'clickData')
+    [Input('map-display', 'clickData'),
+     Input('department-dropdown', 'value')]  # Include department dropdown as a trigger
 )
-def update_sidebar(clickData):
-    if clickData is None or 'points' not in clickData or not clickData['points']:
-        return "Select a restaurant to see more details"
+def update_sidebar(clickData, selected_department):
+    ctx = dash.callback_context
 
-    # Extract the index from clickData
-    restaurant_index = clickData['points'][0]['customdata']
-    # Use the index to retrieve the corresponding row from your dataframe
-    restaurant_info = all_france.loc[restaurant_index]
+    # Check if the callback was triggered by a department change and if it's cleared
+    if not selected_department:
+        return "Select a department to view restaurants."
 
-    # Call the function to generate the details layout
-    return get_restaurant_details(restaurant_info)
+    # If there's a map click and it contains valid data, update the details
+    if ctx.triggered[0]['prop_id'] == 'map-display.clickData' and clickData:
+        if 'points' in clickData and clickData['points']:
+            restaurant_index = clickData['points'][0]['customdata']
+            restaurant_info = all_france.loc[restaurant_index]
+            return get_restaurant_details(restaurant_info)
+
+    # Default message if no restaurant is selected yet
+    return "Select a restaurant to see more details"
 
 
 # For local development, debug=True
