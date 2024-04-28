@@ -67,7 +67,14 @@ def get_restaurant_details(row):
     price = row['price']
     address = row['address']
     location = row['location']
+    arrondissement = row['arrondissement']
     website_url = row['url']
+
+    # Create the address information with a conditional for Paris arrondissements
+    if row['department_num'] == '75':
+        location_info = html.Span(f"{arrondissement}, {location}", className='restaurant-location')
+    else:
+        location_info = html.Span(f"{location}", className='restaurant-location')
 
     # Determine if it's a Bib Gourmand or how many Michelin stars
     if stars == 0.5:
@@ -80,7 +87,7 @@ def get_restaurant_details(row):
         html.Div([
             html.Div([
                 html.Span(name, className='restaurant-name'),
-                html.Span(star_component, className='restaurant-stars'),  # Use Span for in-line display
+                html.Span(star_component, className='restaurant-stars'),
             ], className='details-header'),
             html.Div([
                 html.Span(f"{cuisine}", className='restaurant-cuisine')
@@ -94,7 +101,7 @@ def get_restaurant_details(row):
                 html.Span(f"{address}", className='restaurant-address')
             ], className='details-address'),
             html.Div([
-                html.Span(f"{location}", className='restaurant-location')
+                location_info
             ], className='details-location'),
         ], className='address-info'),
         html.Div([
@@ -106,6 +113,9 @@ def get_restaurant_details(row):
 
 
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
+    # Before plotting, determine the correct zoom level
+    zoom = 11 if department_code == '75' else 8  # Extra zoom for Paris
+
     # Initialize a blank figure
     fig = go.Figure()
     fig.update_layout(autosize=True)
@@ -161,7 +171,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                     f"<span style='font-size: 16px;'>{'🍽️' if row['stars'] == 0.5 else '★' * int(row['stars'])} {row['name']}</span><br>"
                     f"{row['location']}<br>"
                     f"<br>"
-                    f"<span style='font-size: 12px;'>Click for more info</span><br>",
+                    f"<span style='font-size: 10px;'>Click for more info</span><br>",
         axis=1
     )
 
@@ -198,7 +208,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         height=600,
         hoverdistance=20,
         mapbox_style="carto-positron",
-        mapbox_zoom=8,
+        mapbox_zoom=zoom,
         mapbox_center_lat=dept_data['latitude'].mean(),
         mapbox_center_lon=dept_data['longitude'].mean(),
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
