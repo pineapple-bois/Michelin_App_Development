@@ -122,6 +122,13 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* Ensures the top content aligns with the top and the bottom content with the bottom */
+    width: 30%;
+    float: right;  /* Align sidebar to the left */
+}
+
+.map-section {
+    width: 70%;
+    float: right;  /* Main content map on the right */
 }
 
 .sidebar-container > * {
@@ -240,12 +247,66 @@ body {
 /* -------------------------
    Responsive Styles
    ------------------------- */
+
+/* Mobile Devices */
 @media (max-width: 768px) {
-    .map-display {
-        height: 60vh;
+
+    body {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
     }
-    .star-description-text {
-        font-size: 16px;
+
+    .sidebar-container,
+    .map-section {
+        width: 100%;
+        float: none;
+        order: 3;  /* Adjust order if necessary based on other content */
+        height: auto; /* Allow container to fit content on mobile */
+        flex-direction: column; /* Stack children vertically */
+    }
+
+    .title-section,
+    .description-container,
+    .instructions-container,
+    .dropdown-container,
+    .restaurant-details-container {
+        order: 1;  /* Top section appears above everything else */
+    }
+
+    .map-section {
+        order: 2;
+    }
+
+    .map-display {
+        height: 50vh;
+    }
+
+    .ratings-container {
+        order: 3;
+        margin-top: 10px;
+    }
+
+    .description-container, .instructions-container {
+        margin-bottom: 5px; /* Reduce space between sections for compactness */
+    }
+
+    .dropdown-container {
+        margin-bottom: 10px; /* Consistent spacing between dropdowns and other content */
+    }
+    .dropdown-title .dropdown-style {
+        font-size: 10px;
+    }
+
+    .title-section {
+        font-size: 30px; /* Reduce title size for smaller screens */
+        margin-left: 0;
+        margin-bottom: 20px;
+    }
+
+    .site-description, .instructions {
+        font-size: 14px; /* Smaller text for descriptions and instructions */
     }
 }
+
 
