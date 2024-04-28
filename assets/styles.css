@@ -1,4 +1,6 @@
-/* Global styles */
+/* -------------------------
+   Global Styles
+   ------------------------- */
 body {
     font-family: 'Libre Franklin', sans-serif;
     margin-top: 20px;
@@ -6,13 +8,17 @@ body {
     margin-right: 50px;
 }
 
-/* General container styles */
+/* -------------------------
+   General Container Styles
+   ------------------------- */
 .container-style {
     padding: 1rem;
-    background-color: #EAECEE;
+    background-color: white/*#EAECEE*/;
 }
 
-/* Title styles */
+/* -------------------------
+   Title and Year Text Styles
+   ------------------------- */
 .title-section {
     font-family: "Kaisei Decol", serif;
     font-size: 60px;
@@ -29,7 +35,9 @@ body {
     color: #C2282D;
 }
 
-/* Info container styles */
+/* -------------------------
+   Info Container Styles
+   ------------------------- */
 .info-container {
     padding: 0;
     background-color: white/*#EAECEE*/;
@@ -40,14 +48,12 @@ body {
 }
 
 .info-image {
-    /* Set width or height as needed, and add other styling */
     margin-right: 0.5rem; /* Space between image and text */
 }
 
 .info-link {
-    /* Style your link */
     text-decoration: none; /* Optional: removes the underline from the link */
-    color: #007bff; /* Bootstrap default link color, change as needed */
+    color: #007bff; /* Bootstrap default link color */
     font-size: 12px;
 }
 
@@ -55,23 +61,26 @@ body {
     text-decoration: underline; /* Underline on hover for clarity */
 }
 
-/* Smaller footer text within the info container */
 .info-footer {
-    font-size: 9px; /* Make the font size smaller */
+    font-size: 9px;
     color: #555; /* A grey that is less prominent than the main text color */
-    opacity: 0.7; /* Optional: make the text slightly transparent to be less prominent */
+    opacity: 0.7; /* make the text slightly transparent to be less prominent */
 }
 
 .info-text {
     font-size: 12px;
 }
 
-/* Dropdown styles */
+/* -------------------------
+   Dropdown Styles
+   ------------------------- */
 .dropdown-style {
     margin-bottom: 5px;
 }
 
-/* Map display styles */
+/* -------------------------
+   Map and Sidebar Styles
+   ------------------------- */
 .map-display,
 .sidebar-container {
     height: 80vh;
@@ -107,29 +116,26 @@ body {
     margin-bottom: 0; /* Remove bottom margin */
 }
 
-/* Ensure the sidebar has a defined background and matches the map height */
 .sidebar-container {
-    background-color: #EAECEE; /* Set the background color */
+    background-color: white; /*#EAECEE; /* Set the background color */
     height: 80vh; /* Match the height of the map */
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* Ensures the top content aligns with the top and the bottom content with the bottom */
 }
 
-/* Remove any padding and margin that might push the content out of the sidebar */
 .sidebar-container > * {
     padding: 0;
     margin: 0; /* Remove margins to make sure content does not "spill" out */
 }
 
-/* Remove padding and margin from the containers */
 .description-container,
 .instructions-container,
 .dropdown-container,
 .ratings-container,
 .restaurant-details-container{
     padding: 0; /* Remove padding */
-    background-color: #f8f9fa;
+    background-color: white;/*#f8f9fa*/;
 }
 
 .ratings-container {
@@ -142,7 +148,9 @@ body {
     margin-bottom: 0; /* Ensures it lines up at the bottom */
 }
 
-/* Description and instructions containers */
+/* -------------------------
+   Description and Instructions Styles
+   ------------------------- */
 .description-container {
     margin-bottom: 30px;
 }
@@ -166,15 +174,17 @@ body {
     font-weight: 700;
 }
 
-/* Dropdown containers */
 .dropdown-container {
     margin-bottom: 20px; /* Add some space between dropdowns */
 }
 
-/* RESTAURANT INFO STYLES */
+/* -------------------------
+   Restaurant Details Styles
+   ------------------------- */
 
 /* General styles for the restaurant details container */
-.restaurant-details {
+.restaurant-details-container {
+    margin-bottom: 20px;
 }
 
 /* Header section containing the name and stars */
@@ -227,7 +237,9 @@ body {
     padding: 0; /* If you want to remove padding globally */
 }
 
-/* Responsive behavior for smaller screens */
+/* -------------------------
+   Responsive Styles
+   ------------------------- */
 @media (max-width: 768px) {
     .map-display {
         height: 60vh;
