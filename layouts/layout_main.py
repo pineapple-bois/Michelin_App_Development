@@ -34,15 +34,9 @@ def get_info_div():
 
 
 def get_main_layout(unique_regions):
-    # Title Section with Container Style
     title_section = html.Div(children=[
         html.H1(["Michelin Guide to France. ", html.Span("2024", className='year-text')], className='title-section')
     ], className='container-style')
-
-    # Footer Section
-    footer_section = html.Div(children=[
-        get_info_div()
-    ], className='footer-section', style={'width': '100%'})
 
     ratings_layout = html.Div([
         dbc.Row([
@@ -51,7 +45,7 @@ def get_main_layout(unique_regions):
                 html.P([michelin_star(), michelin_star(), michelin_star()], className='star-description-title'),
                 html.P('Exceptional cuisine', className='star-description-title'),
                 html.P('Worth a special journey', className='star-description-text'),
-                html.Br(),
+                #html.Br(),
                 html.P(michelin_star(), className='star-description-title'),
                 html.P('High-quality cooking', className='star-description-title'),
                 html.P('Worth a stop', className='star-description-text'),
@@ -61,18 +55,39 @@ def get_main_layout(unique_regions):
                 html.P([michelin_star(), michelin_star()], className='star-description-title'),
                 html.P('Excellent cooking', className='star-description-title'),
                 html.P('Worth a detour', className='star-description-text'),
-                html.Br(),
+                #html.Br(),
                 html.P([bib_gourmand()], className='star-description-title'),
                 html.P('Bib Gourmand', className='star-description-title'),
                 html.P('Exceptionally good food at moderate prices', className='star-description-text'),
             ], width=6)
-        ], className='ratings-row')
+        ])
     ], className='ratings-container')
 
-    # New Container Section with Map and Star Ratings Side by Side
-    map_and_star_section = html.Div([
-        dbc.Row([
-            dbc.Col(dcc.Graph(
+    # Sidebar content, includes all controls and additional information
+    sidebar_content = html.Div([
+        html.Div([
+            html.H5("Explore the finest culinary destinations in France, as reviewed by Michelin.", className='site-description')
+        ], className='description-container'),
+
+        html.Div([
+            html.P("France is divided administratively into regions and departments. Select a region to see the Michelin-rated restaurants by department.", className='instructions')
+        ], className='instructions-container'),
+
+        html.Div([
+            html.H6("Select a Region", className='dropdown-title'),
+            dcc.Dropdown(id='region-dropdown', options=[{'label': region, 'value': region} for region in unique_regions], value=unique_regions[0], className='dropdown-style', clearable=False),
+            html.H6("Select a Department", className='dropdown-title'),
+            dcc.Dropdown(id='department-dropdown', className='dropdown-style')
+        ], className='dropdown-container'),
+
+        html.Div(id='restaurant-details', children=[
+            html.P("Select a restaurant on the map to view details here.", className='placeholder-text'),
+        ], className='restaurant-details-container'),
+        ratings_layout
+    ], className='sidebar-container')
+
+    map_section = html.Div([
+        dcc.Graph(
                 id='map-display',
                 responsive=True,
                 className='map-display',
@@ -82,56 +97,20 @@ def get_main_layout(unique_regions):
                     'modeBarButtonsToRemove': ['pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d',
                                                'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian',
                                                'toggleSpikelines', 'toImage'],
-                    'modeBarButtonsToAdd': ['zoom2d', 'resetScale2d']}
-            ), width=8),  # Set width as needed
-            dbc.Col([
-                # Container for Site Description
-                html.Div([
-                    html.H5("Explore the finest culinary destinations in France, as reviewed by Michelin.",
-                            className='site-description')
-                ], className='description-container'),
+                    'modeBarButtonsToAdd': ['zoom2d', 'resetScale2d']
+                }
+            )
+    ], className='map-section')
 
-                # Container for Instructions
-                html.Div([
-                    html.P("France is divided administratively into regions and departments. "
-                           "Select a region to see the Michelin-rated restaurants by department.",
-                           className='instructions')
-                ], className='instructions-container'),
-
-                # Container for Region Dropdown
-                html.Div([
-                    html.H6("Select a Region", className='dropdown-title'),
-                    dcc.Dropdown(
-                        id='region-dropdown',
-                        options=[{'label': region, 'value': region} for region in unique_regions],
-                        value=unique_regions[0],  # Default value
-                        className='dropdown-style',
-                        clearable=False
-                    )
-                ], className='dropdown-container'),
-
-                # Container for Department Dropdown
-                html.Div([
-                    html.H6("Select a Department", className='dropdown-title'),
-                    dcc.Dropdown(
-                        id='department-dropdown',
-                        className='dropdown-style'
-                    )
-                ], className='dropdown-container'),
-
-                # Placeholder container for restaurant details
-                html.Div(id='restaurant-details', children=[
-                    html.P("Select a restaurant on the map to view details here.", className='placeholder-text'),
-                ], className='restaurant-details-container'),
-
-                ratings_layout
-            ], className='sidebar-container', width=4)
-        ])
-    ], className='sidebar-container')
+    # Footer Section
+    footer_section = html.Div(children=[
+        get_info_div()
+    ], className='footer-section', style={'width': '100%'})
 
     # Combine all sections into the main layout
     return html.Div([
         title_section,
-        map_and_star_section,  # Replace map_display_section with map_and_star_section
+        sidebar_content,  # Sidebar contains top section and ratings details
+        map_section,
         footer_section
-    ])
+    ], className='main-layout')
