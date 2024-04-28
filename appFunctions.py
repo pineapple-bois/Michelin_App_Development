@@ -114,7 +114,7 @@ def get_restaurant_details(row):
 
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
     # Before plotting, determine the correct zoom level
-    zoom = 11 if department_code == '75' else 8  # Extra zoom for Paris
+    zoom = 12 if department_code == '75' else 8  # Extra zoom for Paris
 
     # Initialize a blank figure
     fig = go.Figure()
@@ -206,6 +206,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         ),
         width=800,
         height=600,
+        hovermode='closest',  # This changes the cursor on hover
         hoverdistance=20,
         mapbox_style="carto-positron",
         mapbox_zoom=zoom,
