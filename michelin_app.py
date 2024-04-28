@@ -7,15 +7,15 @@ import json
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html, callback_context
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from flask import Flask, redirect, request
 from layouts.layout_main import get_main_layout
-from appFunctions import plot_regional_outlines, plot_interactive_department
+from appFunctions import plot_regional_outlines, plot_interactive_department, get_restaurant_details
 
 
 # # FOR LOCAL DEVELOPMENT ONLY - RISK MAN-IN-MIDDLE ATTACKS
-# import ssl
-# ssl._create_default_https_context = ssl._create_unverified_context
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 # Load restaurant data
@@ -59,11 +59,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 # App set up
@@ -123,6 +123,23 @@ def update_map(selected_department, selected_region):
         )
 
 
+@app.callback(
+    Output('restaurant-details', 'children'),
+    Input('map-display', 'clickData')
+)
+def update_sidebar(clickData):
+    if clickData is None or 'points' not in clickData or not clickData['points']:
+        return "Select a restaurant to see more details"
+
+    # Extract the index from clickData
+    restaurant_index = clickData['points'][0]['customdata']
+    # Use the index to retrieve the corresponding row from your dataframe
+    restaurant_info = all_france.loc[restaurant_index]
+
+    # Call the function to generate the details layout
+    return get_restaurant_details(restaurant_info)
+
+
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
