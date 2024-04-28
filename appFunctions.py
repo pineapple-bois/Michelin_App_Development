@@ -114,7 +114,7 @@ def get_restaurant_details(row):
 
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
     # Before plotting, determine the correct zoom level
-    zoom = 12 if department_code == '75' else 8  # Extra zoom for Paris
+    zoom = 11 if department_code == '75' else 8  # Extra zoom for Paris
 
     # Initialize a blank figure
     fig = go.Figure()
