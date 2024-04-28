@@ -94,7 +94,7 @@ def get_main_layout(unique_regions):
                 # Container for Instructions
                 html.Div([
                     html.P("France is divided administratively into regions and departments. "
-                           "Select a region to see the Michelin-starred restaurants by department.",
+                           "Select a region to see the Michelin-rated restaurants by department.",
                            className='instructions')
                 ], className='instructions-container'),
 
@@ -118,6 +118,12 @@ def get_main_layout(unique_regions):
                         className='dropdown-style'
                     )
                 ], className='dropdown-container'),
+
+                # Placeholder container for restaurant details
+                html.Div(id='restaurant-details', children=[
+                    html.P("Select a restaurant on the map to view details here.", className='placeholder-text'),
+                ], className='restaurant-details-container'),
+
                 ratings_layout
             ], className='sidebar-container', width=4)
         ])

@@ -9,7 +9,7 @@ body {
 /* General container styles */
 .container-style {
     padding: 1rem;
-    background-color: white/*#EAECEE*/;
+    background-color: #EAECEE;
 }
 
 /* Title styles */
@@ -109,7 +109,7 @@ body {
 
 /* Ensure the sidebar has a defined background and matches the map height */
 .sidebar-container {
-    background-color: white/*#EAECEE*/; /* Set the background color */
+    background-color: #EAECEE; /* Set the background color */
     height: 80vh; /* Match the height of the map */
     display: flex;
     flex-direction: column;
@@ -126,9 +126,10 @@ body {
 .description-container,
 .instructions-container,
 .dropdown-container,
-.ratings-container {
+.ratings-container,
+.restaurant-details-container{
     padding: 0; /* Remove padding */
-    background-color: white/*#f8f9fa*/;
+    background-color: #f8f9fa;
 }
 
 .ratings-container {
@@ -152,7 +153,7 @@ body {
 }
 
 .instructions-container {
-    margin-bottom: 100px;
+    margin-bottom: 60px;
 }
 
 .instructions {
@@ -168,6 +169,58 @@ body {
 /* Dropdown containers */
 .dropdown-container {
     margin-bottom: 20px; /* Add some space between dropdowns */
+}
+
+/* RESTAURANT INFO STYLES */
+
+/* General styles for the restaurant details container */
+.restaurant-details {
+}
+
+/* Header section containing the name and stars */
+.details-header {
+    display: flex;
+    align-items: center;
+}
+
+.restaurant-name {
+    font-size: 22px; /* Larger text for the name */
+    font-weight: 700; /* Make the name stand out */
+    margin-right: 10px; /* Space between name and stars */
+}
+
+.restaurant-stars {
+    display: flex; /* Align star images in a row */
+    flex-wrap: nowrap; /* Prevent stars from wrapping to the next line */
+}
+
+/* Styling for the cuisine and price */
+.details-cuisine,
+.details-price {
+    font-size: 12px; /* Slightly larger text for key details */
+}
+
+.restaurant-info {
+    margin-bottom: 20px;
+}
+
+/* Address and location styling */
+.address-info {
+    font-size: 12px; /* Clear and legible font size */
+    margin-bottom: 20px; /* Space above address and location */
+}
+
+/* Link styling for the website */
+.restaurant-website {
+    font-size: 16px;
+    display: block; /* Ensures the link is on a new line */
+    color: #0056b3; /* Traditional link color */
+    text-decoration: none; /* Removes underline */
+    font-weight: 500; /* Bold for emphasis */
+}
+
+.restaurant-website:hover {
+    text-decoration: underline; /* Underline on hover for clarity */
 }
 
 .container-style {
