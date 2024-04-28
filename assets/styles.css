@@ -23,7 +23,7 @@ body {
     font-family: "Kaisei Decol", serif;
     font-size: 60px;
     text-align: left;
-    margin-left: 12px;
+    margin-left: 0;
     margin-bottom: 30px;
     color: black;
     font-weight: 400;
@@ -113,7 +113,7 @@ body {
     font-size: 10px; /* Smaller text for description */
     color: #555; /* Darker grey for the description text */
     margin-top: 0px; /* Space after the title */
-    margin-bottom: 0; /* Remove bottom margin */
+    margin-bottom: 10px; /* Remove bottom margin */
 }
 
 .sidebar-container {
@@ -270,7 +270,8 @@ body {
     .description-container,
     .instructions-container,
     .dropdown-container,
-    .restaurant-details-container {
+    .restaurant-details-container,
+    .ratings-container {
         order: 1;  /* Top section appears above everything else */
     }
 
@@ -282,20 +283,12 @@ body {
         height: 50vh;
     }
 
-    .ratings-container {
-        order: 3;
-        margin-top: 10px;
-    }
-
     .description-container, .instructions-container {
         margin-bottom: 5px; /* Reduce space between sections for compactness */
     }
 
     .dropdown-container {
         margin-bottom: 10px; /* Consistent spacing between dropdowns and other content */
-    }
-    .dropdown-title .dropdown-style {
-        font-size: 10px;
     }
 
     .title-section {
@@ -307,6 +300,21 @@ body {
     .site-description, .instructions {
         font-size: 14px; /* Smaller text for descriptions and instructions */
     }
+
+/* -------------------------
+   THESE TWO BELOW CAUSE MEGA RENDERING BUGS!
+   ------------------------- */
+    .dropdown-container .dropdown-title {
+        font-size: 14px; /* This sets the size for the titles of the dropdowns */
+        margin-bottom: 5px; /* This gives some space below the titles */
+    }
+
+    /*.dropdown-container .Select-control,*/
+    /*.dropdown-container .Select-value,*/
+    /*.dropdown-container .Select-placeholder {*/
+    /*    font-size: 12px !important; !* Forces the font size if being overridden *!*/
+    /*}*/
+
 }
 
 
