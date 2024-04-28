@@ -304,10 +304,10 @@ body {
 /* -------------------------
    THESE TWO BELOW CAUSE MEGA RENDERING BUGS!
    ------------------------- */
-    .dropdown-container .dropdown-title {
-        font-size: 14px; /* This sets the size for the titles of the dropdowns */
-        margin-bottom: 5px; /* This gives some space below the titles */
-    }
+    /*.dropdown-container .dropdown-title {*/
+    /*    font-size: 14px; !* This sets the size for the titles of the dropdowns *!*/
+    /*    margin-bottom: 5px; !* This gives some space below the titles *!*/
+    /*}*/
 
     /*.dropdown-container .Select-control,*/
     /*.dropdown-container .Select-value,*/
