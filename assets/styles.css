@@ -168,7 +168,7 @@ body {
 }
 
 .instructions-container {
-    margin-bottom: 60px;
+    margin-bottom: 30px;
 }
 
 .instructions {
@@ -181,17 +181,44 @@ body {
     font-weight: 700;
 }
 
+.dropdown-style {
+    margin-bottom: 10px;
+}
+
+
 .dropdown-container {
-    margin-bottom: 20px; /* Add some space between dropdowns */
+    margin-bottom: 10px; /* Add some space between dropdowns */
 }
 
 /* -------------------------
    Restaurant Details Styles
    ------------------------- */
-
 /* General styles for the restaurant details container */
 .restaurant-details-container {
-    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.restaurant-details {
+    background-color: white;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 3px solid #ccc;  /* Default border color */
+}
+
+.placeholder-text {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f8f8f8;  /* Very light grey background */
+    color: #666666;  /* Medium grey text color */
+    text-align: center;  /* Center-aligns the placeholder text */
 }
 
 /* Header section containing the name and stars */
@@ -201,7 +228,7 @@ body {
 }
 
 .restaurant-name {
-    font-size: 22px; /* Larger text for the name */
+    font-size: 18px; /* Larger text for the name */
     font-weight: 700; /* Make the name stand out */
     margin-right: 10px; /* Space between name and stars */
 }
@@ -218,13 +245,13 @@ body {
 }
 
 .restaurant-info {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 /* Address and location styling */
 .address-info {
     font-size: 12px; /* Clear and legible font size */
-    margin-bottom: 20px; /* Space above address and location */
+    margin-bottom: 10px; /* Space above address and location */
 }
 
 /* Link styling for the website */
@@ -264,6 +291,7 @@ body {
         order: 3;  /* Adjust order if necessary based on other content */
         height: auto; /* Allow container to fit content on mobile */
         flex-direction: column; /* Stack children vertically */
+        font-size: 10px; !important;
     }
 
     .title-section,
@@ -283,37 +311,57 @@ body {
         height: 50vh;
     }
 
-    .description-container, .instructions-container {
-        margin-bottom: 5px; /* Reduce space between sections for compactness */
+    .title-section {
+        font-size: 18px; /* Reduce title size for smaller screens */
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    .description-container {
+        margin-bottom: 10px;
+    }
+
+    .instructions-container {
+        margin-bottom: 10px;
     }
 
     .dropdown-container {
         margin-bottom: 10px; /* Consistent spacing between dropdowns and other content */
     }
 
-    .title-section {
-        font-size: 30px; /* Reduce title size for smaller screens */
-        margin-left: 0;
-        margin-bottom: 20px;
+    .michelin_star .bib-image {
+        width: 12px;
     }
 
-    .site-description, .instructions {
-        font-size: 14px; /* Smaller text for descriptions and instructions */
+    .star-description-title {
+        font-weight: bold;
+        font-size: 8px; /* Adjust as needed */
+        margin-top: 2px;
+        margin-bottom: 0; /* Remove bottom margin */
+}
+
+    .star-description-text {
+        font-size: 6px; /* Smaller text for description */
+        margin-bottom: 10px;
+}
+
+    .site-description {
+        font-size: 10px; /* Smaller text for descriptions and instructions */
     }
 
 /* -------------------------
    THESE TWO BELOW CAUSE MEGA RENDERING BUGS!
    ------------------------- */
-    /*.dropdown-container .dropdown-title {*/
-    /*    font-size: 14px; !* This sets the size for the titles of the dropdowns *!*/
-    /*    margin-bottom: 5px; !* This gives some space below the titles *!*/
-    /*}*/
+    .dropdown-container .dropdown-title {
+        font-size: 10px; /* This sets the size for the titles of the dropdowns */
+        margin-bottom: 5px; /* This gives some space below the titles */
+    }
 
-    /*.dropdown-container .Select-control,*/
-    /*.dropdown-container .Select-value,*/
-    /*.dropdown-container .Select-placeholder {*/
-    /*    font-size: 12px !important; !* Forces the font size if being overridden *!*/
-    /*}*/
+    .dropdown-container .Select-control,
+    .dropdown-container .Select-value,
+    .dropdown-container .Select-placeholder {
+        font-size: 10px /* Forces the font size if being overridden */
+    }
 
 }
 

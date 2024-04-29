@@ -70,6 +70,15 @@ def get_restaurant_details(row):
     arrondissement = row['arrondissement']
     website_url = row['url']
 
+    # Color for the border based on the number of stars
+    color_map = {
+        0.5: "#640A64",
+        1: "#FFB84D",
+        2: "#FE6F64",
+        3: "#C2282D"  # (r, g, b, opacity)
+    }
+    border_color = color_map.get(stars, '#ccc')  # Default to grey if no stars count matches
+
     # Create the address information with a conditional for Paris arrondissements
     if row['department_num'] == '75':
         location_info = html.Span(f"{arrondissement}, {location}", className='restaurant-location')
@@ -107,7 +116,7 @@ def get_restaurant_details(row):
         html.Div([
             html.A("Visit Website", href=website_url, target='_blank', className='restaurant-website', style={'display': 'block', 'marginTop': '10px'})
         ], className='details-website')
-    ], className='restaurant-details')
+    ], className='restaurant-details', style={'borderColor': border_color})
 
     return details_layout
 
