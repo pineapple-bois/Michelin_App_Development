@@ -1,17 +1,40 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+color_map = {
+    0.5: "#640A64",
+    1: "#FFB84D",
+    2: "#FE6F64",
+    3: "#C2282D"
+}
 
-def michelin_star():
-    return html.Img(src="https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg",
-                    className='michelin-star',
-                    style={'width': '20px', 'vertical-align': 'middle', 'margin-right': '3px'})
+
+# Standard michelin images
+def michelin_stars(count):
+    # Returns a list of image components for each star
+    return [html.Img(src="https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg",
+                     className='michelin-star',
+                     style={'width': '20px', 'vertical-align': 'middle', 'margin-right': '3px'}) for _ in range(int(count))]
 
 
 def bib_gourmand():
     return html.Img(src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png",
                     className='bib-image',
                     style={'width': '20px', 'vertical-align': 'middle'})
+
+
+# Inverted michelin images
+def inverted_michelin_stars(count):
+    # Returns a list of Michelin star image components each with inverted colors
+    return [html.Img(src="https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg",
+                     className='michelin-star',
+                     style={'width': '16px', 'vertical-align': 'middle', 'margin-right': '2px', 'filter': 'brightness(0) invert(1)'}) for _ in range(int(count))]
+
+def inverted_bib_gourmand():
+    # Returns the Bib Gourmand image component with inverted colors
+    return html.Img(src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png",
+                    className='bib-image',
+                    style={'width': '16px', 'vertical-align': 'middle', 'filter': 'brightness(0) invert(1)'})
 
 
 def get_info_div():
@@ -33,6 +56,39 @@ def get_info_div():
     )
 
 
+# Define the row with buttons logic as functions
+def create_star_button(value, label):
+    # Generate color with reduced opacity for active state
+    normal_bg_color = color_map[value]
+    return dbc.Button(
+        label,
+        id={
+            'type': 'filter-button',
+            'index': value,
+        },
+        className="me-1 star-button",
+        outline=True,
+        style={
+            'display': 'inline-block',
+            'backgroundColor': normal_bg_color,
+            'width': '100%'
+        },
+        n_clicks=0,
+    )
+
+
+def star_filter_row():
+    return html.Div([
+        html.H6("Filter by Rating", className='star-select-title'),
+        html.Div([
+            create_star_button(3, inverted_michelin_stars(3)),
+            create_star_button(2, inverted_michelin_stars(2)),
+            create_star_button(1, inverted_michelin_stars(1)),
+            create_star_button(0.5, inverted_bib_gourmand())
+        ], className='star-filter-buttons')
+    ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+
+
 def get_main_layout(unique_regions):
     title_section = html.Div(children=[
         html.H1(["Michelin Guide to France. ", html.Span("2024", className='year-text')], className='title-section')
@@ -42,20 +98,20 @@ def get_main_layout(unique_regions):
         dbc.Row([
             # First Column
             dbc.Col([
-                html.P([michelin_star(), michelin_star(), michelin_star()], className='star-description-title'),
+                html.P(michelin_stars(3), className='star-description-title'),
                 html.P('Exceptional cuisine', className='star-description-title'),
                 html.P('Worth a special journey', className='star-description-text'),
-                #html.Br(),
-                html.P(michelin_star(), className='star-description-title'),
+
+                html.P(michelin_stars(1), className='star-description-title'),
                 html.P('High-quality cooking', className='star-description-title'),
                 html.P('Worth a stop', className='star-description-text'),
             ], width=6),
             # Second Column
             dbc.Col([
-                html.P([michelin_star(), michelin_star()], className='star-description-title'),
+                html.P(michelin_stars(2), className='star-description-title'),
                 html.P('Excellent cooking', className='star-description-title'),
                 html.P('Worth a detour', className='star-description-text'),
-                #html.Br(),
+
                 html.P([bib_gourmand()], className='star-description-title'),
                 html.P('Bib Gourmand', className='star-description-title'),
                 html.P('Exceptionally good food at moderate prices', className='star-description-text'),
@@ -64,6 +120,7 @@ def get_main_layout(unique_regions):
     ], className='ratings-container')
 
     # Sidebar content, includes all controls and additional information
+    star_button_row = star_filter_row()
     sidebar_content = html.Div([
         html.Div([
             html.H5("Explore the finest culinary destinations in France, as reviewed by Michelin.", className='site-description')
@@ -79,6 +136,9 @@ def get_main_layout(unique_regions):
             html.H6("Select a Department", className='dropdown-title'),
             dcc.Dropdown(id='department-dropdown', className='dropdown-style')
         ], className='dropdown-container'),
+
+        # Buttons
+        star_button_row,
 
         html.Div(id='restaurant-details', children=[
         ], className='restaurant-details-container'),

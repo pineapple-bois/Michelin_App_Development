@@ -168,7 +168,7 @@ body {
 }
 
 .instructions-container {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .instructions {
@@ -182,19 +182,54 @@ body {
 }
 
 .dropdown-style {
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* Add some space between dropdowns */
 }
 
 .dropdown-container {
-    margin-bottom: 30px; /* Add some space between dropdowns */
+    margin-bottom: 0;
+}
+
+/* -------------------------
+   Star selection Styles
+   ------------------------- */
+.star-select-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.star-button {
+    width: 40px;
+    padding: 5px;
+}
+
+.single-button {
+    margin-right: 5px;
+}
+
+.star-filter-section > div {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 10px;  /* Adjust this value to manage the gap between buttons */
+    margin-bottom: 20px;
+}
+
+/* Hover effect for star buttons */
+.star-button:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+/* Active state for star buttons */
+.star-button.active {
+    opacity: 0.6;
+    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* -------------------------
    Restaurant Details Styles
    ------------------------- */
 .restaurant-details {
-    margin-left: 15px;
-    margin-right: 15px;
     background-color: white;
     padding: 15px;
     border-radius: 8px;
@@ -202,8 +237,6 @@ body {
 }
 
 .placeholder-text {
-    margin-left: 15px;
-    margin-right: 15px;
     padding: 20px;
     border-radius: 8px;
     border: 1px solid #666666;  /* Default border color */
