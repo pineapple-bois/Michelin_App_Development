@@ -133,7 +133,7 @@ def update_sidebar(clickData, selected_department):
 
     # Check if the callback was triggered by a department change and if it's cleared
     if not selected_department:
-        return "Select a department to view restaurants."
+        return html.Div("Select a department to view restaurants.", className='placeholder-text')
 
     # If there's a map click and it contains valid data, update the details
     if ctx.triggered[0]['prop_id'] == 'map-display.clickData' and clickData:
@@ -143,7 +143,7 @@ def update_sidebar(clickData, selected_department):
             return get_restaurant_details(restaurant_info)
 
     # Default message if no restaurant is selected yet
-    return "Select a restaurant to see more details"
+    return html.Div("Select a restaurant to see more details", className='placeholder-text')
 
 
 # For local development, debug=True
