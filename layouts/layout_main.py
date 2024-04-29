@@ -1,3 +1,4 @@
+import json
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
@@ -9,16 +10,21 @@ color_map = {
 }
 star_placeholder = [0.5, 1, 2, 3]
 
+#  wikipedia image links:
+# https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg
+# https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png
+
+
 # Standard michelin images
 def michelin_stars(count):
     # Returns a list of image components for each star
-    return [html.Img(src="https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg",
+    return [html.Img(src="assets/Michelin_star.png",
                      className='michelin-star',
                      style={'width': '20px', 'vertical-align': 'middle', 'margin-right': '3px'}) for _ in range(int(count))]
 
 
 def bib_gourmand():
-    return html.Img(src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png",
+    return html.Img(src="assets/Michelin_Bib.png",
                     className='bib-image',
                     style={'width': '20px', 'vertical-align': 'middle'})
 
@@ -26,13 +32,13 @@ def bib_gourmand():
 # Inverted michelin images
 def inverted_michelin_stars(count):
     # Returns a list of Michelin star image components each with inverted colors
-    return [html.Img(src="https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg",
+    return [html.Img(src="assets/Michelin_star.png",
                      className='michelin-star',
                      style={'width': '16px', 'vertical-align': 'middle', 'margin-right': '2px', 'filter': 'brightness(0) invert(1)'}) for _ in range(int(count))]
 
 def inverted_bib_gourmand():
     # Returns the Bib Gourmand image component with inverted colors
-    return html.Img(src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png",
+    return html.Img(src="assets/Michelin_Bib.png",
                     className='bib-image',
                     style={'width': '16px', 'vertical-align': 'middle', 'filter': 'brightness(0) invert(1)'})
 
@@ -54,6 +60,21 @@ def get_info_div():
         className='info-container',
         style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'flex-start', 'padding': '1rem'}
     )
+
+# CURRENT WORK IN PROGRESS TODO!
+# def create_star_button(index, label):
+#     return html.Button(
+#         label,
+#         id=json.dumps({'type': 'filter-button', 'index': index}),
+#         className="me-1 star-button",
+#         outline=True,
+#         style={
+#             'display': 'inline-block',
+#             'backgroundColor': normal_bg_color,
+#             'width': '100%'
+#         },
+#         n_clicks=0
+#     )
 
 
 # Define the row with buttons logic as functions
