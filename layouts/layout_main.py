@@ -79,7 +79,7 @@ def create_star_button(value, label):
 
 def star_filter_row():
     return html.Div([
-        html.H6("Filter by Rating", className='star-select-title'),
+        html.H6("Filter by Michelin Rating", className='star-select-title'),
         html.Div([
             create_star_button(3, inverted_michelin_stars(3)),
             create_star_button(2, inverted_michelin_stars(2)),
