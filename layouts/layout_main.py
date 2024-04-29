@@ -7,7 +7,7 @@ color_map = {
     2: "#FE6F64",
     3: "#C2282D"
 }
-
+star_placeholder = [0.5, 1, 2, 3]
 
 # Standard michelin images
 def michelin_stars(count):
@@ -77,15 +77,17 @@ def create_star_button(value, label):
     )
 
 
-def star_filter_row():
+def star_filter_row(available_stars):
+    # Create a button for each available star rating
+    buttons = [create_star_button(star, inverted_michelin_stars(star) if star != 0.5 else inverted_bib_gourmand()) for star in available_stars]
+    return html.Div(buttons, className='star-filter-buttons')
+
+
+def star_filter_section(available_stars=star_placeholder):
+    star_buttons = star_filter_row(available_stars)
     return html.Div([
         html.H6("Filter by Michelin Rating", className='star-select-title'),
-        html.Div([
-            create_star_button(3, inverted_michelin_stars(3)),
-            create_star_button(2, inverted_michelin_stars(2)),
-            create_star_button(1, inverted_michelin_stars(1)),
-            create_star_button(0.5, inverted_bib_gourmand())
-        ], className='star-filter-buttons')
+        star_buttons
     ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
 
@@ -120,7 +122,7 @@ def get_main_layout(unique_regions):
     ], className='ratings-container')
 
     # Sidebar content, includes all controls and additional information
-    star_button_row = star_filter_row()
+    star_button_row = star_filter_section(star_placeholder)
     sidebar_content = html.Div([
         html.Div([
             html.H5("Explore the finest culinary destinations in France, as reviewed by Michelin.", className='site-description')

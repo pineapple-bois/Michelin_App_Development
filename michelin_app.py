@@ -9,13 +9,13 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html, callback_context
 from dash.dependencies import Input, Output, State, ALL
 from flask import Flask, redirect, request
-from layouts.layout_main import get_main_layout, color_map, star_filter_row
+from layouts.layout_main import get_main_layout, color_map, star_filter_row, star_filter_section
 from appFunctions import plot_regional_outlines, plot_interactive_department, get_restaurant_details
 
 
 # # FOR LOCAL DEVELOPMENT ONLY - RISK MAN-IN-MIDDLE ATTACKS
-# import ssl
-# ssl._create_default_https_context = ssl._create_unverified_context
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 # Load restaurant data
@@ -59,11 +59,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 # App set up
@@ -73,26 +73,6 @@ app.layout = html.Div([
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout(unique_regions))  # Set initial content
 ])
-
-
-@app.callback(
-    Output('department-dropdown', 'options'),
-    Input('region-dropdown', 'value')
-)
-def update_department_dropdown(selected_region):
-    departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
-    return [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in departments]
-
-
-@app.callback(
-    Output('star-filter', 'style'),  # Assuming you have an ID for the star filter button row
-    Input('department-dropdown', 'value')
-)
-def toggle_star_filter_visibility(selected_department):
-    if selected_department:
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
 
 
 @app.callback(
@@ -118,33 +98,45 @@ def update_button_active_state(n_clicks_list, ids):
     return class_names, styles
 
 
-# @app.callback(
-#     [
-#         Output('department-dropdown', 'options'),
-#         Output('star-filter-buttons', 'children'),  # Update the content of the star filter buttons
-#         Output('star-filter-buttons', 'style')     # Control the visibility of star filter buttons
-#     ],
-#     Input('region-dropdown', 'value'),
-#     State('department-dropdown', 'value')
-# )
-# def update_department_and_filters(selected_region, selected_department):
-#     departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
-#     department_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in departments]
-#
-#     if not selected_department:
-#         # No department selected, hide star filter and clear buttons
-#         return department_options, [], {'display': 'none'}
-#
-#     # Calculate available stars for the department
-#     department_data = all_france[all_france['department'] == selected_department]
-#     available_stars = department_data['stars'].unique()
-#     star_buttons = star_filter_row(available_stars)  # Get dynamic star buttons
-#
-#     # Only show the filter if there are stars available
-#     if available_stars.size > 0:
-#         return department_options, star_buttons, {'display': 'flex'}
-#     else:
-#         return department_options, [], {'display': 'none'}
+@app.callback(
+    [
+        Output('department-dropdown', 'options'),
+        Output('star-filter', 'children'),
+        Output('star-filter', 'style')],
+    [Input('region-dropdown', 'value'),
+     Input('department-dropdown', 'value')]
+)
+def update_department_and_filters(selected_region, selected_department):
+    # Fetch department options based on the selected region.
+    departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict(
+        'records')
+    department_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in
+                          departments]
+
+    if not selected_department:
+        # No department selected, hide star filter and clear buttons
+        return department_options, star_filter_section().children, {'display': 'none'}
+
+    # Fetch the row for the selected department
+    department_row = geo_df[geo_df['department'] == selected_department].iloc[0]
+
+    # Determine which star ratings are present
+    available_stars = []
+    if department_row['3_star'] > 0:
+        available_stars.append(3)
+    if department_row['2_star'] > 0:
+        available_stars.append(2)
+    if department_row['1_star'] > 0:
+        available_stars.append(1)
+    if department_row['bib_gourmand'] > 0:
+        available_stars.append(0.5)
+
+    # Only show the filter if there are stars available
+    if available_stars:
+        star_filter = star_filter_section(available_stars)
+        return department_options, star_filter.children, {'display': 'block'}
+    else:
+        return department_options, star_filter_section.children, {'display': 'none'}
 
 
 @app.callback(
