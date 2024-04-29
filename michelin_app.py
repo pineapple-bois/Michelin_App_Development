@@ -7,9 +7,9 @@ import json
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html, callback_context
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ALL
 from flask import Flask, redirect, request
-from layouts.layout_main import get_main_layout
+from layouts.layout_main import get_main_layout, color_map, star_filter_row
 from appFunctions import plot_regional_outlines, plot_interactive_department, get_restaurant_details
 
 
@@ -82,6 +82,69 @@ app.layout = html.Div([
 def update_department_dropdown(selected_region):
     departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
     return [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in departments]
+
+
+@app.callback(
+    Output('star-filter', 'style'),  # Assuming you have an ID for the star filter button row
+    Input('department-dropdown', 'value')
+)
+def toggle_star_filter_visibility(selected_department):
+    if selected_department:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+
+@app.callback(
+    [Output({'type': 'filter-button', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button', 'index': ALL}, 'style')],
+    [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'filter-button', 'index': ALL}, 'id')]
+)
+def update_button_active_state(n_clicks_list, ids):
+    class_names = []
+    styles = []
+    for n_clicks, button_id in zip(n_clicks_list, ids):
+        index = button_id['index']
+        is_active = n_clicks % 2 != 0  # Toggle active state
+        class_name = "me-1 star-button" + (" active" if is_active else "")
+        color_style = {
+            "display": 'inline-block',
+            "width": '100%',
+            'backgroundColor': color_map[index] if not is_active else f"rgba({int(color_map[index][1:3], 16)}, {int(color_map[index][3:5], 16)}, {int(color_map[index][5:7], 16)}, 0.6)"
+        }
+        class_names.append(class_name)
+        styles.append(color_style)
+    return class_names, styles
+
+
+# @app.callback(
+#     [
+#         Output('department-dropdown', 'options'),
+#         Output('star-filter-buttons', 'children'),  # Update the content of the star filter buttons
+#         Output('star-filter-buttons', 'style')     # Control the visibility of star filter buttons
+#     ],
+#     Input('region-dropdown', 'value'),
+#     State('department-dropdown', 'value')
+# )
+# def update_department_and_filters(selected_region, selected_department):
+#     departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
+#     department_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in departments]
+#
+#     if not selected_department:
+#         # No department selected, hide star filter and clear buttons
+#         return department_options, [], {'display': 'none'}
+#
+#     # Calculate available stars for the department
+#     department_data = all_france[all_france['department'] == selected_department]
+#     available_stars = department_data['stars'].unique()
+#     star_buttons = star_filter_row(available_stars)  # Get dynamic star buttons
+#
+#     # Only show the filter if there are stars available
+#     if available_stars.size > 0:
+#         return department_options, star_buttons, {'display': 'flex'}
+#     else:
+#         return department_options, [], {'display': 'none'}
 
 
 @app.callback(
