@@ -174,10 +174,11 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
     dept_data = data_df[(data_df['department_num'] == str(department_code)) & (data_df['stars'].isin(selected_stars))].copy()
     dept_data['color'] = dept_data['stars'].map(color_map)
 
-    # Modify the hover text function
+    # Possibly put next to, "row['name']":
+    # {'🍽️' if row['stars'] == 0.5 else '★' * int(row['stars'])} (line 2)
     dept_data['hover_text'] = dept_data.apply(
         lambda row: f"<span style=\"font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: {text_color_map[row['stars']]};\">"
-                    f"<span style='font-size: 14px;'>{row['name']} {'🍽️' if row['stars'] == 0.5 else '★' * int(row['stars'])}</span><br>"
+                    f"<span style='font-size: 14px;'>{row['name']}</span><br>"
                     f"{row['location']}<br>",
         axis=1
     )
