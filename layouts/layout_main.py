@@ -81,7 +81,6 @@ def get_main_layout(unique_regions):
         ], className='dropdown-container'),
 
         html.Div(id='restaurant-details', children=[
-            html.P("Select a restaurant on the map to view details here.", className='placeholder-text'),
         ], className='restaurant-details-container'),
         ratings_layout
     ], className='sidebar-container')
