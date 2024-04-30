@@ -46,5 +46,6 @@ The application is configured for deployment on Heroku, with updates planned eve
 The deployment setup includes:
 - **Procfile**: Specifies the commands that are executed by the app on startup.
 - **requirements.txt**: Lists all necessary Python libraries for the project, ensuring they are installed during the deployment process.
+- **runtime.txt**: Specific Python version used to create the app.
 
 ----
