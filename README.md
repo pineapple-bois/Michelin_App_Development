@@ -40,6 +40,14 @@ This version of the Michelin Guide to France interactive application extends the
 
 ----
 
+### In Development
+- French version of the site
+- Replacing Plotly's [hovertip](https://plotly.com/python/hover-text-and-formatting/) with Dash's [dcc.Tooltip](https://dash.plotly.com/dash-core-components/tooltip) object
+- Removing bugs introduced by the "select Michelin stars legend"
+- Writing CSS media queries 
+
+----
+
 ### Deployment
 The application is configured for deployment on Heroku, with updates planned every April to align with new data from the Michelin Guide to France. 
 
