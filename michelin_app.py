@@ -71,7 +71,9 @@ app = dash.Dash(
 app.title = 'Michelin Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
-    dcc.Store(id='selected-stars', data=[0.5, 1, 2, 3]),  # Initialized with all stars selected
+    dcc.Store(id='selected-stars', data=[3, 2, 1, 0.5]),  # Initialized all star ratings
+    dcc.Store(id='error-state', data=False),  # Initialize with no error
+    dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout(unique_regions))  # Set initial content
 ])
@@ -80,21 +82,29 @@ app.layout = html.Div([
 @app.callback(
     [Output({'type': 'filter-button', 'index': ALL}, 'className'),
      Output({'type': 'filter-button', 'index': ALL}, 'style'),
-     Output('selected-stars', 'data')],  # This output updates the list of active stars
+     Output('selected-stars', 'data'),  # This output updates the list of active stars
+     Output('error-state', 'data')],
     [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks')],
     [State({'type': 'filter-button', 'index': ALL}, 'id'),
-     State('selected-stars', 'data')]
+     State('selected-stars', 'data'),
+     State('available-stars', 'data')]
 )
-def update_button_active_state(n_clicks_list, ids, current_stars):
-    # if all(n_clicks == 0 for n_clicks in n_clicks_list):  # Check if all n_clicks are zero
-    #     return no_update, no_update, no_update  # Avoid processing on initial load
+def update_button_active_state(n_clicks_list, ids, current_stars, available_stars):
+    # Handle cases where not all data is available, especially at initialization
+    if not n_clicks_list or not available_stars:
+        # Return initial states if the necessary inputs aren't available
+        raise PreventUpdate
 
     class_names = []
     styles = []
-    new_stars = current_stars.copy()  # Start with current active stars
+    new_stars = [star for star in current_stars if star in available_stars]
+    prevent_empty = False
 
     for n_clicks, button_id in zip(n_clicks_list, ids):
         index = button_id['index']
+        if index not in available_stars:
+            continue  # Skip processing for stars not available
+
         is_active = n_clicks % 2 == 0  # Toggle active state - Even clicks means 'active'
         if is_active:
             if index not in new_stars:
@@ -114,19 +124,21 @@ def update_button_active_state(n_clicks_list, ids, current_stars):
         class_names.append(class_name)
         styles.append(color_style)
 
-        # Debugging output
-        # print(f"Button {index}: Active state: {is_active}, Color: {background_color}")
-        # print(f"Updated active stars: {new_stars}")
-        # print(f"Previous stars data: {current_stars}")
+        print(f"\nButton {index}: Active state: {is_active}")
 
-    return class_names, styles, new_stars
+    if not new_stars:  # Prevent empty state
+        prevent_empty = True
+        new_stars = current_stars.copy()  # Reset to current stars to avoid clearing all
+
+    return class_names, styles, new_stars, prevent_empty
 
 
 @app.callback(
     [
         Output('department-dropdown', 'options'),
         Output('star-filter', 'children'),
-        Output('star-filter', 'style')],
+        Output('star-filter', 'style'),
+        Output('available-stars', 'data')],
     [Input('region-dropdown', 'value'),
      Input('department-dropdown', 'value')]
 )
@@ -139,7 +151,7 @@ def update_department_and_filters(selected_region, selected_department):
 
     if not selected_department:
         # No department selected, hide star filter and clear buttons
-        return department_options, star_filter_section().children, {'display': 'none'}
+        return department_options, star_filter_section().children, {'display': 'none'}, []
 
     # Fetch the row for the selected department
     department_row = geo_df[geo_df['department'] == selected_department].iloc[0]
@@ -158,9 +170,9 @@ def update_department_and_filters(selected_region, selected_department):
     # Only show the filter if there are stars available
     if available_stars:
         star_filter = star_filter_section(available_stars)
-        return department_options, star_filter.children, {'display': 'block'}
+        return department_options, star_filter.children, {'display': 'block'}, available_stars
     else:
-        return department_options, star_filter_section.children, {'display': 'none'}
+        return department_options, star_filter_section.children, {'display': 'none'}, []
 
 
 @app.callback(
@@ -172,13 +184,14 @@ def update_department_and_filters(selected_region, selected_department):
 def update_map(selected_department, selected_region, selected_stars):  # add selected stars
     # Determine which input triggered the callback
     ctx = callback_context
-    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
 
-    if selected_department:
-        # If a department is selected, show specific department information
+    # Always update the department map if department or stars change
+    if selected_department and (triggered_id == 'department-dropdown' or triggered_id == 'selected-stars'):
         department_code = dept_to_code[selected_department]
         return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
-    elif selected_region or trigger_id == 'region-dropdown':
+
+    elif selected_region or triggered_id == 'region-dropdown' or triggered_id == 'department-dropdown':
         # If a region is selected (and it's the trigger), show regional outlines
         region_name = region_to_name[selected_region]
         return plot_regional_outlines(region_df, region_name)
@@ -203,10 +216,16 @@ def update_map(selected_department, selected_region, selected_stars):  # add sel
 @app.callback(
     Output('restaurant-details', 'children'),
     [Input('map-display', 'clickData'),
-     Input('department-dropdown', 'value')]  # Include department dropdown as a trigger
+     Input('department-dropdown', 'value'),
+     Input('error-state', 'data')]  # Listen to the error state
 )
-def update_sidebar(clickData, selected_department):
+def update_sidebar(clickData, selected_department, error_state):
     ctx = dash.callback_context
+
+    if error_state:
+        return html.Div("Please select at least one category to display restaurants.",
+                        className='placeholder-text',
+                        style={'color': '#C2282D'})
 
     # Check if the callback was triggered by a department change and if it's cleared
     if not selected_department:
