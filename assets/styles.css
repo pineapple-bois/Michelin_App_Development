@@ -249,6 +249,10 @@ body {
     text-align: center;
 }
 
+.restaurant-details-container {
+    margin-top: 20px;
+}
+
 /* Header section containing the name and stars */
 .details-header {
     display: flex;
