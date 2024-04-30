@@ -8,6 +8,7 @@ color_map = {
     2: "#FE6F64",
     3: "#C2282D"
 }
+
 star_placeholder = [0.5, 1, 2, 3]
 
 #  wikipedia image links:
@@ -36,6 +37,7 @@ def inverted_michelin_stars(count):
                      className='michelin-star',
                      style={'width': '16px', 'vertical-align': 'middle', 'margin-right': '2px', 'filter': 'brightness(0) invert(1)'}) for _ in range(int(count))]
 
+
 def inverted_bib_gourmand():
     # Returns the Bib Gourmand image component with inverted colors
     return html.Img(src="assets/Michelin_Bib.png",
@@ -61,21 +63,6 @@ def get_info_div():
         style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'flex-start', 'padding': '1rem'}
     )
 
-# CURRENT WORK IN PROGRESS TODO!
-# def create_star_button(index, label):
-#     return html.Button(
-#         label,
-#         id=json.dumps({'type': 'filter-button', 'index': index}),
-#         className="me-1 star-button",
-#         outline=True,
-#         style={
-#             'display': 'inline-block',
-#             'backgroundColor': normal_bg_color,
-#             'width': '100%'
-#         },
-#         n_clicks=0
-#     )
-
 
 # Define the row with buttons logic as functions
 def create_star_button(value, label):
@@ -92,7 +79,8 @@ def create_star_button(value, label):
         style={
             'display': 'inline-block',
             'backgroundColor': normal_bg_color,
-            'width': '100%'
+            'width': '100%',
+            'opacity': 1
         },
         n_clicks=0,
     )

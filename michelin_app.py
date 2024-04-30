@@ -6,7 +6,8 @@ import os
 import json
 import dash
 import dash_bootstrap_components as dbc
-from dash import dcc, html, callback_context
+from dash import dcc, html, callback_context, no_update
+from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, ALL
 from flask import Flask, redirect, request
 from layouts.layout_main import get_main_layout, color_map, star_filter_row, star_filter_section
@@ -70,6 +71,7 @@ app = dash.Dash(
 app.title = 'Michelin Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
+    dcc.Store(id='selected-stars', data=[0.5, 1, 2, 3]),  # Initialized with all stars selected
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout(unique_regions))  # Set initial content
 ])
@@ -77,25 +79,47 @@ app.layout = html.Div([
 
 @app.callback(
     [Output({'type': 'filter-button', 'index': ALL}, 'className'),
-     Output({'type': 'filter-button', 'index': ALL}, 'style')],
+     Output({'type': 'filter-button', 'index': ALL}, 'style'),
+     Output('selected-stars', 'data')],  # This output updates the list of active stars
     [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks')],
-    [State({'type': 'filter-button', 'index': ALL}, 'id')]
+    [State({'type': 'filter-button', 'index': ALL}, 'id'),
+     State('selected-stars', 'data')]
 )
-def update_button_active_state(n_clicks_list, ids):
+def update_button_active_state(n_clicks_list, ids, current_stars):
+    # if all(n_clicks == 0 for n_clicks in n_clicks_list):  # Check if all n_clicks are zero
+    #     return no_update, no_update, no_update  # Avoid processing on initial load
+
     class_names = []
     styles = []
+    new_stars = current_stars.copy()  # Start with current active stars
+
     for n_clicks, button_id in zip(n_clicks_list, ids):
         index = button_id['index']
-        is_active = n_clicks % 2 != 0  # Toggle active state
+        is_active = n_clicks % 2 == 0  # Toggle active state - Even clicks means 'active'
+        if is_active:
+            if index not in new_stars:
+                new_stars.append(index)  # Add if not already in the list
+            background_color = color_map[index]  # Full color for active state
+        else:
+            if index in new_stars:
+                new_stars.remove(index)  # Remove if in the list but not active
+            background_color = f"rgba({int(color_map[index][1:3], 16)}, {int(color_map[index][3:5], 16)}, {int(color_map[index][5:7], 16)}, 0.6)"  # Lighter color for inactive
+
         class_name = "me-1 star-button" + (" active" if is_active else "")
         color_style = {
             "display": 'inline-block',
             "width": '100%',
-            'backgroundColor': color_map[index] if not is_active else f"rgba({int(color_map[index][1:3], 16)}, {int(color_map[index][3:5], 16)}, {int(color_map[index][5:7], 16)}, 0.6)"
+            'backgroundColor': background_color,
         }
         class_names.append(class_name)
         styles.append(color_style)
-    return class_names, styles
+
+        # Debugging output
+        # print(f"Button {index}: Active state: {is_active}, Color: {background_color}")
+        # print(f"Updated active stars: {new_stars}")
+        # print(f"Previous stars data: {current_stars}")
+
+    return class_names, styles, new_stars
 
 
 @app.callback(
@@ -142,12 +166,10 @@ def update_department_and_filters(selected_region, selected_department):
 @app.callback(
     Output('map-display', 'figure'),
     [Input('department-dropdown', 'value'),
-     Input('region-dropdown', 'value')]
+     Input('region-dropdown', 'value'),
+     Input('selected-stars', 'data')]
 )
-def update_map(selected_department, selected_region):
-    # Show all stars by default
-    selected_stars = [0.5, 1, 2, 3]
-
+def update_map(selected_department, selected_region, selected_stars):  # add selected stars
     # Determine which input triggered the callback
     ctx = callback_context
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -198,9 +220,9 @@ def update_sidebar(clickData, selected_department):
             return get_restaurant_details(restaurant_info)
 
     # Default message if no restaurant is selected yet
-    return html.Div("Select a restaurant to see more details", className='placeholder-text')
+    return html.Div("Select a restaurant on the map to see more details", className='placeholder-text')
 
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

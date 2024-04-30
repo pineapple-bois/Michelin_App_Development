@@ -216,14 +216,19 @@ body {
 
 /* Hover effect for star buttons */
 .star-button:hover {
-    opacity: 0.8;
+    opacity: 0.8 !important;
     cursor: pointer;
 }
 
 /* Active state for star buttons */
 .star-button.active {
-    opacity: 0.6;
+    opacity: 1;
     box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Inactive state, specifically less opacity when not active */
+.star-button.inactive {
+    opacity: 0.5; /* Lower opacity for inactive */
 }
 
 /* -------------------------
