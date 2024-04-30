@@ -2,6 +2,7 @@ import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
 from dash import html, dcc
+from layouts.layout_main import michelin_stars, bib_gourmand
 
 
 def plot_regional_outlines(region_df, region):
@@ -47,19 +48,6 @@ def plot_regional_outlines(region_df, region):
     return fig
 
 
-def michelin_star(count):
-    # Returns a list of image components for each star
-    return [html.Img(src="https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg",
-                     className='michelin-star',
-                     style={'width': '20px', 'vertical-align': 'middle', 'margin-right': '3px'}) for _ in range(int(count))]
-
-
-def bib_gourmand():
-    return html.Img(src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png",
-                    className='bib-image',
-                    style={'width': '20px', 'vertical-align': 'middle'})
-
-
 def get_restaurant_details(row):
     name = row['name']
     stars = row['stars']
@@ -89,7 +77,7 @@ def get_restaurant_details(row):
     if stars == 0.5:
         star_component = bib_gourmand()
     else:
-        star_component = michelin_star(stars)
+        star_component = michelin_stars(stars)
 
     # Create HTML content to display this information, organized in divs
     details_layout = html.Div([
