@@ -1,9 +1,6 @@
 import pandas as pd
 import geopandas as gpd
-import plotly.express as px
 import plotly.graph_objects as go
-import os
-import json
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html, callback_context, no_update
@@ -11,7 +8,8 @@ from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, ALL
 from flask import Flask, redirect, request
 from layouts.layout_main import get_main_layout, color_map, star_filter_row, star_filter_section
-from appFunctions import plot_regional_outlines, plot_interactive_department, get_restaurant_details
+from appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
+                          get_restaurant_details)
 
 
 # # FOR LOCAL DEVELOPMENT ONLY - RISK MAN-IN-MIDDLE ATTACKS
@@ -20,19 +18,11 @@ from appFunctions import plot_regional_outlines, plot_interactive_department, ge
 
 
 # Load restaurant data
-url = ("https://raw.githubusercontent.com/pineapple-bois/Michelin_Rated_Restaurants"
-       "/main/Years/2024/data/France/all_restaurants(arrondissements).csv")
-all_france = pd.read_csv(url)
-
-# Load GeoJSON departmental data
-deptjson_url = ("https://raw.githubusercontent.com/pineapple-bois/Michelin_Rated_Restaurants/"
-                "main/Years/2024/data/France/geodata/department_restaurants.geojson")
-geo_df = gpd.read_file(deptjson_url)
-
-# Load GeoJSON regional data
-regionjson_url = ("https://raw.githubusercontent.com/pineapple-bois/Michelin_Rated_Restaurants/"
-                  "main/Years/2024/data/France/geodata/region_restaurants.geojson")
-region_df = gpd.read_file(regionjson_url)
+all_france = pd.read_csv("assets/Data/all_restaurants(arrondissements).csv")
+# Load departmental GeoJSON data
+geo_df = gpd.read_file("assets/Data/department_restaurants.geojson")
+# Load regional GeoJSON data
+region_df = gpd.read_file("assets/Data/region_restaurants.geojson")
 
 
 # Get unique department numbers with restaurants
@@ -42,7 +32,7 @@ geo_df = geo_df[geo_df['code'].isin(departments_with_restaurants)]
 
 
 # Use geo_df to get unique regions and departments for the initial dropdowns
-unique_regions = geo_df['region'].unique()
+unique_regions = sorted(geo_df['region'].unique())
 initial_departments = geo_df[geo_df['region'] == unique_regions[0]][['department', 'code']].drop_duplicates().to_dict('records')
 initial_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in initial_departments]
 dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
@@ -71,7 +61,7 @@ def before_request():
 app.title = 'Michelin Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
-    dcc.Store(id='selected-stars', data=[3, 2, 1, 0.5]),  # Initialized all star ratings
+    dcc.Store(id='selected-stars', data=[]),  # Initialized all star ratings
     dcc.Store(id='error-state', data=False),  # Initialize with no error
     dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
     dcc.Location(id='url', refresh=False),  # Tracks the url
@@ -113,7 +103,10 @@ def update_button_active_state(n_clicks_list, ids, current_stars, available_star
         else:
             if index in new_stars:
                 new_stars.remove(index)  # Remove if in the list but not active
-            background_color = f"rgba({int(color_map[index][1:3], 16)}, {int(color_map[index][3:5], 16)}, {int(color_map[index][5:7], 16)}, 0.6)"  # Lighter color for inactive
+            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
+                                f"{int(color_map[index][3:5], 16)},"
+                                f"{int(color_map[index][5:7], 16)},"
+                                f"0.6)")  # Lighter color for inactive
 
         class_name = "me-1 star-button" + (" active" if is_active else "")
         color_style = {
@@ -124,13 +117,12 @@ def update_button_active_state(n_clicks_list, ids, current_stars, available_star
         class_names.append(class_name)
         styles.append(color_style)
 
-        print(f"\nButton {index}: Active state: {is_active}")
+    if not new_stars and not prevent_empty:
+        error_state = True
+    else:
+        error_state = False
 
-    if not new_stars:  # Prevent empty state
-        prevent_empty = True
-        new_stars = current_stars.copy()  # Reset to current stars to avoid clearing all
-
-    return class_names, styles, new_stars, prevent_empty
+    return class_names, styles, new_stars, error_state
 
 
 @app.callback(
@@ -179,15 +171,20 @@ def update_department_and_filters(selected_region, selected_department):
     Output('map-display', 'figure'),
     [Input('department-dropdown', 'value'),
      Input('region-dropdown', 'value'),
-     Input('selected-stars', 'data')]
+     Input('selected-stars', 'data'),
+     Input('error-state', 'data')],
 )
-def update_map(selected_department, selected_region, selected_stars):  # add selected stars
+def update_map(selected_department, selected_region, selected_stars, error_state):  # add selected stars
     # Determine which input triggered the callback
     ctx = callback_context
     triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
 
+    if error_state or triggered_id == 'error-state':
+        department_code = dept_to_code[selected_department]
+        return plot_department_outlines(geo_df, department_code)
+
     # Always update the department map if department or stars change
-    if selected_department and (triggered_id == 'department-dropdown' or triggered_id == 'selected-stars'):
+    elif selected_department and (triggered_id == 'department-dropdown' or triggered_id == 'selected-stars'):
         department_code = dept_to_code[selected_department]
         return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
 
@@ -195,6 +192,7 @@ def update_map(selected_department, selected_region, selected_stars):  # add sel
         # If a region is selected (and it's the trigger), show regional outlines
         region_name = region_to_name[selected_region]
         return plot_regional_outlines(region_df, region_name)
+
     else:
         # No specific region or department selected, or department cleared
         # Create an empty figure with map centered around France
