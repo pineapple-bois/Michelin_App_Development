@@ -48,6 +48,49 @@ def plot_regional_outlines(region_df, region):
     return fig
 
 
+def plot_department_outlines(geo_df, department_code):
+    fig = go.Figure(go.Scattermapbox())  # Initialize empty figure with mapbox
+
+    # Filter the GeoDataFrame for the selected department
+    specific_geometry = geo_df[geo_df['code'] == str(department_code)]['geometry'].iloc[0]
+
+    # Plot the geometry's boundaries
+    if specific_geometry.geom_type == 'Polygon':
+        x, y = specific_geometry.exterior.xy
+        fig.add_trace(go.Scattermapbox(
+            lat=list(y),
+            lon=list(x),
+            mode='lines',
+            line=dict(width=0.5, color='black'),  # Making line thicker and black for visibility
+            hoverinfo='none',
+            showlegend=False  # Hide from legend
+        ))
+    elif specific_geometry.geom_type == 'MultiPolygon':
+        for polygon in specific_geometry.geoms:
+            if polygon.geom_type == 'Polygon':  # Ensure we're dealing with a Polygon
+                x, y = polygon.exterior.xy
+                fig.add_trace(go.Scattermapbox(
+                    lat=list(y),
+                    lon=list(x),
+                    mode='lines',
+                    line=dict(width=0.5, color='black'),
+                    hoverinfo='none',
+                    showlegend=False
+                ))
+
+
+    # Update map layout settings
+    fig.update_layout(
+        mapbox_style="carto-positron",
+        mapbox_zoom=5,  # Zoom level to show all of France
+        mapbox_center_lat=46.603354,  # Approximate latitude for France center
+        mapbox_center_lon=1.888334,  # Approximate longitude for France center
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
+        showlegend=False
+    )
+    return fig
+
+
 def get_restaurant_details(row):
     name = row['name']
     stars = row['stars']
