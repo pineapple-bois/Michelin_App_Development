@@ -19,13 +19,13 @@ star_placeholder = [0.5, 1, 2, 3]
 # Standard michelin images
 def michelin_stars(count):
     # Returns a list of image components for each star
-    return [html.Img(src="assets/Michelin_star.png",
+    return [html.Img(src="assets/Images/Michelin_star.png",
                      className='michelin-star',
                      style={'width': '20px', 'vertical-align': 'middle', 'margin-right': '3px'}) for _ in range(int(count))]
 
 
 def bib_gourmand():
-    return html.Img(src="assets/Michelin_Bib.png",
+    return html.Img(src="assets/Images/Michelin_Bib.png",
                     className='bib-image',
                     style={'width': '20px', 'vertical-align': 'middle'})
 
@@ -33,14 +33,14 @@ def bib_gourmand():
 # Inverted michelin images
 def inverted_michelin_stars(count):
     # Returns a list of Michelin star image components each with inverted colors
-    return [html.Img(src="assets/Michelin_star.png",
+    return [html.Img(src="assets/Images/Michelin_star.png",
                      className='michelin-star',
                      style={'width': '16px', 'vertical-align': 'middle', 'margin-right': '2px', 'filter': 'brightness(0) invert(1)'}) for _ in range(int(count))]
 
 
 def inverted_bib_gourmand():
     # Returns the Bib Gourmand image component with inverted colors
-    return html.Img(src="assets/Michelin_Bib.png",
+    return html.Img(src="assets/Images/Michelin_Bib.png",
                     className='bib-image',
                     style={'width': '16px', 'vertical-align': 'middle', 'filter': 'brightness(0) invert(1)'})
 
@@ -48,7 +48,7 @@ def inverted_bib_gourmand():
 def get_info_div():
     return html.Div(
         children=[
-            html.Img(src="assets/github-mark.png", className='info-image', style={'width': '30px'}),
+            html.Img(src="assets/Images/github-mark.png", className='info-image', style={'width': '30px'}),
             html.Div(
                 children=[
                     html.Span("The Michelin Guide to France was built from this ", className='info-text'),

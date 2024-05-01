@@ -1,6 +1,6 @@
 # Michelin Guide to France - Interactive Application
 
-![img](assets/Etoile_Michelin.svg)
+![img](assets/Images/Etoile_Michelin.svg)
 
 ----
 
@@ -26,7 +26,7 @@ This version of the Michelin Guide to France interactive application extends the
 
 #### Previous version:
 
-![img](assets/previous_site.png)
+![img](assets/Images/previous_site.png)
 
 ----
 
