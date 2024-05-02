@@ -2,7 +2,16 @@ import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
 from dash import html, dcc
-from layouts.layout_main import michelin_stars, bib_gourmand
+from layouts.layout_main import michelin_stars, bib_gourmand, color_map
+
+
+# Hover-tip text
+text_color_map = {
+    0.5: "#FFB84D",
+    1: "#640A64",
+    2: "#640A64",
+    3: "#FFB84D"
+}
 
 
 def plot_regional_outlines(region_df, region):
@@ -102,12 +111,6 @@ def get_restaurant_details(row):
     website_url = row['url']
 
     # Color for the border based on the number of stars
-    color_map = {
-        0.5: "#640A64",
-        1: "#FFB84D",
-        2: "#FE6F64",
-        3: "#C2282D"  # (r, g, b, opacity)
-    }
     border_color = color_map.get(stars, '#ccc')  # Default to grey if no stars count matches
 
     # Create the address information with a conditional for Paris arrondissements
@@ -152,6 +155,15 @@ def get_restaurant_details(row):
     return details_layout
 
 
+def generate_hover_text(row):
+    hover_text = (
+        f"<span style=\"font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: {text_color_map[row['stars']]};\">"
+        f"<span style='font-size: 14px;'>{row['name']}</span><br>"
+        f"{row['location']}<br>"
+    )
+    return hover_text
+
+
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
     # Before plotting, determine the correct zoom level
     zoom = 11 if department_code == '75' else 8  # Extra zoom for Paris
@@ -187,32 +199,9 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                     showlegend=False
                 ))
 
-    # Tooltip section
-    color_map = {
-        0.5: "#640A64",
-        1: "#FFB84D",
-        2: "#FE6F64",
-        3: "#C2282D"  # (r, g, b, opacity)
-    }
-
-    text_color_map = {
-        0.5: "#FFB84D",
-        1: "#640A64",
-        2: "#640A64",
-        3: "#FFB84D"
-    }
-
     dept_data = data_df[(data_df['department_num'] == str(department_code)) & (data_df['stars'].isin(selected_stars))].copy()
     dept_data['color'] = dept_data['stars'].map(color_map)
-
-    # Possibly put next to, "row['name']":
-    # {'🍽️' if row['stars'] == 0.5 else '★' * int(row['stars'])} (line 2)
-    dept_data['hover_text'] = dept_data.apply(
-        lambda row: f"<span style=\"font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: {text_color_map[row['stars']]};\">"
-                    f"<span style='font-size: 14px;'>{row['name']}</span><br>"
-                    f"{row['location']}<br>",
-        axis=1
-    )
+    dept_data['hover_text'] = dept_data.apply(generate_hover_text, axis=1)
 
     # Overlay restaurant points without adding them to the legend
     for star, color in color_map.items():
