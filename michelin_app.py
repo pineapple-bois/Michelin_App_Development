@@ -3,6 +3,7 @@ import geopandas as gpd
 import plotly.graph_objects as go
 import dash
 import dash_bootstrap_components as dbc
+import logging
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, ALL
@@ -12,7 +13,7 @@ from appFunctions import (plot_regional_outlines, plot_department_outlines, plot
                           get_restaurant_details)
 
 
-# # FOR LOCAL DEVELOPMENT ONLY - RISK MAN-IN-MIDDLE ATTACKS
+# # FOR LOCAL DEVELOPMENT ONLY - RISK OF MAN-IN-MIDDLE ATTACKS
 # import ssl
 # ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -44,8 +45,8 @@ server = Flask(__name__)
 app = dash.Dash(
     __name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP,
-                          "https://fonts.googleapis.com/css2?family=Kaisei+Decol&display=swap",
-                          "https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"],
+                          "https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Libre+Franklin:"
+                          "ital,wght@0,100..900;1,100..900&display=swap"],
     server=server)
 
 
@@ -61,68 +62,15 @@ def before_request():
 app.title = 'Michelin Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
-    dcc.Store(id='selected-stars', data=[]),  # Initialized all star ratings
+    dcc.Store(id='selected-stars', data=[]),
     dcc.Store(id='error-state', data=False),  # Initialize with no error
     dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout(unique_regions))  # Set initial content
 ])
 
-
-@app.callback(
-    [Output({'type': 'filter-button', 'index': ALL}, 'className'),
-     Output({'type': 'filter-button', 'index': ALL}, 'style'),
-     Output('selected-stars', 'data'),  # This output updates the list of active stars
-     Output('error-state', 'data')],
-    [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks')],
-    [State({'type': 'filter-button', 'index': ALL}, 'id'),
-     State('selected-stars', 'data'),
-     State('available-stars', 'data')]
-)
-def update_button_active_state(n_clicks_list, ids, current_stars, available_stars):
-    # Handle cases where not all data is available, especially at initialization
-    if not n_clicks_list or not available_stars:
-        # Return initial states if the necessary inputs aren't available
-        raise PreventUpdate
-
-    class_names = []
-    styles = []
-    new_stars = [star for star in current_stars if star in available_stars]
-    prevent_empty = False
-
-    for n_clicks, button_id in zip(n_clicks_list, ids):
-        index = button_id['index']
-        if index not in available_stars:
-            continue  # Skip processing for stars not available
-
-        is_active = n_clicks % 2 == 0  # Toggle active state - Even clicks means 'active'
-        if is_active:
-            if index not in new_stars:
-                new_stars.append(index)  # Add if not already in the list
-            background_color = color_map[index]  # Full color for active state
-        else:
-            if index in new_stars:
-                new_stars.remove(index)  # Remove if in the list but not active
-            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
-                                f"{int(color_map[index][3:5], 16)},"
-                                f"{int(color_map[index][5:7], 16)},"
-                                f"0.6)")  # Lighter color for inactive
-
-        class_name = "me-1 star-button" + (" active" if is_active else "")
-        color_style = {
-            "display": 'inline-block',
-            "width": '100%',
-            'backgroundColor': background_color,
-        }
-        class_names.append(class_name)
-        styles.append(color_style)
-
-    if not new_stars and not prevent_empty:
-        error_state = True
-    else:
-        error_state = False
-
-    return class_names, styles, new_stars, error_state
+# Set up basic configuration for logging/debug
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 @app.callback(
@@ -168,47 +116,62 @@ def update_department_and_filters(selected_region, selected_department):
 
 
 @app.callback(
-    Output('map-display', 'figure'),
-    [Input('department-dropdown', 'value'),
-     Input('region-dropdown', 'value'),
-     Input('selected-stars', 'data'),
-     Input('error-state', 'data')],
+    [Output({'type': 'filter-button', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button', 'index': ALL}, 'style'),
+     Output('selected-stars', 'data'),  # This output updates the list of active stars
+     Output('error-state', 'data')],
+    [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'filter-button', 'index': ALL}, 'id'),
+     State('selected-stars', 'data'),
+     State('available-stars', 'data')]
 )
-def update_map(selected_department, selected_region, selected_stars, error_state):  # add selected stars
-    # Determine which input triggered the callback
-    ctx = callback_context
-    triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
+def update_button_active_state(n_clicks_list, ids, current_stars, available_stars):
+    # Handle cases where not all data is available, especially at initialization
+    if not n_clicks_list or not available_stars:
+        raise PreventUpdate
 
-    if error_state or triggered_id == 'error-state':
-        department_code = dept_to_code[selected_department]
-        return plot_department_outlines(geo_df, department_code)
+    # Initialize empty lists to store class names and styles
+    class_names = []
+    styles = []
 
-    # Always update the department map if department or stars change
-    elif selected_department and (triggered_id == 'department-dropdown' or triggered_id == 'selected-stars'):
-        department_code = dept_to_code[selected_department]
-        return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
+    # Initialize the new list of active stars
+    new_stars = [star for star in current_stars if star in available_stars]
 
-    elif selected_region or triggered_id == 'region-dropdown' or triggered_id == 'department-dropdown':
-        # If a region is selected (and it's the trigger), show regional outlines
-        region_name = region_to_name[selected_region]
-        return plot_regional_outlines(region_df, region_name)
+    # Initialize error state
+    error_state = False     # default to no error
 
-    else:
-        # No specific region or department selected, or department cleared
-        # Create an empty figure with map centered around France
-        return go.Figure(go.Scattermapbox()).update_layout(
-            font=dict(
-                family="Courier New, monospace",
-                size=18,
-                color="white"
-            ),
-            width=800,
-            height=600,
-            mapbox_style="carto-positron",
-            mapbox_center_lat=46.603354,  # Approximate latitude for France center
-            mapbox_center_lon=1.888334,  # Approximate longitude for France center
-            margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
-        )
+    for n_clicks, button_id in zip(n_clicks_list, ids):
+        index = button_id['index']
+        if index not in available_stars:
+            continue  # Skip processing for stars not available
+
+        # Determine if the button is currently active
+        is_active = n_clicks % 2 == 0  # Even clicks means 'active'
+        if is_active:
+            if index not in new_stars:
+                new_stars.append(index)  # Add if not already in the list
+            background_color = color_map[index]  # Full color for active state
+        else:
+            if index in new_stars:
+                new_stars.remove(index)  # Remove if in the list but not active
+            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
+                                f"{int(color_map[index][3:5], 16)},"
+                                f"{int(color_map[index][5:7], 16)},"
+                                f"0.6)")  # Lighter color for inactive
+
+        class_name = "me-1 star-button" + (" active" if is_active else "")
+        color_style = {
+            "display": 'inline-block',
+            "width": '100%',
+            'backgroundColor': background_color,
+        }
+        class_names.append(class_name)
+        styles.append(color_style)
+
+    if not new_stars:
+        error_state = True  # Set error if no stars are active
+
+    return class_names, styles, new_stars, error_state
 
 
 @app.callback(
@@ -238,6 +201,68 @@ def update_sidebar(clickData, selected_department, error_state):
 
     # Default message if no restaurant is selected yet
     return html.Div("Select a restaurant on the map to see more details", className='placeholder-text')
+
+
+@app.callback(
+    Output('map-display', 'figure'),
+    [Input('department-dropdown', 'value'),
+     Input('region-dropdown', 'value'),
+     Input('selected-stars', 'data'),
+     Input('error-state', 'data')],
+)
+def update_map(selected_department, selected_region, selected_stars, error_state):  # add selected stars
+    #logging.debug(f"Updating map: {selected_department}, {selected_region}, Stars: {selected_stars}, Error: {error_state}")
+    ctx = callback_context
+    triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
+    #logging.debug(f"Triggered by: {triggered_id}")
+
+    # Check for error state first - highest priority
+    if error_state:
+        return handle_error_condition(selected_department)
+
+    # Check if the callback was specifically triggered by a department or star selection
+    if triggered_id in ['department-dropdown', 'selected-stars']:
+        if selected_department:
+            department_code = dept_to_code.get(selected_department)
+            if department_code:
+                if not selected_stars:
+                    return plot_department_outlines(geo_df, department_code)
+                else:
+                    return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
+
+    # Handle region selection separately
+    if selected_region or triggered_id == 'region-dropdown':
+        region_name = region_to_name.get(selected_region)
+        if region_name:  # Ensure region name exists
+            return plot_regional_outlines(region_df, region_name)
+
+    # Default case - no specific input or cleared inputs
+    return default_map_figure()
+
+
+def handle_error_condition(selected_department):
+    if selected_department:
+        department_code = dept_to_code.get(selected_department, None)
+        if department_code:
+            return plot_department_outlines(geo_df, department_code)
+    return default_map_figure()
+
+
+def default_map_figure():
+    return go.Figure(go.Scattermapbox()).update_layout(
+            font=dict(
+                family="Courier New, monospace",
+                size=18,
+                color="white"
+            ),
+            width=800,
+            height=600,
+            mapbox_style="carto-positron",
+            mapbox_zoom=5,
+            mapbox_center_lat=46.603354,
+            mapbox_center_lon=1.888334,
+            margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        )
 
 
 # For local development, debug=True
