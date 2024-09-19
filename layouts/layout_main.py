@@ -9,7 +9,23 @@ color_map = {
     3: "#C2282D"
 }
 
-star_placeholder = [0.5, 1, 2, 3]
+star_placeholder = (0.5, 1, 2, 3)
+
+unique_regions = ['Auvergne-Rhône-Alpes',
+                  'Bourgogne-Franche-Comté',
+                  'Bretagne',
+                  'Centre-Val de Loire',
+                  'Corse',
+                  'Grand Est',
+                  'Hauts-de-France',
+                  'Normandie',
+                  'Nouvelle-Aquitaine',
+                  'Occitanie',
+                  'Pays de la Loire',
+                  "Provence-Alpes-Côte d'Azur",
+                  'Île-de-France'
+                  ]
+
 
 #  wikipedia image links:
 # https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg
@@ -45,22 +61,44 @@ def inverted_bib_gourmand():
                     style={'width': '16px', 'vertical-align': 'middle', 'filter': 'brightness(0) invert(1)'})
 
 
-def get_info_div():
+def get_header_with_buttons():
     return html.Div(
         children=[
-            html.Img(src="assets/Images/github-mark.png", className='info-image', style={'width': '30px'}),
+            html.Div([
+                html.H1(["Michelin Guide to France. ", html.Span("2024", className='year-text')],
+                        className='title-section'),
+                ], className='header-title'
+            ),
+            html.Div(
+                [
+                    dbc.Button("Guide", href='/', id='home-button', className='header-button', color='primary'),
+                    dbc.Button("Analysis", href='/analysis', id='analysis-button', className='header-button', color='secondary')
+                ],
+                className='header-buttons'
+            )
+        ], className='header-container'
+    )
+
+def get_footer():
+    return html.Div(
+        children=[
             html.Div(
                 children=[
-                    html.Span("The Michelin Guide to France was built from this ", className='info-text'),
-                    dcc.Link("GitHub Repository", href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
-                             target="_blank", className='info-link'),
-                    html.Div("© pineapple-bois 2024", className='info-footer')
+                    html.Img(src="assets/Images/github-mark.png", className='info-image'),
+                    html.Div(
+                        children=[
+                            html.Span("The Michelin Guide to France was built from this ", className='info-text'),
+                            dcc.Link("GitHub Repository", href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
+                                     target="_blank", className='info-link'),
+                            html.Div("© pineapple-bois 2024", className='info-footer')
+                        ],
+                        style={'flexDirection': 'column'}  # Stack the text and the new line on top of each other
+                    )
                 ],
-                style={'flexDirection': 'column'}  # This will stack the text and the new line on top of each other
+                className='info-container'  # Inner container
             )
         ],
-        className='info-container',
-        style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'flex-start', 'padding': '1rem'}
+        className='footer-main'  # Main div for debug coloring
     )
 
 
@@ -100,11 +138,7 @@ def star_filter_section(available_stars=star_placeholder):
     ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
 
-def get_main_layout(unique_regions):
-    title_section = html.Div(children=[
-        html.H1(["Michelin Guide to France. ", html.Span("2024", className='year-text')], className='title-section')
-    ], className='container-style')
-
+def get_main_content(unique_regions):
     ratings_layout = html.Div([
         dbc.Row([
             # First Column
@@ -172,15 +206,34 @@ def get_main_layout(unique_regions):
             )
     ], className='map-section')
 
-    # Footer Section
-    footer_section = html.Div(children=[
-        get_info_div()
-    ], className='footer-section', style={'width': '100%'})
+    # Combine all sections into the main layout
+    return html.Div([
+        sidebar_content,  # Sidebar contains top section and ratings details
+        map_section,
+    ], className='main-content')
+
+
+def get_main_layout():
+    # Header with buttons
+    header = html.Div(
+        children=[
+            get_header_with_buttons()
+        ],
+        className='header'
+    )
+
+    body = html.Div(
+        children=[
+            get_main_content(unique_regions)
+        ],
+        className='body'
+    )
+
+    footer = get_footer()
 
     # Combine all sections into the main layout
     return html.Div([
-        title_section,
-        sidebar_content,  # Sidebar contains top section and ratings details
-        map_section,
-        footer_section
+        header,
+        body,
+        footer
     ], className='main-layout')
