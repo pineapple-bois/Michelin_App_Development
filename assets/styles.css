@@ -3,9 +3,31 @@
    ------------------------- */
 body {
     font-family: 'Libre Franklin', sans-serif;
-    margin-top: 20px;
     margin-left: 50px;
     margin-right: 50px;
+}
+
+
+/* Header section: fixed at the top */
+.header {
+    width: 100%; /* Take full width of the viewport */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px; /* Adjust height as needed */
+    background-color: white; /* Set background color for visibility */
+    z-index: 1000; /* Ensure it stays above other content */
+    border-bottom: 1px solid #ddd; /* Optional: Add border for separation */
+}
+
+/* Body: Dynamic height based on remaining space */
+.body {
+    flex-grow: 1;
+    padding-top: 120px; /* Space for the fixed header */
+    padding-bottom: 100px; /* Space for the fixed footer */
+    overflow-y: auto; /* Allow scrolling if content exceeds view */
+    margin: 0;
 }
 
 /* -------------------------
@@ -19,16 +41,29 @@ body {
 /* -------------------------
    Title and Year Text Styles
    ------------------------- */
+
+/* Header container that holds title and buttons */
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Align title to the left, buttons to the right */
+    align-items: center;
+    width: 100%; /* Take full width of the header */
+}
+
+/* -------------------------
+   Title and Year Text Styles
+   ------------------------- */
+.header-title {
+    /*background-color: lightblue; !* Debug color for the title *!*/
+    flex-grow: 1;
+}
+
 .title-section {
     font-family: "Kaisei Decol", serif;
     font-size: 60px;
-    text-align: left;
-    margin-left: 0;
-    margin-bottom: 30px;
+    margin-left: 50px;
     color: black;
     font-weight: 400;
-    flex: 1 0 auto;
-    min-width: 0;
 }
 
 .year-text {
@@ -36,40 +71,113 @@ body {
 }
 
 /* -------------------------
-   Info Container Styles
+   Button Styling
    ------------------------- */
-.info-container {
-    padding: 0;
-    background-color: white/*#EAECEE*/;
-    margin-top: 10px; /* Adds space between the map and the new div */
-    display: flex; /* Use flexbox to align children horizontally */
-    align-items: center; /* Vertically centers the children */
-    justify-content: flex-start; /* Aligns children to the left */
+
+/* Container for the buttons */
+.header-buttons {
+    display: flex;
+    gap: 20px; /* Space between buttons */
+    /*background-color: lightgreen; !* Debug color for buttons container *!*/
+    margin-right: 50px;
 }
 
+/* General button styling */
+.header-button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    color: white; /* Set the text color */
+    background-color: lightcoral; /* Debug color for visibility */
+    text-decoration: none; /* Removes underline for links */
+    display: inline-block;
+}
+
+/* Hover and focus states for buttons */
+.header-button:hover,
+.header-button:focus {
+    background-color: #C2282D; /* Same color as active state */
+    color: white;
+}
+
+/* -------------------------
+   Footer Container Styles
+   ------------------------- */
+/* Main footer div with debug color */
+.footer-main {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    width: 100%;
+    z-index: 1000;
+    /*background-color: lightcoral; !* Debug color for visibility *!*/
+    background-color: white;
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #ddd; /* Optional: Add border for separation */
+}
+
+/* Info container with its own debug color */
+.info-container {
+    /*background-color: lightblue; !* Debug color for the content container *!*/
+    width: 100%;
+    padding-left: 50px;
+    padding-right: 50px;
+    display: flex; /* Flexbox for horizontal alignment */
+    align-items: center; /* Vertically center the children */
+    justify-content: flex-start; /* Align content to the left */
+}
+
+/* Styling for GitHub image */
 .info-image {
     margin-right: 0.5rem; /* Space between image and text */
+    width: 30px;
 }
 
+/* Link styling */
 .info-link {
-    text-decoration: none; /* Optional: removes the underline from the link */
-    color: #007bff; /* Bootstrap default link color */
+    text-decoration: none; /* Removes underline */
+    color: #007bff;
     font-size: 12px;
 }
 
 .info-link:hover {
-    text-decoration: underline; /* Underline on hover for clarity */
+    text-decoration: underline; /* Underline on hover */
 }
 
+/* Footer text styling */
 .info-footer {
     font-size: 9px;
-    color: #555; /* A grey that is less prominent than the main text color */
-    opacity: 0.7; /* make the text slightly transparent to be less prominent */
+    color: #555; /* Grey color for footer text */
+    opacity: 0.7; /* Slight transparency */
 }
 
+/* Info text styling */
 .info-text {
     font-size: 12px;
+    color: black;
 }
+
+/* -------------------------
+   404 Styles
+   ------------------------- */
+
+.not-found-content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of the viewport */
+    text-align: center; /* Center text inside the container */
+}
+
+.custom-text {
+    font-size: 24px; /* Adjust font size as needed */
+}
+
 
 /* -------------------------
    Dropdown Styles
@@ -303,6 +411,144 @@ body {
 .container-style {
     padding: 0; /* If you want to remove padding globally */
 }
+
+/* -------------------------
+   -------------------------
+   Analysis Page
+   -------------------------
+   ------------------------- */
+
+/* Body: Dynamic height based on remaining space */
+.content-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.analysis-container {
+    flex-grow: 1;
+    overflow-y: auto; /* Allow scrolling if content exceeds view */
+    margin-top: 100px;
+}
+
+/* Sidebar styling */
+.analysis-sidebar {
+    background-color: #f9f9f9; /* Light background for visibility */
+    border-right: 1px solid #ddd;
+    width: 30%;
+    height: 100vh; /* Full height to match the main content */
+}
+
+/* Main content styling */
+.analysis-main-content {
+    width: 70%;
+}
+
+.analysis-main-content {
+    background-color: lightyellow; /* Debug color */
+    flex-grow: 1;  /* Allow this container to grow to fill available space */
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.region-description {
+    background-color: lightcoral; /* Debug color */
+    margin-bottom: 60px; /* Space between elements */
+}
+
+/* Region filter container */
+.region-filter-container {
+    background-color: lightblue; /* Debug color */
+    margin-bottom: 40px; /* Space between elements */
+}
+
+/* Title for the region filter */
+.region-filter-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* Dropdown styling */
+.dropdown-analysis {
+    margin-bottom: 10px;
+}
+
+/* -------------------------
+   Region dropdowns
+   ------------------------- */
+
+/* Change the background and text color of selected dropdown values */
+.dropdown-analysis .Select-value {
+    background-color: rgba(194, 40, 45, 0.2) !important; /* Semi-transparent red background */
+    color: #C2282D !important;  /* Bold red text */
+    border-radius: 5px;
+    border: none !important; /* Remove blue border */
+}
+
+/* Target the label inside each selected value to ensure bold red text */
+.dropdown-analysis .Select-value-label {
+    color: #C2282D !important; /* Bold red text */
+    box-shadow: none !important; /* Remove blue shadow */
+}
+
+/* Customize the "x" button on hover */
+.dropdown-analysis .Select-value-icon:hover {
+    color: #C2282D !important; /* Red color for the "x" icon on hover */
+}
+
+/* Ensure the "x" stays black when not hovered */
+.dropdown-analysis .Select-value-icon {
+    color: black !important; /* Black color for the "x" by default */
+}
+
+/* Remove blue outline when the "x" button or value is focused */
+.dropdown-analysis .Select-value:focus,
+.dropdown-analysis .Select-value-icon:focus {
+    outline: none !important; /* Remove focus outline */
+}
+
+/* -------------------------
+   Analysis Page Star Button Styles
+   ------------------------- */
+
+/* Star filter container */
+.star-filter-section-analysis {
+    background-color: lightgreen; /* Debug color */
+    margin-bottom: 20px; /* Space between elements */
+}
+
+.star-button-analysis {
+    width: 40px;
+    padding: 5px;
+}
+
+.star-filter-buttons-analysis {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 10px;  /* Adjust this value to manage the gap between buttons */
+    margin-bottom: 20px;
+}
+
+/* Hover effect for analysis page star buttons */
+.star-button-analysis:hover {
+    opacity: 0.8 !important;
+    cursor: pointer;
+}
+
+/* Stronger specificity by adding the parent div class */
+.star-filter-section-analysis .star-button-analysis.active {
+    opacity: 1;
+    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+}
+
+.star-filter-section-analysis .star-button-analysis.inactive {
+    opacity: 0.5;
+}
+
 
 /* -------------------------
    Responsive Styles
