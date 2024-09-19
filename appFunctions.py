@@ -244,3 +244,92 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
     )
 
     return fig
+
+
+def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show_labels=True, cmap='Reds'):
+    """
+    Plot a single choropleth map using Plotly.
+
+    Args:
+        df (GeoDataFrame): The DataFrame containing the data.
+        selected_stars (list): List of selected star levels (e.g., [0.5, 1, 2, 3]).
+        granularity (str): Level of granularity - 'arrondissement', 'department', or 'region'. Default is 'region'.
+        show_labels (bool): Whether to show the labels. Default is True.
+        cmap (str): The colormap to use. Default is 'Reds'.
+
+    Returns:
+        fig (Plotly Figure): The plotly figure object.
+    """
+
+    # Prepare the figure
+    fig = go.Figure()
+
+    # Calculate the total number of restaurants for the selected stars
+    df['total_restaurants'] = 0
+    if 0.5 in selected_stars:
+        df['total_restaurants'] += df['bib_gourmand']
+    if 1 in selected_stars:
+        df['total_restaurants'] += df['1_star']
+    if 2 in selected_stars:
+        df['total_restaurants'] += df['2_star']
+    if 3 in selected_stars:
+        df['total_restaurants'] += df['3_star']
+
+    # Add the choropleth map with hover info (region + total restaurants)
+    fig.add_trace(
+        go.Choropleth(
+            geojson=df.__geo_interface__,  # GeoJSON representation of the dataframe
+            z=df['total_restaurants'],  # Use total restaurants for coloring
+            locations=df.index,  # Match the locations via index
+            colorscale=cmap,
+            colorbar_title='Restaurants',
+            marker_line_width=0.5,
+            marker_line_color='darkgray',
+            hovertemplate=(
+                '<b>Region:</b> %{customdata[0]}<br>'
+                '<b>Total Restaurants:</b> %{z}<extra></extra>'
+            ),
+            customdata=df[['region']].values  # Pass the region as custom data for the hover
+        )
+    )
+
+    # If show_labels is True, add labels to the map based on granularity
+    if show_labels:
+        if granularity == 'region':
+            label_column = 'region'
+        elif granularity == 'department':
+            label_column = 'code'
+        elif granularity == 'arrondissement':
+            label_column = 'arrondissement'
+        else:
+            raise ValueError(f"Invalid granularity: {granularity}. Choose from ['region', 'department', 'arrondissement'].")
+
+        # Add text labels (centroid labels)
+        centroids = df.geometry.centroid
+        for x, y, label in zip(centroids.x, centroids.y, df[label_column]):
+            fig.add_trace(
+                go.Scattergeo(
+                    lon=[x],
+                    lat=[y],
+                    text=label,
+                    mode='text',
+                    textposition='top center',
+                    showlegend=False
+                )
+            )
+
+    # Update the layout for the figure, centering on France and adjusting size
+    fig.update_layout(
+        geo=dict(
+            scope='europe',  # Set the scope to Europe
+            resolution=50,
+            showcoastlines=False,
+            showland=True,
+            landcolor="lightgray",
+            center=dict(lat=46.603354, lon=1.888334),  # Center on France (approximate lat, lon)
+            projection_scale=6,  # Increase the scale for zoom (larger map)
+        ),
+        margin=dict(l=10, r=10, t=30, b=10),  # Reduce margins to reduce white space
+    )
+
+    return fig
