@@ -3,19 +3,17 @@ import geopandas as gpd
 import plotly.graph_objects as go
 import dash
 import dash_bootstrap_components as dbc
-import logging
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, ALL
 from flask import Flask, redirect, request
+
 from layouts.layout_main import get_main_layout, color_map, star_filter_row, star_filter_section
+from layouts.layout_analysis import get_analysis_layout
+from layouts.layout_404 import get_404_layout
+
 from appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
-                          get_restaurant_details)
-
-
-# # FOR LOCAL DEVELOPMENT ONLY - RISK OF MAN-IN-MIDDLE ATTACKS
-# import ssl
-# ssl._create_default_https_context = ssl._create_unverified_context
+                          get_restaurant_details, plot_single_choropleth_plotly)
 
 
 # Load restaurant data
@@ -31,6 +29,7 @@ departments_with_restaurants = all_france['department_num'].unique()
 # Filter geo_df
 geo_df = geo_df[geo_df['code'].isin(departments_with_restaurants)]
 
+star_placeholder = (0.5, 1, 2, 3)
 
 # Use geo_df to get unique regions and departments for the initial dropdowns
 unique_regions = sorted(geo_df['region'].unique())
@@ -44,6 +43,7 @@ region_to_name = {region: region for region in geo_df['region'].unique()}
 server = Flask(__name__)
 app = dash.Dash(
     __name__,
+    suppress_callback_exceptions=True,
     external_stylesheets=[dbc.themes.BOOTSTRAP,
                           "https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Libre+Franklin:"
                           "ital,wght@0,100..900;1,100..900&display=swap"],
@@ -51,11 +51,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 # App set up
@@ -66,12 +66,59 @@ app.layout = html.Div([
     dcc.Store(id='error-state', data=False),  # Initialize with no error
     dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
     dcc.Location(id='url', refresh=False),  # Tracks the url
-    html.Div(id='page-content', children=get_main_layout(unique_regions))  # Set initial content
+    html.Div(id='page-content', children=get_main_layout())  # Set initial content
 ])
 
-# Set up basic configuration for logging/debug
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Define callback to handle page navigation
+@app.callback(
+    Output('page-content', 'children'),
+    [Input('url', 'pathname')]
+)
+def display_page(pathname):
+    if pathname == '/analysis':
+        return get_analysis_layout()
+    elif pathname == '/home':
+        return get_main_layout()
+    else:
+        return get_main_layout() if pathname == '/' else get_404_layout()
+
+
+# Callback to update the button colors based on the current page
+@app.callback(
+    [Output('home-button', 'style'),
+     Output('analysis-button', 'style')],
+    [Input('url', 'pathname')]
+)
+def update_button_styles(pathname):
+    # Define the active and inactive button styles
+    active_button_style = {
+        'background-color': '#C2282D',
+        'color': 'white',
+        'border': 'none',
+        'padding': '10px 20px',
+        'border-radius': '5px',
+        'cursor': 'pointer',
+    }
+    inactive_button_style = {
+        'background-color': 'lightcoral',
+        'color': 'white',
+        'border': 'none',
+        'padding': '10px 20px',
+        'border-radius': '5px',
+        'cursor': 'pointer',
+    }
+
+    # Check the current URL path and apply the active style to the corresponding button
+    if pathname == '/' or pathname == '/home':
+        return active_button_style, inactive_button_style  # Home button active
+    elif pathname == '/analysis':
+        return inactive_button_style, active_button_style  # Analysis button active
+    else:
+        return inactive_button_style, inactive_button_style  # Default case, both inactive
+
+
+# -----------------------> "Guide Page"
 
 @app.callback(
     [
@@ -98,12 +145,9 @@ def update_department_and_filters(selected_region, selected_department):
 
     # Determine which star ratings are present
     available_stars = []
-    if department_row['3_star'] > 0:
-        available_stars.append(3)
-    if department_row['2_star'] > 0:
-        available_stars.append(2)
-    if department_row['1_star'] > 0:
-        available_stars.append(1)
+    for star_level in [3, 2, 1]:  # Ensure all levels are checked
+        if department_row[f'{int(star_level)}_star'] > 0:
+            available_stars.append(star_level)
     if department_row['bib_gourmand'] > 0:
         available_stars.append(0.5)
 
@@ -170,7 +214,6 @@ def update_button_active_state(n_clicks_list, ids, current_stars, available_star
 
     if not new_stars:
         error_state = True  # Set error if no stars are active
-
     return class_names, styles, new_stars, error_state
 
 
@@ -210,11 +253,9 @@ def update_sidebar(clickData, selected_department, error_state):
      Input('selected-stars', 'data'),
      Input('error-state', 'data')],
 )
-def update_map(selected_department, selected_region, selected_stars, error_state):  # add selected stars
-    #logging.debug(f"Updating map: {selected_department}, {selected_region}, Stars: {selected_stars}, Error: {error_state}")
+def update_map(selected_department, selected_region, selected_stars, error_state):
     ctx = callback_context
     triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
-    #logging.debug(f"Triggered by: {triggered_id}")
 
     # Check for error state first - highest priority
     if error_state:
@@ -265,6 +306,150 @@ def default_map_figure():
         )
 
 
+# -----------------------> "Analysis Page"
+
+
+@app.callback(
+    [Output('restaurant-analysis-graph', 'figure'),
+     Output('region-map', 'figure')],
+    [Input('region-dropdown-analysis', 'value'),
+     Input({'type': 'filter-button-analysis', 'index': ALL}, 'n_clicks')]
+)
+def update_analysis_chart_and_map(selected_regions, star_clicks):
+    # Ensure we have a valid region selection
+    global region_df
+    if not selected_regions:
+        raise PreventUpdate
+
+    # Default to all star levels if none selected
+    selected_stars = [0.5, 1, 2, 3]  # Bib Gourmand = 0.5
+
+    # Check which stars are currently active from star buttons
+    if star_clicks:
+        selected_stars = [star_placeholder[i] for i, n in enumerate(star_clicks) if n % 2 == 0]  # Only keep active stars
+
+    # Filter the geo_df based on the selected regions
+    filtered_df = region_df[region_df['region'].isin(selected_regions)].copy()
+
+    # Sort the filtered dataframe by 'region'
+    filtered_df = filtered_df.sort_values('region')
+
+    # Create the stacked bar chart for each Michelin star level
+    traces = []
+    if 0.5 in selected_stars:
+        traces.append(go.Bar(
+            y=filtered_df['region'],
+            x=filtered_df['bib_gourmand'],
+            name="Bib Gourmand",
+            marker_color=color_map[0.5],
+            orientation='h',
+            hovertemplate=(
+                '<b>Restaurants:</b> %{x}<extra></extra>'
+            ),
+        ))
+    if 1 in selected_stars:
+        traces.append(go.Bar(
+            y=filtered_df['region'],
+            x=filtered_df['1_star'],
+            name="1 Star",
+            marker_color=color_map[1],
+            orientation='h',
+            hovertemplate=(
+                '<b>Restaurants:</b> %{x}<extra></extra>'
+            ),
+        ))
+    if 2 in selected_stars:
+        traces.append(go.Bar(
+            y=filtered_df['region'],
+            x=filtered_df['2_star'],
+            name="2 Stars",
+            marker_color=color_map[2],
+            orientation='h',
+            hovertemplate=(
+                '<b>Restaurants:</b> %{x}<extra></extra>'
+            ),
+        ))
+    if 3 in selected_stars:
+        traces.append(go.Bar(
+            y=filtered_df['region'],
+            x=filtered_df['3_star'],
+            name="3 Stars",
+            marker_color=color_map[3],
+            orientation='h',
+            hovertemplate=(
+                '<b>Restaurants:</b> %{x}<extra></extra>'
+            ),
+        ))
+
+    # Create bar chart figure
+    fig_bar = go.Figure(data=traces)
+    fig_bar.update_layout(
+        barmode='stack',
+        title="Count of Michelin rated restaurants across selected regions of France.",
+        xaxis_title="Number of Restaurants",
+        plot_bgcolor='white',
+        margin=dict(l=20, r=20, t=60, b=20),
+        xaxis=dict(title_standoff=15),
+        yaxis=dict(
+            ticklabelposition="outside",
+            automargin=True,
+            autorange='reversed'
+        ),
+    )
+
+    # Create choropleth map figure
+    map_fig = plot_single_choropleth_plotly(
+        df=region_df[region_df['region'].isin(selected_regions)],
+        selected_stars=selected_stars,
+        granularity='region',
+        show_labels=False
+    )
+
+    return fig_bar, map_fig
+
+
+@app.callback(
+    [Output({'type': 'filter-button-analysis', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button-analysis', 'index': ALL}, 'style')],
+    [Input({'type': 'filter-button-analysis', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'filter-button-analysis', 'index': ALL}, 'id')]
+)
+def update_button_active_state_analysis(n_clicks_list, ids):
+    # Ensure clicks are provided
+    if not n_clicks_list:
+        raise PreventUpdate
+
+    # Initialize empty lists to store class names and styles
+    class_names = []
+    styles = []
+
+    for n_clicks, button_id in zip(n_clicks_list, ids):
+        index = button_id['index']
+
+        # Determine if the button is currently active
+        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
+        if is_active:
+            background_color = color_map[index]  # Full color for active state
+        else:
+            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
+                                f"{int(color_map[index][3:5], 16)},"
+                                f"{int(color_map[index][5:7], 16)},"
+                                f"0.6)")  # Lighter color for inactive
+
+        # Update class name and style based on the active/inactive state
+        class_name = "me-1 star-button-analysis" + (" active" if is_active else "")
+        color_style = {
+            "display": 'inline-block',
+            "width": '100%',
+            'backgroundColor': background_color,
+        }
+
+        class_names.append(class_name)
+        styles.append(color_style)
+
+    return class_names, styles
+
+
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
