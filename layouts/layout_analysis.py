@@ -70,81 +70,122 @@ def get_analysis_content():
     return html.Div(
         className='analysis-container',
         children=[
-            # Sidebar - 30% width
+            # New Div for placeholder text (full width)
             html.Div(
-                className='analysis-sidebar',
+                className='placeholder-text-container',
                 children=[
-                    html.Div(
-                        children=[
-                            html.H3("How do Michelin starred restaurants vary across regions?")
-                        ], className="region-description"
-                    ),
-
-                    # Title and region dropdown in one div
-                    html.Div(
-                        className='region-filter-container',
-                        children=[
-                            html.H4("Add or Remove Regions of France", className='region-filter-title'),
-                            dcc.Dropdown(
-                                id='region-dropdown-analysis',
-                                options=[{'label': region, 'value': region} for region in unique_regions],
-                                value=unique_regions,  # All regions selected by default
-                                className='dropdown-analysis',
-                                multi=True,  # Multi-select enabled
-                                clearable=True
-                            ),
-                        ]
-                    ),
-
-                    # Star filter specific to analysis page
-                    html.Div([
-                        html.Div(
-                            id='star-filter-analysis',
-                            children=[
-                                dcc.Store(id='selected-stars-analysis', data=[]),
-                                star_filter_section_analysis(star_placeholder),  # Use new filter section
-                            ], className='star-filter-section-analysis'
-                        ),
-                    ]),
-                ],
-                style={'width': '30%', 'float': 'left'}
-            ),
-
-            # Main Content - 70% width
-            html.Div(
-                className='analysis-main-content',
-                children=[
-                    # Row for bar chart and map
-                    html.Div(
-                        className='analysis-visuals',
-                        children=[
-                            # Bar chart
-                            html.Div(
-                                className='analysis-graph',
-                                children=[
-                                    dcc.Graph(
-                                        id='restaurant-analysis-graph',
-                                        config={'displayModeBar': False}
-                                    )
-                                ],
-                                style={'width': '60%', 'display': 'inline-block'}
-                            ),
-                            # Map
-                            html.Div(
-                                className='analysis-map',
-                                children=[
-                                    dcc.Graph(
-                                        id='region-map',
-                                        config={'displayModeBar': False}
-                                    )
-                                ],
-                                style={'width': '40%', 'display': 'inline-block'}
-                            )
-                        ]
+                    html.H5(
+                        """
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        """
                     )
                 ],
-                style={'width': '70%', 'float': 'right'}
-            )
+                style={'width': '100%'}  # Set full width
+            ),
+            # Region Section (both sidebar and main content)
+            html.Div(
+                className='region-content-wrapper',  # Wrapper to couple sidebar and content for regions
+                children=[
+                    # Sidebar for regions - 30% width
+                    html.Div(
+                        className='region-sidebar',
+                        children=[
+                            # Description related to region analysis
+                            html.Div(
+                                children=[
+                                    html.H5("How do Michelin rated restaurants vary across regions?")
+                                ], className="region-description"
+                            ),
+
+                            # Title and region dropdown in one div
+                            html.Div(
+                                className='region-filter-container',
+                                children=[
+                                    html.H5("Add or Remove Regions of France", className='region-filter-title'),
+                                    dcc.Dropdown(
+                                        id='region-dropdown-analysis',
+                                        options=[{'label': region, 'value': region} for region in unique_regions],
+                                        value=unique_regions,  # All regions selected by default
+                                        className='dropdown-region-analysis',
+                                        multi=True,  # Multi-select enabled
+                                        clearable=True
+                                    ),
+                                ]
+                            ),
+
+                            # Star filter specific to analysis page
+                            html.Div(
+                                className='star-filter-container',
+                                children=[
+                                    dcc.Store(id='selected-stars-analysis', data=[]),
+                                    star_filter_section_analysis(star_placeholder),  # Use new filter section
+                                ]
+                            ),
+                        ],
+                        style={'width': '30%', 'float': 'left'}  # Region sidebar
+                    ),
+
+                    # Main Content for regions - 70% width
+                    html.Div(
+                        className='region-main-content',
+                        children=[
+                            # Row for bar chart and map
+                            html.Div(
+                                className='region-visuals',
+                                children=[
+                                    # Bar chart
+                                    html.Div(
+                                        className='region-graph',
+                                        children=[
+                                            dcc.Graph(
+                                                id='restaurant-analysis-graph',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'width': '60%', 'display': 'inline-block'}
+                                    ),
+                                    # Map
+                                    html.Div(
+                                        className='region-map',
+                                        children=[
+                                            dcc.Graph(
+                                                id='region-map',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'width': '40%', 'display': 'inline-block'}
+                                    )
+                                ]
+                            )
+                        ],
+                        style={'width': '70%', 'float': 'right'}  # Region main content
+                    )
+                ]
+            ),
+
+            # Department Section Placeholder
+            html.Div(
+                className='department-content-wrapper',
+                children=[
+                    # Sidebar for regions - 30% width
+                    html.Div(
+                        className='department-sidebar',
+                        children=[
+                            # Description related to region analysis
+                            html.Div(
+                                children=[
+                                    html.H5("Select a region to view restaurants by department")
+                                ], className="department-description"
+                            ),
+                        ],
+                        style={'width': '30%', 'float': 'left'} # Department sidebar
+                    )
+                ]
+            ),
         ]
     )
 
