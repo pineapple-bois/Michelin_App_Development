@@ -66,6 +66,176 @@ def star_filter_section(available_stars=star_placeholder, filter_type="analysis"
     ], className=f'star-filter-section-{filter_type}', id=f'star-filter-{filter_type}')  # Dynamic ID and class
 
 
+def get_department_region_section():
+    return html.Div(
+        children=[
+            # Placeholder text section (common for both regions and departments)
+            html.Div(
+                className='placeholder-text-container',
+                children=[
+                    html.H5(
+                        """
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        """
+                    )
+                ],
+                style={'width': '100%'}  # Set full width
+            ),
+            # Region Section (both sidebar and main content)
+            html.Div(
+                className='region-content-wrapper',  # Wrapper to couple sidebar and content for regions
+                children=[
+                    # Sidebar for regions - 30% width
+                    html.Div(
+                        className='region-sidebar',
+                        children=[
+                            html.Div(
+                                children=[
+                                    html.H5("How do Michelin rated restaurants vary across regions?")
+                                ], className="region-description"
+                            ),
+                            html.Div(
+                                className='region-filter-container',
+                                children=[
+                                    html.H5("Add or Remove Regions of France", className='region-filter-title'),
+                                    dcc.Dropdown(
+                                        id='region-dropdown-analysis',
+                                        options=[{'label': region, 'value': region} for region in unique_regions],
+                                        value=unique_regions,  # All regions selected by default
+                                        className='dropdown-region-analysis',
+                                        multi=True,  # Multi-select enabled
+                                        clearable=True
+                                    ),
+                                ]
+                            ),
+                            # Star filter specific to analysis page
+                            html.Div(
+                                className='star-filter-container',
+                                children=[
+                                    dcc.Store(id='selected-stars-analysis', data=[]),
+                                    star_filter_section(star_placeholder, filter_type="analysis"),
+                                ]
+                            ),
+                        ],
+                        style={'width': '30%', 'float': 'left'}
+                    ),
+                    # Main content for regions - 70% width
+                    html.Div(
+                        className='region-main-content',
+                        children=[
+                            html.Div(
+                                className='region-visuals',
+                                children=[
+                                    html.Div(
+                                        className='region-graph',
+                                        children=[
+                                            dcc.Graph(
+                                                id='restaurant-analysis-graph',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'width': '60%', 'display': 'inline-block'}
+                                    ),
+                                    html.Div(
+                                        className='region-map',
+                                        children=[
+                                            dcc.Graph(
+                                                id='region-map',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'width': '40%', 'display': 'inline-block'}
+                                    )
+                                ]
+                            )
+                        ],
+                        style={'width': '70%', 'float': 'right'}
+                    )
+                ]
+            ),
+            # Department Section (both sidebar and main content)
+            html.Div(
+                className='department-content-wrapper',
+                children=[
+                    html.Div(
+                        className='department-sidebar',
+                        children=[
+                            html.Div(
+                                children=[
+                                    html.H5("Select a region to view restaurants by department")
+                                ], className="department-description"
+                            ),
+                            html.Div(
+                                className='department-filter-container',
+                                children=[
+                                    dcc.Dropdown(
+                                        id='department-dropdown-analysis',
+                                        options=[{'label': region, 'value': region} for region in unique_regions],
+                                        className='dropdown-department-analysis',
+                                        multi=False,  # Single selection enabled
+                                        clearable=True
+                                    ),
+                                ]
+                            ),
+                            # Star filter specific to department page
+                            html.Div(
+                                className='star-filter-container-wrapper',
+                                children=[
+                                    html.Div(
+                                        className='star-filter-container',
+                                        children=[
+                                            dcc.Store(id='selected-stars-department', data=[]),
+                                            star_filter_section(star_placeholder, filter_type="department"),
+                                        ],
+                                    ),
+                                ],
+                                id='star-filter-wrapper-department',
+                            ),
+                        ],
+                        style={'width': '30%', 'float': 'left'}
+                    ),
+                    # Main content for departments - 70% width
+                    html.Div(
+                        className='department-main-content',
+                        children=[
+                            html.Div(
+                                className='department-visuals',
+                                children=[
+                                    html.Div(
+                                        className='department-graph',
+                                        children=[
+                                            dcc.Graph(
+                                                id='department-analysis-graph',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'display': 'inline-block'}
+                                    ),
+                                    html.Div(
+                                        className='department-map',
+                                        children=[
+                                            dcc.Graph(
+                                                id='department-map',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'display': 'inline-block'}
+                                    )
+                                ]
+                            )
+                        ],
+                        style={'width': '70%', 'float': 'right'}
+                    )
+                ]
+            )
+        ]
+    )
+
+
 def get_top_ranking_section():
     return html.Div(
             className='ranking-content-wrapper',  # Wrapper for both sidebar and content
@@ -79,7 +249,7 @@ def get_top_ranking_section():
                                 children=[
                                     html.H5(
                                         children=[
-                                            "Top Regions/Departments for ",
+                                            "Regions/Departments with the Most ",
                                             *michelin_stars(2),  # Unpack the list of images for 2 stars
                                             " and ",
                                             *michelin_stars(3),  # Unpack the list of images for 3 stars
@@ -181,10 +351,10 @@ def get_top_ranking_section():
             )
 
 
-def get_analysis_content():
+def get_demographics_content():
     return html.Div(
-        className='analysis-container',
-        id='analysis-content-top',
+        className='demographics-container',
+        id='demographics-content-top',
         children=[
             # New Div for placeholder text (full width)
             html.Div(
@@ -200,171 +370,97 @@ def get_analysis_content():
                         """
                     )
                 ],
-                style={'width': '100%'}  # Set full width
+                style={'width': '100%'}  # Set full width for placeholder text
             ),
-            # Region Section (both sidebar and main content)
+
+            # Demographics Section with two dropdowns
             html.Div(
-                className='region-content-wrapper',  # Wrapper to couple sidebar and content for regions
+                className='demographics-filter-container',
                 children=[
-                    # Sidebar for regions - 30% width
+                    # Region dropdown
                     html.Div(
-                        className='region-sidebar',
+                        className='demographics-dropdown-container',
                         children=[
-                            # Description related to region analysis
-                            html.Div(
-                                children=[
-                                    html.H5("How do Michelin rated restaurants vary across regions?")
-                                ], className="region-description"
-                            ),
-
-                            # Title and region dropdown in one div
-                            html.Div(
-                                className='region-filter-container',
-                                children=[
-                                    html.H5("Add or Remove Regions of France", className='region-filter-title'),
-                                    dcc.Dropdown(
-                                        id='region-dropdown-analysis',
-                                        options=[{'label': region, 'value': region} for region in unique_regions],
-                                        value=unique_regions,  # All regions selected by default
-                                        className='dropdown-region-analysis',
-                                        multi=True,  # Multi-select enabled
-                                        clearable=True
-                                    ),
-                                ]
-                            ),
-
-                            # Star filter specific to analysis page
-                            html.Div(
-                                className='star-filter-container',
-                                children=[
-                                    dcc.Store(id='selected-stars-analysis', data=[]),
-                                    star_filter_section(star_placeholder, filter_type="analysis"),  # Use new filter section
-                                ]
-                            ),
-                        ],
-                        style={'width': '30%', 'float': 'left'}  # Region sidebar
-                    ),
-
-                    # Main Content for regions - 70% width
-                    html.Div(
-                        className='region-main-content',
-                        children=[
-                            # Row for bar chart and map
-                            html.Div(
-                                className='region-visuals',
-                                children=[
-                                    # Bar chart
-                                    html.Div(
-                                        className='region-graph',
-                                        children=[
-                                            dcc.Graph(
-                                                id='restaurant-analysis-graph',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'width': '60%', 'display': 'inline-block'}
-                                    ),
-                                    # Map
-                                    html.Div(
-                                        className='region-map',
-                                        children=[
-                                            dcc.Graph(
-                                                id='region-map',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'width': '40%', 'display': 'inline-block'}
-                                    )
-                                ]
+                            html.H6("Select Region"),
+                            dcc.Dropdown(
+                                id='granularity-dropdown-demographics',
+                                options=[{'label': region, 'value': region} for region in unique_regions],
+                                className='dropdown-granularity-demographics',
+                                multi=False,
+                                clearable=True
                             )
                         ],
-                        style={'width': '70%', 'float': 'right'}  # Region main content
-                    )
-                ]
-            ),
-            # Department Section (both sidebar and main content)
-            html.Div(
-                className='department-content-wrapper',
-                children=[
-                    # Sidebar for regions - 30% width
+                        style={'margin-bottom': '20px', 'width': '40%'}  # 40% width for the second dropdown
+                    ),
+                    # Demographics dropdown
                     html.Div(
-                        className='department-sidebar',
+                        className='demographics-dropdown-container',
                         children=[
-                            # Description related to region analysis
-                            html.Div(
-                                children=[
-                                    html.H5("Select a region to view restaurants by department")
-                                ], className="department-description"
-                            ),
-
-                            # Title and region dropdown in one div
-                            html.Div(
-                                className='department-filter-container',
-                                children=[
-                                    dcc.Dropdown(
-                                        id='department-dropdown-analysis',
-                                        options=[{'label': region, 'value': region} for region in unique_regions],
-                                        className='dropdown-department-analysis',
-                                        multi=False,  # Multi-select enabled
-                                        clearable=True
-                                    ),
-                                ]
-                            ),
-                            # Star filter specific to department page
-                            html.Div(
-                                className='star-filter-container-wrapper',  # New wrapper div
-                                children=[
-                                    html.Div(
-                                        className='star-filter-container',  # Original star filter container
-                                        children=[
-                                            dcc.Store(id='selected-stars-department', data=[]),
-                                            star_filter_section(star_placeholder, filter_type="department"),
-                                        ],
-                                    ),
+                            html.H6("Select Category"),
+                            dcc.Dropdown(
+                                id='category-dropdown-demographics',
+                                options=[
+                                    {'label': 'Population', 'value': 'population'},
+                                    {'label': 'Age Group', 'value': 'age_group'},
+                                    {'label': 'Income Level', 'value': 'income_level'}
                                 ],
-                                id='star-filter-wrapper-department',  # New ID for the wrapper div
-                            ),
-                        ],
-                        style={'width': '30%', 'float': 'left'} # Department sidebar
-                    ),
-                    # Main Content for departments - 70% width
-                    html.Div(
-                        className='department-main-content',
-                        children=[
-                            # Row for department bar chart and map
-                            html.Div(
-                                className='department-visuals',
-                                children=[
-                                    # Department bar chart
-                                    html.Div(
-                                        className='department-graph',
-                                        children=[
-                                            dcc.Graph(
-                                                id='department-analysis-graph',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'width': '60%', 'display': 'inline-block'}  # Initially hidden
-                                    ),
-                                    # Department map
-                                    html.Div(
-                                        className='department-map',
-                                        children=[
-                                            dcc.Graph(
-                                                id='department-map',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'width': '40%', 'display': 'inline-block'}  # Initially hidden
-                                    )
-                                ]
+                                className='dropdown-category-demographics',
+                                multi=False,
+                                clearable=True
                             )
                         ],
-                        style={'width': '70%', 'float': 'right'}  # Department main content
+                        style={'margin-bottom': '20px', 'width': '40%'}  # 40% width for the dropdown
                     ),
-                ]
+
+
+                ],
+                style={'display': 'flex', 'justify-content': 'space-between', 'width': '100%', 'padding-bottom': '20px'}
+                # Ensure both dropdowns are side by side
             ),
-            get_top_ranking_section()
+
+            # Main Content for demographics (Map + Bar Chart)
+            html.Div(
+                className='demographics-content-wrapper',
+                children=[
+                    # Map section - 60% width
+                    html.Div(
+                        className='demographics-map',
+                        children=[
+                            dcc.Graph(
+                                id='demographics-map-graph',
+                                config={'displayModeBar': False}
+                            )
+                        ],
+                        style={'width': '60%', 'display': 'inline-block'}
+                    ),
+
+                    # Bar chart section - 40% width
+                    html.Div(
+                        className='demographics-bar-chart',
+                        children=[
+                            dcc.Graph(
+                                id='demographics-bar-chart-graph',
+                                config={'displayModeBar': False}
+                            )
+                        ],
+                        style={'width': '40%', 'display': 'inline-block'}
+                    )
+                ],
+                style={'display': 'flex', 'justify-content': 'space-between', 'width': '100%', 'height': '600px'}
+                # Flex container for map and bar chart
+            )
+        ]
+    )
+
+
+def get_analysis_content():
+    return html.Div(
+        className='analysis-container',
+        id='analysis-content-top',
+        children=[
+            get_department_region_section(),  # Department and Region Section
+            get_top_ranking_section(),        # Top Ranking Section
+            get_demographics_content(),       # Demographics Section
         ]
     )
 

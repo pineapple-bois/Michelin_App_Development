@@ -576,7 +576,9 @@ body {
     display: flex;
     flex-direction: column;
     /*justify-content: space-between;*/
+    overflow-y: auto;
     box-sizing: border-box;
+    padding-bottom: 60px;
 }
 
 /* Future department-specific content here */
@@ -619,6 +621,10 @@ body {
     margin-bottom: 20px;
 }
 
+.department-main-content {
+    padding-bottom: 50px;
+}
+
 /* Visuals (graph and map) are in a row */
 .department-visuals {
     display: flex;
@@ -628,8 +634,14 @@ body {
 }
 
 /* Adjust graph and map height to match the visuals container */
-.department-graph, .department-map {
+.department-graph {
     height: 100%; /* Match the height of visuals container */
+    width: 60%;
+}
+
+.department-map {
+    height: 100%;
+    width: 40%;
 }
 
 /* Star filter container */
@@ -680,7 +692,7 @@ body {
     display: flex;
     height: auto; /* Allow container to grow dynamically */
     background-color: #d9edf7; /* Pastel blue for the wrapper */
-    padding-bottom: 40px; /* Space between content */
+    /*padding-bottom: 40px; !* Space between content *!*/
 }
 
 /* Sidebar for top ranking section */
@@ -764,6 +776,44 @@ body {
     color: white;
 }
 
+
+/* -------------------------
+   Demographics Section Styling
+   ------------------------- */
+
+/* Wrapper to couple the main content and filter for demographics */
+.demographics-container {
+    width: 100%;
+    background-color: #e2f0f9; /* Light pastel blue */
+}
+
+/* Placeholder text container */
+.placeholder-text-container {
+    background-color: white; /* Keep the background white */
+    margin-bottom: 20px;
+}
+
+/* Dropdown containers for demographics section */
+.demographics-dropdown-container {
+    background-color: #f9f9f9; /* Light grey background */
+}
+
+/* Demographics content wrapper */
+.demographics-content-wrapper {
+    display: flex;
+    height: 500px; /* Fixed height for map + bar chart section */
+    background-color: #d9edf7; /* Light pastel blue for the wrapper */
+}
+
+/* Demographics map styling */
+.demographics-map {
+    background-color: #cce5ff; /* Light pastel blue */
+}
+
+/* Demographics bar chart styling */
+.demographics-bar-chart {
+    background-color: #fdf5e6; /* Light pastel yellow */
+}
 
 
 /* -------------------------
