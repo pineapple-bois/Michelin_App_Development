@@ -25,7 +25,7 @@ body {
 .body {
     flex-grow: 1;
     padding-top: 120px; /* Space for the fixed header */
-    padding-bottom: 100px; /* Space for the fixed footer */
+    /*padding-bottom: 100px; !* Space for the fixed footer *!*/
     overflow-y: auto; /* Allow scrolling if content exceeds view */
     margin: 0;
 }
@@ -423,13 +423,13 @@ body {
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: calc(100vh - 100px); /* Subtracting header height */
+    height: calc(100vh - 60px); /* Subtracting footer height */
 }
 
 .analysis-container {
     flex-grow: 1;
     overflow-y: auto; /* Allow scrolling if content exceeds view */
-    margin-top: 80px;
+    margin-top: 80px; /* Adjust for header */
 }
 
 .placeholder-text-container {
@@ -467,7 +467,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     background-color: #fdf5e6; /* Light pastel yellow */
-    padding: 20px;
+    /*padding: 20px;*/
     box-sizing: border-box;
 }
 
@@ -493,7 +493,8 @@ body {
 .region-description {
     background-color: #f7cac9; /* Soft pastel coral */
     font-size: 18px !important;
-    margin-bottom: 30px
+    margin-bottom: 30px;
+    padding-top: 10px;
 }
 
 /* Region filter container */
@@ -506,6 +507,11 @@ body {
 .region-filter-title {
     font-size: 16px;
     margin-bottom: 10px;
+}
+
+/* Dropdown styling */
+.dropdown-region-analysis {
+    margin-bottom: 20px;
 }
 
 /* Star filter container */
@@ -569,7 +575,7 @@ body {
     background-color: #e2eafc; /* Soft pastel blue */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    /*justify-content: space-between;*/
     box-sizing: border-box;
 }
 
@@ -580,7 +586,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     background-color: #cce5ff; /* Muted pastel blue */
-    padding: 20px;
+    /*padding: 20px;*/
     box-sizing: border-box;
 }
 
@@ -598,54 +604,164 @@ body {
 .department-description {
     background-color: #ffe4e1; /* Light pastel coral */
     font-size: 18px;
-    margin-bottom: 40px; /* Space between elements */
+    margin-bottom: 30px;
+    padding-top: 10px;
 }
 
-/* Dropdown styling */
-.dropdown-region-analysis {
+/* Region filter container */
+.department-filter-container {
+    background-color: #fdf5e6; /* Pastel yellow */
     margin-bottom: 20px;
 }
 
-.analysis-main-content {
-    background-color: #fdf5e6; /* Muted pastel yellow */
-    flex-grow: 1;  /* Allow this container to grow to fill available space */
+/* Dropdown styling */
+.dropdown-department-analysis {
+    margin-bottom: 20px;
+}
+
+/* Visuals (graph and map) are in a row */
+.department-visuals {
     display: flex;
-    flex-direction: column;
-    padding-left: 20px;
-    padding-right: 20px;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 100%; /* Stretch to fill the height */
+}
+
+/* Adjust graph and map height to match the visuals container */
+.department-graph, .department-map {
+    height: 100%; /* Match the height of visuals container */
+}
+
+/* Star filter container */
+.star-filter-section-department {
+    background-color: #c8e6c9; /* Soft pastel green */
 }
 
 /* -------------------------
    Analysis Page Star Button Styles
    ------------------------- */
 
-.star-button-analysis {
+.star-button-analysis, .star-button-department {
     width: 40px;
     padding: 5px;
 }
 
-.star-filter-buttons-analysis {
+.star-filter-buttons-analysis, .star-filter-buttons-department {
     display: flex;
     justify-content: start;
     align-items: center;
-    gap: 10px;  /* Adjust this value to manage the gap between buttons */
+    gap: 10px;
     margin-bottom: 20px;
 }
 
-/* Hover effect for analysis page star buttons */
-.star-button-analysis:hover {
+.star-button-analysis:hover, .star-button-department:hover {
     opacity: 0.8 !important;
     cursor: pointer;
 }
 
-/* Stronger specificity by adding the parent div class */
-.star-filter-section-analysis .star-button-analysis.active {
+.star-filter-section-analysis .star-button-analysis.active,
+.star-filter-section-department .star-button-department.active {
     opacity: 1;
     box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
 }
 
-.star-filter-section-analysis .star-button-analysis.inactive {
+.star-filter-section-analysis .star-button-analysis.inactive,
+.star-filter-section-department .star-button-department.inactive {
     opacity: 0.5;
+}
+
+
+/* -------------------------
+   Top Ranking Section Styling
+   ------------------------- */
+
+/* Wrapper to couple sidebar and content for top rankings */
+.ranking-content-wrapper {
+    display: flex;
+    height: auto; /* Allow container to grow dynamically */
+    background-color: #d9edf7; /* Pastel blue for the wrapper */
+    padding-bottom: 40px; /* Space between content */
+}
+
+/* Sidebar for top ranking section */
+.ranking-sidebar {
+    width: 30%;
+    background-color: #f9f9f9; /* Light background for visibility */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow-y: auto; /* Enable scrolling for large content */
+    padding-bottom: 60px;
+}
+
+/* Main content for top ranking section */
+.ranking-main-content {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Ensure content starts from top */
+    background-color: #fdf5e6; /* Light pastel yellow for content area */
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Enable scrolling for larger output content */
+}
+
+/* Debug color for description section */
+.ranking-description {
+    background-color: #f7cac9; /* Soft pastel coral */
+    font-size: 18px !important;
+    margin-bottom: 30px;
+    padding-top: 20px;
+}
+
+/* Granularity filter container */
+.granularity-filter-container {
+    background-color: #fdf5e6; /* Pastel yellow */
+    margin-bottom: 20px;
+}
+
+/* Dropdown styling for granularity */
+.dropdown-granularity {
+    margin-bottom: 20px;
+}
+
+/* Top ranking filter container */
+.top-ranking-filter-container {
+    background-color: #fdf5e6; /* Pastel yellow */
+    margin-bottom: 20px;
+}
+
+/* Dropdown styling for top ranking selection */
+.dropdown-ranking {
+    margin-bottom: 20px;
+}
+
+.rating-filter-container {
+    background-color: #c8e6c9; /* Soft pastel green */
+    margin-bottom: 20px;
+}
+
+/* Button container for showing restaurant details */
+.toggle-details-container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Button styling for 'Show Restaurant Details' */
+.button-show-details {
+    padding: 10px 20px;
+    background-color: #C2282D;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    color: white;
+}
+
+/* Hover and active states for the button */
+.button-show-details:hover,
+.button-show-details:focus {
+    background-color: #A01F25;
+    color: white;
 }
 
 
