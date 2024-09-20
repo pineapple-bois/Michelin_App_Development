@@ -423,57 +423,94 @@ body {
     display: flex;
     flex-direction: row;
     width: 100%;
-    margin-top: 20px;
+    height: calc(100vh - 100px); /* Subtracting header height */
 }
 
 .analysis-container {
     flex-grow: 1;
     overflow-y: auto; /* Allow scrolling if content exceeds view */
-    margin-top: 100px;
+    margin-top: 80px;
 }
 
-/* Sidebar styling */
-.analysis-sidebar {
-    background-color: #f9f9f9; /* Light background for visibility */
-    border-right: 1px solid #ddd;
+.placeholder-text-container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 20px;
+}
+
+/* -------------------------
+   Region Section Styling
+   ------------------------- */
+
+/* Wrapper to couple sidebar and content for regions */
+.region-content-wrapper {
+    display: flex;
+    height: 500px; /* Set a consistent height */
+}
+
+/* Sidebar for regions */
+.region-sidebar {
     width: 30%;
-    height: 100vh; /* Full height to match the main content */
-}
-
-/* Main content styling */
-.analysis-main-content {
-    width: 70%;
-}
-
-.analysis-main-content {
-    background-color: lightyellow; /* Debug color */
-    flex-grow: 1;  /* Allow this container to grow to fill available space */
+    background-color: #f9f9f9; /* Light background for visibility */
     display: flex;
     flex-direction: column;
-    padding-left: 20px;
-    padding-right: 20px;
+    /*justify-content: space-between;*/
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding-bottom: 60px;
+}
+
+/* Main content for regions */
+.region-main-content {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #fdf5e6; /* Light pastel yellow */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Visuals (graph and map) are in a row */
+.region-visuals {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 100%; /* Stretch to fill the height */
+}
+
+/* Adjust graph and map height to match the visuals container */
+.region-graph, .region-map {
+    height: 100%; /* Match the height of visuals container */
+}
+
+/* Region section styles */
+.region-section {
+    background-color: #d9edf7; /* Pastel blue */
+    padding-bottom: 40px; /* Space between region and department sections */
 }
 
 .region-description {
-    background-color: lightcoral; /* Debug color */
-    margin-bottom: 60px; /* Space between elements */
+    background-color: #f7cac9; /* Soft pastel coral */
+    font-size: 18px !important;
+    margin-bottom: 30px
 }
 
 /* Region filter container */
 .region-filter-container {
-    background-color: lightblue; /* Debug color */
-    margin-bottom: 40px; /* Space between elements */
+    background-color: #fdf5e6; /* Pastel yellow */
+    margin-bottom: 20px;
 }
 
 /* Title for the region filter */
 .region-filter-title {
-    font-size: 18px;
+    font-size: 16px;
     margin-bottom: 10px;
 }
 
-/* Dropdown styling */
-.dropdown-analysis {
-    margin-bottom: 10px;
+/* Star filter container */
+.star-filter-section-analysis {
+    background-color: #c8e6c9; /* Soft pastel green */
 }
 
 /* -------------------------
@@ -481,7 +518,7 @@ body {
    ------------------------- */
 
 /* Change the background and text color of selected dropdown values */
-.dropdown-analysis .Select-value {
+.dropdown-region-analysis .Select-value {
     background-color: rgba(194, 40, 45, 0.2) !important; /* Semi-transparent red background */
     color: #C2282D !important;  /* Bold red text */
     border-radius: 5px;
@@ -489,36 +526,98 @@ body {
 }
 
 /* Target the label inside each selected value to ensure bold red text */
-.dropdown-analysis .Select-value-label {
+.dropdown-region-analysis .Select-value-label {
+    font-size: 14px;
     color: #C2282D !important; /* Bold red text */
     box-shadow: none !important; /* Remove blue shadow */
 }
 
+/* Dropdown styling for regions */
+.dropdown-region-analysis .Select-control {
+    font-size: 14px; /* Adjust font size of labels */
+}
+
 /* Customize the "x" button on hover */
-.dropdown-analysis .Select-value-icon:hover {
+.dropdown-region-analysis .Select-value-icon:hover {
     color: #C2282D !important; /* Red color for the "x" icon on hover */
 }
 
 /* Ensure the "x" stays black when not hovered */
-.dropdown-analysis .Select-value-icon {
+.dropdown-region-analysis .Select-value-icon {
     color: black !important; /* Black color for the "x" by default */
 }
 
 /* Remove blue outline when the "x" button or value is focused */
-.dropdown-analysis .Select-value:focus,
-.dropdown-analysis .Select-value-icon:focus {
+.dropdown-region-analysis .Select-value:focus,
+.dropdown-region-analysis .Select-value-icon:focus {
     outline: none !important; /* Remove focus outline */
+}
+
+/* -------------------------
+   Department Section Styling
+   ------------------------- */
+
+/* Wrapper to couple sidebar and content for departments */
+.department-content-wrapper {
+    display: flex;
+    height: 500px; /* Set the same consistent height */
+}
+
+/* Sidebar for departments */
+.department-sidebar {
+    width: 30%;
+    background-color: #e2eafc; /* Soft pastel blue */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+/* Future department-specific content here */
+.department-main-content {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #cce5ff; /* Muted pastel blue */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Main content styling */
+.analysis-main-content {
+    width: 70%;
+}
+
+/* Department section styles */
+.department-section {
+    background-color: #d9f7be; /* Muted pastel green */
+    padding-bottom: 40px;
+}
+
+.department-description {
+    background-color: #ffe4e1; /* Light pastel coral */
+    font-size: 18px;
+    margin-bottom: 40px; /* Space between elements */
+}
+
+/* Dropdown styling */
+.dropdown-region-analysis {
+    margin-bottom: 20px;
+}
+
+.analysis-main-content {
+    background-color: #fdf5e6; /* Muted pastel yellow */
+    flex-grow: 1;  /* Allow this container to grow to fill available space */
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 /* -------------------------
    Analysis Page Star Button Styles
    ------------------------- */
-
-/* Star filter container */
-.star-filter-section-analysis {
-    background-color: lightgreen; /* Debug color */
-    margin-bottom: 20px; /* Space between elements */
-}
 
 .star-button-analysis {
     width: 40px;
@@ -548,6 +647,7 @@ body {
 .star-filter-section-analysis .star-button-analysis.inactive {
     opacity: 0.5;
 }
+
 
 
 /* -------------------------
