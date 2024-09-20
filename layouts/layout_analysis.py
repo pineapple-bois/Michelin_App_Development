@@ -31,16 +31,16 @@ unique_regions = ['Auvergne-Rhône-Alpes',
                   ]
 
 
-def create_star_button_analysis(value, label):
+def create_star_button(value, label, filter_type):
     # Generate color with reduced opacity for active state
     normal_bg_color = color_map[value]
     return dbc.Button(
         label,
         id={
-            'type': 'filter-button-analysis',
+            'type': f'filter-button-{filter_type}',  # Dynamic ID based on filter type
             'index': value,
         },
-        className="me-1 star-button-analysis active",  # New class specific for analysis page
+        className=f"me-1 star-button-{filter_type} active",  # Dynamic class name
         outline=True,
         style={
             'display': 'inline-block',
@@ -52,23 +52,139 @@ def create_star_button_analysis(value, label):
     )
 
 
-def star_filter_row_analysis(available_stars):
-    # Create a button for each available star rating, specific to analysis page
-    buttons = [create_star_button_analysis(star, inverted_michelin_stars(star) if star != 0.5 else inverted_bib_gourmand()) for star in available_stars]
-    return html.Div(buttons, className='star-filter-buttons-analysis')  # New class
+def star_filter_row(available_stars, filter_type):
+    # Create a button for each available star rating
+    buttons = [create_star_button(star, inverted_michelin_stars(star) if star != 0.5 else inverted_bib_gourmand(), filter_type) for star in available_stars]
+    return html.Div(buttons, className=f'star-filter-buttons-{filter_type}')  # Dynamic class
 
 
-def star_filter_section_analysis(available_stars=star_placeholder):
-    star_buttons = star_filter_row_analysis(available_stars)
+def star_filter_section(available_stars=star_placeholder, filter_type="analysis"):
+    star_buttons = star_filter_row(available_stars, filter_type)
     return html.Div([
-        html.H6("Filter by Michelin Rating", className='star-select-title-analysis'),  # New class
+        html.H6(f"Filter by Michelin Rating", className=f'star-select-title-{filter_type}'),  # Dynamic title
         star_buttons
-    ], className='star-filter-section-analysis', id='star-filter-analysis')  # New id and class
+    ], className=f'star-filter-section-{filter_type}', id=f'star-filter-{filter_type}')  # Dynamic ID and class
+
+
+def get_top_ranking_section():
+    return html.Div(
+            className='ranking-content-wrapper',  # Wrapper for both sidebar and content
+                children=[
+                    # Sidebar - 30% width
+                    html.Div(
+                        className='ranking-sidebar',
+                        children=[
+                            # Description for ranking analysis
+                            html.Div(
+                                children=[
+                                    html.H5(
+                                        children=[
+                                            "Top Regions/Departments for ",
+                                            *michelin_stars(2),  # Unpack the list of images for 2 stars
+                                            " and ",
+                                            *michelin_stars(3),  # Unpack the list of images for 3 stars
+                                            " Restaurants"
+                                        ],
+                                        className="ranking-description"
+                                    )
+                                ]
+                            ),
+
+                            # Granularity dropdown (Region/Department)
+                            html.Div(
+                                className='granularity-filter-container',
+                                children=[
+                                    html.H6("Select Granularity"),
+                                    dcc.Dropdown(
+                                        id='granularity-dropdown',
+                                        options=[
+                                            {'label': 'Regions', 'value': 'region'},
+                                            {'label': 'Departments', 'value': 'department'}
+                                        ],
+                                        className='dropdown-granularity',  # Class for styling
+                                        multi=False,  # Single selection
+                                        clearable=True
+                                    )
+                                ]
+                            ),
+
+                            # Top 3 or Top 5 dropdown
+                            html.Div(
+                                className='top-ranking-filter-container',
+                                children=[
+                                    dcc.Dropdown(
+                                        id='ranking-dropdown',
+                                        options=[
+                                            {'label': 'Top 3 (excluding Paris)', 'value': 3},
+                                            {'label': 'Top 5 (excluding Paris)', 'value': 5},
+                                            {'label': 'Paris', 'value': 1}  # New option for Paris
+                                        ],
+                                        value=3,  # Default to Top 3
+                                        className='dropdown-ranking',  # Class for styling
+                                        multi=False,  # Single selection
+                                        clearable=False
+                                    )
+                                ]
+                            ),
+
+                            # Dropdown for selecting either 2- or 3-star restaurants
+                            html.Div(
+                                className='rating-filter-container',
+                                children=[
+                                    html.H6("Filter by Michelin Stars"),
+                                    dcc.Dropdown(
+                                        id='star-dropdown-ranking',
+                                        options=[
+                                            {'label': '2 Stars', 'value': 2},
+                                            {'label': '3 Stars', 'value': 3}
+                                        ],
+                                        value=2,  # Default selection
+                                        className='dropdown-star-ranking',
+                                        multi=False,  # Single selection
+                                        clearable=False
+                                    )
+                                ]
+                            ),
+
+                            # Toggle to show restaurant details
+                            html.Div(
+                                className='toggle-details-container',
+                                children=[
+                                    dbc.Button(
+                                        "Show Restaurant Details",
+                                        id='toggle-show-details',
+                                        n_clicks=0,
+                                        className='button-show-details'
+                                    )
+                                ]
+                            ),
+                        ],
+                        style={'width': '30%', 'float': 'left'}  # Sidebar styling
+                    ),
+
+                    # Main content - 70% width
+                    html.Div(
+                        className='ranking-main-content',
+                        children=[
+                            # Placeholder for ranking output (either restaurant details or ranking summary)
+                            html.Div(
+                                id='ranking-output',
+                                children=[
+                                    html.H6("Top Michelin-rated restaurants will be displayed here")
+                                ],
+                                className='ranking-output-container'
+                            )
+                        ],
+                        style={'width': '70%', 'float': 'right'}  # Main content styling
+                    ),
+                ]
+            )
 
 
 def get_analysis_content():
     return html.Div(
         className='analysis-container',
+        id='analysis-content-top',
         children=[
             # New Div for placeholder text (full width)
             html.Div(
@@ -122,7 +238,7 @@ def get_analysis_content():
                                 className='star-filter-container',
                                 children=[
                                     dcc.Store(id='selected-stars-analysis', data=[]),
-                                    star_filter_section_analysis(star_placeholder),  # Use new filter section
+                                    star_filter_section(star_placeholder, filter_type="analysis"),  # Use new filter section
                                 ]
                             ),
                         ],
@@ -166,8 +282,7 @@ def get_analysis_content():
                     )
                 ]
             ),
-
-            # Department Section Placeholder
+            # Department Section (both sidebar and main content)
             html.Div(
                 className='department-content-wrapper',
                 children=[
@@ -181,13 +296,78 @@ def get_analysis_content():
                                     html.H5("Select a region to view restaurants by department")
                                 ], className="department-description"
                             ),
+
+                            # Title and region dropdown in one div
+                            html.Div(
+                                className='department-filter-container',
+                                children=[
+                                    dcc.Dropdown(
+                                        id='department-dropdown-analysis',
+                                        options=[{'label': region, 'value': region} for region in unique_regions],
+                                        className='dropdown-department-analysis',
+                                        multi=False,  # Multi-select enabled
+                                        clearable=True
+                                    ),
+                                ]
+                            ),
+                            # Star filter specific to department page
+                            html.Div(
+                                className='star-filter-container-wrapper',  # New wrapper div
+                                children=[
+                                    html.Div(
+                                        className='star-filter-container',  # Original star filter container
+                                        children=[
+                                            dcc.Store(id='selected-stars-department', data=[]),
+                                            star_filter_section(star_placeholder, filter_type="department"),
+                                        ],
+                                    ),
+                                ],
+                                id='star-filter-wrapper-department',  # New ID for the wrapper div
+                            ),
                         ],
                         style={'width': '30%', 'float': 'left'} # Department sidebar
-                    )
+                    ),
+                    # Main Content for departments - 70% width
+                    html.Div(
+                        className='department-main-content',
+                        children=[
+                            # Row for department bar chart and map
+                            html.Div(
+                                className='department-visuals',
+                                children=[
+                                    # Department bar chart
+                                    html.Div(
+                                        className='department-graph',
+                                        children=[
+                                            dcc.Graph(
+                                                id='department-analysis-graph',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'width': '60%', 'display': 'inline-block'}  # Initially hidden
+                                    ),
+                                    # Department map
+                                    html.Div(
+                                        className='department-map',
+                                        children=[
+                                            dcc.Graph(
+                                                id='department-map',
+                                                config={'displayModeBar': False}
+                                            )
+                                        ],
+                                        style={'width': '40%', 'display': 'inline-block'}  # Initially hidden
+                                    )
+                                ]
+                            )
+                        ],
+                        style={'width': '70%', 'float': 'right'}  # Department main content
+                    ),
                 ]
             ),
+            get_top_ranking_section()
         ]
     )
+
 
 def get_analysis_layout():
     # Header with buttons
@@ -200,7 +380,7 @@ def get_analysis_layout():
 
     body = html.Div(
         children=[
-            get_analysis_content()
+            get_analysis_content(),
         ],
         className='content-container'
     )
