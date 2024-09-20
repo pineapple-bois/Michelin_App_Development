@@ -2,6 +2,8 @@ import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
 from dash import html, dcc
+from pandas.io.formats.printing import justify
+
 from layouts.layout_main import michelin_stars, bib_gourmand, color_map
 
 
@@ -275,7 +277,30 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
     if 3 in selected_stars:
         df['total_restaurants'] += df['3_star']
 
-    # Add the choropleth map with hover info (region + total restaurants)
+    # Set the hover template and custom data based on granularity
+    if granularity == 'region':
+        hovertemplate = (
+            '<b>Region:</b> %{customdata[0]}<br>'
+            '<b>Total Restaurants:</b> %{z}<extra></extra>'
+        )
+        customdata = df[['region']].values
+    elif granularity == 'department':
+        hovertemplate = (
+            '<b>Department:</b> %{customdata[0]}<br>'
+            '<b>Code:</b> %{customdata[1]}<br>'
+            '<b>Total Restaurants:</b> %{z}<extra></extra>'
+        )
+        customdata = df[['department', 'code']].values
+    elif granularity == 'arrondissement':
+        hovertemplate = (
+            '<b>Arrondissement:</b> %{customdata[0]}<br>'
+            '<b>Total Restaurants:</b> %{z}<extra></extra>'
+        )
+        customdata = df[['arrondissement']].values
+    else:
+        raise ValueError(f"Invalid granularity: {granularity}. Choose from ['region', 'department', 'arrondissement'].")
+
+    # Add the choropleth map with hover info based on granularity
     fig.add_trace(
         go.Choropleth(
             geojson=df.__geo_interface__,  # GeoJSON representation of the dataframe
@@ -285,11 +310,8 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
             colorbar_title='Restaurants',
             marker_line_width=0.5,
             marker_line_color='darkgray',
-            hovertemplate=(
-                '<b>Region:</b> %{customdata[0]}<br>'
-                '<b>Total Restaurants:</b> %{z}<extra></extra>'
-            ),
-            customdata=df[['region']].values  # Pass the region as custom data for the hover
+            hovertemplate=hovertemplate,  # Use the dynamic hovertemplate
+            customdata=customdata  # Pass the custom data for hover
         )
     )
 
@@ -333,3 +355,96 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
     )
 
     return fig
+
+
+def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=True):
+    """
+    Returns a list of Dash components for top_n regions or departments with the highest count of 'star_rating' restaurants.
+    If display_restaurants is True, detailed restaurant info will be returned; otherwise, just the ranking.
+
+    Args:
+        data (pandas.DataFrame): The dataset containing restaurant info.
+        granularity (str): Either 'region' or 'department'.
+        star_rating (int): The Michelin star rating (2 or 3).
+        top_n (int): The number of top (granularity) to consider.
+        display_restaurants (bool): Whether to display individual restaurants. Default is True.
+    Returns:
+        list: Dash components containing the ranking or restaurant details.
+    """
+    # Ensure access to department name, code, and region
+    if 'department' not in data.columns or 'department_num' not in data.columns or 'region' not in data.columns:
+        raise ValueError("Data must contain 'department', 'department_num', and 'region' columns.")
+
+    # Filter out non-starred restaurants
+    filtered_data = data[data['stars'] == star_rating]
+
+    # Handling Paris (department 75) or the Île-de-France region
+    if top_n == 'paris':
+        if granularity == 'department':
+            # Focus on Paris as department (75)
+            filtered_data = filtered_data[filtered_data['department_num'] == '75']
+        elif granularity == 'region':
+            # Focus on Île-de-France region for Paris case
+            filtered_data = filtered_data[filtered_data['region'] == 'Île-de-France']
+
+    # Group by granularity and count the number of restaurants for each
+    top_areas = filtered_data[granularity].value_counts().nlargest(top_n)
+
+    components = []  # Initialize a list for storing Dash components
+
+    # Loop over the top areas to create the ranking or restaurant details
+    for area, restaurant_count in top_areas.iteritems():
+        restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
+
+        # Get department code and region (for departments only)
+        if granularity == 'department':
+            department_info = filtered_data[filtered_data['department'] == area].iloc[0]
+            department_code = department_info['department_num']
+            region_name = department_info['region']
+            display_area = f"{area} ({department_code}): {region_name}"
+        else:
+            display_area = area
+
+        # Add area on one line, count and stars on the next line
+        area_component = html.Div([
+            # Line 1: Area name
+            html.Div(display_area, style={
+                "font-weight": "bold",
+                "font-size": "20px"
+            }),
+
+            # Line 2: Restaurant count and Michelin stars
+            html.Div([
+                f"{restaurant_count}  ",  # Display the count
+                html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),  # Michelin star images
+                f" {restaurant_word}"  # Text to follow the stars
+            ], style={"margin-left": "10px", "display": "inline-block"})  # Margin-left for indentation
+        ], style={
+            "margin-bottom": "40px",
+            "text-align": "center"
+        })  # Add spacing between entries
+
+        components.append(area_component)  # Add the area component to the list
+
+        # If display_restaurants is True, show detailed restaurant info
+        if display_restaurants:
+            # Get restaurants in this area
+            restaurants_in_area = filtered_data[filtered_data[granularity] == area]
+
+            # Create restaurant cards for each restaurant in the area
+            restaurant_cards = [get_restaurant_details(row) for _, row in restaurants_in_area.iterrows()]
+
+            # Wrap the restaurant cards in a flexbox container for side-by-side display
+            components.append(html.Div(
+                children=restaurant_cards,
+                className='restaurant-cards-container',
+                style={
+                    'display': 'flex',
+                    'flex-wrap': 'wrap',
+                    'gap': '20px',
+                    'margin-bottom': '40px',
+                    'justify-content': 'center'
+                }
+            ))
+
+    return components
