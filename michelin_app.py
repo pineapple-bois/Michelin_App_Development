@@ -13,21 +13,25 @@ from layouts.layout_analysis import get_analysis_layout
 from layouts.layout_404 import get_404_layout
 
 from appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
-                          get_restaurant_details, plot_single_choropleth_plotly, top_restaurants)
+                          get_restaurant_details, plot_single_choropleth_plotly, top_restaurants,
+                          plot_demographic_choropleth_plotly, calculate_weighted_mean, plot_demographics_barchart,
+                          plot_wine_choropleth_plotly)
 
 
 # Load restaurant data
 all_france = pd.read_csv("assets/Data/all_restaurants(arrondissements).csv")
 # Load departmental GeoJSON data
-geo_df = gpd.read_file("assets/Data/department_restaurants.geojson")
+department_df = gpd.read_file("assets/Data/department_restaurants.geojson")
 # Load regional GeoJSON data
 region_df = gpd.read_file("assets/Data/region_restaurants.geojson")
+# Load wine GeoJSON data
+wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
 
 
 # Get unique department numbers with restaurants
 departments_with_restaurants = all_france['department_num'].unique()
 # Filter geo_df
-geo_df = geo_df[geo_df['code'].isin(departments_with_restaurants)]
+geo_df = department_df[department_df['code'].isin(departments_with_restaurants)]
 
 star_placeholder = (0.5, 1, 2, 3)
 
@@ -47,6 +51,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP,
                           "https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Libre+Franklin:"
                           "ital,wght@0,100..900;1,100..900&display=swap"],
+    external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js'],
     server=server)
 
 
@@ -308,6 +313,7 @@ def default_map_figure():
 
 # -----------------------> "Analysis Page"
 
+# REGION content
 
 @app.callback(
     [Output('restaurant-analysis-graph', 'figure'),
@@ -411,6 +417,50 @@ def update_analysis_chart_and_map(selected_regions, star_clicks):
 
 
 @app.callback(
+    [Output({'type': 'filter-button-analysis', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button-analysis', 'index': ALL}, 'style')],
+    [Input({'type': 'filter-button-analysis', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'filter-button-analysis', 'index': ALL}, 'id')]
+)
+def update_region_button_active_state(n_clicks_list, ids):
+    # Ensure clicks are provided
+    if not n_clicks_list:
+        raise PreventUpdate
+
+    # Initialize empty lists to store class names and styles
+    class_names = []
+    styles = []
+
+    for n_clicks, button_id in zip(n_clicks_list, ids):
+        index = button_id['index']
+
+        # Determine if the button is currently active
+        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
+        if is_active:
+            background_color = color_map[index]  # Full color for active state
+        else:
+            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
+                                f"{int(color_map[index][3:5], 16)},"
+                                f"{int(color_map[index][5:7], 16)},"
+                                f"0.6)")  # Lighter color for inactive
+
+        # Update class name and style based on the active/inactive state
+        class_name = "me-1 star-button-analysis" + (" active" if is_active else "")
+        color_style = {
+            "display": 'inline-block',
+            "width": '100%',
+            'backgroundColor': background_color,
+        }
+
+        class_names.append(class_name)
+        styles.append(color_style)
+
+    return class_names, styles
+
+
+# DEPARTMENT content
+
+@app.callback(
     [Output('star-filter-wrapper-department', 'style'),
      Output('department-analysis-graph', 'figure'),
      Output('department-map', 'figure'),
@@ -422,7 +472,7 @@ def update_analysis_chart_and_map(selected_regions, star_clicks):
 def update_department_chart_and_map(selected_region, star_clicks):
     # Default styles for hidden graphs
     hide_style = {'display': 'none'}
-    show_style = {'display': 'inline-block'}
+    show_style = {'display': 'inline-block', 'height': '100%', 'width': '100%'}
 
     # Return empty graphs and hide them if the region is cleared
     if not selected_region:
@@ -438,7 +488,7 @@ def update_department_chart_and_map(selected_region, star_clicks):
                           n % 2 == 0]  # Only keep active stars
 
     # Filter the department_df based on the selected region
-    filtered_df = geo_df[geo_df['region'] == selected_region].copy()
+    filtered_df = department_df[department_df['region'] == selected_region].copy()
 
     # Sort the filtered dataframe by 'department'
     filtered_df = filtered_df.sort_values('department')
@@ -520,48 +570,6 @@ def update_department_chart_and_map(selected_region, star_clicks):
 
 
 @app.callback(
-    [Output({'type': 'filter-button-analysis', 'index': ALL}, 'className'),
-     Output({'type': 'filter-button-analysis', 'index': ALL}, 'style')],
-    [Input({'type': 'filter-button-analysis', 'index': ALL}, 'n_clicks')],
-    [State({'type': 'filter-button-analysis', 'index': ALL}, 'id')]
-)
-def update_region_button_active_state(n_clicks_list, ids):
-    # Ensure clicks are provided
-    if not n_clicks_list:
-        raise PreventUpdate
-
-    # Initialize empty lists to store class names and styles
-    class_names = []
-    styles = []
-
-    for n_clicks, button_id in zip(n_clicks_list, ids):
-        index = button_id['index']
-
-        # Determine if the button is currently active
-        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
-        if is_active:
-            background_color = color_map[index]  # Full color for active state
-        else:
-            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
-                                f"{int(color_map[index][3:5], 16)},"
-                                f"{int(color_map[index][5:7], 16)},"
-                                f"0.6)")  # Lighter color for inactive
-
-        # Update class name and style based on the active/inactive state
-        class_name = "me-1 star-button-analysis" + (" active" if is_active else "")
-        color_style = {
-            "display": 'inline-block',
-            "width": '100%',
-            'backgroundColor': background_color,
-        }
-
-        class_names.append(class_name)
-        styles.append(color_style)
-
-    return class_names, styles
-
-
-@app.callback(
     [Output({'type': 'filter-button-department', 'index': ALL}, 'className'),
      Output({'type': 'filter-button-department', 'index': ALL}, 'style')],
     [Input({'type': 'filter-button-department', 'index': ALL}, 'n_clicks')],
@@ -603,6 +611,8 @@ def update_department_button_active_state(n_clicks_list, ids):
     return class_names, styles
 
 
+# RANKING content
+
 @app.callback(
      [Output('ranking-output', 'children'),
      Output('toggle-show-details', 'n_clicks')], # Reset the click state
@@ -627,7 +637,7 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
 
     display_restaurants = n_clicks % 2 == 1  # Toggle restaurant visibility based on button state
 
-    # If 'Paris' is selected in the Top N dropdown, we handle it
+    # If 'Paris' is selected in the Top N dropdown
     if top_n == 1 and granularity == 'department':
         filtered_data = all_france[all_france['department_num'] == '75']  # Only Paris restaurants
     elif top_n == 1 and granularity == 'region':
@@ -642,6 +652,228 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
     ranking_components = top_restaurants(filtered_data, granularity, star_rating, top_n, display_restaurants)
 
     return ranking_components, n_clicks
+
+
+# DEMOGRAPHICS content
+
+@app.callback(
+    [Output('demographics-map-graph', 'figure'),
+     Output('demographics-bar-chart-graph', 'figure'),
+     Output('demographics-add-remove', 'style'),
+     Output('demographics-dropdown-analysis', 'value'),
+     Output('demographics-chart-math', 'style'),
+     Output('star-filter-demographics', 'style')],
+    [Input('category-dropdown-demographics', 'value'),
+     Input('granularity-dropdown-demographics', 'value'),
+     Input('demographics-dropdown-analysis', 'value'),
+     Input('toggle-show-details-demographics', 'n_clicks'),  # Button to toggle restaurants
+     Input({'type': 'filter-button-demographics', 'index': ALL}, 'n_clicks')]  # Selected star ratings
+)
+def update_demographics_map(selected_metric, selected_dropdown, selected_regions, n_clicks_rest, n_clicks_stars):
+    # Handle "Select All"
+    if 'all' in selected_regions:
+        selected_regions = unique_regions  # Select all regions if "Select All" is chosen
+
+    # Set granularity based on whether a region is selected in the dropdown
+    if selected_dropdown != 'All France':
+        selected_granularity = 'department'  # If a region is selected, use department granularity
+        region_selector_style = {'display': 'none'}  # Hide the region selector
+    else:
+        selected_granularity = 'region'  # Default granularity is region
+        region_selector_style = {'display': 'block'}  # Show the region selector
+
+    # Use the correct dataframe based on granularity
+    if selected_granularity == 'region':
+        df = region_df  # Use region-level data
+        # Filter data by selected regions if any regions are selected
+        if selected_regions:
+            df = df[df['region'].isin(selected_regions)]
+    else:
+        df = department_df  # Use department-level data
+        # If a region is selected in the dropdown, filter to that region
+        if selected_dropdown != 'All France':
+            df = df[df['region'] == selected_dropdown]  # Filter the department-level data
+
+    # Show or hide the star filter based on button press
+    if n_clicks_rest % 2 == 1:
+        star_filter_style = {'display': 'block'}
+        show_restaurants = True
+    else:
+        star_filter_style = {'display': 'none'}
+        show_restaurants = False
+
+    stars = [1, 2, 3]
+    if n_clicks_stars:
+        selected_stars = [stars[i] for i, n in enumerate(n_clicks_stars) if n % 2 == 0]  # Only keep active stars
+    else:
+        selected_stars = stars
+
+    # If no metric is selected, just show map boundaries without data coloring
+    if not selected_metric:
+        fig_map = plot_demographic_choropleth_plotly(
+            df,
+            all_france,
+            metric=None,  # Pass None to indicate no metric is selected
+            granularity=selected_granularity,
+            show_labels=False,
+            cmap='Blues',
+            restaurants=show_restaurants,  # Show restaurants based on button press
+            selected_stars=selected_stars  # Filter based on selected stars
+        )
+        empty_fig = go.Figure()  # Return empty figure for bar chart
+        return fig_map, empty_fig, region_selector_style, selected_regions, {'display': 'none'}, star_filter_style
+
+    if selected_granularity == 'region':
+        dataframe = region_df
+    else:
+        dataframe = department_df
+
+    # Calculate weighted mean for the selected metric (use population as weight)
+    weighted_mean = calculate_weighted_mean(dataframe, selected_metric, weight_column='municipal_population')
+
+    # Call the updated plotting function
+    fig_map = plot_demographic_choropleth_plotly(
+        df,
+        all_france,
+        selected_metric,
+        granularity=selected_granularity,
+        show_labels=False,
+        cmap='Blues',
+        restaurants=show_restaurants,  # Show restaurants based on button press
+        selected_stars=selected_stars  # Filter based on selected stars
+    )
+
+    fig_bar = plot_demographics_barchart(
+        df,
+        selected_metric,
+        granularity=selected_granularity,
+        weighted_mean=weighted_mean
+    )
+
+    return fig_map, fig_bar, region_selector_style, selected_regions, {'display': 'block'}, star_filter_style
+
+
+@app.callback(
+    [Output({'type': 'filter-button-demographics', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button-demographics', 'index': ALL}, 'style')],
+    [Input({'type': 'filter-button-demographics', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'filter-button-demographics', 'index': ALL}, 'id')]
+)
+def update_demographics_button_active_state(n_clicks_list, ids):
+    # Ensure clicks are provided
+    if not n_clicks_list:
+        raise PreventUpdate
+
+    # Initialize empty lists to store class names and styles
+    class_names = []
+    styles = []
+
+    for n_clicks, button_id in zip(n_clicks_list, ids):
+        index = button_id['index']
+
+        # Determine if the button is currently active
+        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
+        if is_active:
+            background_color = color_map[index]  # Full color for active state
+        else:
+            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
+                                f"{int(color_map[index][3:5], 16)},"
+                                f"{int(color_map[index][5:7], 16)},"
+                                f"0.6)")  # Lighter color for inactive
+
+        # Update class name and style based on the active/inactive state
+        class_name = "me-1 star-button-demographics" + (" active" if is_active else "")
+        color_style = {
+            "display": 'inline-block',
+            "width": '100%',
+            'backgroundColor': background_color,
+        }
+
+        class_names.append(class_name)
+        styles.append(color_style)
+
+    return class_names, styles
+
+# WINE content
+
+@app.callback(
+    Output('wine-map-graph', 'figure'),
+    [Input('granularity-dropdown-wine', 'value'),
+     Input('toggle-show-details-wine', 'n_clicks'),
+     Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')]
+)
+def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars):
+    # Determine if restaurants should be shown based on button press
+    show_restaurants = n_clicks_rest % 2 == 1  # Odd clicks mean show restaurants
+
+    # Star selection based on button clicks
+    stars = [1, 2, 3]
+    if n_clicks_stars:
+        selected_stars = [stars[i] for i, n in enumerate(n_clicks_stars) if n % 2 == 0]  # Only active stars
+    else:
+        selected_stars = stars
+
+    # Select the GeoDataFrame for outlines (regions or departments)
+    if outline_type == 'region':
+        df = region_df  # Assume `region_df` exists
+    elif outline_type == 'department':
+        df = department_df  # Assume `department_df` exists
+    else:
+        df = None  # No outlines if `outline_type` is None
+
+    # Call the wine plotting function
+    fig = plot_wine_choropleth_plotly(
+        df=df,  # Either region or department GeoDataFrame, or None
+        wine_df=wine_df,  # Pass the wine regions
+        all_france=all_france,  # Pass the restaurant data
+        outline_type=outline_type,  # Region or department
+        show_restaurants=show_restaurants,  # Toggle restaurants
+        selected_stars=selected_stars  # Filter by stars
+    )
+
+    return fig
+
+
+@app.callback(
+    [Output({'type': 'filter-button-wine', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button-wine', 'index': ALL}, 'style')],
+    [Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'filter-button-wine', 'index': ALL}, 'id')]
+)
+def update_demographics_button_active_state(n_clicks_list, ids):
+    # Ensure clicks are provided
+    if not n_clicks_list:
+        raise PreventUpdate
+
+    # Initialize empty lists to store class names and styles
+    class_names = []
+    styles = []
+
+    for n_clicks, button_id in zip(n_clicks_list, ids):
+        index = button_id['index']
+
+        # Determine if the button is currently active
+        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
+        if is_active:
+            background_color = color_map[index]  # Full color for active state
+        else:
+            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
+                                f"{int(color_map[index][3:5], 16)},"
+                                f"{int(color_map[index][5:7], 16)},"
+                                f"0.6)")  # Lighter color for inactive
+
+        # Update class name and style based on the active/inactive state
+        class_name = "me-1 star-button-demographics" + (" active" if is_active else "")
+        color_style = {
+            "display": 'inline-block',
+            "width": '100%',
+            'backgroundColor': background_color,
+        }
+
+        class_names.append(class_name)
+        styles.append(color_style)
+
+    return class_names, styles
 
 
 # For local development, debug=True
