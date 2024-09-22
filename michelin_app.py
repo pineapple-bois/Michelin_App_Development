@@ -3,6 +3,9 @@ import geopandas as gpd
 import plotly.graph_objects as go
 import dash
 import dash_bootstrap_components as dbc
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, MATCH, ALL
@@ -41,6 +44,12 @@ initial_departments = geo_df[geo_df['region'] == unique_regions[0]][['department
 initial_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in initial_departments]
 dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
 region_to_name = {region: region for region in geo_df['region'].unique()}
+
+load_dotenv()
+# Initialize OpenAI client with API key
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
 
 
 # Initialize the Dash app
@@ -874,6 +883,45 @@ def update_demographics_button_active_state(n_clicks_list, ids):
         styles.append(color_style)
 
     return class_names, styles
+
+
+@app.callback(
+    [Output('llm-output-container', 'children'),
+     Output('disclaimer-container', 'style')],# Update this div with the OpenAI output
+    Input('wine-map-graph', 'clickData'),        # Trigger on region click
+)
+def update_wine_info(clickData):
+    if not clickData:
+        return "Click on a wine region to get more information.", {"display": "none"}
+
+    try:
+        curve_number = clickData['points'][0]['curveNumber']  # Extract the curve number
+        wine_region = wine_df.iloc[curve_number]["region"]
+    except KeyError:
+        return "Could not retrieve region information."
+
+    # Create prompt for OpenAI
+    prompt = f"""
+    Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and mention the top three Grand Crus, if any. 
+    Suggest flavour profiles and food pairings. Keep the response organized in sub-paragraphs for clarity.
+    """
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=400
+        )
+        content = response.choices[0].message.content.strip()
+        return dcc.Markdown(content), {"display": "block"}
+
+    except Exception as e:
+        return f"Error fetching region details: {str(e)}", {"display": "none"}
+
 
 
 # For local development, debug=True

@@ -738,9 +738,7 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
             )
         )
 
-
     # 2. Plot wine regions
-
     for i, region_row in wine_df.iterrows():
         # Extracting the exterior coordinates from each Polygon geometry
         geometry = region_row['geometry']
@@ -800,6 +798,7 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
 
     # Update layout
     fig.update_layout(
+        clickmode='event+select',  # Enable click events for the map
         geo=dict(
             scope='europe',
             resolution=50,
