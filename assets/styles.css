@@ -220,7 +220,7 @@ body {
 .star-description-text {
     font-size: 10px; /* Smaller text for description */
     color: #555; /* Darker grey for the description text */
-    margin-top: 0px; /* Space after the title */
+    margin-top: 0; /* Space after the title */
     margin-bottom: 10px; /* Remove bottom margin */
 }
 
@@ -342,6 +342,7 @@ body {
 /* -------------------------
    Restaurant Details Styles
    ------------------------- */
+
 .restaurant-details {
     background-color: white;
     padding: 15px;
@@ -653,12 +654,14 @@ body {
    Analysis Page Star Button Styles
    ------------------------- */
 
-.star-button-analysis, .star-button-department {
+.star-button-analysis, .star-button-department,
+.star-button-demographics, .star-button-wine {
     width: 40px;
     padding: 5px;
 }
 
-.star-filter-buttons-analysis, .star-filter-buttons-department {
+.star-filter-buttons-analysis, .star-filter-buttons-department,
+.star-filter-buttons-demographics, .star-filter-buttons-wine {
     display: flex;
     justify-content: start;
     align-items: center;
@@ -666,19 +669,24 @@ body {
     margin-bottom: 20px;
 }
 
-.star-button-analysis:hover, .star-button-department:hover {
+.star-button-analysis:hover, .star-button-department:hover,
+.star-button-demographics:hover, .star-button-wine:hover  {
     opacity: 0.8 !important;
     cursor: pointer;
 }
 
 .star-filter-section-analysis .star-button-analysis.active,
-.star-filter-section-department .star-button-department.active {
+.star-filter-section-department .star-button-department.active,
+.star-filter-section-demographics .star-button-demographics.active,
+.star-filter-section-wine .star-button-wine.active {
     opacity: 1;
     box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
 }
 
 .star-filter-section-analysis .star-button-analysis.inactive,
-.star-filter-section-department .star-button-department.inactive {
+.star-filter-section-department .star-button-department.inactive,
+.star-filter-section-demographics .star-button-demographics.inactive,
+.star-filter-section-wine .star-button-wine.inactive{
     opacity: 0.5;
 }
 
@@ -783,36 +791,162 @@ body {
 
 /* Wrapper to couple the main content and filter for demographics */
 .demographics-container {
-    width: 100%;
     background-color: #e2f0f9; /* Light pastel blue */
+    width: 100%;
+    gap: 40px;
 }
 
 /* Placeholder text container */
 .placeholder-text-container {
     background-color: white; /* Keep the background white */
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.demographics-filter-container {
+    background-color: #d9edf7;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 40px;
     margin-bottom: 20px;
 }
 
 /* Dropdown containers for demographics section */
 .demographics-dropdown-container {
-    background-color: #f9f9f9; /* Light grey background */
+    background-color: #fdf5e6; /* Light grey background */
+    width: 25%;
+}
+
+.filter-container {
+    background-color: #fdf5e6; /* Light grey background */
+    width: 50%;
+}
+
+.demographics-restaurants-controls {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 0 !important;
 }
 
 /* Demographics content wrapper */
 .demographics-content-wrapper {
     display: flex;
-    height: 500px; /* Fixed height for map + bar chart section */
+    justify-content: space-between;
+    width: 100%;
+    height: 750px; /* Fixed height for map + bar chart section */
     background-color: #d9edf7; /* Light pastel blue for the wrapper */
 }
 
 /* Demographics map styling */
 .demographics-map {
     background-color: #cce5ff; /* Light pastel blue */
+    height: auto;
+    width: 50%;
+    display: inline-block;
+}
+
+.demographics-chart-mean {
+    height: auto;
+    width: 50%;
+    display: inline-block;
 }
 
 /* Demographics bar chart styling */
 .demographics-bar-chart {
     background-color: #fdf5e6; /* Light pastel yellow */
+    height: auto;
+    width: 100%;
+    display: inline-block;
+    margin: 0;  /* Ensure no margin */
+    padding: 0; /* Ensure no padding */
+}
+
+.weighted-mean-explanation {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #007bff;
+    height: auto;  /* Remove the fixed height to allow dynamic adjustment */
+    margin-top: 0;  /* Ensure no extra margin */
+    margin-bottom: 0;
+}
+
+.weighted-mean-explanation .dash-markdown {
+    margin: 0;  /* Remove any margin from the Markdown element */
+    padding: 0;  /* Remove any padding from the Markdown element */
+}
+
+/* Custom styles for socio-economic metric dropdown with blue color scheme */
+.dropdown-category-demographics .Select-value {
+    background-color: rgba(0, 123, 255, 0.2) !important; /* Light blue background */
+    color: #007bff !important; /* Blue text */
+    border-radius: 5px;
+    border: none !important; /* Remove border */
+}
+
+.dropdown-category-demographics .Select-control {
+    font-size: 14px; /* Adjust font size */
+}
+
+.dropdown-category-demographics .Select-value-label {
+    font-size: 14px;
+    color: #007bff !important; /* Blue text */
+    box-shadow: none !important; /* Remove blue shadow */
+}
+
+.dropdown-category-demographics .Select-value-icon:hover {
+    color: #007bff !important; /* Blue color for the "x" icon on hover */
+}
+
+.dropdown-category-demographics .Select-value-icon {
+    color: black !important; /* Black "x" by default */
+}
+
+.dropdown-category-demographics .Select-value:focus,
+.dropdown-category-demographics .Select-value-icon:focus {
+    outline: none !important; /* Remove focus outline */
+}
+
+/* Hover styling for dropdown */
+.dropdown-category-demographics .Select-option:hover {
+    background-color: rgba(0, 123, 255, 0.1) !important; /* Light blue hover effect */
+    color: #0056b3 !important; /* Darker blue on hover */
+}
+
+/* Selected option styling */
+.dropdown-category-demographics .Select-option.is-selected {
+    background-color: rgba(0, 123, 255, 0.2) !important;
+    color: #0056b3 !important; /* Darker blue for selected options */
+}
+
+/* -------------------------
+   Wine Section Styling
+   ------------------------- */
+
+.wine-restaurants-wrapper {
+    background-color: #fdf5e6; /* Light grey background */
+}
+
+.wine-restaurants-controls {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 0 !important;
+}
+
+.wine-map-outlines {
+    background-color: #d9edf7; /* Light pastel blue for the wrapper */
+    margin-bottom: 20px;
+}
+
+/* Demographics content wrapper */
+.wine-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 750px; /* Fixed height for map + bar chart section */
+    background-color: #d9edf7; /* Light pastel blue for the wrapper */
 }
 
 
