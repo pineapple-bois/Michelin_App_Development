@@ -13,7 +13,7 @@ color_map = {
     3: "#C2282D"
 }
 
-star_placeholder = (0.5, 1, 2, 3)
+star_placeholder = [0.5, 1, 2, 3]
 
 unique_regions = ['Auvergne-Rhône-Alpes',
                   'Bourgogne-Franche-Comté',
@@ -52,14 +52,39 @@ def create_star_button(value, label, filter_type):
     )
 
 
-def star_filter_row(available_stars, filter_type):
+def star_filter_row(available_stars, filter_type, exclude_stars=None):
+    """
+    Create a button for each available star rating, optionally excluding specific stars.
+
+    Args:
+        available_stars (list): List of available stars to create buttons for.
+        filter_type (str): Type of filter (used for dynamic class names).
+        exclude_stars (list): Optional list of stars to exclude from the filter.
+
+    Returns:
+        html.Div: Div containing buttons for the stars.
+    """
+    # Exclude specified stars if exclude_stars is provided
+    if exclude_stars:
+        available_stars = [star for star in available_stars if star not in exclude_stars]
     # Create a button for each available star rating
     buttons = [create_star_button(star, inverted_michelin_stars(star) if star != 0.5 else inverted_bib_gourmand(), filter_type) for star in available_stars]
     return html.Div(buttons, className=f'star-filter-buttons-{filter_type}')  # Dynamic class
 
 
-def star_filter_section(available_stars=star_placeholder, filter_type="analysis"):
-    star_buttons = star_filter_row(available_stars, filter_type)
+def star_filter_section(available_stars=star_placeholder, filter_type="analysis", exclude_stars=None):
+    """
+    Create a star filter section, optionally excluding specific star ratings.
+
+    Args:
+        available_stars (list): List of available stars to create buttons for.
+        filter_type (str): Type of filter (used for dynamic class names).
+        exclude_stars (list): Optional list of stars to exclude from the filter.
+
+    Returns:
+        html.Div: Div containing the star filter section.
+    """
+    star_buttons = star_filter_row(available_stars, filter_type, exclude_stars=exclude_stars)
     return html.Div([
         html.H6(f"Filter by Michelin Rating", className=f'star-select-title-{filter_type}'),  # Dynamic title
         star_buttons
@@ -370,59 +395,114 @@ def get_demographics_content():
                         """
                     )
                 ],
-                style={'width': '100%'}  # Set full width for placeholder text
             ),
 
-            # Demographics Section with two dropdowns
+            # Demographics dropdowns
             html.Div(
                 className='demographics-filter-container',
                 children=[
-                    # Region dropdown
-                    html.Div(
-                        className='demographics-dropdown-container',
-                        children=[
-                            html.H6("Select Region"),
-                            dcc.Dropdown(
-                                id='granularity-dropdown-demographics',
-                                options=[{'label': region, 'value': region} for region in unique_regions],
-                                className='dropdown-granularity-demographics',
-                                multi=False,
-                                clearable=True
-                            )
-                        ],
-                        style={'margin-bottom': '20px', 'width': '40%'}  # 40% width for the second dropdown
-                    ),
                     # Demographics dropdown
                     html.Div(
                         className='demographics-dropdown-container',
                         children=[
-                            html.H6("Select Category"),
+                            html.H6("Select a Socio-Economic Metric"),
                             dcc.Dropdown(
                                 id='category-dropdown-demographics',
                                 options=[
-                                    {'label': 'Population', 'value': 'population'},
-                                    {'label': 'Age Group', 'value': 'age_group'},
-                                    {'label': 'Income Level', 'value': 'income_level'}
+                                    {'label': 'GDP (millions of €)', 'value': 'GDP_millions(€)'},
+                                    {'label': 'GDP (per capita) (€)', 'value': 'GDP_per_capita(€)'},
+                                    {'label': 'Poverty Rate (%)', 'value': 'poverty_rate(%)'},
+                                    {'label': 'Average Unemployment Rate (%)', 'value': 'average_annual_unemployment_rate(%)'},
+                                    {'label': 'Average Hourly Net Wage (€)', 'value': 'average_net_hourly_wage(€)'},
+                                    {'label': 'Municipal Population', 'value': 'municipal_population'},
+                                    {'label': 'Population Density (inhabitants/km²)', 'value': 'population_density(inhabitants/sq_km)'}
                                 ],
-                                className='dropdown-category-demographics',
+                                className='dropdown-category-demographics-selector',
                                 multi=False,
                                 clearable=True
                             )
                         ],
-                        style={'margin-bottom': '20px', 'width': '40%'}  # 40% width for the dropdown
                     ),
-
-
+                    # Region dropdown
+                    html.Div(
+                        className='demographics-dropdown-container',
+                        children=[
+                            html.H6("Select Region to Show Selected Metrics By Department"),
+                            dcc.Dropdown(
+                                id='granularity-dropdown-demographics',
+                                options=[{'label': 'All France', 'value': 'All France'}] + [
+                                    {'label': region, 'value': region} for region in unique_regions],
+                                value='All France',  # Default selection
+                                className='dropdown-granularity-demographics',
+                                multi=False,
+                                clearable=False
+                            )
+                        ],
+                    ),
+                    # Add or Remove Regions
+                    html.Div(
+                        className='filter-container',
+                        children=[
+                            html.Div(
+                                id='demographics-add-remove',
+                                children=[
+                                    html.H5("Add or Remove Regions of France", className='region-filter-title'),
+                                    dcc.Dropdown(
+                                        id='demographics-dropdown-analysis',
+                                        options = [{'label': 'Select All', 'value': 'all'}] +
+                                                  [{'label': region, 'value': region} for region in unique_regions],
+                                        value=unique_regions,  # All regions selected by default
+                                        className='dropdown-category-demographics',
+                                        multi=True,  # Multi-select enabled
+                                        clearable=True
+                                    ),
+                                ]
+                            )
+                        ],
+                    ),
                 ],
-                style={'display': 'flex', 'justify-content': 'space-between', 'width': '100%', 'padding-bottom': '20px'}
-                # Ensure both dropdowns are side by side
+            ),
+
+            # Restaurant selection div
+            html.Div(
+                className='demographics-restaurants-wrapper',
+                children=[
+                    # Wrapper for both button and star filter
+                    html.Div(
+                        className='demographics-restaurants-controls',
+                        # Flexbox for side-by-side layout
+                        children=[
+                            # Toggle to show restaurant details
+                            html.Div(
+                                className='toggle-details-container',
+                                children=[
+                                    dbc.Button(
+                                        "Show Starred Restaurants",
+                                        id='toggle-show-details-demographics',
+                                        n_clicks=0,
+                                        className='button-show-details'
+                                    )
+                                ],
+                            ),
+                            # Star filter specific to analysis page
+                            html.Div(
+                                className='star-filter-container',
+                                children=[
+                                    dcc.Store(id='selected-stars-demographics', data=[]),
+                                    star_filter_section(star_placeholder, filter_type="demographics", exclude_stars=[0.5]),
+                                ],
+                                style={'width': '30%'}  # Set filter width to 30% of parent div
+                            ),
+                        ]
+                    )
+                ]
             ),
 
             # Main Content for demographics (Map + Bar Chart)
             html.Div(
                 className='demographics-content-wrapper',
                 children=[
-                    # Map section - 60% width
+                    # Map section
                     html.Div(
                         className='demographics-map',
                         children=[
@@ -431,23 +511,164 @@ def get_demographics_content():
                                 config={'displayModeBar': False}
                             )
                         ],
-                        style={'width': '60%', 'display': 'inline-block'}
+                        style={'width': '50%', 'display': 'inline-block'}
                     ),
-
-                    # Bar chart section - 40% width
+                    # Bar chart section
                     html.Div(
-                        className='demographics-bar-chart',
+                        className='demographics-chart-mean',
+                        id='demographics-chart-math',
+                        children=[
+                            html.Div(
+                                className='demographics-bar-chart',
+                                children=[
+                                    dcc.Graph(
+                                        id='demographics-bar-chart-graph',
+                                        config={'displayModeBar': False}
+                                    )
+                                ],
+                            ),
+                            html.Div(
+                                className='weighted-mean-explanation',
+                                children=[
+                                    dcc.Markdown(
+                                        '''
+                                        The French mean is weighted and provides a better sense of trends across France by giving more weight to areas with larger populations.
+                                        
+                                        $\\text{Weighted Mean} = \\frac{\\sum_{i} (\\text{value}_{i} \\times \\text{population}_i)}{\\sum_{i} \\text{population}_i}$
+                                        '''
+                                    , mathjax=True)
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ]
+    )
+
+
+def get_wine_content():
+    return html.Div(
+        className='wine-container',
+        id='wine-content-top',
+        children=[
+            # New Div for placeholder text (full width)
+            html.Div(
+                className='placeholder-text-container',
+                children=[
+                    html.H5(
+                        """
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        """
+                    )
+                ],
+            ),
+
+            # Restaurant selection div
+            html.Div(
+                className='wine-restaurants-wrapper',
+                children=[
+                    # Wrapper for both button and star filter
+                    html.Div(
+                        className='wine-restaurants-controls',
+                        # Flexbox for side-by-side layout
+                        children=[
+                            # Region dropdown
+                            html.Div(
+                                className='wine-map-outlines',
+                                children=[
+                                    html.H6("Show Regions or Departments"),
+                                    dcc.Dropdown(
+                                        id='granularity-dropdown-wine',
+                                        options=[
+                                            {'label': 'Regions', 'value': 'region'},
+                                            {'label': 'Departments', 'value': 'department'}
+                                        ],
+                                        value=None,  # Default selection
+                                        className='dropdown-granularity-wine',
+                                        multi=False,
+                                        clearable=True
+                                    )
+                                ],
+                                style={'width': '20%'}
+                            ),
+                            # Toggle to show restaurant details
+                            html.Div(
+                                className='toggle-details-container',
+                                children=[
+                                    dbc.Button(
+                                        "Show Starred Restaurants",
+                                        id='toggle-show-details-wine',
+                                        n_clicks=0,
+                                        className='button-show-details'
+                                    )
+                                ],
+                            ),
+                            # Star filter specific to wine page
+                            html.Div(
+                                className='star-filter-container',
+                                children=[
+                                    dcc.Store(id='selected-stars-wine', data=[]),
+                                    star_filter_section(star_placeholder, filter_type="wine", exclude_stars=[0.5]),
+                                ],
+                                style={'width': '30%'}  # Set filter width to 30% of parent div
+                            ),
+                        ]
+                    )
+                ]
+            ),
+
+            # Main Content for wine (Map + LLM Section)
+            html.Div(
+                className='wine-content-wrapper',
+                children=[
+                    # Map section
+                    html.Div(
+                        className='wine-map',
                         children=[
                             dcc.Graph(
-                                id='demographics-bar-chart-graph',
+                                id='wine-map-graph',
                                 config={'displayModeBar': False}
                             )
                         ],
-                        style={'width': '40%', 'display': 'inline-block'}
-                    )
+                        style={'width': '50%', 'display': 'inline-block'}
+                    ),
+                    # LLM output section
+                    html.Div(
+                        className='wine-llm-output',
+                        children=[
+                            html.Div(
+                                className='wine-llm-text',
+                                children=[
+                                    html.H5("Wine Region Information"),
+                                    html.P(
+                                        """
+                                        Select a wine region on the map to get interactive descriptions, 
+                                        grape varieties, and wine pairing recommendations.
+                                        """
+                                    ),
+                                    html.Div(
+                                        id='llm-output-container',
+                                        children=[
+                                            # Placeholder for future LLM content
+                                            dcc.Markdown(
+                                                """
+                                                This is where recommendations and details will appear.
+                                                Interact with the map to start exploring wine regions.
+                                                """
+                                            )
+                                        ],
+                                    ),
+                                ],
+                            )
+                        ],
+                        style={'width': '50%', 'display': 'inline-block'}
+                    ),
                 ],
-                style={'display': 'flex', 'justify-content': 'space-between', 'width': '100%', 'height': '600px'}
-                # Flex container for map and bar chart
             )
         ]
     )
@@ -461,6 +682,7 @@ def get_analysis_content():
             get_department_region_section(),  # Department and Region Section
             get_top_ranking_section(),        # Top Ranking Section
             get_demographics_content(),       # Demographics Section
+            get_wine_content(),               # Wine section
         ]
     )
 
