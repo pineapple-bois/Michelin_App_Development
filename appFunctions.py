@@ -2,7 +2,6 @@ import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
 from dash import html, dcc
-from pandas.io.formats.printing import justify
 
 from layouts.layout_main import michelin_stars, bib_gourmand, color_map
 
