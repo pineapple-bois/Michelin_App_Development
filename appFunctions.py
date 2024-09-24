@@ -247,6 +247,118 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
 
     return fig
 
+# -------------------> Analysis Functions
+
+
+def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
+    """
+    Create a stacked bar chart of Michelin restaurants for the given data and star levels.
+
+    Args:
+        filtered_df (pandas.DataFrame): The filtered DataFrame based on region/department.
+        select_stars (list): The selected star ratings to display.
+        granularity (str): The level of granularity ('region' or 'department').
+        title (str): The title of the bar chart.
+
+    Returns:
+        go.Figure: A Plotly figure representing the stacked bar chart.
+    """
+    traces = []
+
+    if 0.5 in select_stars:
+        traces.append(go.Bar(
+            y=filtered_df[granularity],
+            x=filtered_df['bib_gourmand'],
+            name="Bib Gourmand",
+            marker_color=color_map[0.5],
+            orientation='h',
+            hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
+        ))
+    if 1 in select_stars:
+        traces.append(go.Bar(
+            y=filtered_df[granularity],
+            x=filtered_df['1_star'],
+            name="1 Star",
+            marker_color=color_map[1],
+            orientation='h',
+            hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
+        ))
+    if 2 in select_stars:
+        traces.append(go.Bar(
+            y=filtered_df[granularity],
+            x=filtered_df['2_star'],
+            name="2 Stars",
+            marker_color=color_map[2],
+            orientation='h',
+            hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
+        ))
+    if 3 in select_stars:
+        traces.append(go.Bar(
+            y=filtered_df[granularity],
+            x=filtered_df['3_star'],
+            name="3 Stars",
+            marker_color=color_map[3],
+            orientation='h',
+            hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
+        ))
+
+    fig_bar = go.Figure(data=traces)
+    fig_bar.update_layout(
+        barmode='stack',
+        title=title,
+        xaxis_title="Number of Restaurants",
+        plot_bgcolor='white',
+        margin=dict(l=20, r=20, t=60, b=20),
+        xaxis=dict(title_standoff=15),
+        yaxis=dict(ticklabelposition="outside", automargin=True, autorange='reversed')
+    )
+
+    return fig_bar
+
+
+def update_button_active_state_helper(n_clicks_list, ids, filter_type):
+    """
+    Generalized function to update the button states for different filter types (e.g., analysis, department, etc.).
+
+    Args:
+        n_clicks_list (list): List of n_clicks from the buttons.
+        ids (list): List of button ids.
+        filter_type (str): The type of filter (analysis, department, demographics, wine).
+
+    Returns:
+        list: Class names for each button.
+        list: Styles for each button.
+    """
+    # Initialize empty lists to store class names and styles
+    class_names = []
+    styles = []
+
+    for n_clicks, button_id in zip(n_clicks_list, ids):
+        index = button_id['index']
+
+        # Determine if the button is currently active
+        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
+        if is_active:
+            background_color = color_map[index]  # Full color for active state
+        else:
+            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
+                                f"{int(color_map[index][3:5], 16)},"
+                                f"{int(color_map[index][5:7], 16)},"
+                                f"0.6)")  # Lighter color for inactive
+
+        # Update class name and style based on the active/inactive state
+        class_name = f"me-1 star-button-{filter_type}" + (" active" if is_active else "")
+        color_style = {
+            "display": 'inline-block',
+            "width": '100%',
+            'backgroundColor': background_color,
+        }
+
+        class_names.append(class_name)
+        styles.append(color_style)
+
+    return class_names, styles
+
 
 def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show_labels=True, cmap='Reds'):
     """
@@ -663,6 +775,13 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
         )
     ))
 
+    # Calculate dynamic x-axis range, adding some padding (10%) around the min/max values
+    min_value = df[metric].min()
+    max_value = df[metric].max()
+    padding = (max_value - min_value) * 0.1  # 10% padding
+
+    x_axis_range = [min_value - padding, max_value + padding]  # Dynamic range
+
     # Only add the weighted mean if it's not excluded
     if metric not in ['municipal_population', 'population_density(inhabitants/sq_km)']:
         # Add the weighted mean as a red dashed vertical line
@@ -672,7 +791,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
             x1=weighted_mean,
             y0=-0.5,
             y1=len(df[granularity]) - 0.5,
-            line=dict(color="red", width=2, dash="dash"),
+            line=dict(color="red", width=2),
             name='Weighted Mean'
         )
 
@@ -685,8 +804,8 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
             text=f"French Mean: {weighted_mean:.2f} {metric_unit}",  # Add unit to the mean
             showarrow=True,
             arrowhead=2,
-            ax=40,  # Horizontal offset for the annotation
-            ay=-40,  # Vertical offset for the annotation
+            ax=-30,  # Horizontal offset for the annotation
+            ay=-30,  # Vertical offset for the annotation
             font=dict(color="red", size=12),
             arrowcolor="red"
         )
@@ -695,6 +814,8 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
     fig.update_layout(
         title=f"{metric_title} by {granularity.capitalize()}",
         xaxis_title=metric_title,
+        xaxis=dict(range=x_axis_range),
+        yaxis=dict(autorange='reversed'),
         showlegend=False,
         plot_bgcolor='white',
         height=550,
@@ -718,9 +839,8 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
     Returns:
         fig (go.Figure): The Plotly figure object.
     """
-
-    # Initialize Plotly figure
     fig = go.Figure()
+    wine_region_curve_numbers = []  # List to store curveNumbers for wine regions
 
     # 1. Optionally show outlines for regions or departments based on `outline_type`
     if outline_type in ['region', 'department']:
@@ -742,8 +862,6 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
     for i, region_row in wine_df.iterrows():
         # Extracting the exterior coordinates from each Polygon geometry
         geometry = region_row['geometry']
-
-        # Check if geometry is a MultiPolygon or Polygon
         if geometry.geom_type == 'Polygon':
             polygons = [geometry]
         elif geometry.geom_type == 'MultiPolygon':
@@ -771,6 +889,8 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
                     showlegend=False  # No legend for individual wine regions
                 )
             )
+            # Store the curveNumber for this trace (wine region)
+            wine_region_curve_numbers.append(len(fig.data) - 1)
 
     # 3. Optionally plot restaurants based on selected star ratings
     if show_restaurants and selected_stars:
@@ -792,7 +912,8 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
                     ),
                     customdata=star_data[['name', 'location']].values,  # Pass restaurant names and locations
                     showlegend=False,  # No legend for restaurants
-                    name=f"{'★' * int(star)}"
+                    name=f"{'★' * int(star)}",
+                    hoverinfo='skip'
                 )
             )
 
@@ -812,4 +933,57 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
         margin=dict(l=10, r=10, t=30, b=10),
     )
 
-    return fig
+    return fig, wine_region_curve_numbers
+
+
+def generate_optimized_prompt(wine_region):
+    """
+    Generates an optimized prompt for providing a concise overview of a specified wine region, tailored to its relationship
+    with Michelin-starred dining or local cuisine.
+
+    The function bins wine regions into two categories:
+    1. Regions known for their strong connection to Michelin-starred dining (e.g., Bordeaux, Bourgogne).
+    2. Regions where wines are more commonly associated with local, traditional dining (e.g., Provence, Dordogne).
+
+    Based on the category, the function creates a prompt that:
+    - For Michelin regions: Emphasizes the region's connection to high-end dining and gourmet wine pairings.
+    - For local cuisine regions: Focuses on how the wines complement the region's traditional cuisine, avoiding a forced Michelin connection.
+    - For other regions: Provides an accurate description without assuming a specific connection to Michelin or local cuisine.
+
+    Args:
+        wine_region (str): The name of the wine region for which the prompt is being generated.
+
+    Returns:
+        str: A prompt for generating a description of the wine region, tailored to either Michelin-starred dining or local cuisine contexts.
+
+    Example:
+        prompt = generate_optimized_prompt("Bordeaux")
+        print(prompt)
+        # Will generate a prompt emphasizing Bordeaux's connection to Michelin-starred dining.
+    """
+    michelin_regions = ['Bordeaux', 'Bourgogne', 'Loire', 'Champagne', 'Rhône']
+    local_cuisine_regions = ['Provence', 'Dordogne', 'Languedoc-Roussillon', 'Alsace']
+
+    if wine_region in michelin_regions:
+        prompt = f"""
+        Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and top appellations or Grand Crus. 
+        Ensure the focus remains only on appellations within {wine_region}. 
+        Emphasize how the wines from {wine_region} are integral to Michelin-starred dining, highlighting their pairing with gourmet dishes and their role in high-end culinary experiences.
+        Keep the response organized in sub-paragraphs for clarity.
+        """
+    elif wine_region in local_cuisine_regions:
+        prompt = f"""
+        Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and top appellations or Grand Crus. 
+        Ensure the focus remains only on appellations within {wine_region}. 
+        Focus on how the wines from {wine_region} complement the local cuisine, avoiding any mention of Michelin-starred dining unless it is highly relevant.
+        Highlight how the wines are traditionally enjoyed in local or casual dining settings.
+        Keep the response organized in sub-paragraphs for clarity.
+        """
+    else:
+        prompt = f"""
+        Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and top appellations or Grand Crus. 
+        Ensure the focus remains only on appellations within {wine_region}. 
+        Provide an accurate description of the wines and how they complement local cuisine or fine dining as applicable.
+        Keep the response organized in sub-paragraphs for clarity.
+        """
+    return prompt

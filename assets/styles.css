@@ -443,6 +443,32 @@ body {
    Region Section Styling
    ------------------------- */
 
+.michelin-text-container {
+    background-color: #f5f5f5;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
+}
+
+.michelin-title-paragraph {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.michelin-text-paragraph {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.michelin-tagline-paragraph {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+
 /* Wrapper to couple sidebar and content for regions */
 .region-content-wrapper {
     display: flex;
@@ -655,13 +681,13 @@ body {
    ------------------------- */
 
 .star-button-analysis, .star-button-department,
-.star-button-demographics, .star-button-wine {
+.star-button-cuisine, .star-button-demographics, .star-button-wine {
     width: 40px;
     padding: 5px;
 }
 
 .star-filter-buttons-analysis, .star-filter-buttons-department,
-.star-filter-buttons-demographics, .star-filter-buttons-wine {
+.star-filter-buttons-cuisine, .star-filter-buttons-demographics, .star-filter-buttons-wine {
     display: flex;
     justify-content: start;
     align-items: center;
@@ -670,13 +696,14 @@ body {
 }
 
 .star-button-analysis:hover, .star-button-department:hover,
-.star-button-demographics:hover, .star-button-wine:hover  {
+.star-button-cuisine:hover, .star-button-demographics:hover, .star-button-wine:hover  {
     opacity: 0.8 !important;
     cursor: pointer;
 }
 
 .star-filter-section-analysis .star-button-analysis.active,
 .star-filter-section-department .star-button-department.active,
+.star-filter-section-cuisine .star-button-cuisine.active,
 .star-filter-section-demographics .star-button-demographics.active,
 .star-filter-section-wine .star-button-wine.active {
     opacity: 1;
@@ -685,6 +712,7 @@ body {
 
 .star-filter-section-analysis .star-button-analysis.inactive,
 .star-filter-section-department .star-button-department.inactive,
+.star-filter-section-cuisine .star-button-cuisine.inactive,
 .star-filter-section-demographics .star-button-demographics.inactive,
 .star-filter-section-wine .star-button-wine.inactive{
     opacity: 0.5;
@@ -784,10 +812,35 @@ body {
     color: white;
 }
 
-
 /* -------------------------
    Demographics Section Styling
    ------------------------- */
+
+.demographics-text-container {
+    background-color: #f5f5f5; /* Light grey for neutrality */
+    border-top: 1px solid #007bff;
+    padding-top: 20px;
+    padding-bottom: 40px;
+    width: 100%;
+}
+
+.demographics-title-paragraph {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.demographics-text-paragraph {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.demographics-tagline-paragraph {
+    font-size: 16px;
+    line-height: 1.6;
+}
 
 /* Wrapper to couple the main content and filter for demographics */
 .demographics-container {
@@ -924,6 +977,35 @@ body {
    Wine Section Styling
    ------------------------- */
 
+.wine-text-container {
+    background-color: #f5f5f5;
+    border-top: 1px solid #28a745;
+    padding-top: 20px;
+    padding-bottom: 40px;
+    width: 100%;
+}
+
+.wine-title-paragraph {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.wine-text-paragraph {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.wine-tagline-paragraph {
+    font-size: 16px;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+}
+
+
 .wine-restaurants-wrapper {
     background-color: #fdf5e6; /* Light grey background */
 }
@@ -963,17 +1045,22 @@ body {
     font-size: 18px;
 }
 
+.region-name-placeholder {
+    font-size: 18px;
+}
+
 .LLM-output {
-    margin-top: 30px;
+    margin-top: 10px;
     font-size: 14px;
     flex-grow: 1;  /* Take up the remaining space */
+    overflow-y: auto;
 }
 
 /* Disclaimer container layout */
 #disclaimer-container {
-    padding-top: 15px;
-    padding-bottom: 15px;
-    padding-left: 25px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
     border-top: 1px solid #ccc;
     background-color: #f7f7f7;
     width: calc(100% - 30px);
@@ -994,7 +1081,7 @@ body {
 
 /* Styling for OpenAI logo */
 .openai-logo {
-    width: 100px;  /* Adjust size of the logo */
+    width: 80px;  /* Adjust size of the logo */
     margin-right: 10px;  /* Add space between the logo and text */
 }
 
@@ -1005,7 +1092,7 @@ body {
 }
 
 .disclaimer-text {
-    font-size: 12px;
+    font-size: 10px;
     color: #666;  /* Grey text color for the disclaimer */
     margin-top: 20px !important;
 }

@@ -1,24 +1,28 @@
 import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
+import plotly.express as px
 import dash
 import dash_bootstrap_components as dbc
 import os
+import uuid
 from openai import OpenAI
 from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, MATCH, ALL
-from flask import Flask, redirect, request
+from flask import Flask, redirect, request, session
+from flask_caching import Cache
 
 from layouts.layout_main import get_main_layout, color_map, star_filter_row, star_filter_section
 from layouts.layout_analysis import get_analysis_layout
 from layouts.layout_404 import get_404_layout
 
 from appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
-                          get_restaurant_details, plot_single_choropleth_plotly, top_restaurants,
-                          plot_demographic_choropleth_plotly, calculate_weighted_mean, plot_demographics_barchart,
-                          plot_wine_choropleth_plotly)
+                          get_restaurant_details, create_michelin_bar_chart, update_button_active_state_helper,
+                          plot_single_choropleth_plotly, top_restaurants, plot_demographic_choropleth_plotly,
+                          calculate_weighted_mean, plot_demographics_barchart, plot_wine_choropleth_plotly,
+                          generate_optimized_prompt)
 
 
 # Load restaurant data
@@ -35,7 +39,6 @@ wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
 departments_with_restaurants = all_france['department_num'].unique()
 # Filter geo_df
 geo_df = department_df[department_df['code'].isin(departments_with_restaurants)]
-
 star_placeholder = (0.5, 1, 2, 3)
 
 # Use geo_df to get unique regions and departments for the initial dropdowns
@@ -45,14 +48,18 @@ initial_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': 
 dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
 region_to_name = {region: region for region in geo_df['region'].unique()}
 
+
 load_dotenv()
 # Initialize OpenAI client with API key
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
+# Retrieve the admin session ID from the environment
+ADMIN_SESSION_ID = os.getenv('ADMIN_SESSION_ID')
 
-# Initialize the Dash app
+# -----------------> App and server setup
+
 server = Flask(__name__)
 app = dash.Dash(
     __name__,
@@ -72,6 +79,34 @@ app = dash.Dash(
 #         return redirect(url, code=301)
 
 
+def is_admin():
+    # Retrieve session ID
+    session_id = session.get('user_id', None)
+    return session_id == ADMIN_SESSION_ID
+
+
+@server.before_request
+def before_request():
+    # Ensure every session has a user_id, but no need to dynamically assign an admin ID
+    if 'user_id' not in session:
+        # Regular users get a dynamically generated session ID, admin checks are done separately
+        session['user_id'] = str(uuid.uuid4())
+
+
+@server.route('/')
+def index():
+    # Check if the current user is the admin
+    if is_admin():
+        return f"Hello Admin! Your session user_id is: {session.get('user_id')}"
+
+    return f"Hello User! Your session user_id is: {session.get('user_id')}"
+
+
+# Retrieve the Flask secret key from .env, or assign a default one
+secret_key = os.getenv('FLASK_SECRET_KEY', str(uuid.uuid4()))  # Generate a random key if none is found
+server.secret_key = secret_key  # Assign secret key for sessions
+
+
 # App set up
 app.title = 'Michelin Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
@@ -83,6 +118,11 @@ app.layout = html.Div([
     html.Div(id='page-content', children=get_main_layout())  # Set initial content
 ])
 
+# Initialize the cache (you can configure it to use Redis or filesystem-based caching for production)
+cache = Cache(app.server, config={
+    'CACHE_TYPE': 'simple',  # Use 'redis' or 'filesystem' for more persistent caching
+    'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds (1 hour)
+})
 
 # Define callback to handle page navigation
 @app.callback(
@@ -331,98 +371,50 @@ def default_map_figure():
      Input({'type': 'filter-button-analysis', 'index': ALL}, 'n_clicks')]
 )
 def update_analysis_chart_and_map(selected_regions, star_clicks):
-    # Ensure we have a valid region selection
-    global region_df
+    # Check if "Select All" is chosen
+    if 'all' in selected_regions:
+        selected_regions = unique_regions  # Reset to all available regions
+
     if not selected_regions:
         raise PreventUpdate
 
     # Default to all star levels if none selected
-    selected_stars = [0.5, 1, 2, 3]  # Bib Gourmand = 0.5
+    select_stars = [0.5, 1, 2, 3]
 
-    # Check which stars are currently active from star buttons
     if star_clicks:
-        selected_stars = [star_placeholder[i] for i, n in enumerate(star_clicks) if n % 2 == 0]  # Only keep active stars
+        select_stars = [star_placeholder[i] for i, n in enumerate(star_clicks) if n % 2 == 0]
 
-    # Filter the geo_df based on the selected regions
     filtered_df = region_df[region_df['region'].isin(selected_regions)].copy()
+    filtered_df.sort_values('region', inplace=True)
 
-    # Sort the filtered dataframe by 'region'
-    filtered_df = filtered_df.sort_values('region')
-
-    # Create the stacked bar chart for each Michelin star level
-    traces = []
-    if 0.5 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['region'],
-            x=filtered_df['bib_gourmand'],
-            name="Bib Gourmand",
-            marker_color=color_map[0.5],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-    if 1 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['region'],
-            x=filtered_df['1_star'],
-            name="1 Star",
-            marker_color=color_map[1],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-    if 2 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['region'],
-            x=filtered_df['2_star'],
-            name="2 Stars",
-            marker_color=color_map[2],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-    if 3 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['region'],
-            x=filtered_df['3_star'],
-            name="3 Stars",
-            marker_color=color_map[3],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-
-    # Create bar chart figure
-    fig_bar = go.Figure(data=traces)
-    fig_bar.update_layout(
-        barmode='stack',
-        title="Count of Michelin rated restaurants across selected regions of France.",
-        xaxis_title="Number of Restaurants",
-        plot_bgcolor='white',
-        margin=dict(l=20, r=20, t=60, b=20),
-        xaxis=dict(
-            title_standoff=15,
-        ),
-        yaxis=dict(
-            ticklabelposition="outside",
-            automargin=True,
-            autorange='reversed'
-        ),
+    fig_bar = create_michelin_bar_chart(
+        filtered_df,
+        select_stars,
+        granularity='region',
+        title="Selected regions of France."
     )
 
-    # Create choropleth map figure
     map_fig = plot_single_choropleth_plotly(
-        df=region_df[region_df['region'].isin(selected_regions)],
-        selected_stars=selected_stars,
+        df=filtered_df,
+        selected_stars=select_stars,
         granularity='region',
         show_labels=False
     )
 
     return fig_bar, map_fig
+
+
+@app.callback(
+    Output('region-dropdown-analysis', 'value'),
+    Input('region-dropdown-analysis', 'value')
+)
+def handle_select_all(selected_regions):
+    # If "Select All" is selected, replace the selection with all regions
+    if 'all' in selected_regions:
+        return unique_regions  # Return all available regions
+
+    # Otherwise, return the current selection
+    return selected_regions
 
 
 @app.callback(
@@ -432,39 +424,9 @@ def update_analysis_chart_and_map(selected_regions, star_clicks):
     [State({'type': 'filter-button-analysis', 'index': ALL}, 'id')]
 )
 def update_region_button_active_state(n_clicks_list, ids):
-    # Ensure clicks are provided
     if not n_clicks_list:
         raise PreventUpdate
-
-    # Initialize empty lists to store class names and styles
-    class_names = []
-    styles = []
-
-    for n_clicks, button_id in zip(n_clicks_list, ids):
-        index = button_id['index']
-
-        # Determine if the button is currently active
-        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
-        if is_active:
-            background_color = color_map[index]  # Full color for active state
-        else:
-            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
-                                f"{int(color_map[index][3:5], 16)},"
-                                f"{int(color_map[index][5:7], 16)},"
-                                f"0.6)")  # Lighter color for inactive
-
-        # Update class name and style based on the active/inactive state
-        class_name = "me-1 star-button-analysis" + (" active" if is_active else "")
-        color_style = {
-            "display": 'inline-block',
-            "width": '100%',
-            'backgroundColor': background_color,
-        }
-
-        class_names.append(class_name)
-        styles.append(color_style)
-
-    return class_names, styles
+    return update_button_active_state_helper(n_clicks_list, ids, 'analysis')
 
 
 # DEPARTMENT content
@@ -475,103 +437,37 @@ def update_region_button_active_state(n_clicks_list, ids):
      Output('department-map', 'figure'),
      Output('department-analysis-graph', 'style'),
      Output('department-map', 'style')],
-    [Input('department-dropdown-analysis', 'value'),  # Listens for department selection
-     Input({'type': 'filter-button-department', 'index': ALL}, 'n_clicks')]  # Listens for star filter
+    [Input('department-dropdown-analysis', 'value'),
+     Input({'type': 'filter-button-department', 'index': ALL}, 'n_clicks')]
 )
 def update_department_chart_and_map(selected_region, star_clicks):
-    # Default styles for hidden graphs
     hide_style = {'display': 'none'}
     show_style = {'display': 'inline-block', 'height': '100%', 'width': '100%'}
 
-    # Return empty graphs and hide them if the region is cleared
     if not selected_region:
         empty_fig = go.Figure()
         return hide_style, empty_fig, empty_fig, hide_style, hide_style
 
     # Default to all star levels if none selected
-    selected_stars = [0.5, 1, 2, 3]  # Bib Gourmand = 0.5
+    select_stars = [0.5, 1, 2, 3]
 
-    # Check which stars are currently active from star buttons
     if star_clicks:
-        selected_stars = [star_placeholder[i] for i, n in enumerate(star_clicks) if
-                          n % 2 == 0]  # Only keep active stars
+        select_stars = [star_placeholder[i] for i, n in enumerate(star_clicks) if n % 2 == 0]
 
-    # Filter the department_df based on the selected region
     filtered_df = department_df[department_df['region'] == selected_region].copy()
+    filtered_df.sort_values('department', inplace=True)
 
-    # Sort the filtered dataframe by 'department'
-    filtered_df = filtered_df.sort_values('department')
-
-    # Create the stacked bar chart for each Michelin star level
-    traces = []
-    if 0.5 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['department'],
-            x=filtered_df['bib_gourmand'],
-            name="Bib Gourmand",
-            marker_color=color_map[0.5],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-    if 1 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['department'],
-            x=filtered_df['1_star'],
-            name="1 Star",
-            marker_color=color_map[1],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-    if 2 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['department'],
-            x=filtered_df['2_star'],
-            name="2 Stars",
-            marker_color=color_map[2],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-    if 3 in selected_stars:
-        traces.append(go.Bar(
-            y=filtered_df['department'],
-            x=filtered_df['3_star'],
-            name="3 Stars",
-            marker_color=color_map[3],
-            orientation='h',
-            hovertemplate=(
-                '<b>Restaurants:</b> %{x}<extra></extra>'
-            ),
-        ))
-
-    # Create bar chart figure
-    fig_bar = go.Figure(data=traces)
-    fig_bar.update_layout(
-        barmode='stack',
-        title=f"Michelin rated restaurants by department: {selected_region}.",
-        xaxis_title="Number of Restaurants",
-        plot_bgcolor='white',
-        margin=dict(l=20, r=20, t=60, b=20),
-        xaxis=dict(
-            title_standoff=15,
-        ),
-        yaxis=dict(
-            ticklabelposition="outside",
-            automargin=True,
-            autorange='reversed'
-        ),
+    fig_bar = create_michelin_bar_chart(
+        filtered_df,
+        select_stars,
+        granularity='department',
+        title=f"{selected_region}"
     )
 
-    # Create choropleth map figure
     map_fig = plot_single_choropleth_plotly(
-        df=filtered_df,  # Filtered department dataframe
-        selected_stars=selected_stars,
-        granularity='department',  # Change to 'department'
+        df=filtered_df,
+        selected_stars=select_stars,
+        granularity='department',
         show_labels=False
     )
 
@@ -585,39 +481,9 @@ def update_department_chart_and_map(selected_region, star_clicks):
     [State({'type': 'filter-button-department', 'index': ALL}, 'id')]
 )
 def update_department_button_active_state(n_clicks_list, ids):
-    # Ensure clicks are provided
     if not n_clicks_list:
         raise PreventUpdate
-
-    # Initialize empty lists to store class names and styles
-    class_names = []
-    styles = []
-
-    for n_clicks, button_id in zip(n_clicks_list, ids):
-        index = button_id['index']
-
-        # Determine if the button is currently active
-        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
-        if is_active:
-            background_color = color_map[index]  # Full color for active state
-        else:
-            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
-                                f"{int(color_map[index][3:5], 16)},"
-                                f"{int(color_map[index][5:7], 16)},"
-                                f"0.6)")  # Lighter color for inactive
-
-        # Update class name and style based on the active/inactive state
-        class_name = "me-1 star-button-department" + (" active" if is_active else "")
-        color_style = {
-            "display": 'inline-block',
-            "width": '100%',
-            'backgroundColor': background_color,
-        }
-
-        class_names.append(class_name)
-        styles.append(color_style)
-
-    return class_names, styles
+    return update_button_active_state_helper(n_clicks_list, ids, 'department')
 
 
 # RANKING content
@@ -691,17 +557,15 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
         selected_granularity = 'region'  # Default granularity is region
         region_selector_style = {'display': 'block'}  # Show the region selector
 
-    # Use the correct dataframe based on granularity
     if selected_granularity == 'region':
-        df = region_df  # Use region-level data
-        # Filter data by selected regions if any regions are selected
+        df = region_df.sort_values('region')  # Use region-level data
         if selected_regions:
             df = df[df['region'].isin(selected_regions)]
     else:
-        df = department_df  # Use department-level data
+        df = department_df
         # If a region is selected in the dropdown, filter to that region
         if selected_dropdown != 'All France':
-            df = df[df['region'] == selected_dropdown]  # Filter the department-level data
+            df = df[df['region'] == selected_dropdown]
 
     # Show or hide the star filter based on button press
     if n_clicks_rest % 2 == 1:
@@ -737,10 +601,8 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
     else:
         dataframe = department_df
 
-    # Calculate weighted mean for the selected metric (use population as weight)
     weighted_mean = calculate_weighted_mean(dataframe, selected_metric, weight_column='municipal_population')
 
-    # Call the updated plotting function
     fig_map = plot_demographic_choropleth_plotly(
         df,
         all_france,
@@ -748,8 +610,8 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
         granularity=selected_granularity,
         show_labels=False,
         cmap='Blues',
-        restaurants=show_restaurants,  # Show restaurants based on button press
-        selected_stars=selected_stars  # Filter based on selected stars
+        restaurants=show_restaurants,
+        selected_stars=selected_stars
     )
 
     fig_bar = plot_demographics_barchart(
@@ -769,44 +631,17 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
     [State({'type': 'filter-button-demographics', 'index': ALL}, 'id')]
 )
 def update_demographics_button_active_state(n_clicks_list, ids):
-    # Ensure clicks are provided
     if not n_clicks_list:
         raise PreventUpdate
+    return update_button_active_state_helper(n_clicks_list, ids, 'demographics')
 
-    # Initialize empty lists to store class names and styles
-    class_names = []
-    styles = []
-
-    for n_clicks, button_id in zip(n_clicks_list, ids):
-        index = button_id['index']
-
-        # Determine if the button is currently active
-        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
-        if is_active:
-            background_color = color_map[index]  # Full color for active state
-        else:
-            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
-                                f"{int(color_map[index][3:5], 16)},"
-                                f"{int(color_map[index][5:7], 16)},"
-                                f"0.6)")  # Lighter color for inactive
-
-        # Update class name and style based on the active/inactive state
-        class_name = "me-1 star-button-demographics" + (" active" if is_active else "")
-        color_style = {
-            "display": 'inline-block',
-            "width": '100%',
-            'backgroundColor': background_color,
-        }
-
-        class_names.append(class_name)
-        styles.append(color_style)
-
-    return class_names, styles
 
 # WINE content
 
 @app.callback(
-    Output('wine-map-graph', 'figure'),
+    [Output('wine-map-graph', 'figure'),
+     Output('wine-region-curve-numbers', 'data'),
+     Output('star-filter-container-wine', 'style')],
     [Input('granularity-dropdown-wine', 'value'),
      Input('toggle-show-details-wine', 'n_clicks'),
      Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')]
@@ -815,6 +650,9 @@ def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars):
     # Determine if restaurants should be shown based on button press
     show_restaurants = n_clicks_rest % 2 == 1  # Odd clicks mean show restaurants
 
+    # Determine visibility of star-filter-container based on the button press
+    filter_style = {'width': '30%', 'display': 'block'} if show_restaurants else {'width': '30%', 'display': 'none'}
+
     # Star selection based on button clicks
     stars = [1, 2, 3]
     if n_clicks_stars:
@@ -822,25 +660,23 @@ def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars):
     else:
         selected_stars = stars
 
-    # Select the GeoDataFrame for outlines (regions or departments)
     if outline_type == 'region':
-        df = region_df  # Assume `region_df` exists
+        df = region_df
     elif outline_type == 'department':
-        df = department_df  # Assume `department_df` exists
+        df = department_df
     else:
         df = None  # No outlines if `outline_type` is None
 
-    # Call the wine plotting function
-    fig = plot_wine_choropleth_plotly(
-        df=df,  # Either region or department GeoDataFrame, or None
-        wine_df=wine_df,  # Pass the wine regions
-        all_france=all_france,  # Pass the restaurant data
-        outline_type=outline_type,  # Region or department
-        show_restaurants=show_restaurants,  # Toggle restaurants
-        selected_stars=selected_stars  # Filter by stars
+    fig, wine_region_curve_numbers = plot_wine_choropleth_plotly(
+        df=df,
+        wine_df=wine_df,
+        all_france=all_france,
+        outline_type=outline_type,
+        show_restaurants=show_restaurants,
+        selected_stars=selected_stars
     )
 
-    return fig
+    return fig, wine_region_curve_numbers, filter_style
 
 
 @app.callback(
@@ -849,62 +685,64 @@ def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars):
     [Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')],
     [State({'type': 'filter-button-wine', 'index': ALL}, 'id')]
 )
-def update_demographics_button_active_state(n_clicks_list, ids):
-    # Ensure clicks are provided
+def update_wine_button_active_state(n_clicks_list, ids):
     if not n_clicks_list:
         raise PreventUpdate
-
-    # Initialize empty lists to store class names and styles
-    class_names = []
-    styles = []
-
-    for n_clicks, button_id in zip(n_clicks_list, ids):
-        index = button_id['index']
-
-        # Determine if the button is currently active
-        is_active = n_clicks % 2 == 0  # Even clicks mean 'active'
-        if is_active:
-            background_color = color_map[index]  # Full color for active state
-        else:
-            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
-                                f"{int(color_map[index][3:5], 16)},"
-                                f"{int(color_map[index][5:7], 16)},"
-                                f"0.6)")  # Lighter color for inactive
-
-        # Update class name and style based on the active/inactive state
-        class_name = "me-1 star-button-demographics" + (" active" if is_active else "")
-        color_style = {
-            "display": 'inline-block',
-            "width": '100%',
-            'backgroundColor': background_color,
-        }
-
-        class_names.append(class_name)
-        styles.append(color_style)
-
-    return class_names, styles
+    return update_button_active_state_helper(n_clicks_list, ids, 'wine')
 
 
 @app.callback(
     [Output('llm-output-container', 'children'),
-     Output('disclaimer-container', 'style')],# Update this div with the OpenAI output
-    Input('wine-map-graph', 'clickData'),        # Trigger on region click
+     Output('disclaimer-container', 'style'),
+     Output('region-name-container', 'children'),
+     Output('region-name-container', 'style')],
+    Input('wine-map-graph', 'clickData'),
+    State('wine-region-curve-numbers', 'data')
 )
-def update_wine_info(clickData):
+def update_wine_info(clickData, wine_region_curve_numbers):
     if not clickData:
-        return "Click on a wine region to get more information.", {"display": "none"}
+        return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
 
     try:
-        curve_number = clickData['points'][0]['curveNumber']  # Extract the curve number
-        wine_region = wine_df.iloc[curve_number]["region"]
-    except KeyError:
-        return "Could not retrieve region information."
+        curve_number = clickData['points'][0]['curveNumber']
+        if curve_number not in wine_region_curve_numbers:
+            return "Please click on a wine region, not a restaurant.", {"display": "none"}, no_update, {"display": "none"}
 
-    # Create prompt for OpenAI
-    prompt = f"""
-    Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and mention the top three Grand Crus, if any. 
-    Suggest flavour profiles and food pairings. Keep the response organized in sub-paragraphs for clarity.
-    """
+        wine_region = wine_df.iloc[wine_region_curve_numbers.index(curve_number)]["region"]
+
+    except (KeyError, IndexError):
+        return "Could not retrieve region information.", {"display": "none"}, no_update, {"display": "none"}
+
+    # Check if the response is already cached
+    cache_key = f"wine_info_{wine_region}"
+    cached_content = cache.get(cache_key)
+    if cached_content:
+        region_name_content = html.H3(wine_region, style={'color': cached_content['color']})
+        print(f"Cached Information retrieved for {wine_region}")
+        return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
+
+    # Check if the session ID matches the admin ID
+    if not is_admin():
+        # Initialize request count in session if it doesn't exist
+        if 'request_count' not in session:
+            session['request_count'] = 0
+
+        # Check if the user has reached the request limit
+        if session['request_count'] >= 7:
+            error_message = "You have reached the maximum number of requests."
+            styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold"})
+            return styled_error, {"display": "none"}, no_update, {"display": "none"}
+
+        session['request_count'] += 1
+
+    # Fetch the color for the wine region
+    try:
+        region_color = wine_df[wine_df['region'] == wine_region]['colour'].values[0]
+    except IndexError:
+        region_color = 'black'
+
+    # Prompt for OpenAI
+    prompt = generate_optimized_prompt(wine_region)
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -917,10 +755,15 @@ def update_wine_info(clickData):
             max_tokens=400
         )
         content = response.choices[0].message.content.strip()
-        return dcc.Markdown(content), {"display": "block"}
+
+        # Cache the response
+        cache.set(cache_key, {'content': content, 'color': region_color})
+
+        region_name_content = html.H3(wine_region, style={'color': region_color})
+        return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
 
     except Exception as e:
-        return f"Error fetching region details: {str(e)}", {"display": "none"}
+        return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
 
 
 

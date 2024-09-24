@@ -96,19 +96,40 @@ def get_department_region_section():
         children=[
             # Placeholder text section (common for both regions and departments)
             html.Div(
-                className='placeholder-text-container',
+                className='michelin-text-container',
                 children=[
-                    html.H5(
-                        """
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        """
+                    html.Div(
+                        [
+                            "Michelin introduced its ",
+                            html.A("star ranking system for restaurants",
+                                   href="https://guide.michelin.com/gb/en/about-us", target="_blank"),
+                            " to France in 1936. Today, over 40 countries are represented in a Michelin Guide, and globally, approximately 3,500 restaurants have been awarded one to three stars. Of these, 18% are in France, the spiritual home of ",
+                            html.I("Le Guide Rouge"),
+                            "."
+                        ],
+                        className='michelin-title-paragraph'
+                    ),
+                    html.Div(
+                        [
+                            "Earning a Michelin Star can be the pinnacle of a chef’s career. Keeping one requires drive, determination, and consistency. The pressures of maintaining a third star can be overwhelming, as tragically illustrated by the story of ",
+                            html.A("Bernard Loiseau",
+                                   href="https://www.newyorker.com/magazine/2003/05/12/death-of-a-chef",
+                                   target="_blank"),
+                            ". In contrast, in 2017, Sébastien Bras made the unprecedented decision to voluntarily ",
+                            html.A("hand back his three-star rating",
+                                   href="https://www.theguardian.com/world/2017/sep/20/sebastien-bras-french-chef-three-michelin-stars-le-suquet-laguiole",
+                                   target="_blank"),
+                            ", choosing freedom from the intense expectations that come with such an award."
+                        ],
+                        className='michelin-text-paragraph'
+                    ),
+                    html.Div(
+                        [
+                            "France is divided into 13 metropolitan regions, each home to a unique culinary heritage. These regions are further subdivided into departments, which showcase the diverse landscapes and gastronomic diversity that define the nation's culture. Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting metaphor for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
+                        ],
+                        className='michelin-tagline-paragraph'
                     )
                 ],
-                style={'width': '100%'}  # Set full width
             ),
             # Region Section (both sidebar and main content)
             html.Div(
@@ -129,7 +150,8 @@ def get_department_region_section():
                                     html.H5("Add or Remove Regions of France", className='region-filter-title'),
                                     dcc.Dropdown(
                                         id='region-dropdown-analysis',
-                                        options=[{'label': region, 'value': region} for region in unique_regions],
+                                        options = [{'label': 'Select All', 'value': 'all'}] +
+                                                  [{'label': region, 'value': region} for region in unique_regions],
                                         value=unique_regions,  # All regions selected by default
                                         className='dropdown-region-analysis',
                                         multi=True,  # Multi-select enabled
@@ -381,22 +403,31 @@ def get_demographics_content():
         className='demographics-container',
         id='demographics-content-top',
         children=[
-            # New Div for placeholder text (full width)
             html.Div(
-                className='placeholder-text-container',
+                className='demographics-text-container',
                 children=[
-                    html.H5(
-                        """
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        """
+                    html.Div(
+                        [
+                            "Michelin Stars and the Economic Health of France"
+                        ],
+                        className='demographics-title-paragraph'
+                    ),
+                    html.Div(
+                        [
+                            "As we examine Michelin-starred restaurants across France, we now compare key economic health metrics like 'GDP per capita', 'poverty rate', and 'population density' which were sourced from ",
+                            html.A("INSEE: National Institute of Statistics and Economic Studies", href="https://www.insee.fr/fr/accueil", target="_blank"),
+                            ". These figures provide a snapshot of each region’s economic and social environment, but they don’t tell the whole story."
+                        ],
+                        className='demographics-text-paragraph'
+                    ),
+                    html.Div(
+                        [
+                            "Ultimately, the connection between Michelin stars and these metrics is complex. High GDP or dense populations may attract more restaurants, but it doesn’t guarantee culinary excellence. Michelin recognition stems from a combination of regional culinary traditions, a thriving dining scene, and the expertise and creativity of renowned chefs. These indicators hint at broader trends but are only one part of a larger picture."
+                        ],
+                        className='demographics-tagline-paragraph'
                     )
                 ],
             ),
-
             # Demographics dropdowns
             html.Div(
                 className='demographics-filter-container',
@@ -427,7 +458,7 @@ def get_demographics_content():
                     html.Div(
                         className='demographics-dropdown-container',
                         children=[
-                            html.H6("Select Region to Show Selected Metrics By Department"),
+                            html.H6("Select a Region to Show Selected Metric by Department"),
                             dcc.Dropdown(
                                 id='granularity-dropdown-demographics',
                                 options=[{'label': 'All France', 'value': 'All France'}] + [
@@ -552,22 +583,31 @@ def get_wine_content():
         className='wine-container',
         id='wine-content-top',
         children=[
-            # New Div for placeholder text (full width)
             html.Div(
-                className='placeholder-text-container',
+                className='wine-text-container',
                 children=[
-                    html.H5(
-                        """
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        """
+                    html.Div(
+                        [
+                            "French Wine & Gastronomy"
+                        ],
+                        className='wine-title-paragraph'
+                    ),
+                    html.Div(
+                        [
+                            "Wine is a cornerstone of French cuisine, and Michelin-starred restaurants often highlight local wines to elevate the dining experience. To explore this connection, I’ve used a LLM to provide insights into each wine region. Click on a region to discover its history, key grapes, and how its wines fit into the French culinary landscape."
+                        ],
+                        className='wine-text-paragraph'
+                    ),
+                    html.Div(
+                        [
+                            html.I("“Nunc est bibendum...”"),
+                            html.Br(),
+                            html.I("“À votre santé!”")
+                        ],
+                        className='wine-tagline-paragraph'
                     )
                 ],
             ),
-
             # Restaurant selection div
             html.Div(
                 className='wine-restaurants-wrapper',
@@ -611,11 +651,12 @@ def get_wine_content():
                             # Star filter specific to wine page
                             html.Div(
                                 className='star-filter-container',
+                                id='star-filter-container-wine',
                                 children=[
                                     dcc.Store(id='selected-stars-wine', data=[]),
                                     star_filter_section(star_placeholder, filter_type="wine", exclude_stars=[0.5]),
                                 ],
-                                style={'width': '30%'}  # Set filter width to 30% of parent div
+                                style={'width': '30%', 'display': 'none'}  # Hidden by default
                             ),
                         ]
                     )
@@ -630,10 +671,8 @@ def get_wine_content():
                     html.Div(
                         className='wine-map',
                         children=[
-                            dcc.Graph(
-                                id='wine-map-graph',
-                                config={'displayModeBar': False}
-                            )
+                            dcc.Graph(id='wine-map-graph', config={'displayModeBar': False}),
+                            dcc.Store(id='wine-region-curve-numbers')  # Store for wine region curve numbers
                         ],
                         style={'width': '50%', 'display': 'inline-block'}
                     ),
@@ -649,6 +688,9 @@ def get_wine_content():
                                         id="loading-llm",
                                         type="circle",
                                         children=[
+                                            # Placeholder for region name
+                                            html.Div(id='region-name-container', className='region-name-placeholder'),
+                                            # LLM content container
                                             html.Div(id='llm-output-container', className='LLM-output'),
                                             # Disclaimer div
                                             html.Div(
@@ -698,6 +740,7 @@ def get_analysis_content():
         children=[
             get_department_region_section(),  # Department and Region Section
             get_top_ranking_section(),        # Top Ranking Section
+            # get_tile_plot_section(),          # Cuisine Types Section
             get_demographics_content(),       # Demographics Section
             get_wine_content(),               # Wine section
         ]
