@@ -728,7 +728,7 @@ def update_wine_info(clickData, wine_region_curve_numbers):
             session['request_count'] = 0
 
         # Check if the user has reached the request limit
-        if session['request_count'] >= 50:
+        if session['request_count'] >= 7:
             error_message = "You have reached the maximum number of requests."
             styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold"})
             return styled_error, {"display": "none"}, no_update, {"display": "none"}
@@ -769,4 +769,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
