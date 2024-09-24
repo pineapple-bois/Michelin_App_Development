@@ -56,7 +56,7 @@ client = OpenAI(
 )
 
 # Retrieve the admin session ID from the environment
-ADMIN_SESSION_ID = os.getenv('ADMIN_SESSION_ID')
+# ADMIN_SESSION_ID = os.getenv('ADMIN_SESSION_ID')
 
 # -----------------> App and server setup
 
@@ -72,11 +72,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-# @server.before_request
-# def before_request():
-#     if not request.is_secure:
-#         url = request.url.replace('http://', 'https://', 1)
-#         return redirect(url, code=301)
+@server.before_request
+def before_request():
+    if not request.is_secure:
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
 
 
 def is_admin():
@@ -728,7 +728,7 @@ def update_wine_info(clickData, wine_region_curve_numbers):
             session['request_count'] = 0
 
         # Check if the user has reached the request limit
-        if session['request_count'] >= 7:
+        if session['request_count'] >= 50:
             error_message = "You have reached the maximum number of requests."
             styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold"})
             return styled_error, {"display": "none"}, no_update, {"display": "none"}

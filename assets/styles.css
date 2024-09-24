@@ -444,14 +444,15 @@ body {
    ------------------------- */
 
 .michelin-text-container {
-    background-color: #f5f5f5;
+    /*background-color: #f5f5f5;*/
+    border-bottom: 1px solid black;
     padding-top: 20px;
-    padding-bottom: 20px;
+    padding-bottom: 40px;
     width: 100%;
 }
 
 .michelin-title-paragraph {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     font-size: 18px;
     font-weight: 600;
     line-height: 1.6;
@@ -478,13 +479,15 @@ body {
 /* Sidebar for regions */
 .region-sidebar {
     width: 30%;
-    background-color: #f9f9f9; /* Light background for visibility */
+    /*background-color: #f9f9f9; !* Light background for visibility *!*/
+    border-right: 1px solid black;
     display: flex;
     flex-direction: column;
     /*justify-content: space-between;*/
     overflow-y: auto;
     box-sizing: border-box;
     padding-bottom: 60px;
+    padding-right: 20px;
 }
 
 /* Main content for regions */
@@ -493,8 +496,9 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: #fdf5e6; /* Light pastel yellow */
-    /*padding: 20px;*/
+    /*background-color: #fdf5e6; !* Light pastel yellow *!*/
+    padding-top: 10px;
+    padding-left: 20px;
     box-sizing: border-box;
 }
 
@@ -513,20 +517,20 @@ body {
 
 /* Region section styles */
 .region-section {
-    background-color: #d9edf7; /* Pastel blue */
+    /*background-color: #d9edf7; !* Pastel blue *!*/
     padding-bottom: 40px; /* Space between region and department sections */
 }
 
 .region-description {
-    background-color: #f7cac9; /* Soft pastel coral */
-    font-size: 18px !important;
+    /*background-color: #f7cac9; !* Soft pastel coral *!*/
+    font-size: 18px;
     margin-bottom: 30px;
-    padding-top: 10px;
+    padding-top: 20px;
 }
 
 /* Region filter container */
 .region-filter-container {
-    background-color: #fdf5e6; /* Pastel yellow */
+    /*background-color: #fdf5e6; !* Pastel yellow *!*/
     margin-bottom: 20px;
 }
 
@@ -543,7 +547,7 @@ body {
 
 /* Star filter container */
 .star-filter-section-analysis {
-    background-color: #c8e6c9; /* Soft pastel green */
+    /*background-color: #c8e6c9; !* Soft pastel green *!*/
 }
 
 /* -------------------------
@@ -599,12 +603,14 @@ body {
 /* Sidebar for departments */
 .department-sidebar {
     width: 30%;
-    background-color: #e2eafc; /* Soft pastel blue */
+    /*background-color: #e2eafc; !* Soft pastel blue *!*/
+    border-right: 1px solid black;
     display: flex;
     flex-direction: column;
     /*justify-content: space-between;*/
     overflow-y: auto;
     box-sizing: border-box;
+    padding-right: 20px;
     padding-bottom: 60px;
 }
 
@@ -614,8 +620,9 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: #cce5ff; /* Muted pastel blue */
-    /*padding: 20px;*/
+    /*background-color: #cce5ff; !* Muted pastel blue *!*/
+    padding-top: 10px;
+    padding-left: 20px;
     box-sizing: border-box;
 }
 
@@ -626,20 +633,20 @@ body {
 
 /* Department section styles */
 .department-section {
-    background-color: #d9f7be; /* Muted pastel green */
+    /*background-color: #d9f7be; !* Muted pastel green *!*/
     padding-bottom: 40px;
 }
 
 .department-description {
-    background-color: #ffe4e1; /* Light pastel coral */
+    /*background-color: #ffe4e1; !* Light pastel coral *!*/
     font-size: 18px;
     margin-bottom: 30px;
-    padding-top: 10px;
+    padding-top: 20px;
 }
 
 /* Region filter container */
 .department-filter-container {
-    background-color: #fdf5e6; /* Pastel yellow */
+    /*background-color: #fdf5e6; !* Pastel yellow *!*/
     margin-bottom: 20px;
 }
 
@@ -673,7 +680,7 @@ body {
 
 /* Star filter container */
 .star-filter-section-department {
-    background-color: #c8e6c9; /* Soft pastel green */
+    /*background-color: #c8e6c9; !* Soft pastel green *!*/
 }
 
 /* -------------------------
@@ -727,19 +734,21 @@ body {
 .ranking-content-wrapper {
     display: flex;
     height: auto; /* Allow container to grow dynamically */
-    background-color: #d9edf7; /* Pastel blue for the wrapper */
+    /*background-color: #d9edf7; !* Pastel blue for the wrapper *!*/
     /*padding-bottom: 40px; !* Space between content *!*/
 }
 
 /* Sidebar for top ranking section */
 .ranking-sidebar {
     width: 30%;
-    background-color: #f9f9f9; /* Light background for visibility */
+    /*background-color: #f9f9f9; !* Light background for visibility *!*/
+    border-right: 1px solid black;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     overflow-y: auto; /* Enable scrolling for large content */
     padding-bottom: 60px;
+    padding-right: 20px;
 }
 
 /* Main content for top ranking section */
@@ -748,7 +757,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start; /* Ensure content starts from top */
-    background-color: #fdf5e6; /* Light pastel yellow for content area */
+    /*background-color: #fdf5e6; !* Light pastel yellow for content area *!*/
     padding: 20px;
     box-sizing: border-box;
     overflow-y: auto; /* Enable scrolling for larger output content */
@@ -756,7 +765,7 @@ body {
 
 /* Debug color for description section */
 .ranking-description {
-    background-color: #f7cac9; /* Soft pastel coral */
+    /*background-color: #f7cac9; !* Soft pastel coral *!*/
     font-size: 18px !important;
     margin-bottom: 30px;
     padding-top: 20px;
@@ -764,7 +773,7 @@ body {
 
 /* Granularity filter container */
 .granularity-filter-container {
-    background-color: #fdf5e6; /* Pastel yellow */
+    /*background-color: #fdf5e6; !* Pastel yellow *!*/
     margin-bottom: 20px;
 }
 
@@ -775,7 +784,7 @@ body {
 
 /* Top ranking filter container */
 .top-ranking-filter-container {
-    background-color: #fdf5e6; /* Pastel yellow */
+    /*background-color: #fdf5e6; !* Pastel yellow *!*/
     margin-bottom: 20px;
 }
 
@@ -785,7 +794,7 @@ body {
 }
 
 .rating-filter-container {
-    background-color: #c8e6c9; /* Soft pastel green */
+    /*background-color: #c8e6c9; !* Soft pastel green *!*/
     margin-bottom: 20px;
 }
 
@@ -817,15 +826,15 @@ body {
    ------------------------- */
 
 .demographics-text-container {
-    background-color: #f5f5f5; /* Light grey for neutrality */
+    /*background-color: #f5f5f5; !* Light grey for neutrality *!*/
     border-top: 1px solid #007bff;
-    padding-top: 20px;
+    padding-top: 40px;
     padding-bottom: 40px;
     width: 100%;
 }
 
 .demographics-title-paragraph {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     font-size: 18px;
     font-weight: 600;
     line-height: 1.6;
@@ -844,20 +853,20 @@ body {
 
 /* Wrapper to couple the main content and filter for demographics */
 .demographics-container {
-    background-color: #e2f0f9; /* Light pastel blue */
+    /*background-color: #e2f0f9; !* Light pastel blue *!*/
     width: 100%;
     gap: 40px;
 }
 
 /* Placeholder text container */
 .placeholder-text-container {
-    background-color: white; /* Keep the background white */
+    /*background-color: white; !* Keep the background white *!*/
     width: 100%;
     margin-bottom: 20px;
 }
 
 .demographics-filter-container {
-    background-color: #d9edf7;
+    /*background-color: #d9edf7;*/
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -867,12 +876,12 @@ body {
 
 /* Dropdown containers for demographics section */
 .demographics-dropdown-container {
-    background-color: #fdf5e6; /* Light grey background */
+    /*background-color: #fdf5e6; !* Light grey background *!*/
     width: 25%;
 }
 
 .filter-container {
-    background-color: #fdf5e6; /* Light grey background */
+    /*background-color: #fdf5e6; !* Light grey background *!*/
     width: 50%;
 }
 
@@ -889,12 +898,12 @@ body {
     justify-content: space-between;
     width: 100%;
     height: 750px; /* Fixed height for map + bar chart section */
-    background-color: #d9edf7; /* Light pastel blue for the wrapper */
+    /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
 }
 
 /* Demographics map styling */
 .demographics-map {
-    background-color: #cce5ff; /* Light pastel blue */
+    /*background-color: #cce5ff; !* Light pastel blue *!*/
     height: auto;
     width: 50%;
     display: inline-block;
@@ -908,7 +917,7 @@ body {
 
 /* Demographics bar chart styling */
 .demographics-bar-chart {
-    background-color: #fdf5e6; /* Light pastel yellow */
+    /*background-color: #fdf5e6; !* Light pastel yellow *!*/
     height: auto;
     width: 100%;
     display: inline-block;
@@ -919,7 +928,7 @@ body {
 .weighted-mean-explanation {
     text-align: center;
     padding: 10px;
-    border: 1px solid #007bff;
+    /*border: 1px solid #007bff;*/
     height: auto;  /* Remove the fixed height to allow dynamic adjustment */
     margin-top: 0;  /* Ensure no extra margin */
     margin-bottom: 0;
@@ -978,15 +987,16 @@ body {
    ------------------------- */
 
 .wine-text-container {
-    background-color: #f5f5f5;
+    /*background-color: #f5f5f5;*/
     border-top: 1px solid #28a745;
-    padding-top: 20px;
+    border-top: 1px solid #28a745;
+    padding-top: 40px;
     padding-bottom: 40px;
     width: 100%;
 }
 
 .wine-title-paragraph {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     font-size: 18px;
     font-weight: 600;
     line-height: 1.6;
@@ -1007,7 +1017,7 @@ body {
 
 
 .wine-restaurants-wrapper {
-    background-color: #fdf5e6; /* Light grey background */
+    /*background-color: #fdf5e6; !* Light grey background *!*/
 }
 
 .wine-restaurants-controls {
@@ -1018,7 +1028,7 @@ body {
 }
 
 .wine-map-outlines {
-    background-color: #d9edf7; /* Light pastel blue for the wrapper */
+    /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
     margin-bottom: 20px;
 }
 
@@ -1028,7 +1038,7 @@ body {
     justify-content: space-between;
     width: 100%;
     height: 750px; /* Fixed height for map + bar chart section */
-    background-color: #d9edf7; /* Light pastel blue for the wrapper */
+    /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
 }
 
 /* Wine LLM Output Wrapper */

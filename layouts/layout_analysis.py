@@ -125,7 +125,7 @@ def get_department_region_section():
                     ),
                     html.Div(
                         [
-                            "France is divided into 13 metropolitan regions, each home to a unique culinary heritage. These regions are further subdivided into departments, which showcase the diverse landscapes and gastronomic diversity that define the nation's culture. Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting metaphor for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
+                            "France is divided into 13 metropolitan regions, each home to a unique culinary heritage. These regions are further subdivided into departments, which showcase the diverse landscapes and gastronomic diversity that define the nation's culture. Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting simile for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
                         ],
                         className='michelin-tagline-paragraph'
                     )
@@ -594,7 +594,8 @@ def get_wine_content():
                     ),
                     html.Div(
                         [
-                            "Wine is a cornerstone of French cuisine, and Michelin-starred restaurants often highlight local wines to elevate the dining experience. To explore this connection, I’ve used a LLM to provide insights into each wine region. Click on a region to discover its history, key grapes, and how its wines fit into the French culinary landscape."
+                            "Wine is a cornerstone of French cuisine, and Michelin-starred restaurants often highlight local wines to elevate the dining experience. To explore this connection, I’ve used a LLM to provide insights into each wine region. Click on a region to discover its history, key grapes, and how its wines fit into the French culinary landscape.",
+                            "This feature allows you to see how the distribution of stars aligns with the country’s wine heritage, offering a deeper understanding of the relationship between French gastronomy and its world-renowned wines."
                         ],
                         className='wine-text-paragraph'
                     ),
