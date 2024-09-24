@@ -4,7 +4,8 @@ dash-table==5.0.0
 geopandas==0.12.2
 gunicorn==23.0.0
 openai==1.47.0
-pandas~=1.5.1
+numpy~=2.0.2
+pandas~=2.2.3
 plotly~=5.16.0
 python-dotenv==1.0.1
 Flask~=2.2.5
