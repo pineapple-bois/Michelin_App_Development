@@ -721,20 +721,6 @@ def update_wine_info(clickData, wine_region_curve_numbers):
         print(f"Cached Information retrieved for {wine_region}")
         return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
 
-    # Check if the session ID matches the admin ID
-    if not is_admin():
-        # Initialize request count in session if it doesn't exist
-        if 'request_count' not in session:
-            session['request_count'] = 0
-
-        # Check if the user has reached the request limit
-        if session['request_count'] >= 7:
-            error_message = "You have reached the maximum number of requests."
-            styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold"})
-            return styled_error, {"display": "none"}, no_update, {"display": "none"}
-
-        session['request_count'] += 1
-
     # Fetch the color for the wine region
     try:
         region_color = wine_df[wine_df['region'] == wine_region]['colour'].values[0]
@@ -765,6 +751,81 @@ def update_wine_info(clickData, wine_region_curve_numbers):
     except Exception as e:
         return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
 
+
+
+# @app.callback(
+#     [Output('llm-output-container', 'children'),
+#      Output('disclaimer-container', 'style'),
+#      Output('region-name-container', 'children'),
+#      Output('region-name-container', 'style')],
+#     Input('wine-map-graph', 'clickData'),
+#     State('wine-region-curve-numbers', 'data')
+# )
+# def update_wine_info(clickData, wine_region_curve_numbers):
+#     if not clickData:
+#         return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
+#
+#     try:
+#         curve_number = clickData['points'][0]['curveNumber']
+#         if curve_number not in wine_region_curve_numbers:
+#             return "Please click on a wine region, not a restaurant.", {"display": "none"}, no_update, {"display": "none"}
+#
+#         wine_region = wine_df.iloc[wine_region_curve_numbers.index(curve_number)]["region"]
+#
+#     except (KeyError, IndexError):
+#         return "Could not retrieve region information.", {"display": "none"}, no_update, {"display": "none"}
+#
+#     # Check if the response is already cached
+#     cache_key = f"wine_info_{wine_region}"
+#     cached_content = cache.get(cache_key)
+#     if cached_content:
+#         region_name_content = html.H3(wine_region, style={'color': cached_content['color']})
+#         print(f"Cached Information retrieved for {wine_region}")
+#         return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
+#
+#     # Check if the session ID matches the admin ID
+#     if not is_admin():
+#         # Initialize request count in session if it doesn't exist
+#         if 'request_count' not in session:
+#             session['request_count'] = 0
+#
+#         # Check if the user has reached the request limit
+#         if session['request_count'] >= 7:
+#             error_message = "You have reached the maximum number of requests."
+#             styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold"})
+#             return styled_error, {"display": "none"}, no_update, {"display": "none"}
+#
+#         session['request_count'] += 1
+#
+#     # Fetch the color for the wine region
+#     try:
+#         region_color = wine_df[wine_df['region'] == wine_region]['colour'].values[0]
+#     except IndexError:
+#         region_color = 'black'
+#
+#     # Prompt for OpenAI
+#     prompt = generate_optimized_prompt(wine_region)
+#     try:
+#         response = client.chat.completions.create(
+#             model="gpt-3.5-turbo",
+#             messages=[
+#                 {
+#                     "role": "user",
+#                     "content": prompt
+#                 }
+#             ],
+#             max_tokens=400
+#         )
+#         content = response.choices[0].message.content.strip()
+#
+#         # Cache the response
+#         cache.set(cache_key, {'content': content, 'color': region_color})
+#
+#         region_name_content = html.H3(wine_region, style={'color': region_color})
+#         return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
+#
+#     except Exception as e:
+#         return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
 
 
 # For local development, debug=True
