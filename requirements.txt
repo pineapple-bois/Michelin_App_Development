@@ -2,6 +2,7 @@ dash~=2.12.1
 dash-bootstrap-components==1.4.2
 dash-table==5.0.0
 geopandas==0.12.2
+fiona==1.8.22
 gunicorn==23.0.0
 openai==1.47.0
 numpy~=2.0.2
