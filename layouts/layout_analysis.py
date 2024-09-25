@@ -103,7 +103,7 @@ def get_department_region_section():
                             "Michelin introduced its ",
                             html.A("star ranking system for restaurants",
                                    href="https://guide.michelin.com/gb/en/about-us", target="_blank"),
-                            " to France in 1936. Today, over 40 countries are represented in a Michelin Guide, and globally, approximately 3,500 restaurants have been awarded one to three stars. Of these, 18% are in France, the spiritual home of ",
+                            " to France in 1936. Today, over 40 countries are represented in a Michelin Guide, and globally, approximately 3,500 restaurants have been awarded one, two, or three stars. Of these, over 600 are in France, the spiritual home of ",
                             html.I("Le Guide Rouge"),
                             "."
                         ],
@@ -125,10 +125,46 @@ def get_department_region_section():
                     ),
                     html.Div(
                         [
-                            "France is divided into 13 metropolitan regions, each home to a unique culinary heritage. These regions are further subdivided into departments, which showcase the diverse landscapes and gastronomic diversity that define the nation's culture. Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting simile for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
+                            "France is divided into 13 metropolitan regions, each home to a unique culinary heritage. "
+                            "These regions are further subdivided into departments, which showcase the diverse landscapes and gastronomic diversity that define the nation's culture. "
+                            "Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting simile for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
                         ],
                         className='michelin-tagline-paragraph'
-                    )
+                    ),
+                    html.Div(
+                        className='star-ratings-container',  # Class for the parent container
+                        children=[
+                            html.Div(
+                                children=[
+                                    html.P([bib_gourmand()], className='star-description-title'),
+                                    html.P('Bib Gourmand', className='star-description-title'),
+                                    html.P('Exceptionally good food at moderate prices',
+                                           className='star-description-text'),
+                                ], className='bib-child'
+                            ),
+                            html.Div(
+                                children=[
+                                    html.P(michelin_stars(1), className='star-description-title'),
+                                    html.P('High-quality cooking', className='star-description-title'),
+                                    html.P('Worth a stop', className='star-description-text'),
+                                ], className='one-child'
+                            ),
+                            html.Div(
+                                children=[
+                                    html.P(michelin_stars(2), className='star-description-title'),
+                                    html.P('Excellent cooking', className='star-description-title'),
+                                    html.P('Worth a detour', className='star-description-text'),
+                                ], className='two-child'
+                            ),
+                            html.Div(
+                                children=[
+                                    html.P(michelin_stars(3), className='star-description-title'),
+                                    html.P('Exceptional cuisine', className='star-description-title'),
+                                    html.P('Worth a special journey', className='star-description-text'),
+                                ], className='three-child'
+                            ),
+                        ]
+                    ),
                 ],
             ),
             # Region Section (both sidebar and main content)
@@ -141,7 +177,7 @@ def get_department_region_section():
                         children=[
                             html.Div(
                                 children=[
-                                    html.H5("How do Michelin rated restaurants vary across regions?")
+                                    "How do Michelin-rated restaurants vary across regions?"
                                 ], className="region-description"
                             ),
                             html.Div(
@@ -213,12 +249,13 @@ def get_department_region_section():
                         children=[
                             html.Div(
                                 children=[
-                                    html.H5("Select a region to view restaurants by department")
+                                    "How do Michelin-rated restaurants vary across departments?"
                                 ], className="department-description"
                             ),
                             html.Div(
                                 className='department-filter-container',
                                 children=[
+                                    html.H5("Select a Region of France", className='region-filter-title'),
                                     dcc.Dropdown(
                                         id='department-dropdown-analysis',
                                         options=[{'label': region, 'value': region} for region in unique_regions],
@@ -294,17 +331,13 @@ def get_top_ranking_section():
                             # Description for ranking analysis
                             html.Div(
                                 children=[
-                                    html.H5(
-                                        children=[
-                                            "Regions/Departments with the Most ",
-                                            *michelin_stars(2),  # Unpack the list of images for 2 stars
-                                            " and ",
-                                            *michelin_stars(3),  # Unpack the list of images for 3 stars
-                                            " Restaurants"
-                                        ],
-                                        className="ranking-description"
-                                    )
-                                ]
+                                    "Regions/Departments with the most ",
+                                    *michelin_stars(2),  # Unpack the list of images for 2 stars
+                                    " and ",
+                                    *michelin_stars(3),  # Unpack the list of images for 3 stars
+                                    " restaurants"
+                                ],
+                                className="ranking-description"
                             ),
 
                             # Granularity dropdown (Region/Department)
@@ -414,8 +447,8 @@ def get_demographics_content():
                     ),
                     html.Div(
                         [
-                            "As we examine Michelin-starred restaurants across France, we now compare key economic health metrics like 'GDP per capita', 'poverty rate', and 'population density' which were sourced from ",
-                            html.A("INSEE: National Institute of Statistics and Economic Studies", href="https://www.insee.fr/fr/accueil", target="_blank"),
+                            "As we examine Michelin-starred restaurants across France, we now compare key economic health metrics like 'GDP per capita', 'poverty rate', and 'population density' which were sourced from the ",
+                            html.A("National Institute of Statistics and Economic Studies (INSEE)", href="https://www.insee.fr/fr/accueil", target="_blank"),
                             ". These figures provide a snapshot of each region’s economic and social environment, but they don’t tell the whole story."
                         ],
                         className='demographics-text-paragraph'
@@ -594,16 +627,15 @@ def get_wine_content():
                     ),
                     html.Div(
                         [
-                            "Wine is a cornerstone of French cuisine, and Michelin-starred restaurants often highlight local wines to elevate the dining experience. To explore this connection, I’ve used a LLM to provide insights into each wine region. Click on a region to discover its history, key grapes, and how its wines fit into the French culinary landscape.",
+                            "Wine is a cornerstone of French cuisine, and Michelin-starred restaurants often highlight local wines to elevate the dining experience. "
+                            "To explore this connection, I’ve used a LLM to provide insights into each wine region. Click on a region to discover its history, key grapes, and how its wines fit into the French culinary landscape. ",
                             "This feature allows you to see how the distribution of stars aligns with the country’s wine heritage, offering a deeper understanding of the relationship between French gastronomy and its world-renowned wines."
                         ],
                         className='wine-text-paragraph'
                     ),
                     html.Div(
                         [
-                            html.I("“Nunc est bibendum...”"),
-                            html.Br(),
-                            html.I("“À votre santé!”")
+                            html.I("Nunc est bibendum... À votre santé!"),
                         ],
                         className='wine-tagline-paragraph'
                     )
