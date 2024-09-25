@@ -18,6 +18,7 @@ from layouts.layout_main import get_main_layout, color_map, star_filter_row, sta
 from layouts.layout_analysis import get_analysis_layout
 from layouts.layout_404 import get_404_layout
 
+from locationMatcher import LocationMatcher
 from appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
                           get_restaurant_details, create_michelin_bar_chart, update_button_active_state_helper,
                           plot_single_choropleth_plotly, top_restaurants, plot_demographic_choropleth_plotly,
@@ -27,10 +28,12 @@ from appFunctions import (plot_regional_outlines, plot_department_outlines, plot
 
 # Load restaurant data
 all_france = pd.read_csv("assets/Data/all_restaurants(arrondissements).csv")
-# Load departmental GeoJSON data
-department_df = gpd.read_file("assets/Data/department_restaurants.geojson")
 # Load regional GeoJSON data
 region_df = gpd.read_file("assets/Data/region_restaurants.geojson")
+# Load departmental GeoJSON data
+department_df = gpd.read_file("assets/Data/department_restaurants.geojson")
+# Load arrondissement GeoJSON data
+arron_df = gpd.read_file("assets/Data/arrondissement_restaurants.geojson")
 # Load wine GeoJSON data
 wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
 
@@ -40,6 +43,7 @@ departments_with_restaurants = all_france['department_num'].unique()
 # Filter geo_df
 geo_df = department_df[department_df['code'].isin(departments_with_restaurants)]
 star_placeholder = (0.5, 1, 2, 3)
+
 
 # Use geo_df to get unique regions and departments for the initial dropdowns
 unique_regions = sorted(geo_df['region'].unique())
@@ -55,7 +59,6 @@ client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
-
 # -----------------> App and server setup
 
 server = Flask(__name__)
@@ -70,11 +73,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -429,6 +432,57 @@ def update_region_button_active_state(n_clicks_list, ids):
     return update_button_active_state_helper(n_clicks_list, ids, 'analysis')
 
 
+# LOCATION MATCHING content
+
+@app.callback(
+    Output('matched-city-output', 'children'),
+    [Input('submit-city-button', 'n_clicks'),
+     Input('clear-city-button', 'n_clicks')],
+    [State('city-input', 'value')]
+)
+def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
+    if n_submit_clicks > 0 or n_clear_clicks > 0:
+        if city_input == '' or n_clear_clicks >= n_submit_clicks:
+            # Clear the output when the 'Clear' button is clicked or empty input
+            return html.Div(
+                children=[html.P("Please enter a location and click 'Submit'.", className='default-message')]
+            )
+        else:
+            matcher = LocationMatcher(all_france)
+            result = matcher.find_region_department(city_input)
+
+            if isinstance(result, dict):
+                city_details = [
+                    html.P(f"Matched Location: {result.get('Matched Location', 'Unknown')}", className='match-title'),
+                    html.P(f"Region: {result.get('Region', 'Unknown')}", className='match-details'),
+                    html.P(f"Department: {result.get('Department', 'Unknown')}", className='match-details')
+                ]
+                # Only add Capital Status if it's not an empty string
+                if result.get('Is Capital'):
+                    city_details.append(html.P(f"Capital Status: {result['Is Capital']}", className='match-details'))
+
+                return html.Div(city_details, className='city-match-container')
+
+            elif isinstance(result, str):
+                return html.Div([
+                    html.P(f"No match found for '{city_input}'", className='no-match-message')
+                ])
+
+    return html.Div([
+        html.H5("Please enter a location and click 'Submit'.", className='default-message')
+    ])
+
+
+@app.callback(
+    Output('city-input', 'value'),
+    Input('clear-city-button', 'n_clicks')
+)
+def clear_input(n_clicks):
+    if n_clicks > 0:
+        return ''  # Return an empty string to clear the input field
+    return dash.no_update  # Keep the current value if the clear button is not clicked
+
+
 # DEPARTMENT content
 
 @app.callback(
@@ -436,7 +490,8 @@ def update_region_button_active_state(n_clicks_list, ids):
      Output('department-analysis-graph', 'figure'),
      Output('department-map', 'figure'),
      Output('department-analysis-graph', 'style'),
-     Output('department-map', 'style')],
+     Output('department-map', 'style'),
+     Output('departments-store', 'data')],
     [Input('department-dropdown-analysis', 'value'),
      Input({'type': 'filter-button-department', 'index': ALL}, 'n_clicks')]
 )
@@ -446,7 +501,7 @@ def update_department_chart_and_map(selected_region, star_clicks):
 
     if not selected_region:
         empty_fig = go.Figure()
-        return hide_style, empty_fig, empty_fig, hide_style, hide_style
+        return hide_style, empty_fig, empty_fig, hide_style, hide_style, []
 
     # Default to all star levels if none selected
     select_stars = [0.5, 1, 2, 3]
@@ -471,7 +526,10 @@ def update_department_chart_and_map(selected_region, star_clicks):
         show_labels=False
     )
 
-    return show_style, fig_bar, map_fig, show_style, show_style
+    # Extract unique departments and create a list of options for the store
+    department_options = [{'label': dept, 'value': dept} for dept in filtered_df['department'].unique()]
+
+    return show_style, fig_bar, map_fig, show_style, show_style, department_options
 
 
 @app.callback(
@@ -484,6 +542,85 @@ def update_department_button_active_state(n_clicks_list, ids):
     if not n_clicks_list:
         raise PreventUpdate
     return update_button_active_state_helper(n_clicks_list, ids, 'department')
+
+
+# ARRONDISSEMENT content
+
+
+@app.callback(
+    Output('arrondissement-content-wrapper', 'className'),
+    Input('department-dropdown-analysis', 'value')
+)
+def toggle_arrondissement_section(selected_region):
+    if selected_region:
+        return 'visible-section'  # Show the section
+    else:
+        return 'hidden-section'  # Hide the section
+
+
+@app.callback(
+    [Output('arrondissement-dropdown-analysis', 'options'),
+     Output('arrondissement-dropdown-analysis', 'placeholder')],
+    Input('departments-store', 'data')
+)
+def update_arrondissement_dropdown(department_data):
+    if department_data:
+        return department_data, "Select a Department"
+    return [], "Please select a region first"
+
+
+@app.callback(
+    [Output('arrondissement-analysis-graph', 'figure'),
+     Output('arrondissement-map', 'figure'),
+     Output('arrondissement-analysis-graph', 'style'),
+     Output('arrondissement-map', 'style')],
+    [Input('arrondissement-dropdown-analysis', 'value'),
+     Input({'type': 'filter-button-arrondissement', 'index': ALL}, 'n_clicks')]
+)
+def update_arrondissement_chart_and_map(selected_department, star_clicks):
+    hide_style = {'display': 'none'}
+    show_style = {'display': 'inline-block', 'height': '100%', 'width': '100%'}
+
+    if not selected_department:
+        empty_fig = go.Figure()
+        return empty_fig, empty_fig, hide_style, hide_style
+
+    # Default to all star levels if none selected
+    select_stars = [0.5, 1, 2, 3]
+
+    if star_clicks:
+        select_stars = [star_placeholder[i] for i, n in enumerate(star_clicks) if n % 2 == 0]
+
+    filtered_df = arron_df[arron_df['department'] == selected_department].copy()
+    filtered_df.sort_values('arrondissement', inplace=True)
+
+    fig_bar = create_michelin_bar_chart(
+        filtered_df,
+        select_stars,
+        granularity='arrondissement',
+        title=f"{selected_department}"
+    )
+
+    map_fig = plot_single_choropleth_plotly(
+        df=filtered_df,
+        selected_stars=select_stars,
+        granularity='arrondissement',
+        show_labels=False
+    )
+
+    return fig_bar, map_fig, show_style, show_style
+
+
+@app.callback(
+    [Output({'type': 'filter-button-arrondissement', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button-arrondissement', 'index': ALL}, 'style')],
+    [Input({'type': 'filter-button-arrondissement', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'filter-button-arrondissement', 'index': ALL}, 'id')]
+)
+def update_demographics_button_active_state(n_clicks_list, ids):
+    if not n_clicks_list:
+        raise PreventUpdate
+    return update_button_active_state_helper(n_clicks_list, ids, 'arrondissement')
 
 
 # RANKING content
@@ -761,4 +898,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

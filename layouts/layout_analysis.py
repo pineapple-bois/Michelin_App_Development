@@ -91,231 +91,387 @@ def star_filter_section(available_stars=star_placeholder, filter_type="analysis"
     ], className=f'star-filter-section-{filter_type}', id=f'star-filter-{filter_type}')  # Dynamic ID and class
 
 
-def get_department_region_section():
+def get_intro_section():
     return html.Div(
+        className='michelin-text-container',
         children=[
-            # Placeholder text section (common for both regions and departments)
             html.Div(
-                className='michelin-text-container',
+                [
+                    "Michelin introduced its ",
+                    html.A("star ranking system for restaurants",
+                           href="https://guide.michelin.com/gb/en/about-us", target="_blank"),
+                    " to France in 1936. Today, over 40 countries are represented in a Michelin Guide, and globally, approximately 3,500 restaurants have been awarded one, two, or three stars. Of these, over 600 are in France, the spiritual home of ",
+                    html.I("Le Guide Rouge"),
+                    "."
+                ],
+                className='michelin-title-paragraph'
+            ),
+            html.Div(
+                [
+                    "Earning a Michelin Star can be the pinnacle of a chef’s career. Keeping one requires drive, determination, and consistency. The pressures of maintaining a third star can be overwhelming, as tragically illustrated by the story of ",
+                    html.A("Bernard Loiseau",
+                           href="https://www.newyorker.com/magazine/2003/05/12/death-of-a-chef",
+                           target="_blank"),
+                    ". In contrast, in 2017, Sébastien Bras made the unprecedented decision to voluntarily ",
+                    html.A("hand back his three-star rating",
+                           href="https://www.theguardian.com/world/2017/sep/20/sebastien-bras-french-chef-three-michelin-stars-le-suquet-laguiole",
+                           target="_blank"),
+                    ", choosing freedom from the intense expectations that come with such an award."
+                ],
+                className='michelin-text-paragraph'
+            ),
+            html.Div(
+                [
+                    "France is divided into 13 metropolitan regions, each home to a unique culinary heritage. "
+                    "These regions are further subdivided into departments, which showcase the diverse landscapes and gastronomic diversity that define the nation's culture. "
+                    "Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting simile for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
+                ],
+                className='michelin-tagline-paragraph'
+            ),
+            html.Div(
+                className='star-ratings-container',  # Class for the parent container
                 children=[
                     html.Div(
-                        [
-                            "Michelin introduced its ",
-                            html.A("star ranking system for restaurants",
-                                   href="https://guide.michelin.com/gb/en/about-us", target="_blank"),
-                            " to France in 1936. Today, over 40 countries are represented in a Michelin Guide, and globally, approximately 3,500 restaurants have been awarded one, two, or three stars. Of these, over 600 are in France, the spiritual home of ",
-                            html.I("Le Guide Rouge"),
-                            "."
-                        ],
-                        className='michelin-title-paragraph'
-                    ),
-                    html.Div(
-                        [
-                            "Earning a Michelin Star can be the pinnacle of a chef’s career. Keeping one requires drive, determination, and consistency. The pressures of maintaining a third star can be overwhelming, as tragically illustrated by the story of ",
-                            html.A("Bernard Loiseau",
-                                   href="https://www.newyorker.com/magazine/2003/05/12/death-of-a-chef",
-                                   target="_blank"),
-                            ". In contrast, in 2017, Sébastien Bras made the unprecedented decision to voluntarily ",
-                            html.A("hand back his three-star rating",
-                                   href="https://www.theguardian.com/world/2017/sep/20/sebastien-bras-french-chef-three-michelin-stars-le-suquet-laguiole",
-                                   target="_blank"),
-                            ", choosing freedom from the intense expectations that come with such an award."
-                        ],
-                        className='michelin-text-paragraph'
-                    ),
-                    html.Div(
-                        [
-                            "France is divided into 13 metropolitan regions, each home to a unique culinary heritage. "
-                            "These regions are further subdivided into departments, which showcase the diverse landscapes and gastronomic diversity that define the nation's culture. "
-                            "Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting simile for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
-                        ],
-                        className='michelin-tagline-paragraph'
-                    ),
-                    html.Div(
-                        className='star-ratings-container',  # Class for the parent container
                         children=[
-                            html.Div(
-                                children=[
-                                    html.P([bib_gourmand()], className='star-description-title'),
-                                    html.P('Bib Gourmand', className='star-description-title'),
-                                    html.P('Exceptionally good food at moderate prices',
-                                           className='star-description-text'),
-                                ], className='bib-child'
-                            ),
-                            html.Div(
-                                children=[
-                                    html.P(michelin_stars(1), className='star-description-title'),
-                                    html.P('High-quality cooking', className='star-description-title'),
-                                    html.P('Worth a stop', className='star-description-text'),
-                                ], className='one-child'
-                            ),
-                            html.Div(
-                                children=[
-                                    html.P(michelin_stars(2), className='star-description-title'),
-                                    html.P('Excellent cooking', className='star-description-title'),
-                                    html.P('Worth a detour', className='star-description-text'),
-                                ], className='two-child'
-                            ),
-                            html.Div(
-                                children=[
-                                    html.P(michelin_stars(3), className='star-description-title'),
-                                    html.P('Exceptional cuisine', className='star-description-title'),
-                                    html.P('Worth a special journey', className='star-description-text'),
-                                ], className='three-child'
+                            html.P([bib_gourmand()], className='star-description-title'),
+                            html.P('Bib Gourmand', className='star-description-title'),
+                            html.P('Exceptionally good food at moderate prices',
+                                   className='star-description-text'),
+                        ], className='bib-child'
+                    ),
+                    html.Div(
+                        children=[
+                            html.P(michelin_stars(1), className='star-description-title'),
+                            html.P('High-quality cooking', className='star-description-title'),
+                            html.P('Worth a stop', className='star-description-text'),
+                        ], className='one-child'
+                    ),
+                    html.Div(
+                        children=[
+                            html.P(michelin_stars(2), className='star-description-title'),
+                            html.P('Excellent cooking', className='star-description-title'),
+                            html.P('Worth a detour', className='star-description-text'),
+                        ], className='two-child'
+                    ),
+                    html.Div(
+                        children=[
+                            html.P(michelin_stars(3), className='star-description-title'),
+                            html.P('Exceptional cuisine', className='star-description-title'),
+                            html.P('Worth a special journey', className='star-description-text'),
+                        ], className='three-child'
+                    ),
+                ]
+            ),
+        ],
+    )
+
+
+def get_regions_section():
+    return html.Div(
+        className='region-content-wrapper clearfix',  # Wrapper to couple sidebar and content for regions
+        children=[
+            # Sidebar for regions - 30% width
+            html.Div(
+                className='region-sidebar',
+                children=[
+                    html.Div(
+                        children=[
+                            "How do Michelin-rated restaurants vary across regions?"
+                        ], className="region-description"
+                    ),
+                    html.Div(
+                        className='region-filter-container',
+                        children=[
+                            html.H5("Add or Remove Regions of France", className='region-filter-title'),
+                            dcc.Dropdown(
+                                id='region-dropdown-analysis',
+                                options = [{'label': 'Select All', 'value': 'all'}] +
+                                          [{'label': region, 'value': region} for region in unique_regions],
+                                value=unique_regions,  # All regions selected by default
+                                className='dropdown-region-analysis',
+                                multi=True,  # Multi-select enabled
+                                clearable=True
                             ),
                         ]
                     ),
-                ],
-            ),
-            # Region Section (both sidebar and main content)
-            html.Div(
-                className='region-content-wrapper',  # Wrapper to couple sidebar and content for regions
-                children=[
-                    # Sidebar for regions - 30% width
+                    # Star filter specific to analysis page
                     html.Div(
-                        className='region-sidebar',
+                        className='star-filter-container',
+                        children=[
+                            dcc.Store(id='selected-stars-analysis', data=[]),
+                            star_filter_section(star_placeholder, filter_type="analysis"),
+                        ]
+                    ),
+                ],
+                style={'width': '30%', 'float': 'left'}
+            ),
+            # Main content for regions - 70% width
+            html.Div(
+                className='region-main-content',
+                children=[
+                    html.Div(
+                        className='region-visuals',
                         children=[
                             html.Div(
+                                className='region-graph',
                                 children=[
-                                    "How do Michelin-rated restaurants vary across regions?"
-                                ], className="region-description"
+                                    dcc.Graph(
+                                        id='restaurant-analysis-graph',
+                                        config={'displayModeBar': False}
+                                    )
+                                ],
+                                style={'width': '60%', 'display': 'inline-block'}
                             ),
                             html.Div(
-                                className='region-filter-container',
+                                className='region-map',
                                 children=[
-                                    html.H5("Add or Remove Regions of France", className='region-filter-title'),
-                                    dcc.Dropdown(
-                                        id='region-dropdown-analysis',
-                                        options = [{'label': 'Select All', 'value': 'all'}] +
-                                                  [{'label': region, 'value': region} for region in unique_regions],
-                                        value=unique_regions,  # All regions selected by default
-                                        className='dropdown-region-analysis',
-                                        multi=True,  # Multi-select enabled
-                                        clearable=True
-                                    ),
-                                ]
+                                    dcc.Graph(
+                                        id='region-map',
+                                        config={'displayModeBar': False}
+                                    )
+                                ],
+                                style={'width': '40%', 'display': 'inline-block'}
+                            )
+                        ]
+                    )
+                ],
+                style={'width': '70%', 'float': 'right'}
+            )
+        ]
+    )
+
+
+def get_city_match_section():
+    return html.Div(
+            className='city-match-content-wrapper clearfix',
+            # Wrapper to couple sidebar and content for the city match section
+            children=[
+                # Sidebar for city input - 30% width
+                html.Div(
+                    className='city-match-sidebar',
+                    children=[
+                        html.Div(
+                            children=[
+                                "Find the region and department of a location in France",
+                            ], className="city-match-description"
+                        ),
+                        # Text entry field for city input
+                        html.Div(
+                            className='city-input-container',
+                            children=[
+                                dcc.Input(
+                                    id='city-input',
+                                    type='text',
+                                    placeholder='Enter a city or location',
+                                    className='city-input-field'
+                                ),
+                                # Submit button
+                                html.Button('Submit', id='submit-city-button', n_clicks=0,
+                                            className='submit-city-button'),
+                                # Clear button
+                                html.Button('Clear', id='clear-city-button', n_clicks=0,
+                                            className='clear-city-button', style={'margin-left': '10px'})
+                            ]
+                        ),
+                    ],
+                    style={'width': '30%', 'float': 'left'}
+                ),
+
+                # Main content for matched results - 70% width
+                html.Div(
+                    className='city-match-main-content',
+                    children=[
+                        # Placeholder for the matched city content
+                        html.Div(
+                            id='matched-city-output',
+                            children=[
+                                "Matched city details will be displayed here.",
+                            ],
+                            className='city-match-output-container'
+                        )
+                    ],
+                    style={'width': '70%', 'float': 'right'}
+                )
+            ]
+        )
+
+
+def get_departments_section():
+    return html.Div(
+        className='department-content-wrapper clearfix',
+        children=[
+            html.Div(
+                className='department-sidebar',
+                children=[
+                    html.Div(
+                        children=[
+                            "How do Michelin-rated restaurants vary across departments?"
+                        ], className="department-description"
+                    ),
+                    html.Div(
+                        className='department-filter-container',
+                        children=[
+                            html.H5("Select a Region of France", className='region-filter-title'),
+                            dcc.Store(id='departments-store', data=[]),    # will serve the arrondissements filter
+                            dcc.Dropdown(
+                                id='department-dropdown-analysis',
+                                options=[{'label': region, 'value': region} for region in unique_regions],
+                                className='dropdown-department-analysis',
+                                multi=False,  # Single selection enabled
+                                clearable=True
                             ),
-                            # Star filter specific to analysis page
+                        ]
+                    ),
+                    # Star filter specific to department page
+                    html.Div(
+                        className='star-filter-container-wrapper',
+                        children=[
                             html.Div(
                                 className='star-filter-container',
                                 children=[
-                                    dcc.Store(id='selected-stars-analysis', data=[]),
-                                    star_filter_section(star_placeholder, filter_type="analysis"),
-                                ]
+                                    dcc.Store(id='selected-stars-department', data=[]),
+                                    star_filter_section(star_placeholder, filter_type="department"),
+                                ],
                             ),
                         ],
-                        style={'width': '30%', 'float': 'left'}
+                        id='star-filter-wrapper-department',
                     ),
-                    # Main content for regions - 70% width
-                    html.Div(
-                        className='region-main-content',
-                        children=[
-                            html.Div(
-                                className='region-visuals',
-                                children=[
-                                    html.Div(
-                                        className='region-graph',
-                                        children=[
-                                            dcc.Graph(
-                                                id='restaurant-analysis-graph',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'width': '60%', 'display': 'inline-block'}
-                                    ),
-                                    html.Div(
-                                        className='region-map',
-                                        children=[
-                                            dcc.Graph(
-                                                id='region-map',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'width': '40%', 'display': 'inline-block'}
-                                    )
-                                ]
-                            )
-                        ],
-                        style={'width': '70%', 'float': 'right'}
-                    )
-                ]
+                ],
+                style={'width': '30%', 'float': 'left'}
             ),
-            # Department Section (both sidebar and main content)
+            # Main content for departments - 70% width
             html.Div(
-                className='department-content-wrapper',
+                className='department-main-content',
                 children=[
                     html.Div(
-                        className='department-sidebar',
+                        className='department-visuals',
                         children=[
                             html.Div(
+                                className='department-graph',
                                 children=[
-                                    "How do Michelin-rated restaurants vary across departments?"
-                                ], className="department-description"
-                            ),
-                            html.Div(
-                                className='department-filter-container',
-                                children=[
-                                    html.H5("Select a Region of France", className='region-filter-title'),
-                                    dcc.Dropdown(
-                                        id='department-dropdown-analysis',
-                                        options=[{'label': region, 'value': region} for region in unique_regions],
-                                        className='dropdown-department-analysis',
-                                        multi=False,  # Single selection enabled
-                                        clearable=True
-                                    ),
-                                ]
-                            ),
-                            # Star filter specific to department page
-                            html.Div(
-                                className='star-filter-container-wrapper',
-                                children=[
-                                    html.Div(
-                                        className='star-filter-container',
-                                        children=[
-                                            dcc.Store(id='selected-stars-department', data=[]),
-                                            star_filter_section(star_placeholder, filter_type="department"),
-                                        ],
-                                    ),
-                                ],
-                                id='star-filter-wrapper-department',
-                            ),
-                        ],
-                        style={'width': '30%', 'float': 'left'}
-                    ),
-                    # Main content for departments - 70% width
-                    html.Div(
-                        className='department-main-content',
-                        children=[
-                            html.Div(
-                                className='department-visuals',
-                                children=[
-                                    html.Div(
-                                        className='department-graph',
-                                        children=[
-                                            dcc.Graph(
-                                                id='department-analysis-graph',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'display': 'inline-block'}
-                                    ),
-                                    html.Div(
-                                        className='department-map',
-                                        children=[
-                                            dcc.Graph(
-                                                id='department-map',
-                                                config={'displayModeBar': False}
-                                            )
-                                        ],
-                                        style={'display': 'inline-block'}
+                                    dcc.Graph(
+                                        id='department-analysis-graph',
+                                        config={'displayModeBar': False}
                                     )
-                                ]
+                                ],
+                                style={'display': 'inline-block'}
+                            ),
+                            html.Div(
+                                className='department-map',
+                                children=[
+                                    dcc.Graph(
+                                        id='department-map',
+                                        config={'displayModeBar': False}
+                                    )
+                                ],
+                                style={'display': 'inline-block'}
                             )
-                        ],
-                        style={'width': '70%', 'float': 'right'}
+                        ]
                     )
-                ]
+                ],
+                style={'width': '70%', 'float': 'right'}
             )
+        ]
+    )
+
+
+def get_arrondissements_section():
+    return html.Div(
+        id='arrondissement-content-wrapper',
+        className='hidden-section clearfix',
+        children=[
+            html.Div(
+                className='arrondissement-sidebar',
+                children=[
+                    html.Div(
+                        children=[
+                            "How do Michelin-rated restaurants vary across arrondissements?"
+                        ], className="arrondissement-description"
+                    ),
+                    html.Div(
+                        className='arrondissement-filter-container',
+                        children=[
+                            html.H5("Select a Department of France", className='region-filter-title'),
+                            dcc.Dropdown(
+                                id='arrondissement-dropdown-analysis',
+                                placeholder="Please select a region first",  # Placeholder
+                                options=[],  # Will be populated dynamically for the dcc.Store in 'department filter'
+                                className='dropdown-arrondissement-analysis',
+                                multi=False,  # Single selection enabled
+                                clearable=True
+                            ),
+                        ]
+                    ),
+                    # Star filter specific to arrondissement page
+                    html.Div(
+                        className='star-filter-container-wrapper',
+                        children=[
+                            html.Div(
+                                className='star-filter-container',
+                                children=[
+                                    dcc.Store(id='selected-stars-arrondissement', data=[]),
+                                    star_filter_section(star_placeholder, filter_type="arrondissement"),
+                                ],
+                            ),
+                        ],
+                        id='star-filter-wrapper-arrondissement',
+                    ),
+                ],
+                style={'width': '30%', 'float': 'left'}
+            ),
+            # Main content for arrondissements - 70% width
+            html.Div(
+                className='arrondissement-main-content',
+                children=[
+                    html.Div(
+                        className='arrondissement-visuals',
+                        children=[
+                            html.Div(
+                                className='arrondissement-graph',
+                                children=[
+                                    dcc.Graph(
+                                        id='arrondissement-analysis-graph',
+                                        config={'displayModeBar': False}
+                                    )
+                                ],
+                                style={'display': 'inline-block'}
+                            ),
+                            html.Div(
+                                className='arrondissement-map',
+                                children=[
+                                    dcc.Graph(
+                                        id='arrondissement-map',
+                                        config={'displayModeBar': False}
+                                    )
+                                ],
+                                style={'display': 'inline-block'}
+                            )
+                        ]
+                    )
+                ],
+                style={'width': '70%', 'float': 'right'}
+            )
+        ]
+    )
+
+
+def get_analysis_section():
+    return html.Div(
+        children=[
+            # Michelin Blurb section (common for both regions and departments)
+            get_intro_section(),
+
+            # Region Section (both sidebar and main content)
+            get_regions_section(),
+
+            # City match section
+            get_city_match_section(),
+
+            # Department Section (both sidebar and main content)
+            get_departments_section(),
+
+            # Arrondissement Section (both sidebar and main content)
+            get_arrondissements_section()
         ]
     )
 
@@ -331,7 +487,7 @@ def get_top_ranking_section():
                             # Description for ranking analysis
                             html.Div(
                                 children=[
-                                    "Regions/Departments with the most ",
+                                    "Areas with the most ",
                                     *michelin_stars(2),  # Unpack the list of images for 2 stars
                                     " and ",
                                     *michelin_stars(3),  # Unpack the list of images for 3 stars
@@ -349,7 +505,8 @@ def get_top_ranking_section():
                                         id='granularity-dropdown',
                                         options=[
                                             {'label': 'Regions', 'value': 'region'},
-                                            {'label': 'Departments', 'value': 'department'}
+                                            {'label': 'Departments', 'value': 'department'},
+                                            {'label': 'Arrondissements', 'value': 'arrondissement'}
                                         ],
                                         className='dropdown-granularity',  # Class for styling
                                         multi=False,  # Single selection
@@ -771,9 +928,8 @@ def get_analysis_content():
         className='analysis-container',
         id='analysis-content-top',
         children=[
-            get_department_region_section(),  # Department and Region Section
+            get_analysis_section(),           # Department and Region Section
             get_top_ranking_section(),        # Top Ranking Section
-            # get_tile_plot_section(),          # Cuisine Types Section
             get_demographics_content(),       # Demographics Section
             get_wine_content(),               # Wine section
         ]

@@ -433,6 +433,12 @@ body {
     margin-top: 80px; /* Adjust for header */
 }
 
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
 .placeholder-text-container {
     padding-top: 20px;
     padding-bottom: 20px;
@@ -602,6 +608,75 @@ body {
 }
 
 /* -------------------------
+   Location Match Section Styling
+   ------------------------- */
+
+.city-match-content-wrapper {
+    display: flex;
+    width: 100%;  /* Ensure it spans the full width of its container */
+    border-top: 1px solid #ccc;
+    height: auto;  /* Stretch the container based on content */
+    min-height: 200px;  /* Minimum height for a better UI */
+}
+
+/* Sidebar for regions */
+.city-match-sidebar {
+    width: 30%;
+    /*background-color: #f9f9f9; !* Light background for visibility *!*/
+    border-right: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    /*justify-content: space-between;*/
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding-top: 20px;
+    padding-right: 20px;
+}
+
+/* Main content for regions */
+.city-match-main-content {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /*background-color: #fdf5e6; !* Light pastel yellow *!*/
+    padding: 20px 40px;
+    box-sizing: border-box;
+    min-height: 200px;  /* Minimum height for a better UI */
+}
+
+.city-match-description {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.city-input-container {
+    margin-bottom: 40px;  /* Add space between input and button */
+}
+
+.match-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.match-details {
+    font-size: 16px;
+}
+
+.no-match-message {
+    color: red;
+    font-weight: bold;
+}
+
+.default-message {
+    font-size: 18px;
+    font-style: italic;
+    color: gray;
+}
+
+
+/* -------------------------
    Department Section Styling
    ------------------------- */
 
@@ -696,17 +771,121 @@ body {
     /*background-color: #c8e6c9; !* Soft pastel green *!*/
 }
 
+
+/* -------------------------
+   Arrondissement Section Styling
+   ------------------------- */
+
+/* Wrapper to couple sidebar and content for arrondissements */
+
+.hidden-section {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+}
+
+.visible-section {
+    border-top: 1px solid #ccc;
+    display: flex;
+    height: 500px; /* Set the same consistent height */
+}
+
+/* Sidebar for arrondissements */
+.arrondissement-sidebar {
+    width: 30%;
+    /*background-color: #e2eafc; !* Soft pastel blue *!*/
+    border-right: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    /*justify-content: space-between;*/
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding-right: 20px;
+    padding-bottom: 60px;
+}
+
+/* Future arrondissement-specific content here */
+.arrondissement-main-content {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /*background-color: #cce5ff; !* Muted pastel blue *!*/
+    padding-top: 10px;
+    padding-left: 20px;
+    box-sizing: border-box;
+}
+
+/* Main content styling */
+.analysis-main-content {
+    width: 70%;
+}
+
+/* Arrondissement section styles */
+.arrondissement-section {
+    /*background-color: #d9f7be; !* Muted pastel green *!*/
+    padding-bottom: 40px;
+}
+
+.arrondissement-description {
+    /*background-color: #ffe4e1; !* Light pastel coral *!*/
+    font-size: 18px !important;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    padding-top: 20px;
+}
+
+/* Region filter container */
+.arrondissement-filter-container {
+    /*background-color: #fdf5e6; !* Pastel yellow *!*/
+    margin-bottom: 20px;
+}
+
+/* Dropdown styling */
+.dropdown-arrondissement-analysis {
+    margin-bottom: 20px;
+}
+
+.arrondissement-main-content {
+    padding-bottom: 50px;
+}
+
+/* Visuals (graph and map) are in a row */
+.arrondissement-visuals {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 100%; /* Stretch to fill the height */
+}
+
+/* Adjust graph and map height to match the visuals container */
+.arrondissement-graph {
+    height: 100%; /* Match the height of visuals container */
+    width: 60%;
+}
+
+.arrondissement-map {
+    height: 100%;
+    width: 40%;
+}
+
+/* Star filter container */
+.star-filter-section-arrondissement {
+    /*background-color: #c8e6c9; !* Soft pastel green *!*/
+}
+
+
 /* -------------------------
    Analysis Page Star Button Styles
    ------------------------- */
 
-.star-button-analysis, .star-button-department,
+.star-button-analysis, .star-button-department, .star-button-arrondissement,
 .star-button-cuisine, .star-button-demographics, .star-button-wine {
     width: 40px;
     padding: 5px;
 }
 
-.star-filter-buttons-analysis, .star-filter-buttons-department,
+.star-filter-buttons-analysis, .star-filter-buttons-department, .star-filter-buttons-arrondissement,
 .star-filter-buttons-cuisine, .star-filter-buttons-demographics, .star-filter-buttons-wine {
     display: flex;
     justify-content: start;
@@ -715,7 +894,7 @@ body {
     margin-bottom: 20px;
 }
 
-.star-button-analysis:hover, .star-button-department:hover,
+.star-button-analysis:hover, .star-button-department:hover, .star-button-arrondissement:hover,
 .star-button-cuisine:hover, .star-button-demographics:hover, .star-button-wine:hover  {
     opacity: 0.8 !important;
     cursor: pointer;
@@ -723,6 +902,7 @@ body {
 
 .star-filter-section-analysis .star-button-analysis.active,
 .star-filter-section-department .star-button-department.active,
+.star-filter-section-arrondissement .star-button-arrondissement.active,
 .star-filter-section-cuisine .star-button-cuisine.active,
 .star-filter-section-demographics .star-button-demographics.active,
 .star-filter-section-wine .star-button-wine.active {
@@ -732,6 +912,7 @@ body {
 
 .star-filter-section-analysis .star-button-analysis.inactive,
 .star-filter-section-department .star-button-department.inactive,
+.star-filter-section-arrondissement .star-button-arrondissement.inactive,
 .star-filter-section-cuisine .star-button-cuisine.inactive,
 .star-filter-section-demographics .star-button-demographics.inactive,
 .star-filter-section-wine .star-button-wine.inactive{
