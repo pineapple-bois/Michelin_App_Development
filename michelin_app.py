@@ -55,8 +55,6 @@ client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
-# Retrieve the admin session ID from the environment
-# ADMIN_SESSION_ID = os.getenv('ADMIN_SESSION_ID')
 
 # -----------------> App and server setup
 
@@ -72,34 +70,35 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
-
-
-def is_admin():
-    # Retrieve session ID
-    session_id = session.get('user_id', None)
-    return session_id == ADMIN_SESSION_ID
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
 def before_request():
-    # Ensure every session has a user_id, but no need to dynamically assign an admin ID
+    # Ensure every session has a user_id,
     if 'user_id' not in session:
-        # Regular users get a dynamically generated session ID, admin checks are done separately
+        # Regular users get a dynamically generated session ID
         session['user_id'] = str(uuid.uuid4())
+        session['request_count'] = 0  # Initialize request count for new session
 
 
-@server.route('/')
-def index():
-    # Check if the current user is the admin
-    if is_admin():
-        return f"Hello Admin! Your session user_id is: {session.get('user_id')}"
+def is_request_limit_exceeded():
+    # Request limit for OpenAi API calls
+    REQUEST_LIMIT = 7
 
-    return f"Hello User! Your session user_id is: {session.get('user_id')}"
+    # Check if request_count exists in session
+    if 'request_count' not in session:
+        session['request_count'] = 0  # Initialize if not present
+
+    session['request_count'] += 1  # Increment request count
+
+    if session['request_count'] > REQUEST_LIMIT:
+        return True
+    return False
 
 
 # Retrieve the Flask secret key from .env, or assign a default one
@@ -118,11 +117,12 @@ app.layout = html.Div([
     html.Div(id='page-content', children=get_main_layout())  # Set initial content
 ])
 
-# Initialize the cache (you can configure it to use Redis or filesystem-based caching for production)
+# Initialize the cache (Maybe Redis or filesystem-based caching for production...?)
 cache = Cache(app.server, config={
-    'CACHE_TYPE': 'simple',  # Use 'redis' or 'filesystem' for more persistent caching
+    'CACHE_TYPE': 'simple',
     'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds (1 hour)
 })
+
 
 # Define callback to handle page navigation
 @app.callback(
@@ -561,11 +561,13 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
         df = region_df.sort_values('region')  # Use region-level data
         if selected_regions:
             df = df[df['region'].isin(selected_regions)]
+            filtered_restaurants = all_france[all_france['region'].isin(selected_regions)]
     else:
         df = department_df
         # If a region is selected in the dropdown, filter to that region
         if selected_dropdown != 'All France':
             df = df[df['region'] == selected_dropdown]
+            filtered_restaurants = all_france
 
     # Show or hide the star filter based on button press
     if n_clicks_rest % 2 == 1:
@@ -585,7 +587,7 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
     if not selected_metric:
         fig_map = plot_demographic_choropleth_plotly(
             df,
-            all_france,
+            filtered_restaurants,
             metric=None,  # Pass None to indicate no metric is selected
             granularity=selected_granularity,
             show_labels=False,
@@ -605,7 +607,7 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
 
     fig_map = plot_demographic_choropleth_plotly(
         df,
-        all_france,
+        filtered_restaurants,
         selected_metric,
         granularity=selected_granularity,
         show_labels=False,
@@ -699,6 +701,7 @@ def update_wine_button_active_state(n_clicks_list, ids):
     Input('wine-map-graph', 'clickData'),
     State('wine-region-curve-numbers', 'data')
 )
+@cache.memoize(timeout=3600)  # Cache this function's output for 1 hour
 def update_wine_info(clickData, wine_region_curve_numbers):
     if not clickData:
         return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
@@ -721,13 +724,17 @@ def update_wine_info(clickData, wine_region_curve_numbers):
         print(f"Cached Information retrieved for {wine_region}")
         return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
 
-    # Fetch the color for the wine region
+    # Check if the user has exceeded their request limit
+    if is_request_limit_exceeded():
+        error_message = "You have reached the maximum number of requests."
+        styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold", "text-align": "center"})
+        return styled_error, {"display": "none"}, no_update, {"display": "none"}
+
     try:
         region_color = wine_df[wine_df['region'] == wine_region]['colour'].values[0]
     except IndexError:
         region_color = 'black'
 
-    # Prompt for OpenAI
     prompt = generate_optimized_prompt(wine_region)
     try:
         response = client.chat.completions.create(
@@ -742,7 +749,7 @@ def update_wine_info(clickData, wine_region_curve_numbers):
         )
         content = response.choices[0].message.content.strip()
 
-        # Cache the response
+        # Cache the response for future requests
         cache.set(cache_key, {'content': content, 'color': region_color})
 
         region_name_content = html.H3(wine_region, style={'color': region_color})
@@ -752,82 +759,6 @@ def update_wine_info(clickData, wine_region_curve_numbers):
         return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
 
 
-
-# @app.callback(
-#     [Output('llm-output-container', 'children'),
-#      Output('disclaimer-container', 'style'),
-#      Output('region-name-container', 'children'),
-#      Output('region-name-container', 'style')],
-#     Input('wine-map-graph', 'clickData'),
-#     State('wine-region-curve-numbers', 'data')
-# )
-# def update_wine_info(clickData, wine_region_curve_numbers):
-#     if not clickData:
-#         return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
-#
-#     try:
-#         curve_number = clickData['points'][0]['curveNumber']
-#         if curve_number not in wine_region_curve_numbers:
-#             return "Please click on a wine region, not a restaurant.", {"display": "none"}, no_update, {"display": "none"}
-#
-#         wine_region = wine_df.iloc[wine_region_curve_numbers.index(curve_number)]["region"]
-#
-#     except (KeyError, IndexError):
-#         return "Could not retrieve region information.", {"display": "none"}, no_update, {"display": "none"}
-#
-#     # Check if the response is already cached
-#     cache_key = f"wine_info_{wine_region}"
-#     cached_content = cache.get(cache_key)
-#     if cached_content:
-#         region_name_content = html.H3(wine_region, style={'color': cached_content['color']})
-#         print(f"Cached Information retrieved for {wine_region}")
-#         return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
-#
-#     # Check if the session ID matches the admin ID
-#     if not is_admin():
-#         # Initialize request count in session if it doesn't exist
-#         if 'request_count' not in session:
-#             session['request_count'] = 0
-#
-#         # Check if the user has reached the request limit
-#         if session['request_count'] >= 7:
-#             error_message = "You have reached the maximum number of requests."
-#             styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold"})
-#             return styled_error, {"display": "none"}, no_update, {"display": "none"}
-#
-#         session['request_count'] += 1
-#
-#     # Fetch the color for the wine region
-#     try:
-#         region_color = wine_df[wine_df['region'] == wine_region]['colour'].values[0]
-#     except IndexError:
-#         region_color = 'black'
-#
-#     # Prompt for OpenAI
-#     prompt = generate_optimized_prompt(wine_region)
-#     try:
-#         response = client.chat.completions.create(
-#             model="gpt-3.5-turbo",
-#             messages=[
-#                 {
-#                     "role": "user",
-#                     "content": prompt
-#                 }
-#             ],
-#             max_tokens=400
-#         )
-#         content = response.choices[0].message.content.strip()
-#
-#         # Cache the response
-#         cache.set(cache_key, {'content': content, 'color': region_color})
-#
-#         region_name_content = html.H3(wine_region, style={'color': region_color})
-#         return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
-#
-#     except Exception as e:
-#         return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
-
-
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
