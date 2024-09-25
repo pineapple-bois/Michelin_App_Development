@@ -256,7 +256,7 @@ def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
     Args:
         filtered_df (pandas.DataFrame): The filtered DataFrame based on region/department.
         select_stars (list): The selected star ratings to display.
-        granularity (str): The level of granularity ('region' or 'department').
+        granularity (str): The level of granularity ('region', 'department' or 'arrondissement').
         title (str): The title of the bar chart.
 
     Returns:
@@ -402,6 +402,13 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
             '<b>Total Restaurants:</b> %{z}<extra></extra>'
         )
         customdata = df[['department', 'code']].values
+    elif granularity == 'arrondissement':
+        hovertemplate = (
+            '<b>Arrondissement:</b> %{customdata[0]}<br>'
+            '%{customdata[1]}, (%{customdata[2]})<br>'
+            '<b>Total Restaurants:</b> %{z}<extra></extra>'
+        )
+        customdata = df[['arrondissement', 'department', 'department_num']].values
     else:
         raise ValueError(f"Invalid granularity: {granularity}. Choose from ['region', 'department', 'arrondissement'].")
 
@@ -464,95 +471,263 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
 
 def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=True):
     """
-    Returns a list of Dash components for top_n regions or departments with the highest count of 'star_rating' restaurants.
-    If display_restaurants is True, detailed restaurant info will be returned; otherwise, just the ranking.
+    Returns a list of Dash components for top_n regions, departments, or arrondissements with the highest count of
+    'star_rating' restaurants. Tied areas outside the top N are grouped separately.
 
     Args:
         data (pandas.DataFrame): The dataset containing restaurant info.
-        granularity (str): Either 'region' or 'department'.
+        granularity (str): Either 'region', 'department', or 'arrondissement'.
         star_rating (int): The Michelin star rating (2 or 3).
         top_n (int): The number of top (granularity) to consider.
         display_restaurants (bool): Whether to display individual restaurants. Default is True.
-    Returns:
-        list: Dash components containing the ranking or restaurant details.
-    """
-    # Ensure access to department name, code, and region
-    if 'department' not in data.columns or 'department_num' not in data.columns or 'region' not in data.columns:
-        raise ValueError("Data must contain 'department', 'department_num', and 'region' columns.")
 
-    # Filter out non-starred restaurants
+    Returns:
+        list: Dash components containing the ranking or restaurant details, with ties grouped separately.
+    """
+    # Ensure the data contains necessary columns based on granularity
+    if granularity not in data.columns:
+        raise ValueError(f"Data must contain '{granularity}' column.")
+
+    # Filter the data to include only the restaurants with the specified star rating
     filtered_data = data[data['stars'] == star_rating]
 
-    # Handling Paris (department 75) or the Île-de-France region
+    # Special handling for Paris or the Île-de-France region
     if top_n == 'paris':
         if granularity == 'department':
-            # Focus on Paris as department (75)
-            filtered_data = filtered_data[filtered_data['department_num'] == '75']
+            filtered_data = filtered_data[filtered_data['department_num'] == '75']  # Focus on Paris department
         elif granularity == 'region':
-            # Focus on Île-de-France region for Paris case
-            filtered_data = filtered_data[filtered_data['region'] == 'Île-de-France']
+            filtered_data = filtered_data[filtered_data['region'] == 'Île-de-France']  # Focus on Île-de-France region
+        elif granularity == 'arrondissement':
+            filtered_data = filtered_data[filtered_data['department_num'] == '75']  # Focus on Paris arrondissements
 
-    # Group by granularity and count the number of restaurants for each
-    top_areas = filtered_data[granularity].value_counts().nlargest(top_n)
+    # Calculate restaurant counts for each area
+    restaurant_counts = filtered_data[granularity].value_counts()
+    top_areas = restaurant_counts.nlargest(top_n)
 
-    components = []  # Initialize a list for storing Dash components
+    # Detect if there are any tied areas outside the top N
+    all_tied_areas = restaurant_counts[restaurant_counts == top_areas.iloc[-1]]  # All areas tied for last place
+    is_tied = len(all_tied_areas) > len(top_areas)
 
-    # Loop over the top areas to create the ranking or restaurant details
+    components = []
     for area, restaurant_count in top_areas.items():
         restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
 
-        # Get department code and region (for departments only)
+        # Format the display based on the granularity
         if granularity == 'department':
             department_info = filtered_data[filtered_data['department'] == area].iloc[0]
             department_code = department_info['department_num']
             region_name = department_info['region']
             display_area = f"{area} ({department_code}): {region_name}"
+        elif granularity == 'arrondissement':
+            arrondissement_info = filtered_data[filtered_data['arrondissement'] == area].iloc[0]
+            department_name = arrondissement_info['department']
+            department_code = arrondissement_info['department_num']
+            display_area = f"Arrondissement: {area}, {department_name} ({department_code})"
         else:
             display_area = area
 
-        # Add area on one line, count and stars on the next line
+        # Add area name and restaurant count
         area_component = html.Div([
-            # Line 1: Area name
-            html.Div(display_area, style={
-                "font-weight": "bold",
-                "font-size": "20px"
-            }),
-
-            # Line 2: Restaurant count and Michelin stars
+            html.Div(display_area, style={"font-weight": "bold", "font-size": "20px"}),
             html.Div([
-                f"{restaurant_count}  ",  # Display the count
-                html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),  # Michelin star images
-                f" {restaurant_word}"  # Text to follow the stars
-            ], style={"margin-left": "10px", "display": "inline-block"})  # Margin-left for indentation
-        ], style={
-            "margin-bottom": "40px",
-            "text-align": "center"
-        })  # Add spacing between entries
+                f"{restaurant_count} ",
+                html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),
+                f" {restaurant_word}"
+            ], style={"margin-left": "10px", "display": "inline-block"})
+        ], style={"margin-bottom": "40px", "text-align": "center"})
 
-        components.append(area_component)  # Add the area component to the list
+        components.append(area_component)
 
-        # If display_restaurants is True, show detailed restaurant info
+        # Display restaurant details for this area if required
         if display_restaurants:
-            # Get restaurants in this area
             restaurants_in_area = filtered_data[filtered_data[granularity] == area]
-
-            # Create restaurant cards for each restaurant in the area
             restaurant_cards = [get_restaurant_details(row) for _, row in restaurants_in_area.iterrows()]
 
-            # Wrap the restaurant cards in a flexbox container for side-by-side display
             components.append(html.Div(
                 children=restaurant_cards,
                 className='restaurant-cards-container',
-                style={
-                    'display': 'flex',
-                    'flex-wrap': 'wrap',
-                    'gap': '20px',
-                    'margin-bottom': '40px',
-                    'justify-content': 'center'
-                }
+                style={'display': 'flex', 'flex-wrap': 'wrap', 'gap': '20px', 'margin-bottom': '40px',
+                       'justify-content': 'center'}
             ))
 
+    # Handle tied areas, ensuring restaurant details are shown for all tied areas
+    if is_tied:
+        tied_components = []  # A separate section for tied areas
+        for area, restaurant_count in all_tied_areas.items():
+            if area not in top_areas.index:  # Only include tied areas outside top N
+                restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
+
+                # Format the tied area in the same style as the top areas
+                if granularity == 'department':
+                    department_info = filtered_data[filtered_data['department'] == area].iloc[0]
+                    department_code = department_info['department_num']
+                    region_name = department_info['region']
+                    display_area = f"{area} ({department_code}): {region_name}"
+                elif granularity == 'arrondissement':
+                    arrondissement_info = filtered_data[filtered_data['arrondissement'] == area].iloc[0]
+                    department_name = arrondissement_info['department']
+                    department_code = arrondissement_info['department_num']
+                    display_area = f"Arrondissement: {area}, {department_name} ({department_code})"
+                else:
+                    display_area = area
+
+                tied_area_component = html.Div([
+                    html.Div(display_area, style={"font-weight": "bold", "font-size": "20px"}),
+                    html.Div([
+                        f"{restaurant_count} ",
+                        html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),
+                        f" {restaurant_word}"
+                    ], style={"margin-left": "10px", "display": "inline-block"})
+                ], style={"margin-bottom": "40px", "text-align": "center"})
+
+                tied_components.append(tied_area_component)
+
+                # Show detailed restaurant info for the tied areas if required
+                if display_restaurants:
+                    restaurants_in_area = filtered_data[filtered_data[granularity] == area]
+                    restaurant_cards = [get_restaurant_details(row) for _, row in restaurants_in_area.iterrows()]
+
+                    tied_components.append(html.Div(
+                        children=restaurant_cards,
+                        className='restaurant-cards-container',
+                        style={'display': 'flex', 'flex-wrap': 'wrap', 'gap': '20px', 'margin-bottom': '40px',
+                               'justify-content': 'center'}
+                    ))
+
+        # Add a header for the tied areas
+        components.append(html.Div("Tied Areas:", style={"font-weight": "bold", "font-size": "22px"}))
+        components.extend(tied_components)  # Add the tied areas to the main components
+
     return components
+
+
+# def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=True):
+#     """
+#     Returns a list of Dash components for top_n regions or departments with the highest count of 'star_rating' restaurants.
+#     If display_restaurants is True, detailed restaurant info will be returned; otherwise, just the ranking.
+#
+#     Args:
+#         data (pandas.DataFrame): The dataset containing restaurant info.
+#         granularity (str): Either 'region', 'department', or 'arrondissement'.
+#         star_rating (int): The Michelin star rating (2 or 3).
+#         top_n (int): The number of top (granularity) to consider.
+#         display_restaurants (bool): Whether to display individual restaurants. Default is True.
+#     Returns:
+#         list: Dash components containing the ranking or restaurant details.
+#     """
+#     # Ensure access to department name, code, and region
+#     if 'department' not in data.columns or 'department_num' not in data.columns or 'region' not in data.columns:
+#         raise ValueError("Data must contain 'department', 'department_num', and 'region' columns.")
+#
+#     # Filter out non-starred restaurants
+#     filtered_data = data[data['stars'] == star_rating]
+#
+#     # Handling Paris (department 75) or the Île-de-France region
+#     if top_n == 'paris':
+#         if granularity == 'department':
+#             # Focus on Paris as department (75)
+#             filtered_data = filtered_data[filtered_data['department_num'] == '75']
+#         elif granularity == 'region':
+#             # Focus on Île-de-France region for Paris case
+#             filtered_data = filtered_data[filtered_data['region'] == 'Île-de-France']
+#         elif granularity == 'arrondissement':
+#             # Focus on Paris arrondissements
+#             filtered_data = filtered_data[filtered_data['department_num'] == '75']
+#
+#     restaurant_counts = filtered_data[granularity].value_counts()
+#     top_areas = filtered_data[granularity].value_counts().nlargest(top_n)
+#
+#     # Detect ties that would have been in top N if not truncated
+#     all_tied_areas = restaurant_counts[restaurant_counts == top_areas.iloc[-1]]  # All tied for the last spot
+#     is_tied = len(all_tied_areas) > len(top_areas)
+#
+#     components = []
+#     for area, restaurant_count in top_areas.items():
+#         restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
+#
+#         # Get department code and region (for departments only)
+#         if granularity == 'department':
+#             department_info = filtered_data[filtered_data['department'] == area].iloc[0]
+#             department_code = department_info['department_num']
+#             region_name = department_info['region']
+#             display_area = f"{area} ({department_code}): {region_name}"
+#         elif granularity == 'arrondissement':
+#             # Handle arrondissement-specific info
+#             arrondissement_info = filtered_data[filtered_data['arrondissement'] == area].iloc[0]
+#             department_name = arrondissement_info['department']
+#             department_code = arrondissement_info['department_num']
+#             display_area = f"Arrondissement: {area}, {department_name} ({department_code})"
+#         else:
+#             display_area = area
+#
+#         # Add area on one line, count and stars on the next line
+#         area_component = html.Div([
+#             # Line 1: Area name
+#             html.Div(display_area, style={
+#                 "font-weight": "bold",
+#                 "font-size": "20px"
+#             }),
+#
+#             # Line 2: Restaurant count and Michelin stars
+#             html.Div([
+#                 f"{restaurant_count}  ",  # Display the count
+#                 html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),  # Michelin star images
+#                 f" {restaurant_word}"  # Text to follow the stars
+#             ], style={"margin-left": "10px", "display": "inline-block"})  # Margin-left for indentation
+#         ], style={
+#             "margin-bottom": "40px",
+#             "text-align": "center"
+#         })  # Add spacing between entries
+#
+#         components.append(area_component)  # Add the area component to the list
+#
+#         # If display_restaurants is True, show detailed restaurant info
+#         if display_restaurants:
+#             # Get restaurants in this area
+#             restaurants_in_area = filtered_data[filtered_data[granularity] == area]
+#
+#             # Create restaurant cards for each restaurant in the area
+#             restaurant_cards = [get_restaurant_details(row) for _, row in restaurants_in_area.iterrows()]
+#
+#             # Wrap the restaurant cards in a flexbox container for side-by-side display
+#             components.append(html.Div(
+#                 children=restaurant_cards,
+#                 className='restaurant-cards-container',
+#                 style={
+#                     'display': 'flex',
+#                     'flex-wrap': 'wrap',
+#                     'gap': '20px',
+#                     'margin-bottom': '40px',
+#                     'justify-content': 'center'
+#                 }
+#             ))
+#
+#     # Handle tied areas
+#     if is_tied:
+#         tied_components = []  # A separate section for tied areas
+#         for area, restaurant_count in all_tied_areas.items():
+#             if area not in top_areas.index:  # Only include tied areas outside top N
+#                 restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
+#                 tied_components.append(html.Div([
+#                     html.Div(area, style={
+#                         "font-weight": "bold",
+#                         "font-size": "18px"
+#                     }),
+#                     html.Div([
+#                         f"{restaurant_count} ",
+#                         html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),
+#                         f" {restaurant_word}"
+#                     ], style={"margin-left": "10px", "display": "inline-block"})
+#                 ], style={
+#                     "margin-bottom": "20px",
+#                     "text-align": "center"
+#                 }))
+#
+#         # Add a header for the tied areas
+#         components.append(html.Div("Tied Areas:", style={"font-weight": "bold", "font-size": "22px"}))
+#         components.extend(tied_components)  # Add the tied areas to the main components
+#
+#     return components
 
 
 
