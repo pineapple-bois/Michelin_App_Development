@@ -491,19 +491,13 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
     # Filter the data to include only the restaurants with the specified star rating
     filtered_data = data[data['stars'] == star_rating]
 
-    # Special handling for Paris arrondissements - force top_n to 5 for Paris
-    if top_n == 'paris' and granularity == 'arrondissement':
-        filtered_data = filtered_data[filtered_data['department_num'] == '75']  # Focus on Paris arrondissements
-        top_n = 5  # Explicitly set top_n to 5
-        restaurant_counts = filtered_data[granularity].value_counts()
-        top_areas = restaurant_counts.nlargest(top_n)
-
     # Special handling for Paris department or Île-de-France region
-    elif top_n == 'paris':
+    if top_n == 'paris':
         if granularity == 'department':
             filtered_data = filtered_data[filtered_data['department_num'] == '75']  # Focus on Paris department
         elif granularity == 'region':
             filtered_data = filtered_data[filtered_data['region'] == 'Île-de-France']  # Focus on Île-de-France region
+        # Calculate restaurant counts for each area
         restaurant_counts = filtered_data[granularity].value_counts()
         top_areas = restaurant_counts.nlargest(top_n)
 
@@ -511,7 +505,6 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
         # General case for other regions, departments, or arrondissements
         restaurant_counts = filtered_data[granularity].value_counts()
         top_areas = restaurant_counts.nlargest(top_n)
-
 
     # Detect if there are any tied areas outside the top N
     all_tied_areas = restaurant_counts[restaurant_counts == top_areas.iloc[-1]]  # All areas tied for last place
