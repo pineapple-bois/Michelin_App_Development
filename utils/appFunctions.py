@@ -16,7 +16,7 @@ text_color_map = {
 
 
 def plot_regional_outlines(region_df, region):
-    fig = go.Figure(go.Scattermapbox())  # Initialize empty figure with mapbox
+    fig = go.Figure(go.Scattermap())  # Initialize empty figure with mapbox
 
     # Filter the GeoDataFrame for the selected region
     filtered_region = region_df[region_df['region'] == region]
@@ -26,7 +26,7 @@ def plot_regional_outlines(region_df, region):
         geometry = row['geometry']
         if geometry.geom_type == 'Polygon':
             x, y = geometry.exterior.xy
-            fig.add_trace(go.Scattermapbox(
+            fig.add_trace(go.Scattermap(
                 lat=list(y),
                 lon=list(x),
                 mode='lines',
@@ -48,10 +48,10 @@ def plot_regional_outlines(region_df, region):
 
     # Update map layout settings
     fig.update_layout(
-        mapbox_style="carto-positron",
-        mapbox_zoom=5,  # Zoom level to show all of France
-        mapbox_center_lat=46.603354,  # Approximate latitude for France center
-        mapbox_center_lon=1.888334,  # Approximate longitude for France center
+        map_style="carto-positron",
+        map_zoom=5,  # Zoom level to show all of France
+        map_center_lat=46.603354,  # Approximate latitude for France center
+        map_center_lon=1.888334,  # Approximate longitude for France center
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )
@@ -59,7 +59,7 @@ def plot_regional_outlines(region_df, region):
 
 
 def plot_department_outlines(geo_df, department_code):
-    fig = go.Figure(go.Scattermapbox())  # Initialize empty figure with mapbox
+    fig = go.Figure(go.Scattermap())  # Initialize empty figure with mapbox
 
     # Filter the GeoDataFrame for the selected department
     specific_geometry = geo_df[geo_df['code'] == str(department_code)]['geometry'].iloc[0]
@@ -67,7 +67,7 @@ def plot_department_outlines(geo_df, department_code):
     # Plot the geometry's boundaries
     if specific_geometry.geom_type == 'Polygon':
         x, y = specific_geometry.exterior.xy
-        fig.add_trace(go.Scattermapbox(
+        fig.add_trace(go.Scattermap(
             lat=list(y),
             lon=list(x),
             mode='lines',
@@ -79,7 +79,7 @@ def plot_department_outlines(geo_df, department_code):
         for polygon in specific_geometry.geoms:
             if polygon.geom_type == 'Polygon':  # Ensure we're dealing with a Polygon
                 x, y = polygon.exterior.xy
-                fig.add_trace(go.Scattermapbox(
+                fig.add_trace(go.Scattermap(
                     lat=list(y),
                     lon=list(x),
                     mode='lines',
@@ -91,10 +91,10 @@ def plot_department_outlines(geo_df, department_code):
 
     # Update map layout settings
     fig.update_layout(
-        mapbox_style="carto-positron",
-        mapbox_zoom=5,  # Zoom level to show all of France
-        mapbox_center_lat=46.603354,  # Approximate latitude for France center
-        mapbox_center_lon=1.888334,  # Approximate longitude for France center
+        map_style="carto-positron",
+        map_zoom=5,  # Zoom level to show all of France
+        map_center_lat=46.603354,  # Approximate latitude for France center
+        map_center_lon=1.888334,  # Approximate longitude for France center
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )
@@ -179,7 +179,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
     # Plot the geometry's boundaries
     if specific_geometry.geom_type == 'Polygon':
         x, y = specific_geometry.exterior.xy
-        fig.add_trace(go.Scattermapbox(
+        fig.add_trace(go.Scattermap(
             lat=list(y),
             lon=list(x),
             mode='lines',
@@ -191,7 +191,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         for polygon in specific_geometry.geoms:
             if polygon.geom_type == 'Polygon':  # Ensure we're dealing with a Polygon
                 x, y = polygon.exterior.xy
-                fig.add_trace(go.Scattermapbox(
+                fig.add_trace(go.Scattermap(
                     lat=list(y),
                     lon=list(x),
                     mode='lines',
@@ -214,11 +214,11 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         else:
             label_name = f"{'★' * int(star)}"
 
-        fig.add_trace(go.Scattermapbox(
+        fig.add_trace(go.Scattermap(
             lat=subset['latitude'],
             lon=subset['longitude'],
             mode='markers',
-            marker=go.scattermapbox.Marker(size=11, color=color),
+            marker=go.scattermap.Marker(size=11, color=color),
             text=subset['hover_text'],
             customdata=subset.index,
             hovertemplate='%{text}',
@@ -237,10 +237,10 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         height=600,
         hovermode='closest',  # This changes the cursor on hover
         hoverdistance=20,
-        mapbox_style="carto-positron",
-        mapbox_zoom=zoom,
-        mapbox_center_lat=dept_data['latitude'].mean(),
-        mapbox_center_lon=dept_data['longitude'].mean(),
+        map_style="carto-positron",
+        map_zoom=zoom,
+        map_center_lat=dept_data['latitude'].mean(),
+        map_center_lon=dept_data['longitude'].mean(),
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
     )
 

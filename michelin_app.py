@@ -74,11 +74,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -398,7 +398,7 @@ def handle_error_condition(selected_department):
 
 
 def default_map_figure():
-    return go.Figure(go.Scattermapbox()).update_layout(
+    return go.Figure(go.Scattermap()).update_layout(
             font=dict(
                 family="Courier New, monospace",
                 size=18,
@@ -407,9 +407,9 @@ def default_map_figure():
             width=800,
             height=600,
             mapbox_style="carto-positron",
-            mapbox_zoom=5,
-            mapbox_center_lat=46.603354,
-            mapbox_center_lon=1.888334,
+            map_zoom=5,
+            map_center_lat=46.603354,
+            map_center_lon=1.888334,
             margin={"r": 0, "t": 0, "l": 0, "b": 0},
         )
 
@@ -958,4 +958,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
