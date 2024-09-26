@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, ALL
-from flask import Flask, session
+from flask import Flask, session, request
 from flask_caching import Cache
 
 from layouts.layout_main import get_main_layout, color_map, star_filter_section
