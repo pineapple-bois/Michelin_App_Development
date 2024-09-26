@@ -73,11 +73,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# # def before_request():
+# #     if not request.is_secure:
+# #         url = request.url.replace('http://', 'https://', 1)
+# #         return redirect(url, code=301)
 
 
 @server.before_request
@@ -176,6 +176,56 @@ def update_button_styles(pathname):
 
 
 # -----------------------> "Guide Page"
+
+
+@app.callback(
+    Output('matched-city-output-mainpage', 'children'),
+    [Input('submit-city-button-mainpage', 'n_clicks'),
+     Input('clear-city-button-mainpage', 'n_clicks')],
+    [State('city-input-mainpage', 'value')]
+)
+def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
+    if n_submit_clicks > 0 or n_clear_clicks > 0:
+        if city_input == '' or n_clear_clicks >= n_submit_clicks:
+            # Clear the output when the 'Clear' button is clicked or empty input
+            return html.Div(
+                children=[html.P("", className='default-message')]
+            )
+        else:
+            matcher = LocationMatcher(all_france)
+            result = matcher.find_region_department(city_input)
+
+            if isinstance(result, dict):
+                city_details = [
+                    html.P(
+                        f"Match:  {result.get('Matched Location', 'Unknown')},  "
+                           f"Region:  {result.get('Region', 'Unknown')},  "
+                           f"Department:  {result.get('Department', 'Unknown')}",
+                           className='match-details'
+                           ),
+                ]
+
+                return html.Div(city_details, className='city-match-container')
+
+            elif isinstance(result, str):
+                return html.Div([
+                    html.P(f"No match found for '{city_input}'", className='no-match-message')
+                ])
+
+    return html.Div([
+        html.H5("", className='default-message')
+    ])
+
+
+@app.callback(
+    Output('city-input-mainpage', 'value'),
+    Input('clear-city-button-mainpage', 'n_clicks')
+)
+def clear_input(n_clicks):
+    if n_clicks > 0:
+        return ''  # Return an empty string to clear the input field
+    return dash.no_update  # Keep the current value if the clear button is not clicked
+
 
 @app.callback(
     [
@@ -898,4 +948,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

@@ -21,14 +21,14 @@ body {
     border-bottom: 1px solid #ddd; /* Optional: Add border for separation */
 }
 
-/* Body: Dynamic height based on remaining space */
+/* Body section will grow to fill available space */
 .body {
     flex-grow: 1;
-    padding-top: 120px; /* Space for the fixed header */
-    /*padding-bottom: 100px; !* Space for the fixed footer *!*/
-    overflow-y: auto; /* Allow scrolling if content exceeds view */
-    margin: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 90px;
 }
+
 
 /* -------------------------
    General Container Styles
@@ -101,9 +101,27 @@ body {
     color: white;
 }
 
+/* City match section styling */
+.city-match-content-wrapper-mainpage {
+    /*background-color: #f9f9f9;  !* Light background for visibility *!*/
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.city-match-sidebar-mainpage {
+    width: 30%;
+    float: left;  /* Ensures the input section aligns left */
+}
+
+.city-match-main-content-mainpage {
+    width: 70%;
+    float: right;
+}
+
 /* -------------------------
    Footer Container Styles
    ------------------------- */
+
 /* Main footer div with debug color */
 .footer-main {
     position: fixed;
@@ -187,17 +205,73 @@ body {
 }
 
 /* -------------------------
-   Map and Sidebar Styles
+   Main Content Container for Map and Sidebar
    ------------------------- */
+
+/* Main layout wrapping everything */
+
+.main-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;  /* Ensure the full height of the viewport is used */
+}
+
+/* Main Content should take up the remaining height between header and footer */
+.main-content {
+    flex-grow: 1;  /* Fill remaining available space */
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 140px);  /* 80px header + 60px footer */
+    /*overflow: hidden;  !* Prevent overflow *!*/
+}
+
+.map-sidebar-container {
+    display: flex;
+    flex-grow: 1;  /* Take up available space */
+    height: 100%;  /* Full height of the remaining space */
+    overflow: hidden;  /* Prevent overflow */
+}
+
+/* Map Section: Now on the left */
+.map-section {
+    float: left;
+    width: 70%;  /* Map takes 70% of the width */
+    height: 100%;  /* Full height */
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px;  /* Optional padding for spacing */
+    box-sizing: border-box;
+}
+
+/* Ensure the map display inside takes full height */
+.map-display {
+    flex-grow: 1;  /* Ensures the map stretches fully inside the container */
+}
+
+/* Sidebar Section: Now on the right */
+.sidebar-container {
+    float: right;
+    width: 30%;  /* Sidebar takes 30% of the width */
+    height: 100%;  /* Full height */
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;  /* Optional padding for spacing */
+    box-sizing: border-box;
+}
+
+/* Ensure all containers stretch to fit within the layout */
 .map-display,
 .sidebar-container {
-    height: 80vh;
+    height: 100%;  /* Both map and sidebar take full height */
     padding: 0;
     margin: 0;
 }
 
-.map-display {
-    margin-right: 20px;
+.star-ratings-container-main {
+    display: flex;
+    width: 70%;
+    margin-top: 10px;
+    margin-bottom: 60px;
 }
 
 .michelin_star {
@@ -224,21 +298,6 @@ body {
     margin-bottom: 10px; /* Remove bottom margin */
 }
 
-.sidebar-container {
-    background-color: white; /*#EAECEE; /* Set the background color */
-    height: 80vh; /* Match the height of the map */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Ensures the top content aligns with the top and the bottom content with the bottom */
-    width: 30%;
-    float: right;  /* Align sidebar to the left */
-}
-
-.map-section {
-    width: 70%;
-    float: right;  /* Main content map on the right */
-}
-
 .sidebar-container > * {
     padding: 0;
     margin: 0; /* Remove margins to make sure content does not "spill" out */
@@ -253,6 +312,10 @@ body {
     background-color: white;/*#f8f9fa*/;
 }
 
+
+
+/* The OLD LAYOUT */
+
 .ratings-container {
     margin-top: auto; /* Pushes the ratings container to the bottom */
     margin-bottom: 0; /* Ensures it lines up at the bottom */
@@ -262,6 +325,8 @@ body {
 .ratings-row {
     margin-bottom: 0; /* Ensures it lines up at the bottom */
 }
+
+
 
 /* -------------------------
    Description and Instructions Styles
@@ -478,7 +543,8 @@ body {
 
 .star-ratings-container {
     display: flex;
-    width: 100%;
+    width: 70%;
+    margin-left: 30%;
     margin-bottom: 20px;
 }
 

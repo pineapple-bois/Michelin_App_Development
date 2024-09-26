@@ -522,7 +522,8 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
             arrondissement_info = filtered_data[filtered_data['arrondissement'] == area].iloc[0]
             department_name = arrondissement_info['department']
             department_code = arrondissement_info['department_num']
-            display_area = f"Arrondissement: {area}, {department_name} ({department_code})"
+            region_name = arrondissement_info['region']
+            display_area = f"{area}, {department_name} ({department_code}), {region_name}"
         else:
             display_area = area
 
@@ -567,7 +568,8 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
                     arrondissement_info = filtered_data[filtered_data['arrondissement'] == area].iloc[0]
                     department_name = arrondissement_info['department']
                     department_code = arrondissement_info['department_num']
-                    display_area = f"Arrondissement: {area}, {department_name} ({department_code})"
+                    region_name = arrondissement_info['region']
+                    display_area = f"{area}, {department_name} ({department_code}), {region_name}"
                 else:
                     display_area = area
 
