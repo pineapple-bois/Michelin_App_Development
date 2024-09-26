@@ -1,7 +1,6 @@
 import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
-import plotly.express as px
 import dash
 import dash_bootstrap_components as dbc
 import os
@@ -10,20 +9,20 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
-from dash.dependencies import Input, Output, State, MATCH, ALL
-from flask import Flask, redirect, request, session
+from dash.dependencies import Input, Output, State, ALL
+from flask import Flask, session
 from flask_caching import Cache
 
-from layouts.layout_main import get_main_layout, color_map, star_filter_row, star_filter_section
+from layouts.layout_main import get_main_layout, color_map, star_filter_section
 from layouts.layout_analysis import get_analysis_layout
 from layouts.layout_404 import get_404_layout
 
-from locationMatcher import LocationMatcher
-from appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
-                          get_restaurant_details, create_michelin_bar_chart, update_button_active_state_helper,
-                          plot_single_choropleth_plotly, top_restaurants, plot_demographic_choropleth_plotly,
-                          calculate_weighted_mean, plot_demographics_barchart, plot_wine_choropleth_plotly,
-                          generate_optimized_prompt)
+from utils.locationMatcher import LocationMatcher
+from utils.appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
+                                get_restaurant_details, create_michelin_bar_chart, update_button_active_state_helper,
+                                plot_single_choropleth_plotly, top_restaurants, plot_demographic_choropleth_plotly,
+                                calculate_weighted_mean, plot_demographics_barchart, plot_wine_choropleth_plotly,
+                                generate_optimized_prompt)
 
 
 # Load restaurant data
@@ -34,6 +33,8 @@ region_df = gpd.read_file("assets/Data/region_restaurants.geojson")
 department_df = gpd.read_file("assets/Data/department_restaurants.geojson")
 # Load arrondissement GeoJSON data
 arron_df = gpd.read_file("assets/Data/arrondissement_restaurants.geojson")
+# Load Paris GeoJSON data
+paris_df = gpd.read_file("assets/Data/paris_restaurants.geojson")
 # Load wine GeoJSON data
 wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
 
@@ -73,11 +74,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-# @server.before_request
-# # def before_request():
-# #     if not request.is_secure:
-# #         url = request.url.replace('http://', 'https://', 1)
-# #         return redirect(url, code=301)
+@server.before_request
+def before_request():
+    if not request.is_secure:
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
 
 
 @server.before_request
@@ -495,7 +496,7 @@ def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
         if city_input == '' or n_clear_clicks >= n_submit_clicks:
             # Clear the output when the 'Clear' button is clicked or empty input
             return html.Div(
-                children=[html.P("Please enter a location and click 'Submit'.", className='default-message')]
+                children=[html.P("", className='default-message')]
             )
         else:
             matcher = LocationMatcher(all_france)
@@ -519,7 +520,7 @@ def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
                 ])
 
     return html.Div([
-        html.H5("Please enter a location and click 'Submit'.", className='default-message')
+        html.H5("", className='default-message')
     ])
 
 
@@ -641,8 +642,11 @@ def update_arrondissement_chart_and_map(selected_department, star_clicks):
     if star_clicks:
         select_stars = [star_placeholder[i] for i, n in enumerate(star_clicks) if n % 2 == 0]
 
-    filtered_df = arron_df[arron_df['department'] == selected_department].copy()
-    filtered_df.sort_values('arrondissement', inplace=True)
+    if selected_department == 'Paris':
+        filtered_df = paris_df
+    else:
+        filtered_df = arron_df[arron_df['department'] == selected_department].copy()
+        filtered_df.sort_values('arrondissement', inplace=True)
 
     fig_bar = create_michelin_bar_chart(
         filtered_df,
@@ -699,13 +703,19 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
 
     display_restaurants = n_clicks % 2 == 1  # Toggle restaurant visibility based on button state
 
-    # If 'Paris' is selected in the Top N dropdown
+    # Handle the 'Paris' case explicitly
     if top_n == 1 and granularity == 'department':
+        # Focus on Paris for department granularity
         filtered_data = all_france[all_france['department_num'] == '75']  # Only Paris restaurants
     elif top_n == 1 and granularity == 'region':
+        # Focus on Île-de-France for region granularity
         filtered_data = all_france[all_france['region'] == 'Île-de-France']  # Only Île-de-France restaurants
+    elif top_n == 1 and granularity == 'arrondissement':
+        # Focus on Paris arrondissements for 'arrondissement' granularity
+        filtered_data = all_france[all_france['department_num'] == '75']  # Only Paris restaurants
+        top_n = 5  # Force top_n to be 5 for Paris arrondissements
     else:
-        # Filter out Paris if department is selected and not 'Paris'
+        # General case: filter out Île-de-France if not Paris
         filtered_data = all_france[all_france['region'] != 'Île-de-France']
         if granularity == 'department' and top_n in [3, 5]:
             filtered_data = filtered_data[filtered_data['department_num'] != '75']  # Exclude Paris
@@ -948,4 +958,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
