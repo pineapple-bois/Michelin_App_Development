@@ -1,13 +1,13 @@
-dash~=2.12.1
+dash~=2.18.1
 dash-bootstrap-components==1.4.2
 dash-table==5.0.0
-geopandas==0.12.2
-fiona==1.8.22
+geopandas==1.0.1
+fiona==1.10.1
 gunicorn==23.0.0
 openai==1.47.0
 numpy~=2.0.2
 pandas~=2.2.3
-plotly~=5.16.0
+plotly~=5.24.1
 python-dotenv==1.0.1
 Flask~=2.2.5
 Flask-Caching~=2.3.0
