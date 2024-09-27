@@ -810,12 +810,11 @@ def get_wine_content():
                             html.Div(
                                 className='wine-map-outlines',
                                 children=[
-                                    html.H6("Show Regions or Departments"),
+                                    html.H6("Show Regional Outlines"),
                                     dcc.Dropdown(
                                         id='granularity-dropdown-wine',
                                         options=[
-                                            {'label': 'Regions', 'value': 'region'},
-                                            {'label': 'Departments', 'value': 'department'}
+                                            {'label': 'Regional Outlines', 'value': 'region'},
                                         ],
                                         value=None,  # Default selection
                                         className='dropdown-granularity-wine',
@@ -860,8 +859,12 @@ def get_wine_content():
                     html.Div(
                         className='wine-map',
                         children=[
-                            dcc.Graph(id='wine-map-graph', config={'displayModeBar': False}),
-                            dcc.Store(id='wine-region-curve-numbers')  # Store for wine region curve numbers
+                            dcc.Graph(id='wine-map-graph',
+                                      config={'displayModeBar': False},
+                                       style={'height': '700px'}
+                                      ),
+                            dcc.Store(id='wine-region-curve-numbers'),  # Store for wine region curve numbers
+                            dcc.Store(id='map-view-store', data={}),    # Store to hold map view parameters
                         ],
                         style={'width': '50%', 'display': 'inline-block'}
                     ),
