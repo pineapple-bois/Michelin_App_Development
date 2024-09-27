@@ -201,19 +201,35 @@ def get_main_content_with_city_match(unique_regions):
     # Sidebar content (existing sidebar)
     sidebar_content = html.Div([
         html.Div([
-            html.H5("Explore the finest culinary destinations in France, as reviewed by Michelin.", className='site-description')
-        ], className='description-container'),
+                html.H5("Explore the finest culinary destinations in France, as reviewed by Michelin.", className='site-description')
+            ], className='description-container'
+        ),
 
         html.Div([
-            html.P("France is divided administratively into regions and departments. Select a region to see the Michelin-rated restaurants by department.", className='instructions')
-        ], className='instructions-container'),
+                html.P("France is divided administratively into regions and departments. Select a region to see the Michelin-rated restaurants by department.", className='instructions')
+            ], className='instructions-container'
+        ),
 
         html.Div([
-            html.H6("Select a Region", className='dropdown-title'),
-            dcc.Dropdown(id='region-dropdown', options=[{'label': region, 'value': region} for region in unique_regions], value=unique_regions[0], className='dropdown-style', clearable=False),
-            html.H6("Select a Department", className='dropdown-title'),
-            dcc.Dropdown(id='department-dropdown', className='dropdown-style')
-        ], className='dropdown-container'),
+                html.H6("Select a Region", className='dropdown-title'),
+                dcc.Dropdown(id='region-dropdown', options=[{'label': region, 'value': region} for region in unique_regions], value=unique_regions[0], className='dropdown-style', clearable=False),
+                html.H6("Select a Department", className='dropdown-title'),
+                dcc.Dropdown(id='department-dropdown', className='dropdown-style')
+            ], className='dropdown-container'
+        ),
+        # Arrondissement dropdown container (initially hidden)
+        html.Div(
+            id='arrondissement-dropdown-container',
+            className='hidden-paris-section',
+            children=[
+                html.H6("Select an Arrondissement", className='dropdown-title'),
+                dcc.Dropdown(
+                    id='arrondissement-dropdown',
+                    className='dropdown-style',
+                    clearable=False
+                )
+            ],
+        ),
 
         # Buttons
         star_filter_section(star_placeholder),

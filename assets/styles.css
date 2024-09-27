@@ -362,6 +362,18 @@ body {
     margin-bottom: 0;
 }
 
+.hidden-paris-section {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+}
+
+.visible-paris-section {
+    height: auto; /* Allows the content to define the height */
+    overflow: visible;
+    transition: height 0.3s ease-in-out;
+}
+
 /* -------------------------
    Star selection Styles
    ------------------------- */

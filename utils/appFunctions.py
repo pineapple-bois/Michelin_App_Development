@@ -132,6 +132,106 @@ def plot_department_outlines(geo_df, department_code):
     return fig
 
 
+def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars):
+    """
+    Plot an interactive map of a Paris arrondissement, including restaurant points for selected star ratings.
+
+    Parameters:
+    - data_df (pd.DataFrame): DataFrame containing restaurant data with 'arrondissement', 'stars', 'latitude', 'longitude', etc.
+    - paris_df (GeoDataFrame): GeoDataFrame containing geometries of Paris arrondissements with 'arrondissement' and 'geometry'.
+    - arrondissement (str): The arrondissement to plot.
+    - selected_stars (list): List of star ratings to include in the plot.
+
+    Returns:
+    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the arrondissement and restaurants plotted.
+    """
+    # Initialize a blank figure
+    fig = go.Figure()
+
+    # Get the specific geometry
+    filtered_geo = paris_df[paris_df['arrondissement'] == arrondissement]
+    if filtered_geo.empty:
+        raise ValueError(f"Arrondissement '{arrondissement}' not found in the provided GeoDataFrame.")
+
+    specific_geometry = filtered_geo['geometry'].iloc[0]
+
+    # Plot the arrondissement boundary
+    if specific_geometry.geom_type == 'Polygon':
+        x, y = specific_geometry.exterior.xy
+        fig.add_trace(go.Scattermap(
+            lat=list(y),
+            lon=list(x),
+            mode='lines',
+            line=dict(width=1, color='black'),
+            hoverinfo='none',
+            showlegend=False
+        ))
+    elif specific_geometry.geom_type == 'MultiPolygon':
+        for polygon in specific_geometry.geoms:
+            x, y = polygon.exterior.xy
+            fig.add_trace(go.Scattermap(
+                lat=list(y),
+                lon=list(x),
+                mode='lines',
+                line=dict(width=1, color='black'),
+                hoverinfo='none',
+                showlegend=False
+            ))
+
+    # Filter the data for the selected arrondissement and stars
+    arr_data = data_df[
+        (data_df['arrondissement'] == arrondissement) &
+        (data_df['stars'].isin(selected_stars))
+    ].copy()
+
+    # Proceed to plot restaurants as in your existing plotting functions
+    if not arr_data.empty:
+        arr_data['color'] = arr_data['stars'].map(color_map)
+        arr_data['hover_text'] = arr_data.apply(generate_hover_text, axis=1)
+
+        for star, color in color_map.items():
+            subset = arr_data[arr_data['stars'] == star]
+
+            if subset.empty:
+                continue
+
+            label_name = '🍽️' if star == 0.5 else f"{'★' * int(star)}"
+
+            fig.add_trace(go.Scattermap(
+                lat=subset['latitude'],
+                lon=subset['longitude'],
+                mode='markers',
+                marker=go.scattermap.Marker(size=11, color=color),
+                text=subset['hover_text'],
+                customdata=subset.index,
+                hovertemplate='%{text}',
+                name=label_name,
+                showlegend=False
+            ))
+
+        # Calculate map center
+        map_center_lat = arr_data['latitude'].mean()
+        map_center_lon = arr_data['longitude'].mean()
+    else:
+        # Use arrondissement centroid if no restaurants
+        centroid = specific_geometry.centroid
+        map_center_lat = centroid.y
+        map_center_lon = centroid.x
+
+    # Update map layout
+    fig.update_layout(
+        map=dict(
+            style="carto-positron",
+            zoom=13,  # Adjust zoom level as needed
+            center=dict(lat=map_center_lat, lon=map_center_lon),
+        ),
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+    )
+
+    return fig
+
+
+
 def get_restaurant_details(row):
     """
     Generate an HTML Div containing detailed information about a restaurant.

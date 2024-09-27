@@ -19,11 +19,10 @@ from layouts.layout_404 import get_404_layout
 
 from utils.locationMatcher import LocationMatcher
 from utils.appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
-                                default_map_figure, get_restaurant_details, create_michelin_bar_chart,
-                                update_button_active_state_helper, plot_single_choropleth_plotly, top_restaurants,
-                                plot_demographic_choropleth_plotly, calculate_weighted_mean, plot_demographics_barchart,
-                                plot_wine_choropleth_plotly, generate_optimized_prompt)
-
+                                plot_paris_arrondissement, default_map_figure, get_restaurant_details,
+                                create_michelin_bar_chart, update_button_active_state_helper, plot_single_choropleth_plotly,
+                                top_restaurants, plot_demographic_choropleth_plotly, calculate_weighted_mean,
+                                plot_demographics_barchart, plot_wine_choropleth_plotly, generate_optimized_prompt)
 
 # Load restaurant data
 all_france = pd.read_csv("assets/Data/all_restaurants(arrondissements).csv")
@@ -74,11 +73,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -185,6 +184,8 @@ def update_button_styles(pathname):
     [State('city-input-mainpage', 'value')]
 )
 def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
+    n_submit_clicks = n_submit_clicks or 0
+    n_clear_clicks = n_clear_clicks or 0
     if n_submit_clicks > 0 or n_clear_clicks > 0:
         if city_input == '' or n_clear_clicks >= n_submit_clicks:
             # Clear the output when the 'Clear' button is clicked or empty input
@@ -222,48 +223,80 @@ def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
     Input('clear-city-button-mainpage', 'n_clicks')
 )
 def clear_input(n_clicks):
+    n_clicks = n_clicks or 0
     if n_clicks > 0:
         return ''  # Return an empty string to clear the input field
     return dash.no_update  # Keep the current value if the clear button is not clicked
 
 
 @app.callback(
-    [
-        Output('department-dropdown', 'options'),
+        [Output('department-dropdown', 'options'),
         Output('star-filter', 'children'),
         Output('star-filter', 'style'),
         Output('available-stars', 'data')],
-    [Input('region-dropdown', 'value'),
-     Input('department-dropdown', 'value')]
+       [Input('region-dropdown', 'value'),
+        Input('department-dropdown', 'value'),
+        Input('arrondissement-dropdown', 'value')]
 )
-def update_department_and_filters(selected_region, selected_department):
+def update_department_and_filters(selected_region, selected_department, selected_arrondissement):
     # Fetch department options based on the selected region.
-    departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict(
-        'records')
-    department_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in
-                          departments]
+    departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
+    department_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in departments]
 
     if not selected_department:
         # No department selected, hide star filter and clear buttons
         return department_options, star_filter_section().children, {'display': 'none'}, []
 
-    # Fetch the row for the selected department
-    department_row = geo_df[geo_df['department'] == selected_department].iloc[0]
+    # Handle the case when the department is Paris
+    if selected_department == 'Paris':
+        # Determine available stars based on arrondissement selection
+        if selected_arrondissement and selected_arrondissement != 'all':
+            # Filter all_france for the selected arrondissement
+            filtered_data = all_france[
+                (all_france['department'] == 'Paris') &
+                (all_france['arrondissement'] == selected_arrondissement)
+            ]
+        else:
+            # No specific arrondissement selected, use all of Paris
+            filtered_data = all_france[
+                (all_france['department'] == 'Paris')
+            ]
 
-    # Determine which star ratings are present
-    available_stars = []
-    for star_level in [3, 2, 1]:  # Ensure all levels are checked
-        if department_row[f'{int(star_level)}_star'] > 0:
-            available_stars.append(star_level)
-    if department_row['bib_gourmand'] > 0:
-        available_stars.append(0.5)
+        # Determine available stars from the filtered data
+        available_stars = sorted(filtered_data['stars'].unique(), reverse=True)
 
-    # Only show the filter if there are stars available
-    if available_stars:
-        star_filter = star_filter_section(available_stars)
-        return department_options, star_filter.children, {'display': 'block'}, available_stars
+        # Only show the filter if there are stars available
+        if available_stars:
+            star_filter = star_filter_section(available_stars)
+            return department_options, star_filter.children, {'display': 'block'}, available_stars
+        else:
+            return department_options, star_filter_section().children, {'display': 'none'}, []
+
     else:
-        return department_options, star_filter_section.children, {'display': 'none'}, []
+        # For departments other than Paris
+        # Fetch the row for the selected department
+        department_row = geo_df[geo_df['department'] == selected_department]
+
+        if department_row.empty:
+            # Handle the case where the department is not found
+            return department_options, star_filter_section().children, {'display': 'none'}, []
+
+        department_row = department_row.iloc[0]
+
+        # Determine which star ratings are present in the department
+        available_stars = []
+        for star_level in [3, 2, 1]:  # Ensure all levels are checked
+            if department_row[f'{int(star_level)}_star'] > 0:
+                available_stars.append(star_level)
+        if department_row['bib_gourmand'] > 0:
+            available_stars.append(0.5)
+
+        # Only show the filter if there are stars available
+        if available_stars:
+            star_filter = star_filter_section(available_stars)
+            return department_options, star_filter.children, {'display': 'block'}, available_stars
+        else:
+            return department_options, star_filter_section().children, {'display': 'none'}, []
 
 
 @app.callback(
@@ -338,7 +371,8 @@ def update_sidebar(clickData, selected_department, selected_stars):
 
     select_stars_placeholder = html.Div(
         "Select a star rating to see restaurants.",
-        className='placeholder-text'
+        className='placeholder-text',
+        style={'color': 'red'}
     )
 
     select_department_placeholder = html.Div(
@@ -382,14 +416,52 @@ def update_sidebar(clickData, selected_department, selected_stars):
 
 
 @app.callback(
+    [Output('arrondissement-dropdown-container', 'className'),
+     Output('arrondissement-dropdown', 'options'),
+     Output('arrondissement-dropdown', 'value')],
+    [Input('department-dropdown', 'value')]
+)
+def update_arrondissement_visibility(selected_department):
+    if selected_department == 'Paris':
+        # Fetch arrondissements from paris_df
+        arrondissement_list = paris_df['arrondissement'].unique()
+        arrondissement_options = [{'label': arr, 'value': arr} for arr in arrondissement_list]
+        # Add 'All Arrondissements' option at the top
+        arrondissement_options.insert(0, {'label': 'All Arrondissements', 'value': 'all'})
+        return 'visible-paris-section', arrondissement_options, 'all'
+    else:
+        # Hide the arrondissement section by setting class to 'hidden-section'
+        return 'hidden-paris-section', [], None
+
+
+@app.callback(
     Output('map-display', 'figure'),
     [Input('department-dropdown', 'value'),
      Input('region-dropdown', 'value'),
-     Input('selected-stars', 'data')],
+     Input('selected-stars', 'data'),
+     Input('arrondissement-dropdown', 'value')],
 )
-def update_map(selected_department, selected_region, selected_stars):
+def update_map(selected_department, selected_region, selected_stars, paris_arrondissement):
     ctx = callback_context
     triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
+
+    # Check if the selected department is Paris
+    if selected_department == 'Paris':
+        department_code = dept_to_code.get(selected_department)
+        if department_code:
+            # Handle arrondissement selection
+            if selected_stars:
+                if paris_arrondissement and paris_arrondissement != 'all':
+                    # Plot the selected arrondissement with selected stars
+                    return plot_paris_arrondissement(all_france, paris_df, paris_arrondissement, selected_stars)
+                else:
+                    # Plot all of Paris with selected stars
+                    return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
+            else:
+                # No stars selected, plot Paris department outline
+                return plot_department_outlines(geo_df, department_code)
+        else:
+            return default_map_figure()
 
     # Case 1: If department changes, reset stars
     if triggered_id == 'department-dropdown':
@@ -1002,4 +1074,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
