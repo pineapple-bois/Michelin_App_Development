@@ -4,6 +4,9 @@
 # Ignore environment files
 .env
 
+# Ignore Development Folder
+/Development/
+
 # Default ignored files
 /shelf/
 /workspace.xml
