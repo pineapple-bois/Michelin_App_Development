@@ -17,10 +17,27 @@ text_color_map = {
 
 
 def plot_regional_outlines(region_df, region):
+    """
+    Plot the outlines of a selected region on a map.
+
+    Parameters:
+    - region_df (GeoDataFrame): A GeoDataFrame containing geometries of regions with a 'region' column.
+    - region (str): The name of the region to plot.
+
+    Returns:
+    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the region outlines plotted.
+
+    Raises:
+    - ValueError: If the specified region is not found in region_df.
+    """
     fig = go.Figure(go.Scattermap())  # Initialize empty figure with mapbox
 
     # Filter the GeoDataFrame for the selected region
     filtered_region = region_df[region_df['region'] == region]
+
+    if filtered_region.empty:
+        # Handle case when the region is not found
+        raise ValueError(f"Region '{region}' not found in the provided GeoDataFrame.")
 
     # Loop through the filtered GeoDataFrame
     for _, row in filtered_region.iterrows():
@@ -60,6 +77,19 @@ def plot_regional_outlines(region_df, region):
 
 
 def plot_department_outlines(geo_df, department_code):
+    """
+    Plot the outlines of a selected department on a map.
+
+    Parameters:
+    - geo_df (GeoDataFrame): A GeoDataFrame containing geometries of departments with a 'code' column.
+    - department_code (str or int): The code of the department to plot.
+
+    Returns:
+    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the department outline plotted.
+
+    Raises:
+    - ValueError: If the specified department code is not found in geo_df.
+    """
     fig = go.Figure(go.Scattermap())  # Initialize empty figure with mapbox
 
     # Filter the GeoDataFrame for the selected department
@@ -103,20 +133,36 @@ def plot_department_outlines(geo_df, department_code):
 
 
 def get_restaurant_details(row):
-    name = row['name']
-    stars = row['stars']
-    cuisine = row['cuisine']
-    price = row['price']
-    address = row['address']
-    location = row['location']
-    arrondissement = row['arrondissement']
-    website_url = row['url']
+    """
+    Generate an HTML Div containing detailed information about a restaurant.
+
+    Parameters:
+    - row (pd.Series or dict): A pandas Series or dictionary containing restaurant information.
+
+    Returns:
+    - details_layout (dash_html_components.Div): A Dash HTML Div containing the restaurant's details.
+
+    Raises:
+    - KeyError: If expected keys are missing in the row data.
+    """
+    try:
+        name = row['name']
+        stars = row['stars']
+        cuisine = row['cuisine']
+        price = row['price']
+        address = row['address']
+        location = row['location']
+        arrondissement = row.get('arrondissement', '')
+        website_url = row['url']
+        department_num = row['department_num']
+    except KeyError as e:
+        raise KeyError(f"Missing expected key in row data: {e}")
 
     # Color for the border based on the number of stars
     border_color = color_map.get(stars, '#ccc')  # Default to grey if no stars count matches
 
     # Create the address information with a conditional for Paris arrondissements
-    if row['department_num'] == '75':
+    if department_num == '75':
         location_info = html.Span(f"{arrondissement}, {location}", className='restaurant-location')
     else:
         location_info = html.Span(f"{location}", className='restaurant-location')
@@ -158,15 +204,51 @@ def get_restaurant_details(row):
 
 
 def generate_hover_text(row):
+    """
+    Generate HTML-formatted hover text for a restaurant.
+
+    Parameters:
+    - row (pd.Series or dict): A pandas Series or dictionary containing restaurant information.
+
+    Returns:
+    - hover_text (str): An HTML-formatted string for hover text.
+
+    Raises:
+    - KeyError: If expected keys are missing in the row data.
+    """
+    try:
+        name = row['name']
+        location = row['location']
+        stars = row['stars']
+    except KeyError as e:
+        raise KeyError(f"Missing expected key in row data: {e}")
+
+    text_color = text_color_map.get(stars, '#000')
+
     hover_text = (
-        f"<span style=\"font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: {text_color_map[row['stars']]};\">"
-        f"<span style='font-size: 14px;'>{row['name']}</span><br>"
-        f"{row['location']}<br>"
+        f"<span style=\"font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: {text_color};\">"
+        f"<span style='font-size: 14px;'>{name}</span><br>"
+        f"{location}<br>"
     )
     return hover_text
 
 
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
+    """
+    Plot an interactive map of a department, including restaurant points for selected star ratings.
+
+    Parameters:
+    - data_df (pd.DataFrame): DataFrame containing restaurant data with 'department_num', 'stars', 'latitude', 'longitude', etc.
+    - geo_df (GeoDataFrame): GeoDataFrame containing geometries of departments with 'code' and 'geometry'.
+    - department_code (str or int): The code of the department to plot.
+    - selected_stars (list): List of star ratings to include in the plot.
+
+    Returns:
+    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the department and restaurants plotted.
+
+    Raises:
+    - ValueError: If the specified department code is not found in geo_df.
+    """
     # Before plotting, determine the correct zoom level
     zoom = 11 if department_code == '75' else 8  # Extra zoom for Paris
 
@@ -175,7 +257,12 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
     fig.update_layout(autosize=True)
 
     # Get the specific geometry
-    specific_geometry = geo_df[geo_df['code'] == str(department_code)]['geometry'].iloc[0]
+    filtered_geo = geo_df[geo_df['code'] == str(department_code)]
+    if filtered_geo.empty:
+        # Handle case when the department code is not found
+        raise ValueError(f"Department code '{department_code}' not found in the provided GeoDataFrame.")
+
+    specific_geometry = filtered_geo['geometry'].iloc[0]
 
     # Plot the geometry's boundaries
     if specific_geometry.geom_type == 'Polygon':
@@ -201,31 +288,50 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                     showlegend=False
                 ))
 
-    dept_data = data_df[(data_df['department_num'] == str(department_code)) & (data_df['stars'].isin(selected_stars))].copy()
-    dept_data['color'] = dept_data['stars'].map(color_map)
-    dept_data['hover_text'] = dept_data.apply(generate_hover_text, axis=1)
+    # Filter the data for the selected department and stars
+    dept_data = data_df[
+        (data_df['department_num'] == str(department_code)) &
+        (data_df['stars'].isin(selected_stars))
+    ].copy()
 
-    # Overlay restaurant points without adding them to the legend
-    for star, color in color_map.items():
-        subset = dept_data[dept_data['stars'] == star]
+    # If dept_data is not empty, proceed to add restaurant points
+    if not dept_data.empty:
+        dept_data['color'] = dept_data['stars'].map(color_map)
+        dept_data['hover_text'] = dept_data.apply(generate_hover_text, axis=1)
 
-        # Adjust hover text for Bib Gourmand
-        if star == 0.5:
-            label_name = '🍽️'
-        else:
-            label_name = f"{'★' * int(star)}"
+        # Overlay restaurant points without adding them to the legend
+        for star, color in color_map.items():
+            subset = dept_data[dept_data['stars'] == star]
 
-        fig.add_trace(go.Scattermap(
-            lat=subset['latitude'],
-            lon=subset['longitude'],
-            mode='markers',
-            marker=go.scattermap.Marker(size=11, color=color),
-            text=subset['hover_text'],
-            customdata=subset.index,
-            hovertemplate='%{text}',
-            name=label_name,
-            showlegend=False  # This ensures that the trace isn't added to the legend
-        ))
+            if subset.empty:
+                continue  # Skip adding trace if no data for this star rating
+
+            # Adjust hover text for Bib Gourmand
+            if star == 0.5:
+                label_name = '🍽️'
+            else:
+                label_name = f"{'★' * int(star)}"
+
+            fig.add_trace(go.Scattermap(
+                lat=subset['latitude'],
+                lon=subset['longitude'],
+                mode='markers',
+                marker=go.scattermap.Marker(size=11, color=color),
+                text=subset['hover_text'],
+                customdata=subset.index,
+                hovertemplate='%{text}',
+                name=label_name,
+                showlegend=False  # This ensures that the trace isn't added to the legend
+            ))
+
+        # Calculate the mean latitude and longitude for centering
+        map_center_lat = dept_data['latitude'].mean()
+        map_center_lon = dept_data['longitude'].mean()
+    else:
+        # If dept_data is empty, use the centroid of the department geometry
+        centroid = specific_geometry.centroid
+        map_center_lat = centroid.y
+        map_center_lon = centroid.x
 
     # Adjusting layouts
     fig.update_layout(
@@ -239,16 +345,39 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         hovermode='closest',  # This changes the cursor on hover
         hoverdistance=20,
         map_style="carto-positron",
-        map_zoom=zoom,
-        map_center_lat=dept_data['latitude'].mean(),
-        map_center_lon=dept_data['longitude'].mean(),
+        map_zoom=zoom,  # Zoom level
+        map_center_lat=map_center_lat,
+        map_center_lon=map_center_lon,
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
     )
 
     return fig
 
-# -------------------> Analysis Functions
 
+def default_map_figure():
+    """
+    Generate a default map figure centered on France.
+
+    Returns:
+    - fig (plotly.graph_objs.Figure): A Plotly Figure object with default map settings.
+    """
+    return go.Figure(go.Scattermap()).update_layout(
+            font=dict(
+                family="Courier New, monospace",
+                size=18,
+                color="white"
+            ),
+            width=800,
+            height=600,
+            mapbox_style="carto-positron",
+            map_zoom=5,
+            map_center_lat=46.603354,
+            map_center_lon=1.888334,
+            margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        )
+
+
+# -------------------> Analysis Functions
 
 def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
     """
@@ -485,6 +614,8 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
 
         if df['department_num'].unique()[0] == '75':  # Check if it's Paris
             zoom_level = 300  # High zoom for Paris arrondissements
+        elif df['region'].unique()[0] == 'Île-de-France':
+            zoom_level = 125
         else:
             zoom_level = 25  # Default zoom for other arrondissements
 
@@ -917,73 +1048,137 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
     return fig
 
 
-def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show_restaurants=False, selected_stars=(1, 2, 3)):
+
+def plot_wine_choropleth_plotly(
+    df, wine_df, all_france, outline_type=None, show_restaurants=False, selected_stars=(1, 2, 3), zoom_data=None
+):
     """
-    Plot a choropleth map for wine regions, with optional overlays for region/department outlines and restaurants.
+    Plot wine regions over a tile map using Plotly and go.Scattermap, with optional region/department outlines and restaurants.
 
     Args:
         df (GeoDataFrame): The base geographic data (either regions or departments).
         wine_df (GeoDataFrame): GeoDataFrame containing wine region shapes and colors.
         all_france (pd.DataFrame): DataFrame containing restaurant data.
-        outline_type (str): Either 'region', 'department', or None (default). Used to show outlines.
+        outline_type (str): Either 'region', 'department', or None. Used to show outlines.
         show_restaurants (bool): Whether to plot restaurant locations. Default is False.
         selected_stars (list): List of selected star ratings to plot. Default is (1, 2, 3).
 
     Returns:
         fig (go.Figure): The Plotly figure object.
+        wine_region_curve_numbers (list): List of curve numbers corresponding to the wine region traces.
     """
     fig = go.Figure()
     wine_region_curve_numbers = []  # List to store curveNumbers for wine regions
 
+    # Ensure zoom_data is a dictionary
+    if zoom_data is None:
+        zoom_data = {}
+
     # 1. Optionally show outlines for regions or departments based on `outline_type`
     if outline_type in ['region', 'department']:
-        fig.add_trace(
-            go.Choropleth(
-                geojson=df.__geo_interface__,
-                z=[0] * len(df),  # Placeholder Z values
-                locations=df.index,
-                showscale=False,
-                marker_line_width=0.3,
-                marker_line_color='darkgray',
-                colorscale=[[0, 'rgba(0, 0, 0, 0)'], [1, 'rgba(0, 0, 0, 0)']],  # Transparent fill
-                hoverinfo='skip',  # No hover needed for outlines
-                name=f"{outline_type.capitalize()} Outlines"
-            )
-        )
+        for _, row in df.iterrows():
+            geometry = row['geometry']
+            name = row[outline_type]
+
+            # Handle different geometry types
+            if geometry.geom_type == 'Polygon':
+                geometries = [geometry]
+            elif geometry.geom_type == 'MultiPolygon':
+                geometries = geometry.geoms
+            else:
+                continue  # Skip unsupported geometries
+
+            # Plot each polygon in the geometry
+            for polygon in geometries:
+                # Extract exterior coordinates
+                lon, lat = polygon.exterior.coords.xy
+                lon = list(lon)
+                lat = list(lat)
+                fig.add_trace(
+                    go.Scattermap(
+                        lon=lon,
+                        lat=lat,
+                        mode='lines',
+                        line=dict(width=0.3, color='black'),
+                        hoverinfo='text',
+                        text=f"{name}",
+                        showlegend=False,
+                    )
+                )
+
+                # Plot interiors (holes) if any
+                for interior in polygon.interiors:
+                    lon_int, lat_int = interior.coords.xy
+                    lon_int = list(lon_int)
+                    lat_int = list(lat_int)
+                    fig.add_trace(
+                        go.Scattermap(
+                            lon=lon_int,
+                            lat=lat_int,
+                            mode='lines',
+                            line=dict(width=0.3, color='black'),
+                            hoverinfo='skip',
+                            showlegend=False,
+                        )
+                    )
 
     # 2. Plot wine regions
     for i, region_row in wine_df.iterrows():
-        # Extracting the exterior coordinates from each Polygon geometry
         geometry = region_row['geometry']
+        region_name = region_row['region']
+        region_color = region_row['colour']
+
+        # Handle different geometry types
         if geometry.geom_type == 'Polygon':
             polygons = [geometry]
         elif geometry.geom_type == 'MultiPolygon':
             polygons = geometry.geoms
         else:
-            continue
+            print(f"Skipping geometry of type: {geometry.geom_type}\nIn region: {region_name}")
+            continue  # Skip unsupported geometries
 
         for polygon in polygons:
-            # Convert the polygon coordinates to Python lists
+            # Extract exterior coordinates
             lon, lat = polygon.exterior.coords.xy
             lon = list(lon)
             lat = list(lat)
 
             fig.add_trace(
-                go.Scattergeo(
-                    lon=lon,  # Longitude of the polygon points
-                    lat=lat,  # Latitude of the polygon points
+                go.Scattermap(
+                    lon=lon,
+                    lat=lat,
                     mode='lines',
                     fill='toself',
-                    fillcolor=region_row['colour'],  # Use the 'colours' column for the fill color
+                    fillcolor=region_color,
                     line=dict(width=0.5, color='darkgray'),
                     hoverinfo='text',
-                    hovertemplate=f'{region_row["region"]}<br>',
+                    hovertemplate=f'{region_name}<br>',
                     name='Wine Region',
-                    showlegend=False  # No legend for individual wine regions
+                    showlegend=False
                 )
             )
             # Store the curveNumber for this trace (wine region)
             wine_region_curve_numbers.append(len(fig.data) - 1)
+
+            # Plot interiors (holes) if any
+            for interior in polygon.interiors:
+                lon_int, lat_int = interior.coords.xy
+                lon_int = list(lon_int)
+                lat_int = list(lat_int)
+                fig.add_trace(
+                    go.Scattermap(
+                        lon=lon_int,
+                        lat=lat_int,
+                        mode='lines',
+                        fill='toself',
+                        fillcolor=region_color,
+                        line=dict(width=0.5, color='darkgray'),
+                        hoverinfo='text',
+                        hovertemplate=f'{region_name}<br>',
+                        name='Wine Region',
+                        showlegend=False,
+                    )
+                )
 
     # 3. Optionally plot restaurants based on selected star ratings
     if show_restaurants and selected_stars:
@@ -993,40 +1188,216 @@ def plot_wine_choropleth_plotly(df, wine_df, all_france, outline_type=None, show
         for star in selected_stars:
             star_data = filtered_restaurants[filtered_restaurants['stars'] == star]
 
-            fig.add_trace(
-                go.Scattergeo(
-                    lon=star_data['longitude'],
-                    lat=star_data['latitude'],
-                    mode='markers',
-                    marker=dict(size=8, color=star_colors.get(star)),
-                    hovertemplate=(
-                        f'<b>Restaurant Name:</b> %{{customdata[0]}}<br>'
-                        f'<b>Location:</b> %{{customdata[1]}}<br>'
-                    ),
-                    customdata=star_data[['name', 'location']].values,  # Pass restaurant names and locations
-                    showlegend=False,  # No legend for restaurants
-                    name=f"{'★' * int(star)}",
-                    hoverinfo='skip'
+            if not star_data.empty:
+                fig.add_trace(
+                    go.Scattermap(
+                        lon=star_data['longitude'].tolist(),
+                        lat=star_data['latitude'].tolist(),
+                        mode='markers',
+                        marker=go.scattermap.Marker(size=8, color=star_colors.get(star)),
+                        hovertemplate=(
+                            '<b>Restaurant Name:</b> %{customdata[0]}<br>'
+                            '<b>Location:</b> %{customdata[1]}<br>'
+                        ),
+                        customdata=star_data[['name', 'location']].values,
+                        showlegend=False,
+                        name=f"{'★' * int(star)}",
+                    )
                 )
-            )
 
-    # Update layout
+    # 4. Adjust the layout
+    # Extract zoom and center from zoom_data, using default values if keys are missing
+    zoom = zoom_data.get('zoom', 5)
+    center_lat = zoom_data.get('center', {}).get('lat', 46.603354)
+    center_lon = zoom_data.get('center', {}).get('lon', 1.888334)
+
     fig.update_layout(
-        clickmode='event+select',  # Enable click events for the map
-        geo=dict(
-            scope='europe',
-            resolution=50,
-            showcoastlines=False,
-            showland=True,
-            landcolor="lightgray",
-            center=dict(lat=46.603354, lon=1.888334),
-            projection_scale=6,  # Zoom level for France
-        ),
-        height=700,
-        margin=dict(l=10, r=10, t=30, b=10),
+        map_style="carto-positron",
+        map_zoom=zoom,
+        map_center_lat=center_lat,
+        map_center_lon=center_lon,
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        hovermode='closest',
     )
 
     return fig, wine_region_curve_numbers
+
+
+
+
+
+# def plot_wine_choropleth_plotly(
+#     df, wine_df, all_france, outline_type=None, show_restaurants=False, selected_stars=(1, 2, 3), zoom_data=None
+# ):
+#     """
+#     Plot wine regions over a tile map using Plotly and go.Scattermap, with optional region/department outlines and restaurants.
+#
+#     Args:
+#         df (GeoDataFrame): The base geographic data (either regions or departments).
+#         wine_df (GeoDataFrame): GeoDataFrame containing wine region shapes and colors.
+#         all_france (pd.DataFrame): DataFrame containing restaurant data.
+#         outline_type (str): Either 'region', 'department', or None. Used to show outlines.
+#         show_restaurants (bool): Whether to plot restaurant locations. Default is False.
+#         selected_stars (list): List of selected star ratings to plot. Default is (1, 2, 3).
+#
+#     Returns:
+#         fig (go.Figure): The Plotly figure object.
+#         wine_region_curve_numbers (list): List of curve numbers corresponding to the wine region traces.
+#     """
+#     fig = go.Figure()
+#     wine_region_curve_numbers = []  # List to store curveNumbers for wine regions
+#
+#     # Ensure zoom_data is a dictionary
+#     if zoom_data is None:
+#         zoom_data = {}
+#
+#     # 1. Optionally show outlines for regions or departments based on `outline_type`
+#     if outline_type in ['region', 'department']:
+#         for _, row in df.iterrows():
+#             geometry = row['geometry']
+#             name = row[outline_type]
+#
+#             # Handle different geometry types
+#             if geometry.geom_type == 'Polygon':
+#                 geometries = [geometry]
+#             elif geometry.geom_type == 'MultiPolygon':
+#                 geometries = geometry.geoms
+#             else:
+#                 continue  # Skip unsupported geometries
+#
+#             # Plot each polygon in the geometry
+#             for polygon in geometries:
+#                 # Extract exterior coordinates
+#                 lon, lat = polygon.exterior.coords.xy
+#                 lon = list(lon)
+#                 lat = list(lat)
+#                 fig.add_trace(
+#                     go.Scattermap(
+#                         lon=lon,
+#                         lat=lat,
+#                         mode='lines',
+#                         line=dict(width=0.3, color='black'),
+#                         hoverinfo='text',
+#                         text=f"{name}",
+#                         showlegend=False,
+#                     )
+#                 )
+#
+#                 # Plot interiors (holes) if any
+#                 for interior in polygon.interiors:
+#                     lon_int, lat_int = interior.coords.xy
+#                     lon_int = list(lon_int)
+#                     lat_int = list(lat_int)
+#                     fig.add_trace(
+#                         go.Scattermap(
+#                             lon=lon_int,
+#                             lat=lat_int,
+#                             mode='lines',
+#                             line=dict(width=0.3, color='black'),
+#                             hoverinfo='skip',
+#                             showlegend=False,
+#                         )
+#                     )
+#
+#     # 2. Plot wine regions
+#     for i, region_row in wine_df.iterrows():
+#         geometry = region_row['geometry']
+#         region_name = region_row['region']
+#         region_color = region_row['colour']
+#
+#         # Handle different geometry types
+#         if geometry.geom_type == 'Polygon':
+#             polygons = [geometry]
+#         elif geometry.geom_type == 'MultiPolygon':
+#             polygons = geometry.geoms
+#         else:
+#             print(f"Skipping geometry of type: {geometry.geom_type}\nIn region: {region_name}")
+#             continue  # Skip unsupported geometries
+#
+#         for polygon in polygons:
+#             # Extract exterior coordinates
+#             lon, lat = polygon.exterior.coords.xy
+#             lon = list(lon)
+#             lat = list(lat)
+#
+#             fig.add_trace(
+#                 go.Scattermap(
+#                     lon=lon,
+#                     lat=lat,
+#                     mode='lines',
+#                     fill='toself',
+#                     fillcolor=region_color,
+#                     line=dict(width=0.5, color='darkgray'),
+#                     hoverinfo='text',
+#                     hovertemplate=f'{region_name}<br>',
+#                     name='Wine Region',
+#                     showlegend=False
+#                 )
+#             )
+#             # Store the curveNumber for this trace (wine region)
+#             wine_region_curve_numbers.append(len(fig.data) - 1)
+#
+#             # Plot interiors (holes) if any
+#             for interior in polygon.interiors:
+#                 lon_int, lat_int = interior.coords.xy
+#                 lon_int = list(lon_int)
+#                 lat_int = list(lat_int)
+#                 fig.add_trace(
+#                     go.Scattermap(
+#                         lon=lon_int,
+#                         lat=lat_int,
+#                         mode='lines',
+#                         fill='toself',
+#                         fillcolor=region_color,
+#                         line=dict(width=0.5, color='darkgray'),
+#                         hoverinfo='text',
+#                         hovertemplate=f'{region_name}<br>',
+#                         name='Wine Region',
+#                         showlegend=False,
+#                     )
+#                 )
+#
+#     # 3. Optionally plot restaurants based on selected star ratings
+#     if show_restaurants and selected_stars:
+#         star_colors = {1: "#FFB84D", 2: "#FE6F64", 3: "#C2282D"}
+#         filtered_restaurants = all_france[all_france['stars'].isin(selected_stars)]
+#
+#         for star in selected_stars:
+#             star_data = filtered_restaurants[filtered_restaurants['stars'] == star]
+#
+#             if not star_data.empty:
+#                 fig.add_trace(
+#                     go.Scattermap(
+#                         lon=star_data['longitude'].tolist(),
+#                         lat=star_data['latitude'].tolist(),
+#                         mode='markers',
+#                         marker=go.scattermap.Marker(size=8, color=star_colors.get(star)),
+#                         hovertemplate=(
+#                             '<b>Restaurant Name:</b> %{customdata[0]}<br>'
+#                             '<b>Location:</b> %{customdata[1]}<br>'
+#                         ),
+#                         customdata=star_data[['name', 'location']].values,
+#                         showlegend=False,
+#                         name=f"{'★' * int(star)}",
+#                     )
+#                 )
+#
+#     # 4. Adjust the layout
+#     # Extract zoom and center from zoom_data, using default values if keys are missing
+#     zoom = zoom_data.get('zoom', 5)
+#     center_lat = zoom_data.get('center', {}).get('lat', 46.603354)
+#     center_lon = zoom_data.get('center', {}).get('lon', 1.888334)
+#
+#     fig.update_layout(
+#         map_style="carto-voyager",
+#         map_zoom=zoom,
+#         map_center_lat=center_lat,
+#         map_center_lon=center_lon,
+#         margin={"r": 0, "t": 0, "l": 0, "b": 0},
+#         hovermode='closest',
+#     )
+#
+#     return fig, wine_region_curve_numbers
 
 
 def generate_optimized_prompt(wine_region):

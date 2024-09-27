@@ -19,10 +19,10 @@ from layouts.layout_404 import get_404_layout
 
 from utils.locationMatcher import LocationMatcher
 from utils.appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
-                                get_restaurant_details, create_michelin_bar_chart, update_button_active_state_helper,
-                                plot_single_choropleth_plotly, top_restaurants, plot_demographic_choropleth_plotly,
-                                calculate_weighted_mean, plot_demographics_barchart, plot_wine_choropleth_plotly,
-                                generate_optimized_prompt)
+                                default_map_figure, get_restaurant_details, create_michelin_bar_chart,
+                                update_button_active_state_helper, plot_single_choropleth_plotly, top_restaurants,
+                                plot_demographic_choropleth_plotly, calculate_weighted_mean, plot_demographics_barchart,
+                                plot_wine_choropleth_plotly, generate_optimized_prompt)
 
 
 # Load restaurant data
@@ -74,11 +74,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -115,7 +115,6 @@ app.title = 'Michelin Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
     dcc.Store(id='selected-stars', data=[]),
-    dcc.Store(id='error-state', data=False),  # Initialize with no error
     dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout())  # Set initial content
@@ -210,7 +209,7 @@ def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
 
             elif isinstance(result, str):
                 return html.Div([
-                    html.P(f"No match found for '{city_input}'", className='no-match-message')
+                    html.P(f"No match found. '{city_input}' is not in represented in the Michelin Guide", className='no-match-message')
                 ])
 
     return html.Div([
@@ -270,12 +269,12 @@ def update_department_and_filters(selected_region, selected_department):
 @app.callback(
     [Output({'type': 'filter-button', 'index': ALL}, 'className'),
      Output({'type': 'filter-button', 'index': ALL}, 'style'),
-     Output('selected-stars', 'data'),  # This output updates the list of active stars
-     Output('error-state', 'data')],
+     Output('selected-stars', 'data')],  # This output updates the list of active stars
     [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks')],
     [State({'type': 'filter-button', 'index': ALL}, 'id'),
      State('selected-stars', 'data'),
-     State('available-stars', 'data')]
+     State('available-stars', 'data')],
+
 )
 def update_button_active_state(n_clicks_list, ids, current_stars, available_stars):
     # Handle cases where not all data is available, especially at initialization
@@ -289,16 +288,15 @@ def update_button_active_state(n_clicks_list, ids, current_stars, available_star
     # Initialize the new list of active stars
     new_stars = [star for star in current_stars if star in available_stars]
 
-    # Initialize error state
-    error_state = False     # default to no error
-
     for n_clicks, button_id in zip(n_clicks_list, ids):
         index = button_id['index']
+
         if index not in available_stars:
             continue  # Skip processing for stars not available
 
         # Determine if the button is currently active
         is_active = n_clicks % 2 == 0  # Even clicks means 'active'
+
         if is_active:
             if index not in new_stars:
                 new_stars.append(index)  # Add if not already in the list
@@ -320,98 +318,105 @@ def update_button_active_state(n_clicks_list, ids, current_stars, available_star
         class_names.append(class_name)
         styles.append(color_style)
 
-    if not new_stars:
-        error_state = True  # Set error if no stars are active
-    return class_names, styles, new_stars, error_state
+    return class_names, styles, new_stars
 
 
 @app.callback(
     Output('restaurant-details', 'children'),
     [Input('map-display', 'clickData'),
      Input('department-dropdown', 'value'),
-     Input('error-state', 'data')]  # Listen to the error state
+     Input('selected-stars', 'data')],
 )
-def update_sidebar(clickData, selected_department, error_state):
+def update_sidebar(clickData, selected_department, selected_stars):
     ctx = dash.callback_context
 
-    if error_state:
-        return html.Div("Please select at least one category to display restaurants.",
-                        className='placeholder-text',
-                        style={'color': '#C2282D'})
+    # Placeholder messages
+    restaurant_placeholder = html.Div(
+        "Select a restaurant on the map to see more details",
+        className='placeholder-text'
+    )
 
-    # Check if the callback was triggered by a department change and if it's cleared
+    select_stars_placeholder = html.Div(
+        "Select a star rating to see restaurants.",
+        className='placeholder-text'
+    )
+
+    select_department_placeholder = html.Div(
+        "Select a department to view restaurants.",
+        className='placeholder-text'
+    )
+
+    # If no department is selected, prompt the user
     if not selected_department:
-        return html.Div("Select a department to view restaurants.", className='placeholder-text')
+        return select_department_placeholder
 
-    # If there's a map click and it contains valid data, update the details
-    if ctx.triggered[0]['prop_id'] == 'map-display.clickData' and clickData:
-        if 'points' in clickData and clickData['points']:
-            restaurant_index = clickData['points'][0]['customdata']
-            restaurant_info = all_france.loc[restaurant_index]
-            return get_restaurant_details(restaurant_info)
+    # If no stars are selected, prompt the user to select stars
+    if not selected_stars:
+        return select_stars_placeholder
 
-    # Default message if no restaurant is selected yet
-    return html.Div("Select a restaurant on the map to see more details", className='placeholder-text')
+    # Determine which input triggered the callback
+    triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    # Handle map clicks
+    if triggered_id == 'map-display':
+        if clickData and 'points' in clickData and len(clickData['points']) > 0:
+            point = clickData['points'][0]
+            if 'customdata' in point:
+                restaurant_index = point['customdata']
+                restaurant_info = all_france.loc[restaurant_index]
+                # Check if the restaurant's star rating is in selected_stars
+                if restaurant_info['stars'] in selected_stars:
+                    return get_restaurant_details(restaurant_info)
+                else:
+                    # Restaurant's star rating is not selected, clear details
+                    return restaurant_placeholder
+            else:
+                # ClickData doesn't contain 'customdata', possibly clicked on non-data area
+                return restaurant_placeholder
+        else:
+            # Map was clicked but not on a data point
+            return restaurant_placeholder
+
+    # For any other triggers, clear the restaurant details
+    return restaurant_placeholder
 
 
 @app.callback(
     Output('map-display', 'figure'),
     [Input('department-dropdown', 'value'),
      Input('region-dropdown', 'value'),
-     Input('selected-stars', 'data'),
-     Input('error-state', 'data')],
+     Input('selected-stars', 'data')],
 )
-def update_map(selected_department, selected_region, selected_stars, error_state):
+def update_map(selected_department, selected_region, selected_stars):
     ctx = callback_context
     triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
 
-    # Check for error state first - highest priority
-    if error_state:
-        return handle_error_condition(selected_department)
-
-    # Check if the callback was specifically triggered by a department or star selection
-    if triggered_id in ['department-dropdown', 'selected-stars']:
+    # Case 1: If department changes, reset stars
+    if triggered_id == 'department-dropdown':
         if selected_department:
             department_code = dept_to_code.get(selected_department)
-            if department_code:
-                if not selected_stars:
-                    return plot_department_outlines(geo_df, department_code)
-                else:
-                    return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
 
-    # Handle region selection separately
+            if department_code:
+                # Reset selected-stars when changing department
+                return plot_department_outlines(geo_df, department_code)
+
+    # Case 2: Handle stars selection or updates
+    if triggered_id == 'selected-stars' and selected_department:
+        department_code = dept_to_code.get(selected_department)
+        if department_code:
+            if selected_stars:
+                return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
+            else:
+                return plot_department_outlines(geo_df, department_code)
+
+    # Case 3: Handle region selection
     if selected_region or triggered_id == 'region-dropdown':
         region_name = region_to_name.get(selected_region)
-        if region_name:  # Ensure region name exists
+        if region_name:
             return plot_regional_outlines(region_df, region_name)
 
     # Default case - no specific input or cleared inputs
     return default_map_figure()
-
-
-def handle_error_condition(selected_department):
-    if selected_department:
-        department_code = dept_to_code.get(selected_department, None)
-        if department_code:
-            return plot_department_outlines(geo_df, department_code)
-    return default_map_figure()
-
-
-def default_map_figure():
-    return go.Figure(go.Scattermap()).update_layout(
-            font=dict(
-                family="Courier New, monospace",
-                size=18,
-                color="white"
-            ),
-            width=800,
-            height=600,
-            mapbox_style="carto-positron",
-            map_zoom=5,
-            map_center_lat=46.603354,
-            map_center_lon=1.888334,
-            margin={"r": 0, "t": 0, "l": 0, "b": 0},
-        )
 
 
 # -----------------------> "Analysis Page"
@@ -516,7 +521,7 @@ def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
 
             elif isinstance(result, str):
                 return html.Div([
-                    html.P(f"No match found for '{city_input}'", className='no-match-message')
+                    html.P(f"No match found. '{city_input}' is not in represented in the Michelin Guide", className='no-match-message')
                 ])
 
     return html.Div([
@@ -843,9 +848,14 @@ def update_demographics_button_active_state(n_clicks_list, ids):
      Output('star-filter-container-wine', 'style')],
     [Input('granularity-dropdown-wine', 'value'),
      Input('toggle-show-details-wine', 'n_clicks'),
-     Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')]
+     Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')],
+     [State('map-view-store', 'data')]
 )
-def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars):
+def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars, map_view_data):
+    # Ensure zoom_data is a dictionary
+    if map_view_data is None:
+        map_view_data = {}
+
     # Determine if restaurants should be shown based on button press
     show_restaurants = n_clicks_rest % 2 == 1  # Odd clicks mean show restaurants
 
@@ -872,11 +882,45 @@ def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars):
         all_france=all_france,
         outline_type=outline_type,
         show_restaurants=show_restaurants,
-        selected_stars=selected_stars
+        selected_stars=selected_stars,
+        zoom_data=map_view_data
     )
 
     return fig, wine_region_curve_numbers, filter_style
 
+
+@app.callback(
+    Output('map-view-store', 'data'),
+    [Input('wine-map-graph', 'relayoutData')],
+    [State('map-view-store', 'data')]
+)
+def store_map_view(relayout_data, existing_data):
+    # Initialize existing_data if it's None
+    if existing_data is None:
+        existing_data = {}
+
+    # If relayoutData is None or empty, do not update the store
+    if not relayout_data:
+        raise dash.exceptions.PreventUpdate
+
+    # Define the keys that indicate a user interaction
+    user_interaction_keys = {'map.zoom', 'map.center'}
+
+    # Check if relayoutData contains any of the user interaction keys
+    if user_interaction_keys.intersection(relayout_data.keys()):
+        # Extract zoom and center from relayoutData
+        zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
+        center = relayout_data.get('map.center', existing_data.get('center'))
+
+        if zoom is not None and center is not None:
+            # Update the existing_data with new zoom and center
+            existing_data['zoom'] = zoom
+            existing_data['center'] = center
+
+            return existing_data
+
+    # If no user interaction keys are present, prevent updating the store
+    raise dash.exceptions.PreventUpdate
 
 @app.callback(
     [Output({'type': 'filter-button-wine', 'index': ALL}, 'className'),
@@ -958,4 +1002,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
