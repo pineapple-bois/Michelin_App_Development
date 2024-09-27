@@ -985,7 +985,6 @@ body {
     opacity: 0.5;
 }
 
-
 /* -------------------------
    Top Ranking Section Styling
    ------------------------- */
@@ -1253,7 +1252,7 @@ body {
     border-top: 1px solid #28a745;
     border-top: 1px solid #28a745;
     padding-top: 40px;
-    padding-bottom: 40px;
+    padding-bottom: 20px;
     width: 100%;
 }
 
@@ -1287,6 +1286,7 @@ body {
     align-items: center;
     gap: 40px;
     padding: 0 !important;
+    margin-bottom: 20px;
 }
 
 .wine-map-outlines {
@@ -1300,13 +1300,13 @@ body {
     justify-content: space-between;
     width: 100%;
     height: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
     /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
 }
 
 /* Wine LLM Output Wrapper */
 .wine-llm-output {
-    padding: 30px;
+    padding-left: 50px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;  /* Ensure content starts from the top */
@@ -1336,7 +1336,7 @@ body {
     padding-left: 20px;
     border-top: 1px solid #ccc;
     background-color: #f7f7f7;
-    width: calc(100% - 30px);
+    width: 100%;
     text-align: left;
     bottom: 0;
     box-sizing: border-box;
