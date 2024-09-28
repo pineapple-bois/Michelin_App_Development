@@ -91,7 +91,7 @@ def get_city_match_section():
                     children=[
                         html.Div(
                             children=[
-                                "Search for a location in France",
+                                "Search for a location in the Michelin Guide",
                             ], className="city-match-description-mainpage"
                         ),
                         # Text entry field for city input
@@ -113,7 +113,6 @@ def get_city_match_section():
                             ]
                         ),
                     ],
-                    style={'width': '30%', 'float': 'left'}
                 ),
 
                 # Main content for matched results - 70% width
@@ -129,7 +128,6 @@ def get_city_match_section():
                             className='city-match-output-container-mainpage'
                         )
                     ],
-                    style={'width': '70%', 'float': 'right'}
                 )
             ]
         )

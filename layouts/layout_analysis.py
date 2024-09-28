@@ -251,7 +251,7 @@ def get_city_match_section():
                     children=[
                         html.Div(
                             children=[
-                                "Find the region and department of a location in France",
+                                "Find the region and department of a location in the Michelin Guide",
                             ], className="city-match-description"
                         ),
                         # Text entry field for city input

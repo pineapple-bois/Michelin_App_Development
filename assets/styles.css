@@ -109,12 +109,12 @@ body {
 }
 
 .city-match-sidebar-mainpage {
-    width: 30%;
+    width: 40%;
     float: left;  /* Ensures the input section aligns left */
 }
 
 .city-match-main-content-mainpage {
-    width: 70%;
+    width: 60%;
     float: right;
 }
 
