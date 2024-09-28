@@ -7,6 +7,9 @@
 # Ignore Development Folder
 /Development/
 
+# Master GeoJSON for wine regions
+/assets/Data/wine_regions.geojson
+
 # Default ignored files
 /shelf/
 /workspace.xml
