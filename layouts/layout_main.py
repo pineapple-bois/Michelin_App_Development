@@ -208,31 +208,47 @@ def get_main_content_with_city_match(unique_regions):
             ], className='instructions-container'
         ),
 
+        # Dropdown blocks wrapped in a flex container
         html.Div([
+            html.Div([
                 html.H6("Select a Region", className='dropdown-title'),
-                dcc.Dropdown(id='region-dropdown', options=[{'label': region, 'value': region} for region in unique_regions], value=unique_regions[0], className='dropdown-style', clearable=False),
-                html.H6("Select a Department", className='dropdown-title'),
-                dcc.Dropdown(id='department-dropdown', className='dropdown-style')
-            ], className='dropdown-container'
-        ),
-        # Arrondissement dropdown container (initially hidden)
-        html.Div(
-            id='arrondissement-dropdown-container',
-            className='hidden-paris-section',
-            children=[
-                html.H6("Select an Arrondissement", className='dropdown-title'),
                 dcc.Dropdown(
-                    id='arrondissement-dropdown',
+                    id='region-dropdown',
+                    options=[{'label': region, 'value': region} for region in unique_regions],
+                    value=unique_regions[0],
                     className='dropdown-style',
                     clearable=False
                 )
-            ],
-        ),
+            ], className='dropdown-block'),
 
-        # Buttons
-        star_filter_section(star_placeholder),
+            html.Div([
+                html.H6("Select a Department", className='dropdown-title'),
+                dcc.Dropdown(
+                    id='department-dropdown',
+                    className='dropdown-style'
+                )
+            ], className='dropdown-block'),
 
-        html.Div(id='restaurant-details', children=[], className='restaurant-details-container'),
+            html.Div(
+                id='arrondissement-dropdown-container',
+                className='dropdown-block hidden-paris-section',  # Initially hidden
+                children=[
+                    html.H6("Select an Arrondissement", className='dropdown-title'),
+                    dcc.Dropdown(
+                        id='arrondissement-dropdown',
+                        className='dropdown-style',
+                        clearable=False
+                    )
+                ],
+            ),
+        ], className='dropdowns-container'),  # Flex container for dropdowns
+
+        # Buttons and restaurant details
+        html.Div([
+            star_filter_section(star_placeholder),
+            html.Div(id='restaurant-details', children=[], className='restaurant-details-container')
+        ], className='star-ratings-and-details-container')
+
     ], className='sidebar-container')
 
     # Map section (existing map)
