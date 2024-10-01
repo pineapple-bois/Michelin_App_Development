@@ -20,15 +20,15 @@ def plot_regional_outlines(region_df, region):
     """
     Plot the outlines of a selected region on a map.
 
-    Parameters:
-    - region_df (GeoDataFrame): A GeoDataFrame containing geometries of regions with a 'region' column.
-    - region (str): The name of the region to plot.
+    Args:
+        region_df (GeoDataFrame): A GeoDataFrame containing geometries of regions with a 'region' column.
+        region (str): The name of the region to plot.
 
     Returns:
-    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the region outlines plotted.
+        fig (plotly.graph_objs.Figure): A Plotly Figure object with the region outlines plotted.
 
     Raises:
-    - ValueError: If the specified region is not found in region_df.
+        ValueError: If the specified region is not found in region_df.
     """
     fig = go.Figure(go.Scattermap())  # Initialize empty figure with mapbox
 
@@ -76,20 +76,29 @@ def plot_regional_outlines(region_df, region):
     return fig
 
 
-def plot_department_outlines(geo_df, department_code):
+def plot_department_outlines(geo_df, department_code, zoom_data=None):
     """
     Plot the outlines of a selected department on a map.
 
-    Parameters:
-    - geo_df (GeoDataFrame): A GeoDataFrame containing geometries of departments with a 'code' column.
-    - department_code (str or int): The code of the department to plot.
+    Args:
+        geo_df (GeoDataFrame): A GeoDataFrame containing geometries of departments with a 'code' column.
+        department_code (str or int): The code of the department to plot.
 
     Returns:
-    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the department outline plotted.
+        fig (plotly.graph_objs.Figure): A Plotly Figure object with the department outline plotted.
 
     Raises:
-    - ValueError: If the specified department code is not found in geo_df.
+        ValueError: If the specified department code is not found in geo_df.
     """
+    # Initialize zoom_data if not provided
+    if zoom_data is None:
+        zoom_data = {}
+
+    # Extract zoom and center from zoom_data, with defaults for the whole of France
+    zoom = zoom_data.get('zoom', 5)  # Default zoom level for France
+    center_lat = zoom_data.get('center', {}).get('lat', 46.603354)  # Default latitude for France
+    center_lon = zoom_data.get('center', {}).get('lon', 1.888334)  # Default longitude for France
+
     fig = go.Figure(go.Scattermap())  # Initialize empty figure with mapbox
 
     # Filter the GeoDataFrame for the selected department
@@ -123,29 +132,39 @@ def plot_department_outlines(geo_df, department_code):
     # Update map layout settings
     fig.update_layout(
         map_style="carto-positron",
-        map_zoom=5,  # Zoom level to show all of France
-        map_center_lat=46.603354,  # Approximate latitude for France center
-        map_center_lon=1.888334,  # Approximate longitude for France center
+        map_zoom=zoom,
+        map_center_lat=center_lat,
+        map_center_lon=center_lon,
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )
     return fig
 
 
-def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars):
+def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars, zoom_data=None):
     """
     Plot an interactive map of a Paris arrondissement, including restaurant points for selected star ratings.
 
-    Parameters:
-    - data_df (pd.DataFrame): DataFrame containing restaurant data with 'arrondissement', 'stars', 'latitude', 'longitude', etc.
-    - paris_df (GeoDataFrame): GeoDataFrame containing geometries of Paris arrondissements with 'arrondissement' and 'geometry'.
-    - arrondissement (str): The arrondissement to plot.
-    - selected_stars (list): List of star ratings to include in the plot.
+    Args:
+        data_df (pd.DataFrame): DataFrame containing restaurant data with 'arrondissement', 'stars', 'latitude', 'longitude', etc.
+        paris_df (GeoDataFrame): GeoDataFrame containing geometries of Paris arrondissements with 'arrondissement' and 'geometry'.
+        arrondissement (str): The arrondissement to plot.
+        selected_stars (list): List of star ratings to include in the plot.
+        zoom_data (dict, optional): Contains zoom and center information.
 
     Returns:
-    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the arrondissement and restaurants plotted.
+        fig (plotly.graph_objs.Figure): A Plotly Figure object with the arrondissement and restaurants plotted.
     """
     # Initialize a blank figure
+    # Initialize zoom_data if not provided
+    if zoom_data is None:
+        zoom_data = {}
+
+    # Extract zoom and center from zoom_data
+    zoom = zoom_data.get('zoom', 13)  # Default zoom level for Paris
+    center_lat = zoom_data.get('center', {}).get('lat', None)
+    center_lon = zoom_data.get('center', {}).get('lon', None)
+
     fig = go.Figure()
 
     # Get the specific geometry
@@ -209,9 +228,13 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars)
                 showlegend=False
             ))
 
-        # Calculate map center
-        map_center_lat = arr_data['latitude'].mean()
-        map_center_lon = arr_data['longitude'].mean()
+        # Use restaurant data to calculate map center if no zoom_data center
+        if not center_lat or not center_lon:
+            map_center_lat = arr_data['latitude'].mean()
+            map_center_lon = arr_data['longitude'].mean()
+        else:
+            map_center_lat = center_lat
+            map_center_lon = center_lon
     else:
         # Use arrondissement centroid if no restaurants
         centroid = specific_geometry.centroid
@@ -222,7 +245,7 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars)
     fig.update_layout(
         map=dict(
             style="carto-positron",
-            zoom=13,  # Adjust zoom level as needed
+            zoom=zoom,  # Adjust zoom level as needed
             center=dict(lat=map_center_lat, lon=map_center_lon),
         ),
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
@@ -231,19 +254,88 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars)
     return fig
 
 
+def plot_arrondissement_outlines(paris_df, arrondissement, zoom_data=None):
+    """
+    Plot the outlines of a selected Paris arrondissement on a map.
+
+    Args:
+        paris_df (GeoDataFrame): A GeoDataFrame containing geometries of Paris arrondissements with 'arrondissement' and 'geometry'.
+        arrondissement (str): The name of the arrondissement to plot.
+        zoom_data (dict, optional): Contains zoom and center information.
+
+    Returns:
+        fig (plotly.graph_objs.Figure): A Plotly Figure object with the arrondissement outline plotted.
+
+    Raises:
+        ValueError: If the specified arrondissement is not found in paris_df.
+    """
+    # Initialize zoom_data if not provided
+    if zoom_data is None:
+        zoom_data = {}
+
+    # Extract zoom and center from zoom_data, with defaults for Paris
+    zoom = zoom_data.get('zoom', 13)  # Default zoom level for Paris arrondissements
+    center_lat = zoom_data.get('center', {}).get('lat', 48.8566)  # Default latitude for Paris
+    center_lon = zoom_data.get('center', {}).get('lon', 2.3522)  # Default longitude for Paris
+
+    fig = go.Figure(go.Scattermap())  # Initialize empty figure with mapbox
+
+    # Filter the GeoDataFrame for the selected arrondissement
+    filtered_geo = paris_df[paris_df['arrondissement'] == arrondissement]
+    if filtered_geo.empty:
+        raise ValueError(f"Arrondissement '{arrondissement}' not found in the provided GeoDataFrame.")
+
+    specific_geometry = filtered_geo['geometry'].iloc[0]
+
+    # Plot the geometry's boundaries
+    if specific_geometry.geom_type == 'Polygon':
+        x, y = specific_geometry.exterior.xy
+        fig.add_trace(go.Scattermap(
+            lat=list(y),
+            lon=list(x),
+            mode='lines',
+            line=dict(width=1, color='black'),  # Making line thicker and black for visibility
+            hoverinfo='none',
+            showlegend=False  # Hide from legend
+        ))
+    elif specific_geometry.geom_type == 'MultiPolygon':
+        for polygon in specific_geometry.geoms:
+            if polygon.geom_type == 'Polygon':  # Ensure we're dealing with a Polygon
+                x, y = polygon.exterior.xy
+                fig.add_trace(go.Scattermap(
+                    lat=list(y),
+                    lon=list(x),
+                    mode='lines',
+                    line=dict(width=1, color='black'),
+                    hoverinfo='none',
+                    showlegend=False
+                ))
+
+    # Update map layout settings
+    fig.update_layout(
+        map_style="carto-positron",
+        map_zoom=zoom,
+        map_center_lat=center_lat,
+        map_center_lon=center_lon,
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
+        showlegend=False
+    )
+
+    return fig
+
 
 def get_restaurant_details(row):
     """
     Generate an HTML Div containing detailed information about a restaurant.
 
-    Parameters:
-    - row (pd.Series or dict): A pandas Series or dictionary containing restaurant information.
+    Args:
+        row (pd.Series or dict): A pandas Series or dictionary containing restaurant information.
 
     Returns:
-    - details_layout (dash_html_components.Div): A Dash HTML Div containing the restaurant's details.
+        details_layout (dash_html_components.Div): A Dash HTML Div containing the restaurant's details.
 
     Raises:
-    - KeyError: If expected keys are missing in the row data.
+        KeyError: If expected keys are missing in the row data.
     """
     try:
         name = row['name']
@@ -307,14 +399,14 @@ def generate_hover_text(row):
     """
     Generate HTML-formatted hover text for a restaurant.
 
-    Parameters:
-    - row (pd.Series or dict): A pandas Series or dictionary containing restaurant information.
+    Args:
+        row (pd.Series or dict): A pandas Series or dictionary containing restaurant information.
 
     Returns:
-    - hover_text (str): An HTML-formatted string for hover text.
+        hover_text (str): An HTML-formatted string for hover text.
 
     Raises:
-    - KeyError: If expected keys are missing in the row data.
+        KeyError: If expected keys are missing in the row data.
     """
     try:
         name = row['name']
@@ -333,84 +425,84 @@ def generate_hover_text(row):
     return hover_text
 
 
-def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
+def plot_interactive_department(data_df, geo_df, department_code, selected_stars, zoom_data=None):
     """
     Plot an interactive map of a department, including restaurant points for selected star ratings.
 
-    Parameters:
-    - data_df (pd.DataFrame): DataFrame containing restaurant data with 'department_num', 'stars', 'latitude', 'longitude', etc.
-    - geo_df (GeoDataFrame): GeoDataFrame containing geometries of departments with 'code' and 'geometry'.
-    - department_code (str or int): The code of the department to plot.
-    - selected_stars (list): List of star ratings to include in the plot.
+    Args:
+        data_df (pd.DataFrame): DataFrame containing restaurant data with 'department_num', 'stars', 'latitude', 'longitude', etc.
+        geo_df (GeoDataFrame): GeoDataFrame containing geometries of departments with 'code' and 'geometry'.
+        department_code (str or int): The code of the department to plot.
+        selected_stars (list): List of star ratings to include in the plot.
+        zoom_data (dict): Dictionary containing zoom level and center information.
 
     Returns:
-    - fig (plotly.graph_objs.Figure): A Plotly Figure object with the department and restaurants plotted.
+        fig (plotly.graph_objs.Figure): A Plotly Figure object with the department and restaurants plotted.
 
     Raises:
-    - ValueError: If the specified department code is not found in geo_df.
+        ValueError: If the specified department code is not found in geo_df.
     """
-    # Before plotting, determine the correct zoom level
-    zoom = 11 if department_code == '75' else 8  # Extra zoom for Paris
+    # Initialize zoom_data if not provided
+    if zoom_data is None:
+        zoom_data = {}
+
+    # Get the zoom and center from zoom_data or fallback to department defaults
+    zoom = zoom_data.get('zoom', 8 if department_code != '75' else 11)  # Default zoom: 11 for Paris, 8 otherwise
+    center_lat = zoom_data.get('center', {}).get('lat', None)
+    center_lon = zoom_data.get('center', {}).get('lon', None)
 
     # Initialize a blank figure
     fig = go.Figure()
     fig.update_layout(autosize=True)
 
-    # Get the specific geometry
+    # Get the specific geometry for the department
     filtered_geo = geo_df[geo_df['code'] == str(department_code)]
     if filtered_geo.empty:
-        # Handle case when the department code is not found
         raise ValueError(f"Department code '{department_code}' not found in the provided GeoDataFrame.")
 
     specific_geometry = filtered_geo['geometry'].iloc[0]
 
-    # Plot the geometry's boundaries
+    # Plot department boundaries
     if specific_geometry.geom_type == 'Polygon':
         x, y = specific_geometry.exterior.xy
         fig.add_trace(go.Scattermap(
             lat=list(y),
             lon=list(x),
             mode='lines',
-            line=dict(width=0.5, color='black'),  # Making line thicker and black for visibility
+            line=dict(width=0.5, color='black'),
             hoverinfo='none',
             showlegend=False  # Hide from legend
         ))
     elif specific_geometry.geom_type == 'MultiPolygon':
         for polygon in specific_geometry.geoms:
-            if polygon.geom_type == 'Polygon':  # Ensure we're dealing with a Polygon
-                x, y = polygon.exterior.xy
-                fig.add_trace(go.Scattermap(
-                    lat=list(y),
-                    lon=list(x),
-                    mode='lines',
-                    line=dict(width=0.5, color='black'),
-                    hoverinfo='none',
-                    showlegend=False
-                ))
+            x, y = polygon.exterior.xy
+            fig.add_trace(go.Scattermap(
+                lat=list(y),
+                lon=list(x),
+                mode='lines',
+                line=dict(width=0.5, color='black'),
+                hoverinfo='none',
+                showlegend=False
+            ))
 
-    # Filter the data for the selected department and stars
+    # Filter data for the selected department and stars
     dept_data = data_df[
         (data_df['department_num'] == str(department_code)) &
         (data_df['stars'].isin(selected_stars))
     ].copy()
 
-    # If dept_data is not empty, proceed to add restaurant points
+    # If dept_data is not empty, add restaurant points
     if not dept_data.empty:
         dept_data['color'] = dept_data['stars'].map(color_map)
         dept_data['hover_text'] = dept_data.apply(generate_hover_text, axis=1)
 
-        # Overlay restaurant points without adding them to the legend
         for star, color in color_map.items():
             subset = dept_data[dept_data['stars'] == star]
 
             if subset.empty:
-                continue  # Skip adding trace if no data for this star rating
+                continue  # Skip if no data for this star rating
 
-            # Adjust hover text for Bib Gourmand
-            if star == 0.5:
-                label_name = '🍽️'
-            else:
-                label_name = f"{'★' * int(star)}"
+            label_name = '🍽️' if star == 0.5 else f"{'★' * int(star)}"
 
             fig.add_trace(go.Scattermap(
                 lat=subset['latitude'],
@@ -421,19 +513,23 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                 customdata=subset.index,
                 hovertemplate='%{text}',
                 name=label_name,
-                showlegend=False  # This ensures that the trace isn't added to the legend
+                showlegend=False
             ))
 
-        # Calculate the mean latitude and longitude for centering
-        map_center_lat = dept_data['latitude'].mean()
-        map_center_lon = dept_data['longitude'].mean()
+        # Calculate the center if zoom_data doesn't have it
+        if center_lat is None or center_lon is None:
+            map_center_lat = dept_data['latitude'].mean()
+            map_center_lon = dept_data['longitude'].mean()
+        else:
+            map_center_lat = center_lat
+            map_center_lon = center_lon
     else:
-        # If dept_data is empty, use the centroid of the department geometry
+        # If no restaurant data, center based on geometry's centroid
         centroid = specific_geometry.centroid
         map_center_lat = centroid.y
         map_center_lon = centroid.x
 
-    # Adjusting layouts
+    # Update the layout with the correct zoom and center
     fig.update_layout(
         font=dict(
             family="Courier New, monospace",
@@ -442,10 +538,10 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         ),
         width=800,
         height=600,
-        hovermode='closest',  # This changes the cursor on hover
-        hoverdistance=20,
+        hovermode='closest',
+        hoverdistance=10,
         map_style="carto-positron",
-        map_zoom=zoom,  # Zoom level
+        map_zoom=zoom,  # Zoom level from zoom_data or default
         map_center_lat=map_center_lat,
         map_center_lon=map_center_lon,
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
@@ -459,7 +555,7 @@ def default_map_figure():
     Generate a default map figure centered on France.
 
     Returns:
-    - fig (plotly.graph_objs.Figure): A Plotly Figure object with default map settings.
+        - fig (plotly.graph_objs.Figure): A Plotly Figure object with default map settings.
     """
     return go.Figure(go.Scattermap()).update_layout(
             font=dict(
@@ -1048,16 +1144,16 @@ def calculate_weighted_mean(df, metric, weight_column='municipal_population'):
 
 def plot_demographics_barchart(df, metric, granularity, weighted_mean):
     """
-    Create a horizontal bar chart with a vertical line indicating the weighted mean.
+    Create a horizontal bar chart with an optional vertical line indicating the weighted mean.
 
     Args:
         df (pd.DataFrame): The dataframe containing the data.
         metric (str): The metric to plot on the bar chart.
         granularity (str): Either 'region' or 'department' to determine the grouping.
-        weighted_mean (float): The calculated weighted mean to display as a dashed line.
+        weighted_mean (float or None): The calculated weighted mean to display as a dashed line, or None if excluded.
 
     Returns:
-        fig (go.Figure): The Plotly figure object with the bar chart and the weighted mean line.
+        fig (go.Figure): The Plotly figure object with the bar chart and the weighted mean line (if applicable).
     """
     # Dictionary to map data science metric names to display-friendly titles
     metric_titles = {
@@ -1106,33 +1202,51 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
 
     x_axis_range = [min_value - padding, max_value + padding]  # Dynamic range
 
-    # Only add the weighted mean if it's not excluded
-    if metric not in ['municipal_population', 'population_density(inhabitants/sq_km)']:
-        # Add the weighted mean as a red dashed vertical line
-        fig.add_shape(
-            type="line",
-            x0=weighted_mean,
-            x1=weighted_mean,
-            y0=-0.5,
-            y1=len(df[granularity]) - 0.5,
-            line=dict(color="red", width=2),
-            name='Weighted Mean'
-        )
+    # Add the weighted mean as a red dashed vertical line if it's provided and within range
+    if weighted_mean is not None and metric not in ['municipal_population', 'population_density(inhabitants/sq_km)']:
+        # Adjust the x-axis range if the weighted mean is outside the range
+        if weighted_mean < x_axis_range[0]:
+            x_axis_range[0] = weighted_mean - padding  # Extend to include the mean
+        elif weighted_mean > x_axis_range[1]:
+            x_axis_range[1] = weighted_mean + padding  # Extend to include the mean
 
-        # Add an annotation for the weighted mean
-        fig.add_annotation(
-            x=weighted_mean,
-            y=1,  # Position at the top of the chart
-            xref="x",
-            yref="paper",
-            text=f"French Mean: {weighted_mean:.2f} {metric_unit}",  # Add unit to the mean
-            showarrow=True,
-            arrowhead=2,
-            ax=-30,  # Horizontal offset for the annotation
-            ay=-30,  # Vertical offset for the annotation
-            font=dict(color="red", size=12),
-            arrowcolor="red"
-        )
+        if x_axis_range[0] <= weighted_mean <= x_axis_range[1]:
+            # Add the vertical line for the weighted mean
+            fig.add_shape(
+                type="line",
+                x0=weighted_mean,
+                x1=weighted_mean,
+                y0=-0.5,
+                y1=len(df[granularity]) - 0.5,
+                line=dict(color="red", width=2),
+                name='Weighted Mean'
+            )
+
+            # Add an annotation for the weighted mean
+            fig.add_annotation(
+                x=weighted_mean,
+                y=1,  # Position at the top of the chart
+                xref="x",
+                yref="paper",
+                text=f"French Mean: {weighted_mean:.2f} {metric_unit}",  # Add unit to the mean
+                showarrow=True,
+                arrowhead=2,
+                ax=-30,  # Horizontal offset for the annotation
+                ay=-30,  # Vertical offset for the annotation
+                font=dict(color="red", size=12),
+                arrowcolor="red"
+            )
+        else:
+            # If the weighted mean is out of range, show an annotation on the edge of the chart
+            fig.add_annotation(
+                x=x_axis_range[1],  # Position the annotation at the right edge
+                y=1,  # Top of the chart
+                xref="x",
+                yref="paper",
+                text=f"French Mean: {weighted_mean:.2f} {metric_unit} (off-scale)",  # Indicate that it's off-scale
+                showarrow=False,  # No arrow needed
+                font=dict(color="red", size=12)
+            )
 
     # Customize layout
     fig.update_layout(
@@ -1146,7 +1260,6 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
     )
 
     return fig
-
 
 
 def plot_wine_choropleth_plotly(

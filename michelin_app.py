@@ -19,10 +19,11 @@ from layouts.layout_404 import get_404_layout
 
 from utils.locationMatcher import LocationMatcher
 from utils.appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
-                                plot_paris_arrondissement, default_map_figure, get_restaurant_details,
-                                create_michelin_bar_chart, update_button_active_state_helper, plot_single_choropleth_plotly,
-                                top_restaurants, plot_demographic_choropleth_plotly, calculate_weighted_mean,
-                                plot_demographics_barchart, plot_wine_choropleth_plotly, generate_optimized_prompt)
+                                plot_paris_arrondissement, plot_arrondissement_outlines, default_map_figure,
+                                get_restaurant_details, create_michelin_bar_chart, update_button_active_state_helper,
+                                plot_single_choropleth_plotly, top_restaurants, plot_demographic_choropleth_plotly,
+                                calculate_weighted_mean, plot_demographics_barchart, plot_wine_choropleth_plotly,
+                                generate_optimized_prompt)
 
 # Load restaurant data
 all_france = pd.read_csv("assets/Data/all_restaurants(arrondissements).csv")
@@ -73,11 +74,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -115,6 +116,8 @@ app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
     dcc.Store(id='selected-stars', data=[]),
     dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
+    dcc.Store(id='department-centroid-store', data={}),
+    dcc.Store(id='paris-arrondissement-centroid', data={}),
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout())  # Set initial content
 ])
@@ -177,6 +180,22 @@ def update_button_styles(pathname):
 # -----------------------> "Guide Page"
 
 
+# Get rid of the 'hand' when hovering over restaurants
+app.clientside_callback(
+    """
+    function(hoverData) {
+        if (hoverData) {
+            document.getElementById('map-display').style.cursor = 'pointer';
+        } else {
+            document.getElementById('map-display').style.cursor = 'default';
+        }
+    }
+    """,
+    Output('dummy-output', 'children'),
+    Input('map-display', 'hoverData')
+)
+
+
 @app.callback(
     Output('matched-city-output-mainpage', 'children'),
     [Input('submit-city-button-mainpage', 'n_clicks'),
@@ -210,7 +229,8 @@ def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
 
             elif isinstance(result, str):
                 return html.Div([
-                    html.P(f"No match found. '{city_input}' is not in represented in the Michelin Guide", className='no-match-message')
+                    html.P(f"No match found. '{city_input}' is not in represented in the Michelin Guide",
+                           className='no-match-message')
                 ])
 
     return html.Div([
@@ -440,46 +460,50 @@ def update_arrondissement_visibility(selected_department):
      Input('region-dropdown', 'value'),
      Input('selected-stars', 'data'),
      Input('arrondissement-dropdown', 'value')],
+    [State('map-view-store-mainpage', 'data'),
+     State('department-centroid-store', 'data'),
+     State('paris-arrondissement-centroid', 'data')]
 )
-def update_map(selected_department, selected_region, selected_stars, paris_arrondissement):
+def update_map(selected_department, selected_region, selected_stars, paris_arrondissement,
+               mapview_data, dept_viewdata, arron_viewdata):
     ctx = callback_context
     triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
 
-    # Check if the selected department is Paris
+    # Set view_data once, then reuse it
+    view_data = mapview_data if mapview_data else dept_viewdata
+
+    # Handle Paris-specific logic first
     if selected_department == 'Paris':
-        department_code = dept_to_code.get(selected_department)
-        if department_code:
-            # Handle arrondissement selection
+        department_code = dept_to_code.get('Paris')
+
+        # Handle arrondissement case
+        if paris_arrondissement and paris_arrondissement != 'all':
+            view_data = mapview_data if mapview_data else arron_viewdata
+            if triggered_id == 'selected-stars':
+                # Plot selected arrondissement with stars
+                if selected_stars:
+                    return plot_paris_arrondissement(all_france, paris_df, paris_arrondissement, selected_stars, view_data)
+                return plot_arrondissement_outlines(paris_df, paris_arrondissement, view_data)
+
+        # Plot entire Paris department when no arrondissement selected
+        view_data = mapview_data if mapview_data else dept_viewdata
+        if triggered_id == 'selected-stars':
             if selected_stars:
-                if paris_arrondissement and paris_arrondissement != 'all':
-                    # Plot the selected arrondissement with selected stars
-                    return plot_paris_arrondissement(all_france, paris_df, paris_arrondissement, selected_stars)
-                else:
-                    # Plot all of Paris with selected stars
-                    return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
-            else:
-                # No stars selected, plot Paris department outline
-                return plot_department_outlines(geo_df, department_code)
-        else:
-            return default_map_figure()
+                return plot_interactive_department(all_france, geo_df, department_code, selected_stars, view_data)
+            return plot_department_outlines(geo_df, department_code, view_data)
 
-    # Case 1: If department changes, reset stars
-    if triggered_id == 'department-dropdown':
-        if selected_department:
-            department_code = dept_to_code.get(selected_department)
+    # Case 1: Department selected (non-Paris)
+    if triggered_id == 'department-dropdown' and selected_department:
+        department_code = dept_to_code.get(selected_department)
+        return plot_department_outlines(geo_df, department_code, view_data)
 
-            if department_code:
-                # Reset selected-stars when changing department
-                return plot_department_outlines(geo_df, department_code)
-
-    # Case 2: Handle stars selection or updates
+    # Case 2: Handle stars selection
     if triggered_id == 'selected-stars' and selected_department:
         department_code = dept_to_code.get(selected_department)
-        if department_code:
-            if selected_stars:
-                return plot_interactive_department(all_france, geo_df, department_code, selected_stars)
-            else:
-                return plot_department_outlines(geo_df, department_code)
+        if selected_stars:
+            return plot_interactive_department(all_france, geo_df, department_code, selected_stars, view_data)
+        else:
+            return plot_department_outlines(geo_df, department_code, view_data)
 
     # Case 3: Handle region selection
     if selected_region or triggered_id == 'region-dropdown':
@@ -487,8 +511,120 @@ def update_map(selected_department, selected_region, selected_stars, paris_arron
         if region_name:
             return plot_regional_outlines(region_df, region_name)
 
-    # Default case - no specific input or cleared inputs
+    # Default fallback case: Show entire country map if no specific input
     return default_map_figure()
+
+
+@app.callback(
+    Output('department-centroid-store', 'data'),
+    [Input('department-dropdown', 'value')]
+)
+def calculate_department_centroid(selected_department):
+    if not selected_department:
+        return {}
+
+    # Find the geometry for the selected department
+    department_code = dept_to_code.get(selected_department)
+    filtered_geo = geo_df[geo_df['code'] == str(department_code)]
+
+    if filtered_geo.empty:
+        return {}  # Return empty if the department is not found
+
+    # Calculate the centroid of the selected department's geometry
+    specific_geometry = filtered_geo['geometry'].iloc[0]
+    centroid = specific_geometry.centroid
+
+    # Determine zoom level (you can adjust the logic if necessary)
+    zoom_level = 8 if department_code != '75' else 11  # Use 11 for Paris (code 75), otherwise default to 8
+
+    # Create the dictionary to store
+    stored_data = {
+        'zoom': zoom_level,
+        'center': {
+            'lat': centroid.y,
+            'lon': centroid.x
+        }
+    }
+
+    return stored_data
+
+
+@app.callback(
+    Output('paris-arrondissement-centroid', 'data'),
+    [Input('arrondissement-dropdown', 'value')]
+)
+def calculate_arrondissement_centroid(selected_arrondissement):
+    if not selected_arrondissement:
+        return {}
+
+    # Find the geometry for the selected arrondissement
+    filtered_geo = paris_df[paris_df['arrondissement'] == selected_arrondissement]
+
+    if filtered_geo.empty:
+        return {}  # Return empty if the arrondissement is not found
+
+    # Calculate the centroid of the selected arrondissement's geometry
+    specific_geometry = filtered_geo['geometry'].iloc[0]
+    centroid = specific_geometry.centroid
+
+    # Set a zoom level for Paris arrondissements
+    zoom_level = 13
+
+    # Create the dictionary to store
+    stored_data = {
+        'zoom': zoom_level,
+        'center': {
+            'lat': centroid.y,
+            'lon': centroid.x
+        }
+    }
+
+    return stored_data
+
+
+
+@app.callback(
+    Output('map-view-store-mainpage', 'data'),
+    [Input('map-display', 'relayoutData'),
+     Input('region-dropdown', 'value'),
+     Input('department-dropdown', 'value'),
+     Input('arrondissement-dropdown', 'value')],
+    [State('map-view-store-mainpage', 'data')]
+)
+def store_map_view_mainpage(relayout_data, selected_region, selected_department, selected_arrondissement, existing_data):
+    # Initialize existing_data if it's None
+    if existing_data is None:
+        existing_data = {}
+
+    # Reset zoom data when region or department changes
+    ctx = dash.callback_context
+    triggered_input = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+
+    if triggered_input in ['region-dropdown', 'department-dropdown', 'arrondissement-dropdown']:
+        return {}
+
+    # If relayoutData is None or empty, do not update the store
+    if not relayout_data:
+        raise dash.exceptions.PreventUpdate
+
+    # Define the keys that indicate a user interaction
+    user_interaction_keys = {'map.zoom', 'map.center'}
+
+    # Check if relayoutData contains any of the user interaction keys
+    if user_interaction_keys.intersection(relayout_data.keys()):
+        # Extract zoom and center from relayoutData
+        zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
+        center = relayout_data.get('map.center', existing_data.get('center'))
+
+        if zoom is not None and center is not None:
+            # Update the existing_data with new zoom and center
+            existing_data['zoom'] = zoom
+            existing_data['center'] = center
+
+            return existing_data
+
+    # If no user interaction keys are present, prevent updating the store
+    raise dash.exceptions.PreventUpdate
 
 
 # -----------------------> "Analysis Page"
@@ -614,12 +750,13 @@ def clear_input(n_clicks):
 # DEPARTMENT content
 
 @app.callback(
-    [Output('star-filter-wrapper-department', 'style'),
+    [Output('star-filter-container-department', 'style'),
      Output('department-analysis-graph', 'figure'),
      Output('department-map', 'figure'),
      Output('department-analysis-graph', 'style'),
      Output('department-map', 'style'),
-     Output('departments-store', 'data')],
+     Output('departments-store', 'data'),
+     Output('arrondissement-filter-title', 'children')],
     [Input('department-dropdown-analysis', 'value'),
      Input({'type': 'filter-button-department', 'index': ALL}, 'n_clicks')]
 )
@@ -629,7 +766,9 @@ def update_department_chart_and_map(selected_region, star_clicks):
 
     if not selected_region:
         empty_fig = go.Figure()
-        return hide_style, empty_fig, empty_fig, hide_style, hide_style, []
+        return hide_style, empty_fig, empty_fig, hide_style, hide_style, [], ""
+
+    arrondissements_title = f"Select a Department within {selected_region}"
 
     # Default to all star levels if none selected
     select_stars = [0.5, 1, 2, 3]
@@ -657,7 +796,7 @@ def update_department_chart_and_map(selected_region, star_clicks):
     # Extract unique departments and create a list of options for the store
     department_options = [{'label': dept, 'value': dept} for dept in filtered_df['department'].unique()]
 
-    return show_style, fig_bar, map_fig, show_style, show_style, department_options
+    return show_style, fig_bar, map_fig, show_style, show_style, department_options, arrondissements_title
 
 
 @app.callback(
@@ -698,7 +837,8 @@ def update_arrondissement_dropdown(department_data):
 
 
 @app.callback(
-    [Output('arrondissement-analysis-graph', 'figure'),
+[Output('star-filter-container-arrondissement', 'style'),
+     Output('arrondissement-analysis-graph', 'figure'),
      Output('arrondissement-map', 'figure'),
      Output('arrondissement-analysis-graph', 'style'),
      Output('arrondissement-map', 'style')],
@@ -711,7 +851,7 @@ def update_arrondissement_chart_and_map(selected_department, star_clicks):
 
     if not selected_department:
         empty_fig = go.Figure()
-        return empty_fig, empty_fig, hide_style, hide_style
+        return hide_style, empty_fig, empty_fig, hide_style, hide_style
 
     # Default to all star levels if none selected
     select_stars = [0.5, 1, 2, 3]
@@ -739,7 +879,7 @@ def update_arrondissement_chart_and_map(selected_department, star_clicks):
         show_labels=False
     )
 
-    return fig_bar, map_fig, show_style, show_style
+    return show_style, fig_bar, map_fig, show_style, show_style
 
 
 @app.callback(
@@ -758,7 +898,8 @@ def update_demographics_button_active_state(n_clicks_list, ids):
 
 @app.callback(
      [Output('ranking-output', 'children'),
-     Output('toggle-show-details', 'n_clicks')], # Reset the click state
+     Output('toggle-show-details', 'n_clicks'),
+     Output('toggle-show-details', 'children')], # Reset the click state
     [Input('granularity-dropdown', 'value'),
      Input('star-dropdown-ranking', 'value'),
      Input('ranking-dropdown', 'value'),
@@ -771,14 +912,17 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
             "Please select a granularity to display rankings.",
             style={
                 "font-style": "italic",
-                "font-size": "20px",
+                "font-size": "16px",
                 "color": "grey",
                 "text-align": "center",
                 "align-items": "center",  # Vertically center
             }
-        ), 0
+        ), 0, "Show Restaurant Details"
 
     display_restaurants = n_clicks % 2 == 1  # Toggle restaurant visibility based on button state
+
+    # Set the button label based on the toggle state
+    button_label = "Hide Restaurant Details" if display_restaurants else "Show Restaurant Details"
 
     # Handle the 'Paris' case explicitly
     if top_n == 1 and granularity == 'department':
@@ -800,7 +944,7 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
     # Call the top_restaurants function to get the components
     ranking_components = top_restaurants(filtered_data, granularity, star_rating, top_n, display_restaurants)
 
-    return ranking_components, n_clicks
+    return ranking_components, n_clicks, button_label
 
 
 # DEMOGRAPHICS content
@@ -811,6 +955,7 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
      Output('demographics-add-remove', 'style'),
      Output('demographics-dropdown-analysis', 'value'),
      Output('demographics-chart-math', 'style'),
+     Output('weighted-mean', 'style'),
      Output('star-filter-demographics', 'style')],
     [Input('category-dropdown-demographics', 'value'),
      Input('granularity-dropdown-demographics', 'value'),
@@ -826,22 +971,22 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
     # Set granularity based on whether a region is selected in the dropdown
     if selected_dropdown != 'All France':
         selected_granularity = 'department'  # If a region is selected, use department granularity
-        region_selector_style = {'display': 'none'}  # Hide the region selector
+        region_selector_style = {'visibility': 'hidden'}  # Hide the region selector
     else:
         selected_granularity = 'region'  # Default granularity is region
-        region_selector_style = {'display': 'block'}  # Show the region selector
+        region_selector_style = {'visibility': 'visible'}  # Show the region selector
 
     if selected_granularity == 'region':
-        df = region_df.sort_values('region')  # Use region-level data
+        df = region_df.sort_values('region').copy()  # Use region-level data
         if selected_regions:
-            df = df[df['region'].isin(selected_regions)]
-            filtered_restaurants = all_france[all_france['region'].isin(selected_regions)]
+            df = df[df['region'].isin(selected_regions)].copy()
+            filtered_restaurants = all_france[all_france['region'].isin(selected_regions)].copy()
     else:
-        df = department_df
+        df = department_df.copy()
         # If a region is selected in the dropdown, filter to that region
         if selected_dropdown != 'All France':
-            df = df[df['region'] == selected_dropdown]
-            filtered_restaurants = all_france
+            df = df[df['region'] == selected_dropdown].copy()
+            filtered_restaurants = all_france.copy()
 
     # Show or hide the star filter based on button press
     if n_clicks_rest % 2 == 1:
@@ -870,14 +1015,24 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
             selected_stars=selected_stars  # Filter based on selected stars
         )
         empty_fig = go.Figure()  # Return empty figure for bar chart
-        return fig_map, empty_fig, region_selector_style, selected_regions, {'display': 'none'}, star_filter_style
+        return (fig_map, empty_fig, region_selector_style, selected_regions,
+                {'display': 'none'}, {'display': 'none'}, star_filter_style)
 
     if selected_granularity == 'region':
         dataframe = region_df
     else:
         dataframe = department_df
 
-    weighted_mean = calculate_weighted_mean(dataframe, selected_metric, weight_column='municipal_population')
+    # List of metrics to exclude from weighted mean
+    excluded_metrics = ['municipal_population', 'population_density(inhabitants/sq_km)']
+
+    # Only calculate weighted mean if the metric is not in the excluded list
+    if selected_metric not in excluded_metrics:
+        weighted_mean = calculate_weighted_mean(dataframe, selected_metric, weight_column='municipal_population')
+        weighted_mean_style = {'display': 'block'}  # Show the weighted mean section
+    else:
+        weighted_mean = None  # No weighted mean calculation
+        weighted_mean_style = {'display': 'none'}  # Hide the weighted mean section
 
     fig_map = plot_demographic_choropleth_plotly(
         df,
@@ -897,7 +1052,7 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
         weighted_mean=weighted_mean
     )
 
-    return fig_map, fig_bar, region_selector_style, selected_regions, {'display': 'block'}, star_filter_style
+    return fig_map, fig_bar, region_selector_style, selected_regions, {'display': 'block'}, weighted_mean_style, star_filter_style
 
 
 @app.callback(
@@ -1074,4 +1229,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
