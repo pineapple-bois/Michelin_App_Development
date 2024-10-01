@@ -75,9 +75,9 @@ body {
 
 /* Container for the buttons */
 .header-buttons {
+    /*background-color: lightgreen; !* Debug color for buttons container *!*/
     display: flex;
     gap: 20px; /* Space between buttons */
-    /*background-color: lightgreen; !* Debug color for buttons container *!*/
     margin-right: 50px;
 }
 
@@ -93,29 +93,143 @@ body {
     display: inline-block;
 }
 
-/* Hover and focus states for buttons */
+/* Hover and focus states for inactive buttons */
 .header-button:hover,
 .header-button:focus {
-    background-color: #C2282D; /* Same color as active state */
+    background-color: #C2282D; /* Slightly darker on hover */
     color: white;
 }
 
-/* City match section styling */
+/* Active button styling */
+.header-button.active {
+    background-color: #C2282D; /* Active button color */
+    color: white;
+    cursor: default; /* No pointer cursor for active button */
+}
+
+/* Inactive button slight color change */
+.header-button.inactive {
+    background-color: #F08080; /* Lighter shade for inactive buttons */
+}
+
+/* Hover and focus for inactive buttons */
+.header-button.inactive:hover,
+.header-button.inactive:focus {
+    background-color: #D9534F; /* A color in between inactive and active */
+    color: white;
+}
+
+/* -------------------------
+   City match section styling
+   ------------------------- */
+
 .city-match-content-wrapper-mainpage {
-    /*background-color: #f9f9f9;  !* Light background for visibility *!*/
+    /*background-color: #ffefc1;*/
     width: 100%;
     margin-bottom: 10px;
 }
 
 .city-match-sidebar-mainpage {
-    width: 40%;
-    float: left;  /* Ensures the input section aligns left */
+    /*background-color: #c1e7ff;*/
+    width: 35%;
+    float: left;
 }
 
 .city-match-main-content-mainpage {
-    width: 60%;
+    /*background-color: #e1ffc1;*/
+    width: 65%;
     float: right;
 }
+
+.city-match-output-container-mainpage {
+    display: none;  /* Hidden by default */
+    margin: 0;
+    padding: 0;
+    width: 100%;  /* Ensures it stays aligned with the input field */
+}
+
+.city-match-output-container-mainpage p {
+    margin: 0;
+    padding: 0;
+}
+
+/* Make the container visible only when it has content */
+.city-match-output-container-mainpage.visible {
+    display: block;  /* Show when there's content */
+    margin: 0;
+    padding: 0;
+}
+
+.info-toggle-button {
+    background-color: #f0f0f0;  /* Light grey background */
+    color: #555;  /* Muted text color */
+    border: 1px solid #ccc;  /* Light border */
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Hover text (tooltip) for search button */
+.info-toggle-button:hover:after {
+    content: "Search if a location in France (village, commune, town, or city) has restaurants awarded by Michelin";
+    position: absolute;
+    top: 50%;
+    left: 105%;  /* Move the tooltip to the right of the button */
+    transform: translateY(-50%);  /* Vertically center the tooltip */
+    background-color: #f0f0f0;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    color: #333;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 9999;
+    text-align: left;  /* Align text inside the tooltip */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+}
+
+.info-toggle-button:hover {
+    background-color: #ddd;  /* Darken on hover for subtle effect */
+}
+
+/* Add margin around the button */
+.info-tab-container {
+    text-align: left;
+}
+
+.city-input-field {
+    color: #555;  /* Text color */
+    border: 1px solid #ddd;  /* Light border matching the buttons */
+    border-radius: 5px;  /* Rounded corners matching buttons */
+    padding: 5px 10px;  /* Ensure similar padding to buttons */
+    font-size: 14px;  /* Matching the font size */
+    height: 30px;  /* Ensure consistent height with buttons */
+    box-sizing: border-box;  /* Ensure the padding and border are included in the input size */
+}
+
+/* Adjust spacing inside the search section */
+.city-input-container-mainpage {
+}
+
+.submit-city-button-mainpage,
+.clear-city-button-mainpage {
+    background-color: #f0f0f0;  /* Light grey background */
+    color: #555;  /* Muted text color */
+    border: 1px solid #ccc;  /* Light border */
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 14px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.submit-city-button-mainpage:hover,
+.clear-city-button-mainpage:hover {
+    background-color: #ddd;  /* Darken on hover */
+}
+
 
 /* -------------------------
    Footer Container Styles
@@ -669,75 +783,6 @@ body {
 }
 
 /* -------------------------
-   Location Match Section Styling
-   ------------------------- */
-
-.city-match-content-wrapper {
-    display: flex;
-    width: 100%;  /* Ensure it spans the full width of its container */
-    border-top: 1px solid #ccc;
-    height: auto;  /* Stretch the container based on content */
-    min-height: 200px;  /* Minimum height for a better UI */
-}
-
-/* Sidebar for regions */
-.city-match-sidebar {
-    width: 30%;
-    /*background-color: #f9f9f9; !* Light background for visibility *!*/
-    border-right: 1px solid black;
-    display: flex;
-    flex-direction: column;
-    /*justify-content: space-between;*/
-    overflow-y: auto;
-    box-sizing: border-box;
-    padding-top: 20px;
-    padding-right: 20px;
-}
-
-/* Main content for regions */
-.city-match-main-content {
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    /*background-color: #fdf5e6; !* Light pastel yellow *!*/
-    padding: 20px 40px;
-    box-sizing: border-box;
-    min-height: 200px;  /* Minimum height for a better UI */
-}
-
-.city-match-description {
-    font-size: 18px;
-    margin-bottom: 30px;
-}
-
-.city-input-container {
-    margin-bottom: 40px;  /* Add space between input and button */
-}
-
-.match-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.match-details {
-    font-size: 16px;
-}
-
-.no-match-message {
-    color: red;
-    font-weight: bold;
-}
-
-.default-message {
-    font-size: 18px;
-    font-style: italic;
-    color: gray;
-}
-
-
-/* -------------------------
    Department Section Styling
    ------------------------- */
 
@@ -975,7 +1020,7 @@ body {
     font-size: 18px;
     line-height: 1.2;
     margin-bottom: 30px;
-    padding-top: 40px;
+    padding-top: 30px;
     width: 100%;  /* Take full width */
 }
 
@@ -1049,9 +1094,9 @@ body {
    ------------------------- */
 
 .demographics-text-container {
-    background-color: #f5f5f5; /* Light grey for neutrality */
+    /*background-color: #f5f5f5; !* Light grey for neutrality *!*/
     border-top: 1px solid #007bff;
-    padding-bottom: 40px;
+    padding-bottom: 30px;
     width: 100%;
 }
 
@@ -1063,25 +1108,19 @@ body {
 }
 
 .demographics-text-paragraph {
-    margin-bottom: 10px;
-    font-size: 16px;
-    line-height: 1.6;
-}
-
-.demographics-tagline-paragraph {
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.2;
 }
 
 /* Wrapper to couple the main content and filter for demographics */
 .demographics-container {
-    background-color: #e2f0f9; /* Light pastel blue */
+    /*background-color: #e2f0f9; !* Light pastel blue *!*/
     width: 100%;
     gap: 40px;
 }
 
 .demographics-filter-container {
-    background-color: #d9edf7;
+    /*background-color: #d9edf7;*/
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -1090,12 +1129,12 @@ body {
 
 /* Dropdown containers for demographics section */
 .demographics-dropdown-container {
-    background-color: #fdf5e6; /* Light grey background */
+    /*background-color: #fdf5e6; !* Light grey background *!*/
     width: 25%;
 }
 
 .filter-container {
-    background-color: #fdf5e6; /* Light grey background */
+    /*background-color: #fdf5e6; !* Light grey background *!*/
     width: 50%;
 }
 
@@ -1119,7 +1158,7 @@ body {
 
 /* Demographics content wrapper */
 .demographics-content-wrapper {
-    background-color: #d9edf7; /* Light pastel blue for the wrapper */
+    /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -1128,7 +1167,7 @@ body {
 
 /* Demographics map styling */
 .demographics-map {
-    background-color: #cce5ff; /* Light pastel blue */
+    /*background-color: #cce5ff; !* Light pastel blue *!*/
     height: auto;
     width: 50%;
     display: inline-block;
@@ -1142,7 +1181,7 @@ body {
 
 /* Demographics bar chart styling */
 .demographics-bar-chart {
-    background-color: #fdf5e6; /* Light pastel yellow */
+    /*background-color: #fdf5e6; !* Light pastel yellow *!*/
     height: auto;
     width: 100%;
     display: inline-block;
@@ -1228,15 +1267,15 @@ body {
 
 .wine-text-paragraph {
     margin-bottom: 10px;
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.2;
 }
 
 .wine-tagline-paragraph {
     font-size: 16px;
     font-style: italic;
     text-align: center;
-    line-height: 1.6;
+    line-height: 1.2;
 }
 
 

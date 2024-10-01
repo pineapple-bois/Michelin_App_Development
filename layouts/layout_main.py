@@ -82,55 +82,58 @@ def get_header_with_buttons():
 
 def get_city_match_section():
     return html.Div(
-            className='city-match-content-wrapper-mainpage clearfix',
-            # Wrapper to couple sidebar and content for the city match section
-            children=[
-                # Sidebar for city input - 30% width
-                html.Div(
-                    className='city-match-sidebar-mainpage',
-                    children=[
-                        html.Div(
-                            children=[
-                                "Search for a location in the Michelin Guide",
-                            ], className="city-match-description-mainpage"
-                        ),
-                        # Text entry field for city input
-                        html.Div(
-                            className='city-input-container-mainpage',
-                            children=[
-                                dcc.Input(
-                                    id='city-input-mainpage',
-                                    type='text',
-                                    placeholder='Enter a city or location',
-                                    className='city-input-field'
-                                ),
-                                # Submit button
-                                html.Button('Submit', id='submit-city-button-mainpage', n_clicks=0,
-                                            className='submit-city-button-mainpage'),
-                                # Clear button
-                                html.Button('Clear', id='clear-city-button-mainpage', n_clicks=0,
-                                            className='clear-city-button-mainpage', style={'margin-left': '10px'})
-                            ]
-                        ),
-                    ],
-                ),
+        className='city-match-content-wrapper-mainpage clearfix',
+        children=[
+            # Info tab to unfold the search bar
+            html.Div(
+                children=[
+                    html.Button("Search Locations", id="info-toggle-button", className='info-toggle-button')
+                ],
+                className='info-tab-container'
+            ),
+            # Collapsible content for the search bar
+            dbc.Collapse(
+                id='info-collapse',
+                is_open=False,  # Initially closed
+                children=[
+                    html.Div(
+                        className='city-match-sidebar-mainpage',
+                        children=[
+                            html.Div(
+                                className='city-input-container-mainpage',
+                                children=[
+                                    dcc.Input(
+                                        id='city-input-mainpage',
+                                        type='text',
+                                        placeholder='Enter a location in France',
+                                        className='city-input-field'
+                                    ),
+                                    # Submit button
+                                    html.Button('Submit', id='submit-city-button-mainpage', n_clicks=0,
+                                                className='submit-city-button-mainpage'),
+                                    # Clear button
+                                    html.Button('Clear', id='clear-city-button-mainpage', n_clicks=0,
+                                                className='clear-city-button-mainpage')
+                                ]
+                            ),
+                        ],
+                    ),
+                ]
+            ),
 
-                # Main content for matched results - 70% width
-                html.Div(
-                    className='city-match-main-content-mainpage',
-                    children=[
-                        # Placeholder for the matched city content
-                        html.Div(
-                            id='matched-city-output-mainpage',
-                            children=[
-                                "Matched city details will be displayed here.",
-                            ],
-                            className='city-match-output-container-mainpage'
-                        )
-                    ],
-                )
-            ]
-        )
+            # Main content for matched results - 70% width
+            html.Div(
+                className='city-match-main-content-mainpage',
+                children=[
+                    # Placeholder for the matched city content
+                    html.Div(
+                        id='matched-city-output-mainpage',
+                        className='city-match-output-container-mainpage'
+                    )
+                ],
+            )
+        ]
+    )
 
 
 def get_footer():
@@ -241,7 +244,7 @@ def get_main_content_with_city_match(unique_regions):
                     )
                 ],
             ),
-        ], className='dropdowns-container'),  # Flex container for dropdowns
+        ], className='dropdowns-container-main'),  # Flex container for dropdowns
 
         # Buttons and restaurant details
         html.Div([
@@ -265,7 +268,8 @@ def get_main_content_with_city_match(unique_regions):
                                            'toggleSpikelines', 'toImage'],
                 'modeBarButtonsToAdd': ['zoom2d', 'resetScale2d']
             }
-        )
+        ),
+        dcc.Store(id='map-view-store-mainpage', data={}),
     ], className='map-section')
 
     # Star Ratings Section (below map and sidebar)
