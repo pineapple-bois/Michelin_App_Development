@@ -29,7 +29,6 @@ body {
     padding-top: 90px;
 }
 
-
 /* -------------------------
    General Container Styles
    ------------------------- */
@@ -246,6 +245,10 @@ body {
 /* Ensure the map display inside takes full height */
 .map-display {
     flex-grow: 1;  /* Ensures the map stretches fully inside the container */
+}
+
+#map-display .scatterlayer path {
+    cursor: pointer !important;  /* Enforces the pointer (arrow) instead of the default cursor */
 }
 
 /* Sidebar Section: Now on the right */
@@ -487,6 +490,7 @@ body {
     flex-direction: row;
     width: 100%;
     height: calc(100vh - 60px); /* Subtracting footer height */
+    padding: 0 !important;
 }
 
 .analysis-container {
@@ -507,10 +511,6 @@ body {
     font-size: 20px;
 }
 
-/* -------------------------
-   Region Section Styling
-   ------------------------- */
-
 .michelin-text-container {
     /*background-color: #f5f5f5;*/
     border-bottom: 1px solid black;
@@ -527,21 +527,8 @@ body {
 }
 
 .michelin-text-paragraph {
-    margin-bottom: 10px;
     font-size: 16px;
     line-height: 1.6;
-}
-
-.michelin-tagline-paragraph {
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 20px;
-}
-
-.star-ratings-container {
-    display: flex;
-    width: 70%;
-    margin-left: 30%;
     margin-bottom: 20px;
 }
 
@@ -550,35 +537,80 @@ body {
     box-sizing: border-box; /* Ensure padding is included in the width calculation */
 }
 
+.star-ratings-container {
+    display: flex;
+    width: 100%;
+    padding-left: 5%;
+    margin-bottom: 20px;
+}
+
+/* -------------------------
+   Region Section Styling
+   ------------------------- */
+
 /* Wrapper to couple sidebar and content for regions */
 .region-content-wrapper {
+    /*background-color: #d9edf7; !* Pastel blue *!*/
     display: flex;
-    height: 500px; /* Set a consistent height */
-}
-
-/* Sidebar for regions */
-.region-sidebar {
-    width: 30%;
-    /*background-color: #f9f9f9; !* Light background for visibility *!*/
-    border-right: 1px solid black;
-    display: flex;
-    flex-direction: column;
-    /*justify-content: space-between;*/
-    overflow-y: auto;
+    flex-direction: column;  /* Change to column layout to stack the description, controls, and graph */
+    width: 100%;
     box-sizing: border-box;
-    padding-right: 20px;
+    padding-bottom: 40px; /* Space between region and department sections */
 }
 
-/* Main content for regions */
-.region-main-content {
-    width: 70%;
+.distribution-header {
+    font-size: 25px;
+    font-weight: 700;
+    margin-top: 30px;
+}
+
+.distribution-section-header {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+/* Region description taking full width */
+.region-description {
+    /*background-color: #f7cac9; !* Soft pastel coral *!*/
+    width: 100%;  /* Take full width */
+    font-size: 18px;
+    line-height: 1.2;
+    margin-bottom: 30px;
+}
+
+/* Controls (Dropdown and Star Filter) */
+.region-controls {
     display: flex;
-    flex-direction: column;
     justify-content: space-between;
-    /*background-color: #fdf5e6; !* Light pastel yellow *!*/
-    padding-top: 10px;
-    padding-left: 20px;
+    width: 100%;  /* Take full width */
+    gap: 40px;
+}
+
+.region-filter-title {
+    font-size: 16px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+
+.region-filter-container {
+    /*background-color: #fdf5e6; !* Pastel yellow *!*/
+    width: 50%;  /* Take 50% width for the dropdown */
+    float: left;
     box-sizing: border-box;
+}
+
+.star-filter-container-region {
+    /*background-color: #c8e6c9; !* Soft pastel green *!*/
+    width: 50%;  /* Take 50% width for the star filter */
+    box-sizing: border-box;
+}
+
+/* Dropdown styling */
+.dropdown-region-analysis {
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 /* Visuals (graph and map) are in a row */
@@ -589,45 +621,11 @@ body {
     height: 100%; /* Stretch to fill the height */
 }
 
-/* Adjust graph and map height to match the visuals container */
 .region-graph, .region-map {
-    height: 100%; /* Match the height of visuals container */
-}
-
-/* Region section styles */
-.region-section {
-    /*background-color: #d9edf7; !* Pastel blue *!*/
-    padding-bottom: 40px; /* Space between region and department sections */
-}
-
-.region-description {
-    /*background-color: #f7cac9; !* Soft pastel coral *!*/
-    font-size: 18px !important;
-    line-height: 1.2;
-    margin-bottom: 30px;
-    padding-top: 20px;
-}
-
-/* Region filter container */
-.region-filter-container {
-    /*background-color: #fdf5e6; !* Pastel yellow *!*/
-    margin-bottom: 20px;
-}
-
-/* Title for the region filter */
-.region-filter-title {
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-/* Dropdown styling */
-.dropdown-region-analysis {
-    margin-bottom: 20px;
-}
-
-/* Star filter container */
-.star-filter-section-analysis {
-    /*background-color: #c8e6c9; !* Soft pastel green *!*/
+    width: 50%;
+    height: 100%;
+    display: inline-block;
+    overflow: hidden; /* Prevents overflow */
 }
 
 /* -------------------------
@@ -745,69 +743,61 @@ body {
 
 /* Wrapper to couple sidebar and content for departments */
 .department-content-wrapper {
-    border-top: 1px solid #ccc;
+    /*background-color: #d9f7be; !* Soft pastel green *!*/
+    /*border-top: 1px solid black;*/
     display: flex;
-    height: 500px; /* Set the same consistent height */
-}
-
-/* Sidebar for departments */
-.department-sidebar {
-    width: 30%;
-    /*background-color: #e2eafc; !* Soft pastel blue *!*/
-    border-right: 1px solid black;
-    display: flex;
-    flex-direction: column;
-    /*justify-content: space-between;*/
-    overflow-y: auto;
+    flex-direction: column;  /* Change to column layout to stack the description, controls, and graph */
+    width: 100%;
     box-sizing: border-box;
-    padding-right: 20px;
-    padding-bottom: 60px;
+    padding-bottom: 40px; /* Space between department and other sections */
 }
 
-/* Future department-specific content here */
-.department-main-content {
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    /*background-color: #cce5ff; !* Muted pastel blue *!*/
-    padding-top: 10px;
-    padding-left: 20px;
-    box-sizing: border-box;
-}
-
-/* Main content styling */
-.analysis-main-content {
-    width: 70%;
-}
-
-/* Department section styles */
-.department-section {
-    /*background-color: #d9f7be; !* Muted pastel green *!*/
-    padding-bottom: 40px;
-}
-
+/* Department description taking full width */
 .department-description {
     /*background-color: #ffe4e1; !* Light pastel coral *!*/
-    font-size: 18px !important;
+    width: 100%;  /* Take full width */
+    font-size: 18px;
     line-height: 1.2;
     margin-bottom: 30px;
-    padding-top: 20px;
 }
 
-/* Region filter container */
+/* Controls (Dropdown and Star Filter) */
+.department-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;  /* Take full width */
+    gap: 40px;
+}
+
+.region-filter-title {
+    font-size: 16px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+
 .department-filter-container {
     /*background-color: #fdf5e6; !* Pastel yellow *!*/
-    margin-bottom: 20px;
+    flex: 1;  /* Each child takes up equal space (50% each) */
+    box-sizing: border-box;
+    max-width: calc(50% - 20px);
+}
+
+.star-filter-container-department {
+    /*background-color: #c8e6c9; !* Soft pastel green *!*/
+    flex: 1;  /* Each child takes up equal space (50% each) */
+    display: flex;
+    justify-content: flex-end;  /* Align star filter to the right */
+    box-sizing: border-box;
 }
 
 /* Dropdown styling */
 .dropdown-department-analysis {
     margin-bottom: 20px;
+    width: 60%;
 }
 
-.department-main-content {
-    padding-bottom: 50px;
+.star-filter-section-department {
+    width: 100%; /* Star filter takes full width of its parent */
 }
 
 /* Visuals (graph and map) are in a row */
@@ -818,22 +808,12 @@ body {
     height: 100%; /* Stretch to fill the height */
 }
 
-/* Adjust graph and map height to match the visuals container */
-.department-graph {
+.department-graph, .department-map {
     height: 100%; /* Match the height of visuals container */
-    width: 60%;
+    width: 50%;
+    display: inline-block;
+    overflow: hidden;
 }
-
-.department-map {
-    height: 100%;
-    width: 40%;
-}
-
-/* Star filter container */
-.star-filter-section-department {
-    /*background-color: #c8e6c9; !* Soft pastel green *!*/
-}
-
 
 /* -------------------------
    Arrondissement Section Styling
@@ -847,70 +827,66 @@ body {
     transition: height 0.3s ease-in-out;
 }
 
+/* Visible Section - Dynamic Height */
 .visible-section {
-    border-top: 1px solid #ccc;
+    /*background-color: #d9edf7; !* Pastel blue *!*/
+    /*border-top: 1px solid black;*/
     display: flex;
-    height: 500px; /* Set the same consistent height */
+    flex-direction: column;  /* Ensure elements are stacked vertically */
+    transition: height 0.3s ease-in-out;
+    height: auto; /* Dynamic height based on content */
+    padding-bottom: 40px; /* Space between arrondissement and other sections */
 }
 
-/* Sidebar for arrondissements */
-.arrondissement-sidebar {
-    width: 30%;
-    /*background-color: #e2eafc; !* Soft pastel blue *!*/
-    border-right: 1px solid black;
+/* Wrapper for arrondissement content */
+.arrondissement-content-wrapper {
     display: flex;
-    flex-direction: column;
-    /*justify-content: space-between;*/
-    overflow-y: auto;
-    box-sizing: border-box;
-    padding-right: 20px;
-    padding-bottom: 60px;
-}
-
-/* Future arrondissement-specific content here */
-.arrondissement-main-content {
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    /*background-color: #cce5ff; !* Muted pastel blue *!*/
-    padding-top: 10px;
-    padding-left: 20px;
+    flex-direction: column;  /* Stacks the description, controls, and main content */
+    width: 100%;
     box-sizing: border-box;
 }
 
-/* Main content styling */
-.analysis-main-content {
-    width: 70%;
-}
-
-/* Arrondissement section styles */
-.arrondissement-section {
-    /*background-color: #d9f7be; !* Muted pastel green *!*/
-    padding-bottom: 40px;
-}
-
+/* Arrondissement description taking full width */
 .arrondissement-description {
-    /*background-color: #ffe4e1; !* Light pastel coral *!*/
-    font-size: 18px !important;
+    /*background-color: #ffebee; !* Light pastel coral *!*/
+    width: 100%;  /* Take full width */
+    font-size: 18px;
     line-height: 1.2;
-    margin-bottom: 20px;
-    padding-top: 20px;
+    margin-bottom: 30px;
 }
 
-/* Region filter container */
+/* Controls (Dropdown and Star Filter) */
+.arrondissement-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;  /* Full width */
+    gap: 40px;  /* Space between the dropdown and star filter */
+}
+
+/* Dropdown and filter container styles */
 .arrondissement-filter-container {
     /*background-color: #fdf5e6; !* Pastel yellow *!*/
-    margin-bottom: 20px;
+    flex: 1;  /* Each child (dropdown and star filter) takes up equal space */
+    box-sizing: border-box;
+    max-width: calc(50% - 20px);  /* 50% minus half of the gap */
+}
+
+.star-filter-container-arrondissement {
+    /*background-color: #c8e6c9; !* Soft pastel green *!*/
+    flex: 1;  /* Equal space as dropdown */
+    display: flex;
+    justify-content: flex-end;  /* Align star filter to the right */
+    box-sizing: border-box;
 }
 
 /* Dropdown styling */
 .dropdown-arrondissement-analysis {
     margin-bottom: 20px;
+    width: 60%;  /* The dropdown itself takes 60% of its parent (which is 50% of the total width) */
 }
 
-.arrondissement-main-content {
-    padding-bottom: 50px;
+.star-filter-section-arrondissement {
+    width: 100%; /* Star filter takes full width of its parent */
 }
 
 /* Visuals (graph and map) are in a row */
@@ -921,20 +897,11 @@ body {
     height: 100%; /* Stretch to fill the height */
 }
 
-/* Adjust graph and map height to match the visuals container */
-.arrondissement-graph {
-    height: 100%; /* Match the height of visuals container */
-    width: 60%;
-}
-
-.arrondissement-map {
+.arrondissement-graph, .arrondissement-map {
     height: 100%;
-    width: 40%;
-}
-
-/* Star filter container */
-.star-filter-section-arrondissement {
-    /*background-color: #c8e6c9; !* Soft pastel green *!*/
+    width: 50%;  /* Each takes 50% width */
+    display: inline-block;
+    overflow: hidden;
 }
 
 
@@ -986,83 +953,81 @@ body {
    Top Ranking Section Styling
    ------------------------- */
 
-/* Wrapper to couple sidebar and content for top rankings */
+/* Wrapper for the entire top ranking section */
 .ranking-content-wrapper {
+    /*background-color: #d9f7be; !* Soft pastel green *!*/
+    border-top: 1px solid black;
     display: flex;
-    height: auto; /* Allow container to grow dynamically */
-    /*background-color: #d9edf7; !* Pastel blue for the wrapper *!*/
-    border-top: 1px solid #ccc;
-    /*padding-bottom: 40px; !* Space between content *!*/
-}
-
-/* Sidebar for top ranking section */
-.ranking-sidebar {
-    width: 30%;
-    /*background-color: #f9f9f9; !* Light background for visibility *!*/
-    border-right: 1px solid black;
-    display: flex;
-    flex-direction: column;
+    flex-direction: column;  /* Stack description, controls, and content */
+    width: 100%;
     box-sizing: border-box;
-    overflow-y: auto; /* Enable scrolling for large content */
-    padding-bottom: 60px;
-    padding-right: 20px;
 }
 
-/* Main content for top ranking section */
-.ranking-main-content {
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Ensure content starts from top */
-    /*background-color: #fdf5e6; !* Light pastel yellow for content area *!*/
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto; /* Enable scrolling for larger output content */
+.ranking-header {
+    font-size: 25px;
+    font-weight: 700;
+    margin-top: 40px;
 }
 
-/* Debug color for description section */
+/* Description section */
 .ranking-description {
-    /*background-color: #f7cac9; !* Soft pastel coral *!*/
-    font-size: 18px !important;
+    /*background-color: #ffebee;  !* Light pastel coral *!*/
+    font-size: 18px;
     line-height: 1.2;
     margin-bottom: 30px;
-    padding-top: 20px;
+    padding-top: 40px;
+    width: 100%;  /* Take full width */
 }
 
-/* Granularity filter container */
-.granularity-filter-container {
-    /*background-color: #fdf5e6; !* Pastel yellow *!*/
-    margin-bottom: 20px;
-}
-
-/* Dropdown styling for granularity */
-.dropdown-granularity {
-    margin-bottom: 20px;
-}
-
-/* Top ranking filter container */
-.top-ranking-filter-container {
-    /*background-color: #fdf5e6; !* Pastel yellow *!*/
-    margin-bottom: 20px;
-}
-
-/* Dropdown styling for top ranking selection */
-.dropdown-ranking {
-    margin-bottom: 20px;
-}
-
-.rating-filter-container {
-    /*background-color: #c8e6c9; !* Soft pastel green *!*/
-    margin-bottom: 20px;
-}
-
-/* Button container for showing restaurant details */
-.toggle-details-container {
+/* Controls (Dropdown and Star Filter) */
+.ranking-controls {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    gap: 20px;
 }
 
-/* Button styling for 'Show Restaurant Details' */
+/* Container for dropdowns (taking 75% width) */
+.dropdowns-container {
+    flex-grow: 3;  /* Take 75% of the width */
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;  /* Space between the dropdowns */
+}
+
+/* Granularity dropdown container */
+.granularity-filter-container, .top-ranking-filter-container, .rating-filter-container {
+    /*background-color: #fdf5e6;  !* Pastel yellow *!*/
+    flex: 1;
+    box-sizing: border-box;
+}
+
+/* Dropdown styling for the filters */
+.dropdown-granularity, .dropdown-ranking, .dropdown-star-ranking {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Button container for showing restaurant details (taking 25% width) */
+.toggle-details-container {
+    flex-grow: 1; /* Take 75% of the width */
+    display: flex;
+    justify-content: flex-start; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    padding-left: 20px;
+}
+
+/* Main content section for top rankings */
+.ranking-main-content {
+    /*background-color: #fdf5e6;  !* Light pastel yellow for content area *!*/
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+/* Button for 'Show Restaurant Details' */
 .button-show-details {
     padding: 10px 20px;
     background-color: #C2282D;
@@ -1072,7 +1037,7 @@ body {
     color: white;
 }
 
-/* Hover and active states for the button */
+/* Button hover and active states */
 .button-show-details:hover,
 .button-show-details:focus {
     background-color: #A01F25;
@@ -1084,18 +1049,17 @@ body {
    ------------------------- */
 
 .demographics-text-container {
-    /*background-color: #f5f5f5; !* Light grey for neutrality *!*/
+    background-color: #f5f5f5; /* Light grey for neutrality */
     border-top: 1px solid #007bff;
-    padding-top: 40px;
     padding-bottom: 40px;
     width: 100%;
 }
 
-.demographics-title-paragraph {
+.demographics-header {
+    font-size: 25px;
+    font-weight: 700;
+    margin-top: 30px;
     margin-bottom: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.6;
 }
 
 .demographics-text-paragraph {
@@ -1111,36 +1075,34 @@ body {
 
 /* Wrapper to couple the main content and filter for demographics */
 .demographics-container {
-    /*background-color: #e2f0f9; !* Light pastel blue *!*/
+    background-color: #e2f0f9; /* Light pastel blue */
     width: 100%;
     gap: 40px;
 }
 
-/* Placeholder text container */
-.placeholder-text-container {
-    background-color: white; /* Keep the background white */
-    width: 100%;
-    margin-bottom: 20px;
-}
-
 .demographics-filter-container {
-    /*background-color: #d9edf7;*/
+    background-color: #d9edf7;
     display: flex;
     justify-content: space-between;
     width: 100%;
     gap: 40px;
-    margin-bottom: 20px;
 }
 
 /* Dropdown containers for demographics section */
 .demographics-dropdown-container {
-    /*background-color: #fdf5e6; !* Light grey background *!*/
+    background-color: #fdf5e6; /* Light grey background */
     width: 25%;
 }
 
 .filter-container {
-    /*background-color: #fdf5e6; !* Light grey background *!*/
+    background-color: #fdf5e6; /* Light grey background */
     width: 50%;
+}
+
+#demographics-add-remove {
+    min-height: 60px; /* Set a reasonable minimum height */
+    max-height: 150px; /* Allow the height to adjust up to 150px depending on the content */
+    overflow: hidden;  /* Prevent content overflow */
 }
 
 .demographics-restaurants-controls {
@@ -1150,18 +1112,23 @@ body {
     padding: 0 !important;
 }
 
+.toggle-details-container-demographics {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
 /* Demographics content wrapper */
 .demographics-content-wrapper {
+    background-color: #d9edf7; /* Light pastel blue for the wrapper */
     display: flex;
     justify-content: space-between;
     width: 100%;
     height: 750px; /* Fixed height for map + bar chart section */
-    /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
 }
 
 /* Demographics map styling */
 .demographics-map {
-    /*background-color: #cce5ff; !* Light pastel blue *!*/
+    background-color: #cce5ff; /* Light pastel blue */
     height: auto;
     width: 50%;
     display: inline-block;
@@ -1175,7 +1142,7 @@ body {
 
 /* Demographics bar chart styling */
 .demographics-bar-chart {
-    /*background-color: #fdf5e6; !* Light pastel yellow *!*/
+    background-color: #fdf5e6; /* Light pastel yellow */
     height: auto;
     width: 100%;
     display: inline-block;
@@ -1248,16 +1215,15 @@ body {
     /*background-color: #f5f5f5;*/
     border-top: 1px solid #28a745;
     border-top: 1px solid #28a745;
-    padding-top: 40px;
     padding-bottom: 20px;
     width: 100%;
 }
 
-.wine-title-paragraph {
+.wine-header {
+    font-size: 25px;
+    font-weight: 700;
+    margin-top: 30px;
     margin-bottom: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.6;
 }
 
 .wine-text-paragraph {
@@ -1515,7 +1481,7 @@ body {
     }
 
     /* Container for dropdowns to display them side by side */
-    .dropdowns-container {
+    .dropdowns-container-main {
         display: flex;  /* Enable flexbox for side-by-side layout */
         gap: 20px;  /* Adjust gap between each dropdown block */
         flex-wrap: wrap;  /* Ensure dropdowns wrap on smaller screens */
