@@ -143,38 +143,24 @@ def display_page(pathname):
         return get_main_layout() if pathname == '/' else get_404_layout()
 
 
-# Callback to update the button colors based on the current page
+# Callback to update the button classes based on the current page
 @app.callback(
-    [Output('home-button', 'style'),
-     Output('analysis-button', 'style')],
+    [Output('home-button', 'className'),
+     Output('analysis-button', 'className')],
     [Input('url', 'pathname')]
 )
-def update_button_styles(pathname):
-    # Define the active and inactive button styles
-    active_button_style = {
-        'background-color': '#C2282D',
-        'color': 'white',
-        'border': 'none',
-        'padding': '10px 20px',
-        'border-radius': '5px',
-        'cursor': 'pointer',
-    }
-    inactive_button_style = {
-        'background-color': 'lightcoral',
-        'color': 'white',
-        'border': 'none',
-        'padding': '10px 20px',
-        'border-radius': '5px',
-        'cursor': 'pointer',
-    }
+def update_button_classes(pathname):
+    # Define active and inactive classes
+    active_class = 'header-button active'
+    inactive_class = 'header-button inactive'
 
-    # Check the current URL path and apply the active style to the corresponding button
+    # Check the current URL path and apply the active class to the corresponding button
     if pathname == '/' or pathname == '/home':
-        return active_button_style, inactive_button_style  # Home button active
+        return active_class, inactive_class  # Home button active
     elif pathname == '/analysis':
-        return inactive_button_style, active_button_style  # Analysis button active
+        return inactive_class, active_class  # Analysis button active
     else:
-        return inactive_button_style, inactive_button_style  # Default case, both inactive
+        return inactive_class, inactive_class  # Default case, both inactive
 
 
 # -----------------------> "Guide Page"
@@ -197,56 +183,58 @@ app.clientside_callback(
 
 
 @app.callback(
-    Output('matched-city-output-mainpage', 'children'),
-    [Input('submit-city-button-mainpage', 'n_clicks'),
+    [Output('info-collapse', 'is_open'),
+     Output('city-input-mainpage', 'value'),
+     Output('matched-city-output-mainpage', 'children'),
+     Output('matched-city-output-mainpage', 'className')],
+    [Input('info-toggle-button', 'n_clicks'),
+     Input('submit-city-button-mainpage', 'n_clicks'),
      Input('clear-city-button-mainpage', 'n_clicks')],
-    [State('city-input-mainpage', 'value')]
+    [State('info-collapse', 'is_open'),
+     State('city-input-mainpage', 'value')]
 )
-def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
+def toggle_collapse_and_handle_search(n_info_clicks, n_submit_clicks, n_clear_clicks, is_open, city_input):
+    # Ensure clicks are initialized
+    n_info_clicks = n_info_clicks or 0
     n_submit_clicks = n_submit_clicks or 0
     n_clear_clicks = n_clear_clicks or 0
-    if n_submit_clicks > 0 or n_clear_clicks > 0:
-        if city_input == '' or n_clear_clicks >= n_submit_clicks:
-            # Clear the output when the 'Clear' button is clicked or empty input
-            return html.Div(
-                children=[html.P("", className='default-message')]
-            )
+
+    # Collapse logic: only triggered by the toggle button
+    ctx = dash.callback_context
+    if ctx.triggered[0]['prop_id'] == 'info-toggle-button.n_clicks':
+        if is_open:
+            # Collapse: clear input and match result
+            return False, '', html.Div([html.P("", className='default-message')]), 'city-match-output-container-mainpage'
         else:
-            matcher = LocationMatcher(all_france)
-            result = matcher.find_region_department(city_input)
+            # Expand the collapse without resetting input/output
+            return True, dash.no_update, dash.no_update, 'city-match-output-container-mainpage'
 
-            if isinstance(result, dict):
-                city_details = [
-                    html.P(
-                        f"Match:  {result.get('Matched Location', 'Unknown')},  "
-                           f"Region:  {result.get('Region', 'Unknown')},  "
-                           f"Department:  {result.get('Department', 'Unknown')}",
-                           className='match-details'
-                           ),
-                ]
+    # Handle clearing the input and resetting the output when clear is clicked
+    if ctx.triggered[0]['prop_id'] == 'clear-city-button-mainpage.n_clicks':
+        return dash.no_update, '', html.Div([html.P("", className='default-message')]), 'city-match-output-container-mainpage'
 
-                return html.Div(city_details, className='city-match-container')
+    # Handle the search functionality triggered by the submit button
+    if ctx.triggered[0]['prop_id'] == 'submit-city-button-mainpage.n_clicks' and city_input:
+        matcher = LocationMatcher(all_france)
+        result = matcher.find_region_department(city_input)
+        if isinstance(result, dict):
+            city_details = [
+                html.P(
+                    f"Match:  {result.get('Matched Location', 'Unknown')},  "
+                    f"Region:  {result.get('Region', 'Unknown')},  "
+                    f"Department:  {result.get('Department', 'Unknown')}",
+                    className='match-details'
+                ),
+            ]
+            return dash.no_update, dash.no_update, html.Div(city_details, className='city-match-container'), 'city-match-output-container-mainpage visible'
+        else:
+            return dash.no_update, dash.no_update, html.Div([
+                html.P(f"No match found. '{city_input}' is not represented in the Michelin Guide",
+                       className='no-match-message')
+            ]), 'city-match-output-container-mainpage visible'
 
-            elif isinstance(result, str):
-                return html.Div([
-                    html.P(f"No match found. '{city_input}' is not in represented in the Michelin Guide",
-                           className='no-match-message')
-                ])
-
-    return html.Div([
-        html.H5("", className='default-message')
-    ])
-
-
-@app.callback(
-    Output('city-input-mainpage', 'value'),
-    Input('clear-city-button-mainpage', 'n_clicks')
-)
-def clear_input(n_clicks):
-    n_clicks = n_clicks or 0
-    if n_clicks > 0:
-        return ''  # Return an empty string to clear the input field
-    return dash.no_update  # Keep the current value if the clear button is not clicked
+    # Default to no update if no actions were triggered
+    return dash.no_update, dash.no_update, dash.no_update, 'city-match-output-container-mainpage'
 
 
 @app.callback(
