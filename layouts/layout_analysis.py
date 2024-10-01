@@ -586,18 +586,14 @@ def get_demographics_content():
                     ),
                     html.Div(
                         [
-                            "As we examine Michelin-starred restaurants across France, we now compare key economic health metrics like 'GDP per capita', 'poverty rate', and 'population density' which were sourced from the ",
-                            html.A("National Institute of Statistics and Economic Studies (INSEE)", href="https://www.insee.fr/fr/accueil", target="_blank"),
-                            ". These figures provide a snapshot of each region’s economic and social environment, but they don’t tell the whole story."
+                            "We now turn our attention to key economic health metrics such as 'GDP per capita', 'poverty rate', and 'population density', with data sourced from the ",
+                            html.A("National Institute of Statistics and Economic Studies (INSEE)",
+                                   href="https://www.insee.fr/fr/accueil", target="_blank"),
+                            ". While these metrics offer insights into the economic fabric of each region, they are just one part of a much larger picture. "
+                            "Across France, patterns emerge that are influenced by a complex mix of factors—regional culture, economic conditions, and local identity to name a few. The observations that follow provide a starting point for deeper exploration."
                         ],
                         className='demographics-text-paragraph'
                     ),
-                    html.Div(
-                        [
-                            "Ultimately, the connection between Michelin stars and these metrics is complex. High GDP or dense populations may attract more restaurants, but it doesn’t guarantee culinary excellence. Michelin recognition stems from a combination of regional culinary traditions, a thriving dining scene, and the expertise and creativity of renowned chefs. These indicators hint at broader trends but are only one part of a larger picture."
-                        ],
-                        className='demographics-tagline-paragraph'
-                    )
                 ],
             ),
             # Demographics dropdowns
@@ -732,6 +728,7 @@ def get_demographics_content():
                             ),
                             html.Div(
                                 className='weighted-mean-explanation',
+                                id='weighted-mean',
                                 children=[
                                     dcc.Markdown(
                                         '''
@@ -766,9 +763,9 @@ def get_wine_content():
                     ),
                     html.Div(
                         [
-                            "Wine is a cornerstone of French cuisine, and Michelin-starred restaurants often highlight local wines to elevate the dining experience. "
-                            "To explore this connection, I’ve used a LLM to provide insights into each wine region. Click on a region to discover its history, key grapes, and how its wines fit into the French culinary landscape. ",
-                            "This feature allows you to see how the distribution of stars aligns with the country’s wine heritage, offering a deeper understanding of the relationship between French gastronomy and its world-renowned wines."
+                            "France’s wine regions are as diverse and storied as its cuisine. Each one tells a different tale through its vineyards, grape varieties, and winemaking traditions. "
+                            "This tool offers a window into these regions, allowing you to explore their cultural significance and contribution to French gastronomy. "
+                            "By overlaying Michelin-starred restaurants, you can explore how the relationship between food and wine plays out across the country, adding new layers to your understanding of French culinary excellence."
                         ],
                         className='wine-text-paragraph'
                     ),
