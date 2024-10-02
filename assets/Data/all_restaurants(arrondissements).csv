@@ -37,7 +37,7 @@ Anne de Bretagne,Port de Gravette,"La Plaine-sur-Mer, 44770",Saint-Nazaire,44,Lo
 Le Clarence,31 avenue Franklin-D.-Roosevelt,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€€€,Creative,https://www.le-clarence.paris/la-table/,2 Stars,2.0,2.3098732,48.8673498
 La Scène,32 avenue Matignon,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.la-scene.paris/,2 Stars,2.0,2.3143813,48.8720257
 La Table Lionel Giraud,Rond-point de la Liberté - 68 avenue du Général-Leclerc,"Narbonne, 11100",Narbonne,11,Aude,Carcassonne,Occitanie,€€€€,"Creative, Modern Cuisine",https://maison.saintcrescent.com/,2 Stars,2.0,2.9918502,43.1743172
-L'Auberge des Glazicks,7 rue de la Plage,"Plomodiern, 29550",Châteaulin,29,Finistère,Quimper,Brittany,€€€€,Creative,https://www.aubergedesglazick.com,2 Stars,2.0,-4.2351146,48.1804523
+L'Auberge des Glazicks,7 rue de la Plage,"Plomodiern, 29550",Châteaulin,29,Finistère,Quimper,Bretagne,€€€€,Creative,https://www.aubergedesglazick.com,2 Stars,2.0,-4.2351146,48.1804523
 Flaveur,25 rue Gubernatis,"Nice, 06000",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Creative,https://www.restaurant-flaveur.com/,2 Stars,2.0,7.2718302,43.7014072
 L'Oiseau Blanc,19 avenue Kléber,"Paris, 75116",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Creative,https://www.peninsula.com/fr/paris/hotel-fine-dining/french-rooftop-loiseau-blanc,2 Stars,2.0,2.2933134,48.8707602
 Duende,Quai de la Fontaine,"Nîmes, 30900",Nîmes,30,Gard,Nîmes,Occitanie,€€€€,Modern Cuisine,http://www.maison-albar-hotels-l-imperator.com,2 Stars,2.0,4.3527079,43.8388191
@@ -82,7 +82,7 @@ Le Parc Les Crayères,64 boulevard Henry-Vasnier,"Reims, 51100",Reims,51,Marne,C
 Le Skiff Club,1 avenue Louis-Gaume,"Pyla-sur-Mer, 33115",Arcachon,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€€,Modern Cuisine,http://www.haaitza.com,2 Stars,2.0,-1.20669,44.606014
 Takao Takano,33 rue Malesherbes,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.takaotakano.com/,2 Stars,2.0,4.842588,45.7704797
 La Table de Pavie,5 place du Clocher,"Saint-Emilion, 33330",Libourne,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€€,Creative,http://www.hoteldepavie.com,2 Stars,2.0,-0.1566263,44.8934495
-Maison Ronan Kervarrec,1 impasse du Vieux-Bourg,"Saint-Grégoire, 35760",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€€€€,Modern Cuisine,http://www.le-saison.com/fr,2 Stars,2.0,-1.6805561,48.1533015
+Maison Ronan Kervarrec,1 impasse du Vieux-Bourg,"Saint-Grégoire, 35760",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€€€€,Modern Cuisine,http://www.le-saison.com/fr,2 Stars,2.0,-1.6805561,48.1533015
 Paul Bocuse,40 quai de la Plage,"Collonges-au-Mont-d'Or, 69660",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Classic Cuisine,http://www.bocuse.fr,2 Stars,2.0,4.8475623,45.8156437
 La Chèvre d'Or,Rue du Barri,"Èze, 06360",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Creative,https://www.chevredor.com/,2 Stars,2.0,7.3620885,43.727378
 Relais de la Poste,24 avenue de Maremne,"Magescq, 40140",Dax,40,Landes,Mont-de-Marsan,Nouvelle-Aquitaine,€€€€,Classic Cuisine,https://www.relaisposte.com,2 Stars,2.0,-1.2179647,43.7787343
@@ -95,10 +95,10 @@ Cyril Attrazic,10 route du Languedoc,"Aumont-Aubrac, 48130",Mende,48,Lozère,Men
 Le Chabichou by Stéphane Buron,"90 rue des Chenus, Courchevel 1850","Courchevel, 73120",Albertville,73,Savoie,Chambéry,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.chabichou-courchevel.com/,2 Stars,2.0,6.629984,45.41616
 La Table de Franck Putelat,"80 chemin des Anglais, au Sud de la Cité","Carcassonne, 11000",Carcassonne,11,Aude,Carcassonne,Occitanie,€€€€,"Modern Cuisine, Creative",https://www.franckputelat.com/,2 Stars,2.0,2.3603104,43.2013363
 Christophe Hay - Fleur de Loire,26 quai Villebois-Mareuil,"Blois, 41000",Blois,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€€€,"Modern Cuisine, Creative",http://www.fleurdeloire.com,2 Stars,2.0,1.3375763,47.5830038
-Le Coquillage,Lieu-dit Le Buot,"Saint-Méloir-des-Ondes, 35350",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€€€,"Seafood, Creative",https://www.roellinger-bricourt.com,2 Stars,2.0,-1.8711232,48.6430654
+Le Coquillage,Lieu-dit Le Buot,"Saint-Méloir-des-Ondes, 35350",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€€€,"Seafood, Creative",https://www.roellinger-bricourt.com,2 Stars,2.0,-1.8711232,48.6430654
 La Table de Yoann Conte,13 vieille route des Pensières,"Veyrier-du-Lac, 74290",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.yoann-conte.com/,2 Stars,2.0,6.1721868,45.8889235
 Maison Benoît Vidal,"Sur-les-Bois, 79 route de Thônes","Annecy, 74940",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.maison-benoit-vidal.com,2 Stars,2.0,6.171891,45.9226978
-Casadelmar,route de Palombaggia,"Porto-Vecchio, 20137",Sartène,2A,Corse-du-Sud,Ajaccio,Corsica,€€€€,Modern Cuisine,https://www.casadelmar.fr,2 Stars,2.0,9.3099771,41.5948102
+Casadelmar,route de Palombaggia,"Porto-Vecchio, 20137",Sartène,2A,Corse-du-Sud,Ajaccio,Corse,€€€€,Modern Cuisine,https://www.casadelmar.fr,2 Stars,2.0,9.3099771,41.5948102
 La Villa Archange,Rue de l'Ouest,"Le Cannet, 06110",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,http://www.bruno-oger.com,2 Stars,2.0,7.014556,43.5716556
 La Pyramide - Maison Henriroux,14 boulevard Fernand-Point,"Vienne, 38200",Vienne,38,Isère,Grenoble,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,http://www.lapyramide.com/fr,2 Stars,2.0,4.8668625,45.5166376
 ONICE,5 rue Antoine-Gautier,"Nice, 06300",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,http://www.restaurantonice.com,1 Star,1.0,7.28284,43.69872
@@ -109,7 +109,7 @@ Alpage,"Annapurna, 734 route de l'Altiport, Courchevel 1850","Courchevel, 73120"
 Le Tout-Paris,"Cheval Blanc Paris, 8 quai du Louvre","Paris, 75001",1st (Louvre),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.letoutparis.fr,1 Star,1.0,2.3422529,48.8587493
 Granite,6 rue Bailleul,"Paris, 75001",1st (Louvre),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,http://www.granite.paris,1 Star,1.0,2.3419097,48.8610315
 Les Foudres,"Chais Monnet, 50 avenue Paul-Firino-Martell","Cognac, 16100",Cognac,16,Charente,Angoulême,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.chaismonnethotel.com/les-foudres/,1 Star,1.0,-0.3344321,45.6910242
-Louise,4 rue Léo-le-Bourgo,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Brittany,€€€,Modern Cuisine,https://www.restaurantlouise.fr/,1 Star,1.0,-3.3650768,47.7487936
+Louise,4 rue Léo-le-Bourgo,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Bretagne,€€€,Modern Cuisine,https://www.restaurantlouise.fr/,1 Star,1.0,-3.3650768,47.7487936
 Pureté,79 rue de la Monnaie,"Lille, 59000",Lille,59,Nord,Lille,Hauts-de-France,€€€,Modern Cuisine,https://www.restaurant-purete.com/,1 Star,1.0,3.0618585,50.6415472
 Flaveurs,32 Grande-Rue,"Valence, 26000",Valence,26,Drôme,Valence,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,http://www.baptistepoinot.com,1 Star,1.0,4.8909199,44.9326634
 La Table Mirasol,2 boulevard Ferdinand-de-Candau,"Mont-de-Marsan, 40000",Mont-de-Marsan,40,Landes,Mont-de-Marsan,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.villamirasol.fr,1 Star,1.0,-0.5038677,43.8911236
@@ -127,14 +127,14 @@ La Madeleine,35 quai Boffrand,"Sens, 89100",Sens,89,Yonne,Auxerre,Bourgogne-Fran
 Le Saint-Martin,2490 avenue des Templiers,"Vence, 06140",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,"Modern Cuisine, Mediterranean Cuisine",https://www.oetkercollection.com/hotels/chateau-saint-martin/,1 Star,1.0,7.1066248,43.7316508
 Les Agitateurs,24 rue Bonaparte,"Nice, 06300",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Creative,https://www.lesagitateurs.com/,1 Star,1.0,7.2843229,43.7005783
 L'Alter-Native,12 rue Boieldieu,"Béziers, 34500",Béziers,34,Hérault,Montpellier,Occitanie,€€€€,"Modern Cuisine, Seafood",http://www.lalternativegoujon.fr,1 Star,1.0,3.217657,43.3427199
-Le Pressoir,7 rue de l'Hôpital,"Saint-Avé, 56890",Vannes,56,Morbihan,Vannes,Brittany,€€€,"Creative, Modern Cuisine",http://www.le-pressoir.fr,1 Star,1.0,-2.7508368,47.6966578
+Le Pressoir,7 rue de l'Hôpital,"Saint-Avé, 56890",Vannes,56,Morbihan,Vannes,Bretagne,€€€,"Creative, Modern Cuisine",http://www.le-pressoir.fr,1 Star,1.0,-2.7508368,47.6966578
 Baieta,5 rue de Pontoise,"Paris, 75005",5th (Panthéon),75,Paris,Paris,Île-de-France,€€€€,Mediterranean Cuisine,https://www.restaurant-baieta-paris.fr/,1 Star,1.0,2.3523102,48.8501648
 Substance,18 rue de Chaillot,"Paris, 75016",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Creative,https://www.substance.paris/,1 Star,1.0,2.2976536,48.8673445
 Le Corot,55 rue de Versailles,"Ville-d'Avray, 92410",Boulogne-Billancourt,92,Hauts-de-Seine,Nanterre,Île-de-France,€€€€,Creative,https://www.etangs-corot.com/,1 Star,1.0,2.1830307,48.8220549
 Le Raisin,2 place Michel-Poisat,"Pont-de-Vaux, 01190",Bourg-en-Bresse,01,Ain,Bourg-en-Bresse,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://www.leraisin.com/,1 Star,1.0,4.9390332,46.4340961
 La Terrasse - Cheval Blanc St-Tropez,Plage de la Bouillabaisse,"Saint-Tropez, 83990",Draguignan,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€€€,Mediterranean Cuisine,http://www.chevalblanc.com/fr/maison/st-tropez,1 Star,1.0,6.6261677,43.2666909
 Onor,258 rue du Faubourg-Saint-Honoré,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,http://www.onor-thierrymarx.com,1 Star,1.0,2.3003097,48.8772724
-La Table des Pères - Domaine du Château des Pères,Route de Boistrudan,"Piré-Chancé, 35150",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€€€,Creative,http://www.chateaudesperes.fr,1 Star,1.0,-1.4277611,47.992236
+La Table des Pères - Domaine du Château des Pères,Route de Boistrudan,"Piré-Chancé, 35150",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€€€,Creative,http://www.chateaudesperes.fr,1 Star,1.0,-1.4277611,47.992236
 Jean Imbert au Plaza Athénée,25 avenue Montaigne,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€€€,Classic Cuisine,https://www.dorchestercollection.com/fr/paris/hotel-plaza-athenee/,1 Star,1.0,2.3042735,48.8661718
 Le Georges,22 place des Épars,"Chartres, 28000",Chartres,28,Eure-et-Loir,Chartres,Centre-Val de Loire,€€€€,Modern Cuisine,https://www.grand-monarque.com,1 Star,1.0,1.4833258,48.4440945
 Château d'Origny,2210 route de Roanne,"Ouches, 42155",Roanne,42,Loire,Saint-Étienne,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://restaurant.chateaudorigny.com/,1 Star,1.0,4.0170014,46.0235156
@@ -148,7 +148,7 @@ Gaya par Pierre Gagnaire,6 rue de Saint-Simon,"Paris, 75007",7th (Palais-Bourbon
 NESO,3 rue Papillon,"Paris, 75009",9th (Opéra),75,Paris,Paris,Île-de-France,€€€€,Creative,http://www.neso.paris,1 Star,1.0,2.34745,48.8760396
 La Cachette,20 rue Notre-Dame-de-Soyons,"Valence, 26000",Valence,26,Drôme,Valence,Auvergne-Rhône-Alpes,€€€,Creative,http://www.lacachette-valence.fr,1 Star,1.0,4.886550199999999,44.9325138
 Chakaiseiki Akiyoshi,59 rue Letellier,"Paris, 75015",15th (Vaugirard),75,Paris,Paris,Île-de-France,€€€€,Japanese,https://chakaiseki-akiyoshi.fr,1 Star,1.0,2.2988278,48.8470169
-La Tête en l'air,43 rue de la Fontaine,"Vannes, 56000",Vannes,56,Morbihan,Vannes,Brittany,€€€,Creative,https://www.lateteenlair-vannes.com/,1 Star,1.0,-2.7546032,47.6606628
+La Tête en l'air,43 rue de la Fontaine,"Vannes, 56000",Vannes,56,Morbihan,Vannes,Bretagne,€€€,Creative,https://www.lateteenlair-vannes.com/,1 Star,1.0,-2.7546032,47.6606628
 Pollen,18 rue Joseph-Vernet,"Avignon, 84000",Avignon,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.pollen-restaurant.fr/,1 Star,1.0,4.8035568,43.9493415
 La Table de l'Orangerie - Château de Fonscolombe,Route de Saint-Canadet,"Le Puy-Sainte-Réparade, 13610",Aix-en-Provence,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.fonscolombe.fr/,1 Star,1.0,5.4683418,43.6395369
 Vincent Favre Félix,15 chemin de l'Abbaye - à Annecy-le-Vieux,"Annecy, 74940",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.restaurant-vff.com/,1 Star,1.0,6.1416315,45.9177189
@@ -156,7 +156,7 @@ Le Vieux Logis,Le Bourg,"Trémolat, 24510",Bergerac,24,Dordogne,Périgueux,Nouve
 L'Orchidée,33 rue Gilardoni,"Altkirch, 68130",Altkirch,68,Haut-Rhin,Colmar,Grand Est,€€€,"Thai, Asian Contemporary",http://www.orchidee-altkirch.com,1 Star,1.0,7.2399636,47.6250155
 Likoké,33 route de Païolive,"Les Vans, 07140",Largentière,07,Ardèche,Privas,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.likoke.fr/,1 Star,1.0,4.133207,44.4040212
 Oxte,5 rue Troyon,"Paris, 75017",17th (Batignolles-Monceau),75,Paris,Paris,Île-de-France,€€€€,Mexican,https://www.restaurant-oxte.com/,1 Star,1.0,2.2956526,48.8757794
-Manoir de Lan-Kerellec,Allée centrale de Lan-Kerellec,"Trébeurden, 22560",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€€€,"Seafood, Modern Cuisine",http://www.lankerellec.com,1 Star,1.0,-3.5847022,48.7766651
+Manoir de Lan-Kerellec,Allée centrale de Lan-Kerellec,"Trébeurden, 22560",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€€€,"Seafood, Modern Cuisine",http://www.lankerellec.com,1 Star,1.0,-3.5847022,48.7766651
 Fleur de Pavé,5 rue Paul-Lelong,"Paris, 75002",2nd (Bourse),75,Paris,Paris,Île-de-France,€€€,"Creative, Modern Cuisine",http://www.fleurdepave.com/,1 Star,1.0,2.34333,48.8677
 L'Ours,12 rue de l'Église,"Vincennes, 94300",Nogent-sur-Marne,94,Val-de-Marne,Créteil,Île-de-France,€€€€,"Modern Cuisine, Creative",http://www.loursrestaurant.com,1 Star,1.0,2.4367513,48.8476098
 Kasbür,8 route de Dettwiller,"Monswiller, 67700",Saverne,67,Bas-Rhin,Strasbourg,Grand Est,€€€,Modern Cuisine,https://www.restaurant-kasbur.fr/fr/,1 Star,1.0,7.3977237,48.7419047
@@ -180,7 +180,7 @@ Le Manoir de la Régate,155 route de Gachet,"Nantes, 44300",Nantes,44,Loire-Atla
 Restaurant De Lauzun,Route de Nizas,"Pézenas, 34120",Béziers,34,Hérault,Montpellier,Occitanie,€€€,Modern Cuisine,http://www.restaurant-delauzun.com,1 Star,1.0,3.4116289,43.4827871
 Jérôme Nutile,351 chemin Bas-du-Mas-de-Boudan,"Nîmes, 30000",Nîmes,30,Gard,Nîmes,Occitanie,€€€€,Modern Cuisine,http://www.jerome-nutile.com,1 Star,1.0,4.3710137,43.820828
 Le Chantecler,"Le Negresco, 37 promenade des Anglais","Nice, 06000",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,http://www.hotel-negresco-nice.com/fr/les-restaurants/le-chantecler,1 Star,1.0,7.2580067,43.6943015
-Auberge Grand'Maison,1 rue Léon-le-Cerf,"Mûr-de-Bretagne, 22530",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€€,Traditional Cuisine,https://www.auberge-grand-maison.com/,1 Star,1.0,-2.9869249,48.201112
+Auberge Grand'Maison,1 rue Léon-le-Cerf,"Mûr-de-Bretagne, 22530",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€€,Traditional Cuisine,https://www.auberge-grand-maison.com/,1 Star,1.0,-2.9869249,48.201112
 La Mutinerie,123 rue Bugeaud,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Creative,http://www.la-mutinerie.fr,1 Star,1.0,4.854575,45.7670299
 Moulin de la Tardoire,Lieu-dit la Forge,"Montbron, 16220",Angoulême,16,Charente,Angoulême,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.moulindelatardoire.fr/,1 Star,1.0,0.5126458,45.6771025
 La Réserve Rimbaud,820 avenue de Saint-Maur,"Montpellier, 34000",Montpellier,34,Hérault,Montpellier,Occitanie,€€€€,Modern Cuisine,http://www.reserve-rimbaud.com,1 Star,1.0,3.8930311,43.6171176
@@ -205,12 +205,12 @@ Trente-Trois,33 rue Jean-Goujon,"Paris, 75008",8th (Élysée),75,Paris,Paris,Îl
 Divellec,18 rue Fabert,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris,Île-de-France,€€€€,Seafood,https://www.divellec-paris.fr/,1 Star,1.0,2.3114674,48.8610318
 Villa de l'Étang Blanc,2265 route de l'Étang-Blanc (D432),"Seignosse, 40510",Dax,40,Landes,Mont-de-Marsan,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.villaetangblanc.fr/fr/,1 Star,1.0,-1.3616463,43.7016289
 La Table d'Uzès,18 rue du Docteur-Blanchard,"Uzès, 30700",Nîmes,30,Gard,Nîmes,Occitanie,€€€,Modern Cuisine,https://www.lamaisonduzes.fr/,1 Star,1.0,4.4213073,44.0128313
-Avel Vor,25 rue de Locmalo,"Port-Louis, 56290",Lorient,56,Morbihan,Vannes,Brittany,€€€,Modern Cuisine,http://www.avelvor.com,1 Star,1.0,-3.3474837,47.7061536
+Avel Vor,25 rue de Locmalo,"Port-Louis, 56290",Lorient,56,Morbihan,Vannes,Bretagne,€€€,Modern Cuisine,http://www.avelvor.com,1 Star,1.0,-3.3474837,47.7061536
 Miraflores,112 boulevard des Belges,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Peruvian,https://www.restaurant-miraflores.com/,1 Star,1.0,4.8585647,45.76834729999999
 Akrame,7 rue Tronchet,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€€€,Creative,https://www.akrame.com/,1 Star,1.0,2.3252971,48.8714069
 La Chapelle - Château Saint-Jean,Avenue Henri-de-la-Tourfondue,"Montluçon, 03100",Montluçon,03,Allier,Moulins,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.chateau-saint-jean.com/,1 Star,1.0,2.6049801,46.3233297
-Allium,88 boulevard de Créac'h-Gwen,"Quimper, 29000",Quimper,29,Finistère,Quimper,Brittany,€€€,Creative,https://www.restaurant-allium.fr/fr/,1 Star,1.0,-4.09825,47.97616
-La Table de La Butte,12 rue de la Mer,"Plouider, 29260",Brest,29,Finistère,Quimper,Brittany,€€€€,Modern Cuisine,https://labutte.fr/,1 Star,1.0,-4.2986479,48.6110535
+Allium,88 boulevard de Créac'h-Gwen,"Quimper, 29000",Quimper,29,Finistère,Quimper,Bretagne,€€€,Creative,https://www.restaurant-allium.fr/fr/,1 Star,1.0,-4.09825,47.97616
+La Table de La Butte,12 rue de la Mer,"Plouider, 29260",Brest,29,Finistère,Quimper,Bretagne,€€€€,Modern Cuisine,https://labutte.fr/,1 Star,1.0,-4.2986479,48.6110535
 L'Arbre au Soleil,Nouveau Port,"Le Lavandou, 83980",Toulon,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€€,Modern Cuisine,http://www.larbreausoleil.com,1 Star,1.0,6.37491,43.1372393
 Tomy & Co,22 rue Surcouf,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris,Île-de-France,€€€,"Modern Cuisine, Creative",https://www.tomygousset.com/,1 Star,1.0,2.3095202,48.8605434
 Les Sources de Fontbelle,1 bis rue des Meules-à-Grains,"Angoulême, 16000",Angoulême,16,Charente,Angoulême,Nouvelle-Aquitaine,€€€€,Creative,http://www.sourcesdefontbelle.com,1 Star,1.0,0.14218,45.6288809
@@ -221,7 +221,7 @@ Skab,7 rue de la République,"Nîmes, 30000",Nîmes,30,Gard,Nîmes,Occitanie,€
 Hedone,2 impasse Saint-Félix,"Toulouse, 31000",Toulouse,31,Haute-Garonne,Toulouse,Occitanie,€€€€,Creative,http://www.hedone-restaurant.fr,1 Star,1.0,1.4616287,43.5964008
 Le Royal,"Hameau de Bellevue, 9 rue de la République","Champillon, 51160",Épernay,51,Marne,Châlons-en-Champagne,Grand Est,€€€€,Creative,https://royalchampagne.com/,1 Star,1.0,3.9770727,49.0907189
 Aux Terrasses,18 avenue du 23-Janvier,"Tournus, 71700",Mâcon,71,Saône-et-Loire,Mâcon,Bourgogne-Franche-Comté,€€€,Modern Cuisine,https://www.aux-terrasses.com/fr/,1 Star,1.0,4.9143701,46.5590372
-Ar Men Du,"47 rue des Îles, à Raguenès-Plage","Névez, 29920",Quimper,29,Finistère,Quimper,Brittany,€€€,Modern Cuisine,https://www.men-du.com/,1 Star,1.0,-3.7999121,47.7888421
+Ar Men Du,"47 rue des Îles, à Raguenès-Plage","Névez, 29920",Quimper,29,Finistère,Quimper,Bretagne,€€€,Modern Cuisine,https://www.men-du.com/,1 Star,1.0,-3.7999121,47.7888421
 La Bastide de Moustiers,Chemin de Quinson,"Moustiers-Sainte-Marie, 04360",Digne-les-Bains,04,Alpes-de-Haute-Provence,Digne-les-Bains,Provence-Alpes-Côte d'Azur,€€€,Provençal,https://www.bastide-moustiers.com/,1 Star,1.0,6.2182274,43.8384829
 La Robe,3 place Reveillère-Lepeaux,"Montaigu, 85600",Roche-sur-Yon,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€€,Modern Cuisine,https://www.restaurant-la-robe.com,1 Star,1.0,-1.31311,46.97566
 Les Clefs d'Argent,333 avenue des Martyrs-de-la-Résistance,"Mont-de-Marsan, 40000",Mont-de-Marsan,40,Landes,Mont-de-Marsan,Nouvelle-Aquitaine,€€€,Creative,https://www.clefs-dargent.com/,1 Star,1.0,-0.5127259,43.8871612
@@ -232,7 +232,7 @@ Arborescence,76 rue de la Gare,"Croix, 59170",Lille,59,Nord,Lille,Hauts-de-Franc
 Ambroisie,64 route du Lac,"Saint-Didier-de-la-Tour, 38110",Tour-du-Pin,38,Isère,Grenoble,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.restaurant-ambroisie.fr/,1 Star,1.0,5.4875038,45.560381
 L'Épuisette,158 rue du Vallon-des-Auffes,"Marseille, 13007",Marseille,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,Seafood,https://www.l-epuisette.fr/,1 Star,1.0,5.3500357,43.2857919
 L'Ekrin by Laurent Azoulay,"Le Kaïla, 124 rue des Jeux-Olympiques","Méribel, 73550",Albertville,73,Savoie,Chambéry,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,,1 Star,1.0,6.5673633,45.3940091
-Les Trois Rochers,"16 rue du Phare, à Sainte-Marine","Combrit, 29120",Quimper,29,Finistère,Quimper,Brittany,€€€,Modern Cuisine,https://www.trimen.fr/,1 Star,1.0,-4.1191145,47.8734453
+Les Trois Rochers,"16 rue du Phare, à Sainte-Marine","Combrit, 29120",Quimper,29,Finistère,Quimper,Bretagne,€€€,Modern Cuisine,https://www.trimen.fr/,1 Star,1.0,-4.1191145,47.8734453
 Le Charlemagne,1 route des Vergelesses,"Pernand-Vergelesses, 21420",Beaune,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€€€,Creative,https://www.lecharlemagne.fr/,1 Star,1.0,4.8497698,47.0772707
 Le Pavillon des Boulevards,120 rue de la Croix-de-Seguey,"Bordeaux, 33000",Bordeaux,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€€,Modern Cuisine,http://www.lepavillondesboulevards.fr,1 Star,1.0,-0.5926893,44.8532133
 Le Art,"Château de la Gaude, 3959 route des Pinchinats","Aix-en-Provence, 13100",Aix-en-Provence,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,"Modern Cuisine, Creative",http://www.chateaudelagaude.com,1 Star,1.0,5.478535,43.568911
@@ -249,7 +249,7 @@ Aida,1 rue Pierre-Leroux,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris,Île
 Thierry Schwartz - Le Restaurant,35 rue de Sélestat,"Obernai, 67210",Sélestat-Erstein,67,Bas-Rhin,Strasbourg,Grand Est,€€€€,Creative,https://www.thierry-schwartz.fr/,1 Star,1.0,7.4837799,48.4604895
 Colette,"Hôtel Sezz, 151  route des Salins","Saint-Tropez, 83990",Draguignan,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.colettesainttropez.com/,1 Star,1.0,6.65567,43.26579
 MoSuke,11 rue Raymond-Losserand,"Paris, 75014",14th (Observatoire),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,http://www.mosuke-restaurant.com,1 Star,1.0,2.3225579,48.8364014
-Maison Caillet,22 rue André-Fiquet,"Valmont, 76540",Havre,76,Seine-Maritime,Rouen,Normandy,€€€€,Creative,http://www.maisoncaillet.com/,1 Star,1.0,0.4919745,49.7446677
+Maison Caillet,22 rue André-Fiquet,"Valmont, 76540",Havre,76,Seine-Maritime,Rouen,Normandie,€€€€,Creative,http://www.maisoncaillet.com/,1 Star,1.0,0.4919745,49.7446677
 L'Éveil des Sens,429 boulevard Paul-Lintier,"Mayenne, 53100",Mayenne,53,Mayenne,Laval,Pays de la Loire,€€€,Modern Cuisine,https://www.restaurant-leveildessens.fr/,1 Star,1.0,-0.6084258,48.3060431
 Les Hauts de Loire,79 rue Gilbert-Navard,"Onzain, 41150",Blois,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€€€,Classic Cuisine,https://www.hautsdeloire.com/,1 Star,1.0,1.1432985,47.5088905
 L'Aspérule,43 rue Jean-Jacques-Rousseau,"Dijon, 21000",Dijon,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€€,Modern Cuisine,https://www.restaurant-asperule.fr/,1 Star,1.0,5.044981,47.3248221
@@ -257,10 +257,10 @@ Maison Chenet - Entre Vigne et Garrigue,600 route de Saint-Bruno,"Pujaut, 30131"
 La Promenade,11 rue du Savoureulx,"Le Petit-Pressigny, 37350",Loches,37,Indre-et-Loire,Tours,Centre-Val de Loire,€€€,Modern Cuisine,https://www.restaurantdallaislapromenade.com/,1 Star,1.0,0.9188379,46.920786
 Le Faham by Kelly Rangama,108 rue Cardinet,"Paris, 75017",17th (Batignolles-Monceau),75,Paris,Paris,Île-de-France,€€€,Modern Cuisine,http://www.lefaham.com,1 Star,1.0,2.3117036,48.8857122
 La Table de l'Alpaga,"Alpaga, 66 allée des Marmoussets, route du Prariand","Megève, 74120",Bonneville,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,"Modern Cuisine, Creative",https://www.beaumier.com/fr/proprietes/hotel-alpaga/hiver/restaurants/,1 Star,1.0,6.600987,45.8524843
-Jean-Luc Tartarin,73 avenue Foch,"Le Havre, 76600",Havre,76,Seine-Maritime,Rouen,Normandy,€€€€,"Creative, Modern Cuisine",https://www.jeanluc-tartarin.com,1 Star,1.0,0.1031042,49.493762
+Jean-Luc Tartarin,73 avenue Foch,"Le Havre, 76600",Havre,76,Seine-Maritime,Rouen,Normandie,€€€€,"Creative, Modern Cuisine",https://www.jeanluc-tartarin.com,1 Star,1.0,0.1031042,49.493762
 Burgundy by Matthieu,24 quai Saint-Antoine,"Lyon, 69002",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://www.burgundybym.fr/,1 Star,1.0,4.8321372,45.7628677
 Pavyllon,8 avenue Dutuit,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.yannick-alleno.com/fr/,1 Star,1.0,2.315754,48.8660193
-Holen,2 rue des Carmes,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€€€,Farm to table,http://www.restaurant-holen.fr,1 Star,1.0,-1.676248,48.1083789
+Holen,2 rue des Carmes,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€€€,Farm to table,http://www.restaurant-holen.fr,1 Star,1.0,-1.676248,48.1083789
 Le Restaurant du Cerisier,14 avenue du Peuple-Belge,"Lille, 59000",Lille,59,Nord,Lille,Hauts-de-France,€€€€,Creative,https://www.lecerisier.com/,1 Star,1.0,3.0640904,50.6421148
 L'Arrivage,13-15 rue André-Portes,"Sète, 34200",Montpellier,34,Hérault,Montpellier,Occitanie,€€€€,Modern Cuisine,https://www.restaurant-larrivage.com/,1 Star,1.0,3.6960785,43.4020742
 Reflet d'Obione,29 rue Jean-Jacques-Rousseau,"Montpellier, 34000",Montpellier,34,Hérault,Montpellier,Occitanie,€€€,"Modern Cuisine, Mediterranean Cuisine",http://www.reflet-obione.com,1 Star,1.0,3.8730671,43.6122303
@@ -292,7 +292,7 @@ Benoit,20 rue Saint-Martin,"Paris, 75004",4th (Hôtel-de-Ville),75,Paris,Paris,�
 Mavrommatis,42 rue Daubenton,"Paris, 75005",5th (Panthéon),75,Paris,Paris,Île-de-France,€€€€,"Greek, Mediterranean Cuisine",https://www.mavrommatis.com/,1 Star,1.0,2.3511901,48.8405528
 Yam'Tcha,121 rue Saint-Honoré,"Paris, 75001",1st (Louvre),75,Paris,Paris,Île-de-France,€€€€,Creative,https://www.yamtcha.com/,1 Star,1.0,2.341813,48.8615065
 La Dame de Pic,20 rue du Louvre,"Paris, 75001",1st (Louvre),75,Paris,Paris,Île-de-France,€€€€,Creative,https://anne-sophie-pic.com/paris/,1 Star,1.0,2.3412069,48.8613303
-L'Anthocyane,25 avenue Ernest-Renan,"Lannion, 22300",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€€,Modern Cuisine,https://www.lanthocyane.com/,1 Star,1.0,-3.459947,48.7329096
+L'Anthocyane,25 avenue Ernest-Renan,"Lannion, 22300",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€€,Modern Cuisine,https://www.lanthocyane.com/,1 Star,1.0,-3.459947,48.7329096
 En Pleine Nature,6 place de la Mairie,"Quint-Fonsegrives, 31130",Toulouse,31,Haute-Garonne,Toulouse,Occitanie,€€€,"Modern Cuisine, Creative",http://www.en-pleine-nature.com,1 Star,1.0,1.5294347,43.585293
 Alliance,5 rue de Poissy,"Paris, 75005",5th (Panthéon),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.restaurant-alliance.fr/,1 Star,1.0,2.3532787,48.8500098
 Auberge St-Laurent,1 rue de la Fontaine,"Sierentz, 68510",Mulhouse,68,Haut-Rhin,Colmar,Grand Est,€€€,"Modern Cuisine, Traditional Cuisine",https://www.auberge-saintlaurent.fr/,1 Star,1.0,7.4539991,47.6540637
@@ -315,7 +315,7 @@ Frédéric Doucet,2 avenue de la Libération,"Charolles, 71120",Charolles,71,Sa�
 Restaurant Girardin,19 rue des Têtes,"Colmar, 68000",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€€€,Creative,https://www.maisondestetes.com/fr/restaurant-girardin.html,1 Star,1.0,7.3554964,48.0785765
 Auberge du Cheval Blanc,4 rue de Wissembourg,"Lembach, 67510",Haguenau-Wissembourg,67,Bas-Rhin,Strasbourg,Grand Est,€€€€,Modern Cuisine,https://www.cheval-blanc-lembach.fr/fr/,1 Star,1.0,7.7906578,49.0033254
 Auberge Pom'Poire,21 route de Vallères,"Azay-le-Rideau, 37190",Tours,37,Indre-et-Loire,Tours,Centre-Val de Loire,€€€,Modern Cuisine,http://www.aubergepompoire.fr,1 Star,1.0,0.4450558,47.2830529
-Le Gavrinis,1 rue de l'Île-Gavrinis,"Baden, 56870",Vannes,56,Morbihan,Vannes,Brittany,€€€,Modern Cuisine,https://www.gavrinis.fr/,1 Star,1.0,-2.8981722,47.6232111
+Le Gavrinis,1 rue de l'Île-Gavrinis,"Baden, 56870",Vannes,56,Morbihan,Vannes,Bretagne,€€€,Modern Cuisine,https://www.gavrinis.fr/,1 Star,1.0,-2.8981722,47.6232111
 Tentazioni,59 rue du Palais-Gallien,"Bordeaux, 33000",Bordeaux,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€€,"Italian, Modern Cuisine",https://www.tentazioni-bordeaux.fr/,1 Star,1.0,-0.5815909,44.8435306
 L'Impertinent,5 rue d'Alsace,"Biarritz, 64200",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€€,Creative,https://www.l-impertinent.fr/,1 Star,1.0,-1.5504091,43.4863824
 Les Rosiers,32 avenue Beau-Soleil,"Biarritz, 64200",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.restaurant-lesrosiers.fr,1 Star,1.0,-1.5534479,43.4677289
@@ -349,7 +349,7 @@ Jérôme Feck,19 place Monseigneur-Tissier,"Châlons-en-Champagne, 51000",Châlo
 L'Orée de la Forêt,255 rue de la Forêt,"Étouy, 60600",Clermont,60,Oise,Beauvais,Hauts-de-France,€€€€,Modern Cuisine,https://www.loreedelaforet.fr/,1 Star,1.0,2.3682263,49.4148556
 La Vieille Fontaine,"Hôtel d'Europe, 12 place Crillon","Avignon, 84000",Avignon,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://heurope.com,1 Star,1.0,4.8032742,43.9503845
 Radio,43 avenue Pierre-et-Marie-Curie,"Chamalières, 63400",Clermont-Ferrand,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.hotel-radio.fr/,1 Star,1.0,3.0615791,45.7699763
-Le Pily,1 rue du Pont-Tournant,"Cherbourg-en-Cotentin, 50100",Cherbourg,50,Manche,Saint-Lô,Normandy,€€€,Creative,https://www.restaurant-le-pily.com/,1 Star,1.0,-1.6199211,49.6392432
+Le Pily,1 rue du Pont-Tournant,"Cherbourg-en-Cotentin, 50100",Cherbourg,50,Manche,Saint-Lô,Normandie,€€€,Creative,https://www.restaurant-le-pily.com/,1 Star,1.0,-1.6199211,49.6392432
 Auberge Frankenbourg,13 rue du Général-de-Gaulle,"La Vancelle, 67730",Sélestat-Erstein,67,Bas-Rhin,Strasbourg,Grand Est,€€€,Modern Cuisine,https://www.frankenbourg.com/fr/,1 Star,1.0,7.3026266,48.2836435
 La Chapelle Saint-Martin,33 route Saint-Martin-du-Fault,"Nieul, 87510",Limoges,87,Haute-Vienne,Limoges,Nouvelle-Aquitaine,€€€€,Modern Cuisine,https://www.chapellesaintmartin.com/fr/,1 Star,1.0,1.1775364,45.8931685
 La Vieille Tour,7 rue Nationale,"Cellettes, 41120",Blois,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€€,Modern Cuisine,https://www.restaurant-la-vieille-tour-blois.com/,1 Star,1.0,1.3830315,47.5257537
@@ -389,7 +389,7 @@ Sushi B,5 rue Rameau,"Paris, 75002",2nd (Bourse),75,Paris,Paris,Île-de-France,�
 Le Baudelaire,"Le Burgundy, 6-8 rue Duphot","Paris, 75001",1st (Louvre),75,Paris,Paris,Île-de-France,€€€€,"Creative, Modern Cuisine",http://www.lebaudelaire.com,1 Star,1.0,2.3258002,48.8681212
 Alchémille,53 route de Lapoutroie,"Kaysersberg, 68240",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€€€,Creative,https://www.alchemille.alsace/,1 Star,1.0,7.2500389,48.1487566
 La Table de Nans,126 corniche du Liouquet,"La Ciotat, 13600",Marseille,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€,Mediterranean Cuisine,https://www.latabledenans.com/,1 Star,1.0,5.6666678,43.1828371
-Hostellerie de la Pointe Saint-Mathieu,7 place Saint-Tanguy,"Plougonvelin, 29217",Brest,29,Finistère,Quimper,Brittany,€€€,Modern Cuisine,http://www.pointe-saint-mathieu.com/,1 Star,1.0,-4.7706307,48.3309222
+Hostellerie de la Pointe Saint-Mathieu,7 place Saint-Tanguy,"Plougonvelin, 29217",Brest,29,Finistère,Quimper,Bretagne,€€€,Modern Cuisine,http://www.pointe-saint-mathieu.com/,1 Star,1.0,-4.7706307,48.3309222
 Le Patio,10 boulevard de la Plage,"Arcachon, 33120",Arcachon,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€,Modern Cuisine,http://www.lepatio-thierryrenou.com/,1 Star,1.0,-1.1480683,44.6568136
 L'Atelier Yssoirien,39 boulevard Triozon-Bayle,"Issoire, 63500",Issoire,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€€,Creative,https://www.atelier-yssoirien.com/,1 Star,1.0,3.2503873,45.5418256
 Au 14 Février,2 rue du Portail,"Saint-Valentin, 36100",Issoudun,36,Indre,Châteauroux,Centre-Val de Loire,€€€€,Modern Cuisine,https://www.sv-au14fevrier.com/,1 Star,1.0,1.8650229,46.951707
@@ -397,7 +397,7 @@ La Passagère - Hôtel Belles Rives,33 boulevard Édouard-Baudoin,"Juan-les-Pins
 Alain Llorca,350 route de Saint-Paul,"La Colle-sur-Loup, 06480",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Provençal,https://www.alainllorca.com/,1 Star,1.0,7.1089745,43.6952832
 Ed.Em,4 impasse Chenevottes,"Chassagne-Montrachet, 21190",Beaune,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€€€,Modern Cuisine,http://www.restaurant-edem.com/fr,1 Star,1.0,4.7307466,46.9384965
 Le Jardin de Berne,Chemin des Imberts,"Flayosc, 83780",Draguignan,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.chateauberne.com/,1 Star,1.0,6.3660986,43.5164138
-G.a. au Manoir de Rétival,2 rue Saint-Clair,"Caudebec-en-Caux, 76490",Rouen,76,Seine-Maritime,Rouen,Normandy,€€€€,"Modern Cuisine, Creative",http://www.restaurant-ga.fr,1 Star,1.0,0.7348884,49.5249389
+G.a. au Manoir de Rétival,2 rue Saint-Clair,"Caudebec-en-Caux, 76490",Rouen,76,Seine-Maritime,Rouen,Normandie,€€€€,"Modern Cuisine, Creative",http://www.restaurant-ga.fr,1 Star,1.0,0.7348884,49.5249389
 La Bonne Étape,Chemin du Lac,"Château-Arnoux-Saint-Auban, 04160",Digne-les-Bains,04,Alpes-de-Haute-Provence,Digne-les-Bains,Provence-Alpes-Côte d'Azur,€€€€,Provençal,https://www.bonneetape.com/,1 Star,1.0,6.0123896,44.0930379
 Le Valucien - Château de Vault-de-Lugny,11 rue du Château,"Vault-de-Lugny, 89200",Avallon,89,Yonne,Auxerre,Bourgogne-Franche-Comté,€€€€,Modern Cuisine,http://www.lugny.fr,1 Star,1.0,3.8548891,47.4956359
 Hostellerie la Montagne,10 rue Pisseloup,"Colombey-les-Deux-Églises, 52330",Chaumont,52,Haute-Marne,Chaumont,Grand Est,€€€,Modern Cuisine,http://www.hostellerielamontagne.com,1 Star,1.0,4.8874741,48.2225256
@@ -405,34 +405,34 @@ Le Saint-James,3 place Camille-Hosteins,"Bouliac, 33270",Bordeaux,33,Gironde,Bor
 La Balette,Route de Port-Vendres,"Collioure, 66190",Céret,66,Pyrénées-Orientales,Perpignan,Occitanie,€€€€,"Creative, Modern Cuisine",https://www.relaisdestroismas.com,1 Star,1.0,3.0890189,42.5244835
 Granit - La Mécanique des Frères Bonano,Lieu-dit La Mécanique,"Colombières-sur-Orb, 34390",Béziers,34,Hérault,Montpellier,Occitanie,€€€,Modern Cuisine,https://www.lamecaniquedesfreresbonano.fr/,1 Star,1.0,3.0232386,43.5783695
 Les Terraillers,11 chemin Neuf,"Biot, 06410",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,"Creative, Modern Cuisine",https://www.lesterraillers.fr/,1 Star,1.0,7.0956199,43.6267515
-Le Mascaret,1 rue de Bas,"Blainville-sur-Mer, 50560",Coutances,50,Manche,Saint-Lô,Normandy,€€€,Modern Cuisine,https://lemascaret.fr/,1 Star,1.0,-1.583558,49.0671674
+Le Mascaret,1 rue de Bas,"Blainville-sur-Mer, 50560",Coutances,50,Manche,Saint-Lô,Normandie,€€€,Modern Cuisine,https://lemascaret.fr/,1 Star,1.0,-1.583558,49.0671674
 Le Cèdre de Montcaud,Hameau de Combes,"Sabran, 30200",Nîmes,30,Gard,Nîmes,Occitanie,€€€€,Modern Cuisine,https://www.chateaudemontcaud.com/restaurant/restaurant-de-montcaud,1 Star,1.0,4.5710599,44.1718115
 Villa Pinewood,590 chemin du Nègre,"Payrin-Augmontel, 81660",Castres,81,Tarn,Albi,Occitanie,€€€€,Creative,http://www.villapinewood.com,1 Star,1.0,2.347021,43.5272455
 Racines - Bruno Cirino,3 rue Clément-Roassal,"Nice, 06000",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€,"Vegetarian, Mediterranean Cuisine",http://www.restaurant-racines-nice.com,1 Star,1.0,7.2624907,43.7087319
-La Table d'Asten,8 boulevard Clemenceau,"Binic, 22520",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€€,Modern Cuisine,http://www.asten-restaurant.fr,1 Star,1.0,-2.8249426,48.5992778
+La Table d'Asten,8 boulevard Clemenceau,"Binic, 22520",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€€,Modern Cuisine,http://www.asten-restaurant.fr,1 Star,1.0,-2.8249426,48.5992778
 L'Abissiou,81 rue des Halles,"Les Sables-d'Olonne, 85100",Sables-d'Olonne,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€€€,Modern Cuisine,http://www.labissiou.fr,1 Star,1.0,-1.78727,46.49558
 La Table de L'Incomparable,68 chemin de Belledonne,"Tresserve, 73100",Chambéry,73,Savoie,Chambéry,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,http://www.hotel-lincomparable.com/fr,1 Star,1.0,5.8996741,45.6705497
 Guillaume Scheer - Les Plaisirs Gourmands,35 route du Général-de-Gaulle,"Schiltigheim, 67300",Strasbourg,67,Bas-Rhin,Strasbourg,Grand Est,€€€€,Modern Cuisine,http://www.les-plaisirs-gourmands.com,1 Star,1.0,7.7392002,48.6005284
 Grand Hôtel du Lion d'Or,69 rue Georges-Clemenceau,"Romorantin-Lanthenay, 41200",Romorantin-Lanthenay,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€€€,Modern Cuisine,https://www.hotel-liondor-romorantin.fr/fr/,1 Star,1.0,1.7438252,47.3602993
 Lait Thym Sel,17 rue Boisnet,"Angers, 49000",Angers,49,Maine-et-Loire,Angers,Pays de la Loire,€€€€,Creative,https://laitthymsel.com/,1 Star,1.0,-0.5512482,47.4745869
-Rosmadec Le Moulin,Venelle de Rosmadec,"Pont-Aven, 29930",Quimper,29,Finistère,Quimper,Brittany,€€€€,Modern Cuisine,http://www.rosmadec.com,1 Star,1.0,-3.7479266,47.854745
+Rosmadec Le Moulin,Venelle de Rosmadec,"Pont-Aven, 29930",Quimper,29,Finistère,Quimper,Bretagne,€€€€,Modern Cuisine,http://www.rosmadec.com,1 Star,1.0,-3.7479266,47.854745
 Les Cèdres,25 rue Henri-Machon,"Granges-les-Beaumont, 26600",Valence,26,Drôme,Valence,Auvergne-Rhône-Alpes,€€€€,Classic Cuisine,https://www.restaurantlescedres.fr/fr/,1 Star,1.0,4.9838433,45.0502101
 L'Almandin,"Boulevard de l'Almandin, St-Cyprien Sud","Saint-Cyprien, 66750",Céret,66,Pyrénées-Orientales,Perpignan,Occitanie,€€€,Modern Cuisine,https://www.almandin.fr/,1 Star,1.0,3.036187,42.6095379
 L'Auberge de Saint-Rémy - Fanny Rey & Jonathan Wahid,12 boulevard Mirabeau,"Saint-Rémy-de-Provence, 13210",Arles,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.aubergesaintremy.com/fr/,1 Star,1.0,4.8333205,43.7885608
 Le Kaïku,17 rue de la République,"Saint-Jean-de-Luz, 64500",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.kaiku.fr/,1 Star,1.0,-1.6644341,43.3887002
-Le Saint Placide,"6 place du Poncel, Saint-Servan-sur-Mer","Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€€€,Creative,https://www.st-placide.com/,1 Star,1.0,-2.010532,48.6296543
-La Vieille Tour,75 rue de la Tour,"Plérin, 22190",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€€,Modern Cuisine,https://www.la-vieille-tour.com/,1 Star,1.0,-2.7261477,48.5307941
+Le Saint Placide,"6 place du Poncel, Saint-Servan-sur-Mer","Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€€€,Creative,https://www.st-placide.com/,1 Star,1.0,-2.010532,48.6296543
+La Vieille Tour,75 rue de la Tour,"Plérin, 22190",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€€,Modern Cuisine,https://www.la-vieille-tour.com/,1 Star,1.0,-2.7261477,48.5307941
 L'Archeste,79 rue de la Tour,"Paris, 75016",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.archeste.fr/,1 Star,1.0,2.2782052,48.8617268
 La Scène Thélème,18 rue Troyon,"Paris, 75017",17th (Batignolles-Monceau),75,Paris,Paris,Île-de-France,€€€,Modern Cuisine,https://www.lascenetheleme.fr/,1 Star,1.0,2.2949918,48.8764542
 Bellefeuille - Saint James Paris,5 place du Chancelier-Adenauer,"Paris, 75116",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Creative,https://www.saint-james-paris.com/,1 Star,1.0,2.2797777,48.8704851
-L'Odas,4 passage Maurice-Lenfant,"Rouen, 76000",Rouen,76,Seine-Maritime,Rouen,Normandy,€€€€,Creative,http://www.lodas.fr,1 Star,1.0,1.0943431,49.4410371
+L'Odas,4 passage Maurice-Lenfant,"Rouen, 76000",Rouen,76,Seine-Maritime,Rouen,Normandie,€€€€,Creative,http://www.lodas.fr,1 Star,1.0,1.0943431,49.4410371
 Pages,4 rue Auguste-Vacquerie,"Paris, 75016",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.restaurantpages.fr/,1 Star,1.0,2.2962858,48.8709699
-Racines,4 passage Antoinette-Caillot,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€€€,Modern Cuisine,https://www.racines-restaurant.fr/,1 Star,1.0,-1.6829655,48.1069433
+Racines,4 passage Antoinette-Caillot,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€€€,Modern Cuisine,https://www.racines-restaurant.fr/,1 Star,1.0,-1.6829655,48.1069433
 L'Atelier des Augustins,17 rue Hippolyte-Flandrin,"Lyon, 69001",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://latelierdesaugustins.com/fr/,1 Star,1.0,4.8308089,45.7677124
 The Marcel,5 rue Lazare-Carnot,"Sète, 34200",Montpellier,34,Hérault,Montpellier,Occitanie,€€€€,Mediterranean Cuisine,https://the-marcel.fr,1 Star,1.0,3.6981431,43.4026375
 Le Clocher des Pères,"Le Mollard, 80 impasse du Four","Saint-Martin-sur-la-Chambre, 73130",Saint-Jean-de-Maurienne,73,Savoie,Chambéry,Auvergne-Rhône-Alpes,€€€,Creative,https://www.chambres-d-hote-maurienne-le-clocher-des-peres.fr/fr/m_1_accueil.php,1 Star,1.0,6.3168158,45.3664596
 Les Tables de Gaspard,731 rue de la Charrière (Le Village),"Saint-Crépin, 05600",Briançon,05,Hautes-Alpes,Gap,Provence-Alpes-Côte d'Azur,€€€,"Modern Cuisine, Farm to table",http://www.lestablesdegaspard.com/,1 Star,1.0,6.6078486,44.7067072
-Ima,20 boulevard de la Tour-d'Auvergne,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€€€€,Creative,http://www.ima.restaurant,1 Star,1.0,-1.684632,48.106684
+Ima,20 boulevard de la Tour-d'Auvergne,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€€€€,Creative,http://www.ima.restaurant,1 Star,1.0,-1.684632,48.106684
 Le Grand Cerf,50 route Nationale,"Montchenot, 51500",Reims,51,Marne,Châlons-en-Champagne,Grand Est,€€€€,Classic Cuisine,https://www.le-grand-cerf.fr,1 Star,1.0,4.0109723,49.1618024
 La Table du Gourmet,5 rue de la 1ère-Armée,"Riquewihr, 68340",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€€€,"Creative, Modern Cuisine",https://www.jlbrendel.com/fr/,1 Star,1.0,7.2972837,48.1664136
 Shang Palace,10 avenue d'Iéna,"Paris, 75116",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Chinese,https://www.shangpalaceparis.com,1 Star,1.0,2.2934586,48.863801
@@ -445,7 +445,7 @@ Les Ducs de Lorraine,5 avenue de Provence,"Epinal, 88000",Épinal,88,Vosges,Épi
 Pierre,7 rue Joseph Dufour,"Mâcon, 71000",Mâcon,71,Saône-et-Loire,Mâcon,Bourgogne-Franche-Comté,€€€,Classic Cuisine,http://www.restaurant-pierre.com,1 Star,1.0,4.8314285,46.3034378
 Bessem,183 avenue de la République,"Mandelieu-La Napoule, 06210",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€,Modern Cuisine,https://www.bessem-restaurant.com/,1 Star,1.0,6.9335576,43.5408961
 Le Passe Temps,52 rue Tronchet,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.lepassetemps-restaurant.com/,1 Star,1.0,4.8492927,45.769939
-Le Manoir du Lys,Route de Juvigny-sous-Andaine,"Bagnoles-de-l'Orne, 61140",Alençon,61,Orne,Alençon,Normandy,€€€€,Modern Cuisine,https://www.manoir-du-lys.fr/,1 Star,1.0,-0.44494,48.5624827
+Le Manoir du Lys,Route de Juvigny-sous-Andaine,"Bagnoles-de-l'Orne, 61140",Alençon,61,Orne,Alençon,Normandie,€€€€,Modern Cuisine,https://www.manoir-du-lys.fr/,1 Star,1.0,-0.44494,48.5624827
 Le Favori - Les Sources de Cheverny,23 route de Fougères,"Cheverny, 41700",Blois,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€€€,Modern Cuisine,https://www.sources-cheverny.com/restaurant-cheverny/le-favori/,1 Star,1.0,1.4326274,47.4770964
 La Table des Frères Ibarboure,Chemin Ttalienea,"Bidart, 64210",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€€€,Modern Cuisine,https://freresibarboure.com,1 Star,1.0,-1.598438,43.4181338
 L'Arnsbourg,18 Untermuhlthal,"Baerenthal, 57230",Sarreguemines,57,Moselle,Metz,Grand Est,€€€€,Modern Cuisine,https://www.arnsbourg.com,1 Star,1.0,7.5440087,48.9500545
@@ -456,11 +456,11 @@ La Bastide,550 chemin des Cabanes,"Bonnieux, 84480",Apt,84,Vaucluse,Avignon,Prov
 FIEF,44 rue de la Folie-Méricourt,"Paris, 75011",11th (Popincourt),75,Paris,Paris,Île-de-France,€€€€,"Modern Cuisine, Creative",https://www.fiefrestaurant.fr/,1 Star,1.0,2.372288,48.8636981
 Pantagruel,24 rue du Sentier,"Paris, 75002",2nd (Bourse),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,http://www.restaurant-pantagruel.com,1 Star,1.0,2.3464362,48.8700016
 Le Petit Léon,Le Bourg,"Saint-Léon-sur-Vézère, 24290",Sarlat-la-Canéda,24,Dordogne,Périgueux,Nouvelle-Aquitaine,€€€,Modern Cuisine,http://www.restaurantlepetitleon.fr,1 Star,1.0,1.0897856,45.010322
-L'Embrun,48 rue de Lyon,"Brest, 29200",Brest,29,Finistère,Quimper,Brittany,€€€,Modern Cuisine,https://www.lembrunrestaurant.fr/,1 Star,1.0,-4.4914853,48.3902009
+L'Embrun,48 rue de Lyon,"Brest, 29200",Brest,29,Finistère,Quimper,Bretagne,€€€,Modern Cuisine,https://www.lembrunrestaurant.fr/,1 Star,1.0,-4.4914853,48.3902009
 Automne,11 rue Richard-Lenoir,"Paris, 75011",11th (Popincourt),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.automne-akishige.com,1 Star,1.0,2.3816,48.85588
 Arbore & Sens,22 rue Balzac,"Loches, 37600",Loches,37,Indre-et-Loire,Tours,Centre-Val de Loire,€€€,"Modern Cuisine, Creative",http://www.restaurant-arbore-et-sens.fr,1 Star,1.0,0.9965813,47.1274814
 CIBO,24 rue Jeannin,"Dijon, 21000",Dijon,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€€€,Modern Cuisine,https://www.cibo.restaurant/,1 Star,1.0,5.0455563,47.3219201
-Sources,1 cours de la Bôve,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Brittany,€€€,Modern Cuisine,http://www.restaurant-sources.com,1 Star,1.0,-3.3598826,47.7458562
+Sources,1 cours de la Bôve,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Bretagne,€€€,Modern Cuisine,http://www.restaurant-sources.com,1 Star,1.0,-3.3598826,47.7458562
 Virtus,29 rue de Cotte,"Paris, 75012",12th (Reuilly),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,http://www.virtus-paris.com,1 Star,1.0,2.3780547,48.8501479
 La Flibuste,"Avenue Jean-Marchand, Marina Baie des Anges","Villeneuve-Loubet, 06270",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€,Modern Cuisine,https://www.restaurantlaflibuste.fr/laflibuste/,1 Star,1.0,7.1367775,43.6346532
 Bacôve,8 rue Caventou,"Saint-Omer, 62500",Saint-Omer,62,Pas-de-Calais,Arras,Hauts-de-France,€€€,Modern Cuisine,https://restaurant-bacove.com/fr,1 Star,1.0,2.2553606,50.7482609
@@ -470,15 +470,15 @@ Restaurant de la Loire,30 rue de la Berge,"Pouilly-sous-Charlieu, 42720",Roanne,
 Le Moulin de la Gorce,1 route des Aurières,"La Roche-l'Abeille, 87800",Limoges,87,Haute-Vienne,Limoges,Nouvelle-Aquitaine,€€€€,Classic Cuisine,https://www.moulindelagorce.com,1 Star,1.0,1.2493155,45.5818459
 La Table du 11,8 rue de la Chancellerie,"Versailles, 78000",Versailles,78,Yvelines,Versailles,Île-de-France,€€€€,Modern Cuisine,https://www.latabledu11.com/,1 Star,1.0,2.1233414,48.8028642
 Les Belles Perdrix de Troplong Mondot,Château Troplong Mondot,"Saint-Emilion, 33330",Libourne,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€€,Modern Cuisine,https://www.troplong-mondot.com/hospitality/les-belles-perdrix/,1 Star,1.0,-0.1407129,44.8884848
-La Pomme d'Api,5 rue Saint-Yves,"Saint-Pol-de-Léon, 29250",Morlaix,29,Finistère,Quimper,Brittany,€€€€,Creative,https://www.lapommedapi.com/,1 Star,1.0,-3.9871351,48.6842867
+La Pomme d'Api,5 rue Saint-Yves,"Saint-Pol-de-Léon, 29250",Morlaix,29,Finistère,Quimper,Bretagne,€€€€,Creative,https://www.lapommedapi.com/,1 Star,1.0,-3.9871351,48.6842867
 Le Village Tomohiro,3 Grande-Rue,"Marly-le-Roi, 78160",Saint-Germain-en-Laye,78,Yvelines,Versailles,Île-de-France,€€€,Modern Cuisine,http://restaurant-levillage.fr/,1 Star,1.0,2.0941041,48.8672449
 Le Panoramique - Domaine de la Corniche,5 route de la Corniche,"Rolleboise, 78270",Mantes-la-Jolie,78,Yvelines,Versailles,Île-de-France,€€€,Modern Cuisine,https://www.domainedelacorniche.com/,1 Star,1.0,1.6096554,49.0227565
 Le Quincangrogne,7 rue de l'Abreuvoir,"Dampmart, 77400",Torcy,77,Seine-et-Marne,Melun,Île-de-France,€€€,Modern Cuisine,https://www.hotel-restaurant-lequincangrogne.fr/,1 Star,1.0,2.7361177,48.8835964
-Le Brittany,22 boulevard Sainte-Barbe,"Roscoff, 29680",Morlaix,29,Finistère,Quimper,Brittany,€€€€,"Modern Cuisine, Regional Cuisine",http://www.hotel-brittany.com,1 Star,1.0,-3.9718816,48.7245609
+Le Brittany,22 boulevard Sainte-Barbe,"Roscoff, 29680",Morlaix,29,Finistère,Quimper,Bretagne,€€€€,"Modern Cuisine, Regional Cuisine",http://www.hotel-brittany.com,1 Star,1.0,-3.9718816,48.7245609
 L'Hysope,25 rue de l'Aurore,"La Jarrie, 17220",Rochelle,17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,€€€,"Creative, Modern Cuisine",https://www.lhysope.fr/fr,1 Star,1.0,-1.0099137,46.1294715
 Jacques Faussat,54 rue Cardinet,"Paris, 75017",17th (Batignolles-Monceau),75,Paris,Paris,Île-de-France,€€€,Traditional Cuisine,http://www.jacquesfaussat.com/,1 Star,1.0,2.3066708,48.8830027
 Les Terrasses de Lyon,"Villa Florentine, 25 montée Saint-Barthélémy","Lyon, 69005",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.villaflorentine.com/fr/restaurant.html,1 Star,1.0,4.825745,45.76325
-Auberge du Pont d'Acigné,8 Le Pont-d'Acigné (lieu-dit),"Noyal-sur-Vilaine, 35530",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€€€,Modern Cuisine,https://lepontdacigne.com/,1 Star,1.0,-1.5346294,48.1305627
+Auberge du Pont d'Acigné,8 Le Pont-d'Acigné (lieu-dit),"Noyal-sur-Vilaine, 35530",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€€€,Modern Cuisine,https://lepontdacigne.com/,1 Star,1.0,-1.5346294,48.1305627
 Les Trois Soleils de Montal,"Les Prés-de-Montal, Saint-Jean-Lespinasse","Saint-Céré, 46400",Figeac,46,Lot,Cahors,Occitanie,€€€,Modern Cuisine,https://www.3soleils.fr/,1 Star,1.0,1.8642524,44.8626981
 Astrance,32 rue de Longchamp,"Paris, 75016",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Creative,https://www.astranceparis.fr,1 Star,1.0,2.2900701,48.8650917
 Villa9Trois,71 rue Hoche,"Montreuil, 93100",Bobigny,93,Seine-Saint-Denis,Bobigny,Île-de-France,€€€,Modern Cuisine,http://www.villa9trois.com,1 Star,1.0,2.433313,48.8639214
@@ -510,7 +510,7 @@ La Source,8 allée de La Charpinière,"Saint-Galmier, 42330",Montbrison,42,Loire
 Le Hittau,1 rue du Nouaou,"Saint-Vincent-de-Tyrosse, 40230",Dax,40,Landes,Mont-de-Marsan,Nouvelle-Aquitaine,€€€,Modern Cuisine,http://www.lehittau.fr/,1 Star,1.0,-1.2963393,43.6616803
 Maison Ruffet - Villa Navarre,59 avenue Trespoey,"Pau, 64000",Pau,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€€€,Modern Cuisine,http://www.maisonruffet.fr,1 Star,1.0,-0.3474375,43.298212
 L'Aquarelle,71A route du Montil,"Breuillet, 17920",Rochefort,17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,€€€,Creative,https://www.laquarelle.net/,1 Star,1.0,-1.0392481,45.6858339
-Aux Pesked,59 rue du Légué,"Saint-Brieuc, 22000",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€€,"Seafood, Modern Cuisine",https://www.auxpesked.com/,1 Star,1.0,-2.7632962,48.5221338
+Aux Pesked,59 rue du Légué,"Saint-Brieuc, 22000",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€€,"Seafood, Modern Cuisine",https://www.auxpesked.com/,1 Star,1.0,-2.7632962,48.5221338
 La Table de Cédric Béchade - L'Auberge Basque,745 vieille route de Saint-Pée - quartier Helbarron,"Saint-Pée-sur-Nivelle, 64310",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€€€,Creative,https://www.aubergebasque.com/,1 Star,1.0,-1.5846002,43.3675657
 Logis de la Cadène,3 place du Marché-au-Bois,"Saint-Emilion, 33330",Libourne,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€€,Modern Cuisine,https://www.logisdelacadene.fr/,1 Star,1.0,-0.1559683,44.8934854
 Le Gindreau,"146 rue du Gindreau, le Bourg","Saint-Médard, 46150",Cahors,46,Lot,Cahors,Occitanie,€€€€,Creative,http://www.legindreau.com/,1 Star,1.0,1.2913203,44.5383407
@@ -520,7 +520,7 @@ Frédéric Simonin,25 rue Bayen,"Paris, 75017",17th (Batignolles-Monceau),75,Par
 Le Gourmet de Sèze,125 rue de Sèze,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€,Classic Cuisine,https://www.legourmetdeseze.com/,1 Star,1.0,4.8559442,45.7691128
 Jérémy Galvan,29 rue du Bœuf,"Lyon, 69005",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,"Creative, Modern Cuisine",http://www.jeremygalvanrestaurant.com,1 Star,1.0,4.8264211,45.7621837
 La Table d'Hôtes - La Rôtisserie du Chambertin,6 rue du Chambertin,"Gevrey-Chambertin, 21220",Beaune,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€€€,Modern Cuisine,https://www.rotisserie-chambertin.com/la-table-dhote/,1 Star,1.0,4.969631,47.2240872
-La Licorne Royale,27 place Isaac-Benserade,"Lyons-la-Forêt, 27480",Andelys,27,Eure,Évreux,Normandy,€€€€,Modern Cuisine,https://www.hotel-licorne.com/,1 Star,1.0,1.4766068,49.3985891
+La Licorne Royale,27 place Isaac-Benserade,"Lyons-la-Forêt, 27480",Andelys,27,Eure,Évreux,Normandie,€€€€,Modern Cuisine,https://www.hotel-licorne.com/,1 Star,1.0,1.4766068,49.3985891
 Au 14 Février,36 rue du Bœuf,"Lyon, 69005",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.ly-au14fevrier.com/,1 Star,1.0,4.8263815,45.7622206
 L'Auberge de Bagatelle,489 avenue Bollée,"Le Mans, 72000",Mans,72,Sarthe,Le Mans,Pays de la Loire,€€€,Modern Cuisine,https://www.aubergedebagatelle.fr/,1 Star,1.0,0.2357321,47.9994696
 Albert 1er,"Hameau Albert-1er, 38 route du Bouchet","Chamonix-Mont-Blanc, 74400",Bonneville,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.hameaualbert.fr,1 Star,1.0,6.8739886,45.9249264
@@ -528,16 +528,16 @@ Le 1862 - Les Glycines,4 avenue de Laugerie,"Les Eyzies-de-Tayac-Sireuil, 24620"
 Château du Mont Joly,6 rue du Mont-Joly,"Sampans, 39100",Dole,39,Jura,Lons-le-Saunier,Bourgogne-Franche-Comté,€€€€,Modern Cuisine,https://www.chateaumontjoly.com/fr/,1 Star,1.0,5.45684,47.12314
 Ô Flaveurs,Château de Chilly,"Douvaine, 74140",Thonon-les-Bains,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,http://www.oflaveurs.com,1 Star,1.0,6.3136031,46.3010727
 L'Oustalet,5 place Gabrielle-Andéol,"Gigondas, 84190",Carpentras,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€€,Modern Cuisine,https://www.loustalet-gigondas.com/,1 Star,1.0,5.0044798,44.1636336
-Le Jardin des Plumes,1 rue du Milieu,"Giverny, 27620",Andelys,27,Eure,Évreux,Normandy,€€€€,Creative,http://www.jardindesplumes.fr,1 Star,1.0,1.5253889,49.0756756
+Le Jardin des Plumes,1 rue du Milieu,"Giverny, 27620",Andelys,27,Eure,Évreux,Normandie,€€€€,Creative,http://www.jardindesplumes.fr,1 Star,1.0,1.5253889,49.0756756
 Prairial,1 place Hubert-Mounier,"Lyon, 69002",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€,Creative,https://www.prairial-restaurant.fr,1 Star,1.0,4.8229022,45.7415161
 Côté Jardin,14 avenue de Bourges,"Gien, 45500",Montargis,45,Loiret,Orléans,Centre-Val de Loire,€€€,"Creative, Modern Cuisine",https://www.cotejardin45.fr,1 Star,1.0,2.6296242,47.6803325
-Le Donjon - Domaine Saint-Clair,Chemin de Saint-Clair,"Etretat, 76790",Havre,76,Seine-Maritime,Rouen,Normandy,€€€,Modern Cuisine,https://www.hoteletretat.com/fr/,1 Star,1.0,0.21289,49.70639
-La Gouesnière - Domaine du Limonay,Lieu-dit Le Limonay,"Saint-Méloir-des-Ondes, 35350",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€€,Modern Cuisine,https://www.domaine-du-limonay.com/fr/,1 Star,1.0,-1.9054771,48.6150771
+Le Donjon - Domaine Saint-Clair,Chemin de Saint-Clair,"Etretat, 76790",Havre,76,Seine-Maritime,Rouen,Normandie,€€€,Modern Cuisine,https://www.hoteletretat.com/fr/,1 Star,1.0,0.21289,49.70639
+La Gouesnière - Domaine du Limonay,Lieu-dit Le Limonay,"Saint-Méloir-des-Ondes, 35350",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€€,Modern Cuisine,https://www.domaine-du-limonay.com/fr/,1 Star,1.0,-1.9054771,48.6150771
 La Palmeraie - Château de Valmer,81 boulevard de Gigaro,"La Croix-Valmer, 83420",Draguignan,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.chateauvalmer.com/fr/hotel-luxe-cote-d-azur-var-saint-tropez,1 Star,1.0,6.588246,43.19189
 La Petite Maison de Cucuron,Place de l'Étang,"Cucuron, 84160",Apt,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€€,Classic Cuisine,http://www.lapetitemaisondecucuron.com/,1 Star,1.0,5.4387208,43.773919
-Le Pourquoi Pas,"Hôtel Castelbrac, 17 avenue George-V","Dinard, 35800",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€€€,Modern Cuisine,https://www.castelbrac.com/,1 Star,1.0,-2.0490902,48.6344213
-La Renaissance,20 avenue de la 2ème-Division-Blindée,"Argentan, 61200",Argentan,61,Orne,Alençon,Normandy,€€€,Modern Cuisine,https://www.arnaudviel.com,1 Star,1.0,-0.0285254,48.7391758
-A Casa di Mà,Route de Calvi,"Lumio, 20260",Calvi,2B,Haute-Corse,Bastia,Corsica,€€€€,Modern Cuisine,https://www.acasadima.com/,1 Star,1.0,8.8318859,42.5813042
+Le Pourquoi Pas,"Hôtel Castelbrac, 17 avenue George-V","Dinard, 35800",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€€€,Modern Cuisine,https://www.castelbrac.com/,1 Star,1.0,-2.0490902,48.6344213
+La Renaissance,20 avenue de la 2ème-Division-Blindée,"Argentan, 61200",Argentan,61,Orne,Alençon,Normandie,€€€,Modern Cuisine,https://www.arnaudviel.com,1 Star,1.0,-0.0285254,48.7391758
+A Casa di Mà,Route de Calvi,"Lumio, 20260",Calvi,2B,Haute-Corse,Bastia,Corse,€€€€,Modern Cuisine,https://www.acasadima.com/,1 Star,1.0,8.8318859,42.5813042
 Les Pêcheurs,"10 boulevard du Maréchal-Juin, au Cap d'Antibes","Antibes, 06160",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€€€,Mediterranean Cuisine,https://www.ca-beachhotel.com/,1 Star,1.0,7.1181731,43.5614172
 Auberge Le Prieuré,4 Grand'Rue,"Moirax, 47310",Agen,47,Lot-et-Garonne,Agen,Nouvelle-Aquitaine,€€€,"Creative, Modern Cuisine",http://www.aubergeleprieure.fr,1 Star,1.0,0.6089812,44.1408186
 Restaurant Julien Binz,7 rue des Cigognes,"Ammerschwihr, 68770",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€€€,Modern Cuisine,http://www.restaurantjulienbinz.com,1 Star,1.0,7.2828846,48.1256598
@@ -567,19 +567,19 @@ Nakatani,27 rue Pierre-Leroux,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris
 Le Feuillée - Le Couvent des Minimes,Chemin des Jeux-de-Maï,"Mane, 04300",Forcalquier,04,Alpes-de-Haute-Provence,Digne-les-Bains,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.couventdesminimes-hotelspa.com/,1 Star,1.0,5.7723757,43.9395915
 Ithurria,Place du Fronton,"Ainhoa, 64250",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€€,"Modern Cuisine, Classic Cuisine",https://www.ithurria.com/,1 Star,1.0,-1.49912,43.30768
 Le Puits du Trésor,21 route des Quatre-Châteaux,"Lastours, 11600",Carcassonne,11,Aude,Carcassonne,Occitanie,€€€,Modern Cuisine,http://lepuitsdutresor.com,1 Star,1.0,2.3787415,43.3346453
-La Table de la Ferme,"Vallée de l'Ortolo, domaine de Murtoli","Murtoli, 20100",Sartène,2B,Haute-Corse,Bastia,Corsica,€€€€,"Modern Cuisine, Corsican",https://www.murtoli.com/,1 Star,1.0,8.9469027,41.5229756
+La Table de la Ferme,"Vallée de l'Ortolo, domaine de Murtoli","Murtoli, 20100",Sartène,2B,Haute-Corse,Bastia,Corse,€€€€,"Modern Cuisine, Corsican",https://www.murtoli.com/,1 Star,1.0,8.9469027,41.5229756
 Auberge de l'Abbaye,47 place des Anciens-Combattants,"Ambronay, 01500",Belley,01,Ain,Bourg-en-Bresse,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,http://www.aubergedelabbaye-ambronay.com,1 Star,1.0,5.3605085,46.0070045
 La Chassagnette,Route du Sambuc,"Le Sambuc, 13200",Arles,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,Creative,https://www.chassagnette.fr/,1 Star,1.0,4.667878,43.568752
 Le Farçon,"Immeuble Kalinka, La Tania","Courchevel, 73120",Albertville,73,Savoie,Chambéry,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://www.lefarcon.fr/,1 Star,1.0,6.5938711,45.4315173
 Le P'tit Polyte,2 rue de la Chapelle,"Les Deux-Alpes, 38860",Grenoble,38,Isère,Grenoble,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.chalet-mounier.com/,1 Star,1.0,6.120844,45.0036431
 Au Gourmet,4 route de Herrlisheim,"Drusenheim, 67410",Haguenau-Wissembourg,67,Bas-Rhin,Strasbourg,Grand Est,€€€,Modern Cuisine,https://www.au-gourmet.fr/,1 Star,1.0,7.9485905,48.7516602
 Le Haut-Allier,Le Pont d'Alleyras,"Alleyras, 43580",Puy-en-Velay,43,Haute-Loire,Le Puy-en-Velay,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://www.hotel-lehautallier.com,1 Star,1.0,3.67271,44.9183
-Ivan Vautier,3 avenue Henry-Chéron,"Caen, 14000",Caen,14,Calvados,Caen,Normandy,€€€,Modern Cuisine,https://www.ivanvautier.com/,1 Star,1.0,-0.3905952,49.174106
+Ivan Vautier,3 avenue Henry-Chéron,"Caen, 14000",Caen,14,Calvados,Caen,Normandie,€€€,Modern Cuisine,https://www.ivanvautier.com/,1 Star,1.0,-0.3905952,49.174106
 Atmosphères,618 route des Tournelles,"Le Bourget-du-Lac, 73370",Chambéry,73,Savoie,Chambéry,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.atmospheres-hotel.com,1 Star,1.0,5.8522537,45.6606861
 Le Moulin de l'Abbaye,1 route de Bourdeilles,"Brantôme, 24310",Nontron,24,Dordogne,Périgueux,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.moulinabbaye.com/,1 Star,1.0,0.6462835,45.3631
-Côté Cuisine,36 avenue Zacharie-Le-Rouzic,"Carnac, 56340",Lorient,56,Morbihan,Vannes,Brittany,€€€,Modern Cuisine,https://www.lannroz.fr/fr/hotel-restaurant-carnac-morbihan,1 Star,1.0,-3.0786985,47.5797015
+Côté Cuisine,36 avenue Zacharie-Le-Rouzic,"Carnac, 56340",Lorient,56,Morbihan,Vannes,Bretagne,€€€,Modern Cuisine,https://www.lannroz.fr/fr/hotel-restaurant-carnac-morbihan,1 Star,1.0,-3.0786985,47.5797015
 Le Duèze - Château de Mercuès,Route du Château,"Mercuès, 46090",Cahors,46,Lot,Cahors,Occitanie,€€€€,Modern Cuisine,http://www.chateaudemercues.com,1 Star,1.0,1.3947504,44.4963194
-La Table Breizh Café,7 quai Thomas,"Cancale, 35260",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€€€,Modern Cuisine,https://www.breizhcafe.com/,1 Star,1.0,-1.8517181,48.6708737
+La Table Breizh Café,7 quai Thomas,"Cancale, 35260",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€€€,Modern Cuisine,https://www.breizhcafe.com/,1 Star,1.0,-1.8517181,48.6708737
 Rouge,"Margaret - Hôtel Chouleur, 6 rue Fresque","Nîmes, 30000",Nîmes,30,Gard,Nîmes,Occitanie,€€€€,Creative,http://www.margaret-hotelchouleur.com,1 Star,1.0,4.35788,43.83717
 Ô Saveurs,8 place des Ormeaux,"Rouffiac-Tolosan, 31180",Toulouse,31,Haute-Garonne,Toulouse,Occitanie,€€€,Modern Cuisine,https://www.o-saveurs.com/,1 Star,1.0,1.524975,43.664
 Émilie & Thomas - Moulin de Cambelong,61 lieu-dit Cambelong,"Conques-en-Rouergue, 12320",Rodez,12,Aveyron,Rodez,Occitanie,€€€,Modern Cuisine,http://www.moulindecambelong.com,1 Star,1.0,2.3959849,44.5926775
@@ -587,30 +587,30 @@ La Liégeoise,6 rue Notre-Dame,"Wimereux, 62930",Boulogne-sur-Mer,62,Pas-de-Cala
 Ezia,17 rue de Chambord,"Montlivault, 41350",Blois,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€€,Modern Cuisine,http://www.ezia-restaurant.fr,1 Star,1.0,1.4452295,47.641088
 Restaurant Hervé Busset,24 place du Bourg,"Rodez, 12000",Rodez,12,Aveyron,Rodez,Occitanie,€€€,Modern Cuisine,https://restaurant-herve-busset.fr,1 Star,1.0,2.5758132,44.3484736
 La Bastide Bourrelly - Mathias Dandine,Place Albert-Florens,"Cabriès, 13480",Aix-en-Provence,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,Provençal,https://labastidebourrelly.com,1 Star,1.0,5.3534389,43.4610152
-Auberge de la Mine,8 rue de Champsecret,"La Ferrière-aux-Étangs, 61450",Argentan,61,Orne,Alençon,Normandy,€€€,Classic Cuisine,https://www.aubergedelamine.com/,1 Star,1.0,-0.5220022,48.6468685
+Auberge de la Mine,8 rue de Champsecret,"La Ferrière-aux-Étangs, 61450",Argentan,61,Orne,Alençon,Normandie,€€€,Classic Cuisine,https://www.aubergedelamine.com/,1 Star,1.0,-0.5220022,48.6468685
 Têtedoie,4 rue Professeur-Pierre-Marion,"Lyon, 69005",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€€€,Creative,https://tetedoie.com/,1 Star,1.0,4.8233917,45.7590732
 La Table de la Bergerie,La Bergerie,"Le Champ-sur-Layon, 49380",Angers,49,Maine-et-Loire,Angers,Pays de la Loire,€€€,"Modern Cuisine, Farm to table",http://www.latable-bergerie.fr,1 Star,1.0,-0.59238,47.26803
 Datil,13 rue des Gravilliers,"Paris, 75003",3rd (Temple),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,http://www.datil-restaurant.fr,1 Star,1.0,2.3572627,48.8636089
 Géosmine,71 rue de la Folie-Méricourt,"Paris, 75011",11th (Popincourt),75,Paris,Paris,Île-de-France,€€€€,"Creative, Modern Cuisine",http://www.geosmine.com,1 Star,1.0,2.3705908,48.8655091
 Blanc,52 rue de Longchamp,"Paris, 75116",16th (Passy),75,Paris,Paris,Île-de-France,€€€€,Creative,https://blanc-paris.com/,1 Star,1.0,2.2874808,48.8651172
-La Verrière,"Hôtel Marinca, lieu-dit Vitricella","Olmeto, 20113",Sartène,2A,Corse-du-Sud,Ajaccio,Corsica,€€€€,Modern Cuisine,https://www.hotel-marinca.com/,1 Star,1.0,8.9026942,41.6913523
+La Verrière,"Hôtel Marinca, lieu-dit Vitricella","Olmeto, 20113",Sartène,2A,Corse-du-Sud,Ajaccio,Corse,€€€€,Modern Cuisine,https://www.hotel-marinca.com/,1 Star,1.0,8.9026942,41.6913523
 La Chaumière,346 avenue du Maréchal-Juin,"Dole, 39100",Dole,39,Jura,Lons-le-Saunier,Bourgogne-Franche-Comté,€€€€,Creative,https://www.lachaumiere-dole.fr/fr/,1 Star,1.0,5.4951285,47.065097
 Baumanière 1850,"Le Strato, Route de Bellecôte, Courchevel 1850","Courchevel, 73120",Albertville,73,Savoie,Chambéry,Auvergne-Rhône-Alpes,€€€€,Creative,https://www.hotelstrato.com/,1 Star,1.0,6.6380783,45.4102934
 Château de Pray,"rue du Cèdre, à Chargé","Amboise, 37530",Loches,37,Indre-et-Loire,Tours,Centre-Val de Loire,€€€,Modern Cuisine,https://www.chateaudepray.fr/,1 Star,1.0,1.0160758,47.424971
-Le Colombier,Rue Loucheur,"Offranville, 76550",Dieppe,76,Seine-Maritime,Rouen,Normandy,€€€,Modern Cuisine,http://www.lecolombieroffranville.fr/,1 Star,1.0,1.0453809,49.8727919
+Le Colombier,Rue Loucheur,"Offranville, 76550",Dieppe,76,Seine-Maritime,Rouen,Normandie,€€€,Modern Cuisine,http://www.lecolombieroffranville.fr/,1 Star,1.0,1.0453809,49.8727919
 Le Goût du Bonheur - La Fenière,1680 route de Lourmarin,"Cadenet, 84160",Apt,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€€€,"Creative, Farm to table",https://www.aubergelafeniere.com/,1 Star,1.0,5.3642746,43.7487002
-Les Voiles d'Or,"2 chemin de la Falaise, à Neuville-lès-Dieppe","Dieppe, 76200",Dieppe,76,Seine-Maritime,Rouen,Normandy,€€€,"Modern Cuisine, Seafood",https://www.lesvoilesdor.fr/,1 Star,1.0,1.0893938,49.9320387
+Les Voiles d'Or,"2 chemin de la Falaise, à Neuville-lès-Dieppe","Dieppe, 76200",Dieppe,76,Seine-Maritime,Rouen,Normandie,€€€,"Modern Cuisine, Seafood",https://www.lesvoilesdor.fr/,1 Star,1.0,1.0893938,49.9320387
 Auberge de la Charme,12 rue de la Charme,"Prenois, 21370",Dijon,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€€,Creative,http://www.aubergedelacharme.com/fr,1 Star,1.0,4.8989819,47.3758124
 L'Esquisse,21 rue Royale,"Annecy, 74000",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.esquisse-annecy.fr/,1 Star,1.0,6.12235,45.89973
 Pierre Reboul,"Château de la Pioline, 260 rue Guillaume-du-Vair","Aix-en-Provence, 13290",Aix-en-Provence,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,Creative,https://www.chateaudelapioline.com,1 Star,1.0,5.4047548,43.50875629999999
 Le Prieuré,11 rue de la Mairie,"Ambierle, 42820",Roanne,42,Loire,Saint-Étienne,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://www.leprieureambierle.fr/,1 Star,1.0,3.8962412,46.1039302
-L'Essentiel,29 rue Mirabeau,"Deauville, 14800",Lisieux,14,Calvados,Caen,Normandy,€€€,"Modern Cuisine, Creative",http://www.lessentieldeauville.com/,1 Star,1.0,0.0793655,49.3599505
-Maximin Hellio,64 rue Gambetta,"Deauville, 14800",Lisieux,14,Calvados,Caen,Normandy,€€€€,Modern Cuisine,https://www.maximinhellio.fr/,1 Star,1.0,0.0770849,49.3592817
+L'Essentiel,29 rue Mirabeau,"Deauville, 14800",Lisieux,14,Calvados,Caen,Normandie,€€€,"Modern Cuisine, Creative",http://www.lessentieldeauville.com/,1 Star,1.0,0.0793655,49.3599505
+Maximin Hellio,64 rue Gambetta,"Deauville, 14800",Lisieux,14,Calvados,Caen,Normandie,€€€€,Modern Cuisine,https://www.maximinhellio.fr/,1 Star,1.0,0.0770849,49.3592817
 Le Saint-Estève,2250 route Cézanne,"Le Tholonet, 13100",Aix-en-Provence,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://www.leslodgessaintevictoire.com/fr/restaurant-le-st-esteve.html,1 Star,1.0,5.50033,43.52346
-Nicolas Carro - Hôtel de Carantec,20 rue du Kelenn,"Carantec, 29660",Morlaix,29,Finistère,Quimper,Brittany,€€€€,Modern Cuisine,https://www.hotel-carantec.fr/,1 Star,1.0,-3.9127356,48.6706639
+Nicolas Carro - Hôtel de Carantec,20 rue du Kelenn,"Carantec, 29660",Morlaix,29,Finistère,Quimper,Bretagne,€€€€,Modern Cuisine,https://www.hotel-carantec.fr/,1 Star,1.0,-3.9127356,48.6706639
 Les Genêts,21 bis rue de l'Océan,"Brem-sur-Mer, 85470",Sables-d'Olonne,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€€,Creative,http://www.restaurant-les-genets.fr/,1 Star,1.0,-1.8350415,46.605894
 La Rotonde des Trésoms,"Les Trésoms, 15 boulevard de la Corniche","Annecy, 74000",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.lestresoms.com/,1 Star,1.0,6.1366994,45.8896367
-Maison Tiegezh,7 place de la Gare,"Guer, 56380",Vannes,56,Morbihan,Vannes,Brittany,€€€,Modern Cuisine,https://maisontiegezh.fr/fr/,1 Star,1.0,-2.1235452,47.9056281
+Maison Tiegezh,7 place de la Gare,"Guer, 56380",Vannes,56,Morbihan,Vannes,Bretagne,€€€,Modern Cuisine,https://maisontiegezh.fr/fr/,1 Star,1.0,-2.1235452,47.9056281
 Jean-Marc Pérochon,63 avenue de la Grande-Roche,"Bretignolles-sur-Mer, 85470",Sables-d'Olonne,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€€,Modern Cuisine,http://www.lesbrisants.com,1 Star,1.0,-1.87165,46.61923
 Auberge À la Bonne Idée,3 rue des Meuniers,"Saint-Jean-aux-Bois, 60350",Compiègne,60,Oise,Beauvais,Hauts-de-France,€€€€,"Modern Cuisine, Creative",http://www.sebastien-tantot.com/fr,1 Star,1.0,2.9054636,49.3487591
 Cueillette,3 La Raufie,"Altillac, 19120",Brive-la-Gaillarde,19,Corrèze,Tulle,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://restaurant-cueillette.fr/,1 Star,1.0,1.8560131,44.9474128
@@ -622,7 +622,7 @@ La Coopérative - Domaine Riberach,2 route de Caladroy,"Bélesta, 66720",Prades,
 Ressources,126 rue Fondaudège,"Bordeaux, 33000",Bordeaux,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://restaurantressources.com/,1 Star,1.0,-0.5837068,44.8489572
 de:ja,1 rue Schimper,"Strasbourg, 67000",Strasbourg,67,Bas-Rhin,Strasbourg,Grand Est,€€€€,Creative,http://www.deja-restaurant.com,1 Star,1.0,7.7685673,48.5873652
 L'Impulsif,19 avenue Baraduc,"Châtel-Guyon, 63140",Riom,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€€,Creative,http://www.limpulsif-restaurant.com,1 Star,1.0,3.0660287,45.9196471
-Intuition,1 rue Alsace-Lorraine,"Saint-Lô, 50000",Saint-Lô,50,Manche,Saint-Lô,Normandy,€€€,Modern Cuisine,http://www.restaurant-intuition.fr,1 Star,1.0,-1.0987148,49.1143406
+Intuition,1 rue Alsace-Lorraine,"Saint-Lô, 50000",Saint-Lô,50,Manche,Saint-Lô,Normandie,€€€,Modern Cuisine,http://www.restaurant-intuition.fr,1 Star,1.0,-1.0987148,49.1143406
 Les Cadets,15 rue des Hauts-Pavés,"Nantes, 44000",Nantes,44,Loire-Atlantique,Nantes,Pays de la Loire,€€€,Modern Cuisine,http://www.restaurantlescadets.fr,1 Star,1.0,-1.5633177,47.22273
 Apicius,20 rue d'Artois,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://restaurant-apicius.com/,1 Star,1.0,2.3072835,48.8732881
 L’Épicurien - Abbaye de Villeneuve,Lieu-dit Villeneuve,"Les Sorinières, 44840",Nantes,44,Loire-Atlantique,Nantes,Pays de la Loire,€€€,Modern Cuisine,http://www.abbayedevilleneuve.com,1 Star,1.0,-1.5338567,47.1232859
@@ -632,7 +632,7 @@ Hémicycle,5 rue de Bourgogne,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris
 Nacre,3 bis rue Sophie-et-Paul-Wallerstein,"Arès, 33740",Arcachon,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.restaurant-nacre.com/,1 Star,1.0,-1.1401852,44.7662756
 Calice,30 boulevard Bertrand-Duguesclin,"Béziers, 34500",Béziers,34,Hérault,Montpellier,Occitanie,€€€,Modern Cuisine,http://www.restaurantcalice.fr,1 Star,1.0,3.2232426,43.3435711
 Tohu Bohu,16 rue Chenoise,"Grenoble, 38000",Grenoble,38,Isère,Grenoble,Auvergne-Rhône-Alpes,€,Modern Cuisine,http://www.tohubohu-grenoblerestaurant.com,Bib Gourmand,0.5,5.7307433,45.1935534
-Granit,5 Kerhuéno,"Plouharnel, 56340",Lorient,56,Morbihan,Vannes,Brittany,€€,Modern Cuisine,http://granit-restaurant.fr,Bib Gourmand,0.5,-3.1007175,47.5907116
+Granit,5 Kerhuéno,"Plouharnel, 56340",Lorient,56,Morbihan,Vannes,Bretagne,€€,Modern Cuisine,http://granit-restaurant.fr,Bib Gourmand,0.5,-3.1007175,47.5907116
 Topaze,103 rue Aristide-Briand,"Saint-Nazaire, 44600",Saint-Nazaire,44,Loire-Atlantique,Nantes,Pays de la Loire,€€,Modern Cuisine,http://www.topaze.restaurant,Bib Gourmand,0.5,-2.225347,47.2793485
 La Plage,21 rue Gustave-Danquin,"Audresselles, 62164",Boulogne-sur-Mer,62,Pas-de-Calais,Arras,Hauts-de-France,€€,Modern Cuisine,http://www.hoteldelaplage-audresselles.com,Bib Gourmand,0.5,1.5953951,50.8207007
 L'IØDE,89 avenue Gambetta,"Saintes, 17100",Saintes,17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,€€,Modern Cuisine,http://www.restaurantliode.fr,Bib Gourmand,0.5,-0.62401,45.74673
@@ -640,33 +640,33 @@ Cabane,8 rue du Docteur-Foucault,"Nanterre, 92000",Nanterre,92,Hauts-de-Seine,Na
 Sillage,Place Camille Mémain,"Saint-Pierre-d'Oléron, 17310",Rochefort,17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,€€,"Modern Cuisine, Seafood",http://www.restaurant-sillage.fr,Bib Gourmand,0.5,-1.3056358,45.9445762
 La Croix Blanche,2 avenue de la Loire (à Veuves),"Veuves, 41150",Blois,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€,"Modern Cuisine, Traditional Cuisine",https://www.lacroixblanche41.com/,Bib Gourmand,0.5,1.11419,47.48631
 La Petite Grange,17 rue Edouard-Marty,"Tournemire, 15310",Aurillac,15,Cantal,Aurillac,Auvergne-Rhône-Alpes,€€,Regional Cuisine,https://www.lapetitegrange.fr,Bib Gourmand,0.5,2.4832587,45.0540365
-Brasserie d'Asten,8 boulevard Clemenceau,"Binic, 22520",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€,Contemporary,http://Asten-restaurant.fr,Bib Gourmand,0.5,-2.8250483,48.5992805
+Brasserie d'Asten,8 boulevard Clemenceau,"Binic, 22520",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€,Contemporary,http://Asten-restaurant.fr,Bib Gourmand,0.5,-2.8250483,48.5992805
 Bergamote,123 rue de Gerland,"Lyon, 69007",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://restaurant-bergamote.fr,Bib Gourmand,0.5,4.839592,45.7341669
 L'Estacade,4 quai du Lénigo,"Le Croisic, 44490",Saint-Nazaire,44,Loire-Atlantique,Nantes,Pays de la Loire,€€,Modern Cuisine,https://lestacade.fr/,Bib Gourmand,0.5,-2.5154108,47.2981892
 L'Arbre Vert,96 rue Principale,"Berrwiller, 68500",Mulhouse,68,Haut-Rhin,Colmar,Grand Est,€€,Modern Cuisine,https://www.restaurant-koenig.com/,Bib Gourmand,0.5,7.2200675,47.8467812
 La Récré,70 route de Satillieu,"Vaudevant, 07410",Tournon-sur-Rhône,07,Ardèche,Privas,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.restaurant-la-recre.com/,Bib Gourmand,0.5,4.6186956,45.1039749
-Rolland,12 chemin du Moulin-Rolland,"Plourhan, 22410",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€,Modern Cuisine,http://www.restaurant-rolland.fr,Bib Gourmand,0.5,-2.8468337,48.6427182
+Rolland,12 chemin du Moulin-Rolland,"Plourhan, 22410",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€,Modern Cuisine,http://www.restaurant-rolland.fr,Bib Gourmand,0.5,-2.8468337,48.6427182
 Rosemarie,149 rue de l'Université,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris,Île-de-France,€€,Traditional Cuisine,http://www.rosemariebistrotparis.com,Bib Gourmand,0.5,2.3055501,48.8611264
-La Fourchette à Droite,2 rue de la Pie-qui-Boit,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€,Contemporary,https://www.restaurant-lafourchetteadroite.fr/,Bib Gourmand,0.5,-2.0265926,48.6478253
+La Fourchette à Droite,2 rue de la Pie-qui-Boit,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€,Contemporary,https://www.restaurant-lafourchetteadroite.fr/,Bib Gourmand,0.5,-2.0265926,48.6478253
 La Table du Square,26 boulevard du Maréchal-Foch,"Beaune, 21200",Beaune,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€,Farm to table,http://www.tabledusquare.com,Bib Gourmand,0.5,4.8352348,47.0262483
 Baca'v par Gilles Choukroun,6 rue des Fossés-Saint-Marcel,"Paris, 75005",5th (Panthéon),75,Paris,Paris,Île-de-France,€€,Traditional Cuisine,https://www.bacav.paris/,Bib Gourmand,0.5,2.3560498,48.839165
-Peck & Co,23 rue Fautras,"Brest, 29200",Brest,29,Finistère,Quimper,Brittany,€,Farm to table,https://peckandco.fr,Bib Gourmand,0.5,-4.4910029,48.3905412
+Peck & Co,23 rue Fautras,"Brest, 29200",Brest,29,Finistère,Quimper,Bretagne,€,Farm to table,https://peckandco.fr,Bib Gourmand,0.5,-4.4910029,48.3905412
 Gribiche,9 rue Max-Richard,"Angers, 49100",Angers,49,Maine-et-Loire,Angers,Pays de la Loire,€€,Traditional Cuisine,,Bib Gourmand,0.5,-0.5580888,47.46576
-Auberge de La Mère Duval,Impasse de la Linerie,"Auzouville-sur-Saâne, 76730",Dieppe,76,Seine-Maritime,Rouen,Normandy,€€,Modern Cuisine,https://www.lamereduval.fr/,Bib Gourmand,0.5,0.9436443,49.7410587
-Imayoko,20 boulevard de la Tour-d'Auvergne,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€,Japanese,https://imayoko.restaurant/,Bib Gourmand,0.5,-1.6845853,48.1067069
+Auberge de La Mère Duval,Impasse de la Linerie,"Auzouville-sur-Saâne, 76730",Dieppe,76,Seine-Maritime,Rouen,Normandie,€€,Modern Cuisine,https://www.lamereduval.fr/,Bib Gourmand,0.5,0.9436443,49.7410587
+Imayoko,20 boulevard de la Tour-d'Auvergne,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€,Japanese,https://imayoko.restaurant/,Bib Gourmand,0.5,-1.6845853,48.1067069
 Le Clos Saint Martin - La Métairie,Lieu-dit Languit,"Arvigna, 09100",Pamiers,09,Ariège,Foix,Occitanie,€€,Modern Cuisine,https://www.restaurantlametairie.fr/index.php,Bib Gourmand,0.5,1.7384463,43.0612879
-Le 21ème Commis,23 rue du Mur,"Morlaix, 29600",Morlaix,29,Finistère,Quimper,Brittany,€€,Farm to table,http://www.le21emecommis.fr,Bib Gourmand,0.5,-3.8268436,48.5763275
-La Petite Ourse,48 boulevard de la Liberté,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Brittany,€,Farm to table,https://www.restaurantlapetiteourse.com/,Bib Gourmand,0.5,-1.6827619,48.1082357
+Le 21ème Commis,23 rue du Mur,"Morlaix, 29600",Morlaix,29,Finistère,Quimper,Bretagne,€€,Farm to table,http://www.le21emecommis.fr,Bib Gourmand,0.5,-3.8268436,48.5763275
+La Petite Ourse,48 boulevard de la Liberté,"Rennes, 35000",Rennes,35,Ille-et-Vilaine,Rennes,Bretagne,€,Farm to table,https://www.restaurantlapetiteourse.com/,Bib Gourmand,0.5,-1.6827619,48.1082357
 Café de la Fontaine,4 avenue du Général-de-Gaulle,"La Turbie, 06320",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€,"Traditional Cuisine, Provençal",https://www.hostellerie-jerome.com/,Bib Gourmand,0.5,7.4002839,43.7455777
 Le Bouche à Oreille,39 avenue Charles-de-Gaulle,"Tulle, 19000",Tulle,19,Corrèze,Tulle,Nouvelle-Aquitaine,€€,Traditional Cuisine,https://www.leboucheaoreille-tulle.com/,Bib Gourmand,0.5,1.7696377,45.2689144
 L'Auberge du Pas de Vent,281 avenue Pas-de-Vent,"Pouillon, 40350",Dax,40,Landes,Mont-de-Marsan,Nouvelle-Aquitaine,€€,Traditional Cuisine,http://www.auberge-dupasdevent.com/,Bib Gourmand,0.5,-1.0052604,43.6014023
-Maison Cachée,9 rue Haute-Candre,"Rochefort-en-Terre, 56220",Vannes,56,Morbihan,Vannes,Brittany,€€,Modern Cuisine,,Bib Gourmand,0.5,-2.3368528,47.6989923
+Maison Cachée,9 rue Haute-Candre,"Rochefort-en-Terre, 56220",Vannes,56,Morbihan,Vannes,Bretagne,€€,Modern Cuisine,,Bib Gourmand,0.5,-2.3368528,47.6989923
 Clément Artisan Culinaire,6 rue Eugène-Mazélie,"Lauzun, 47410",Marmande,47,Lot-et-Garonne,Agen,Nouvelle-Aquitaine,€€,Modern Cuisine,,Bib Gourmand,0.5,0.46069,44.62969
 La Closerie des Roses,455 rue de la Haute-Meilleraie,"Varades, 44370",Châteaubriant-Ancenis,44,Loire-Atlantique,Nantes,Pays de la Loire,€€,Traditional Cuisine,https://www.lacloseriedesroses.com/,Bib Gourmand,0.5,-1.0220107,47.3712253
-Gare aux Goûts,26 bis rue Louis-Blanqui,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Brittany,€,Contemporary,https://www.gareauxgouts.fr,Bib Gourmand,0.5,-3.3651664,47.7535075
+Gare aux Goûts,26 bis rue Louis-Blanqui,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Bretagne,€,Contemporary,https://www.gareauxgouts.fr,Bib Gourmand,0.5,-3.3651664,47.7535075
 Le Bistro d'en Face,1 rue Fénelon,"Bergerac, 24100",Bergerac,24,Dordogne,Périgueux,Nouvelle-Aquitaine,€,Modern Cuisine,,Bib Gourmand,0.5,0.4824992,44.8474818
 Auberge Saint Fiacre,5 rue de la Fontaine,"Veuil, 36600",Châteauroux,36,Indre,Châteauroux,Centre-Val de Loire,€€,Modern Cuisine,https://www.aubergesaintfiacre.com/,Bib Gourmand,0.5,1.5255687,47.1208897
-Le Manoir de Kerbot,Lieu-dit Kerbot,"Sarzeau, 56370",Vannes,56,Morbihan,Vannes,Brittany,€€,Traditional Cuisine,https://www.hotelrestaurantkerbot.com/,Bib Gourmand,0.5,-2.73911,47.53658
+Le Manoir de Kerbot,Lieu-dit Kerbot,"Sarzeau, 56370",Vannes,56,Morbihan,Vannes,Bretagne,€€,Traditional Cuisine,https://www.hotelrestaurantkerbot.com/,Bib Gourmand,0.5,-2.73911,47.53658
 O2C,20 place de Strasbourg,"Bagnères-de-Bigorre, 65200",Bagnères-de-Bigorre,65,Hautes-Pyrénées,Tarbes,Occitanie,€€,Modern Cuisine,http://o2c-restaurant.fr/,Bib Gourmand,0.5,0.1494891,43.0636999
 L'Envers du Décor,23 rue de la Bienfaisance,"Les Herbiers, 85500",Roche-sur-Yon,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€,Modern Cuisine,http://envers-du-decor.fr/,Bib Gourmand,0.5,-1.0131786,46.8718586
 Le Bistrot 270,270 chemin de Malombre,"Malataverne, 26780",Nyons,26,Drôme,Valence,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,https://www.domaine-colombier.com/,Bib Gourmand,0.5,4.7433743,44.4691067
@@ -675,17 +675,17 @@ L'Ermitage,73 avenue de l'Ermitage,"Espaly-Saint-Marcel, 43000",Puy-en-Velay,43,
 La Chênaie,Rue du Lejat - lieu-dit La Berlanderie,"Croutelle, 86240",Poitiers,86,Vienne,Poitiers,Nouvelle-Aquitaine,€€,Traditional Cuisine,https://restaurant-la-chenaie.com/,Bib Gourmand,0.5,0.2900667,46.5414198
 Le Pré Saint Jean,18 avenue Maréchal-Leclerc,"Pézenas, 34120",Béziers,34,Hérault,Montpellier,Occitanie,€€,Modern Cuisine,https://restaurant-leprestjean.fr/,Bib Gourmand,0.5,3.4265699,43.4598311
 Le 62,62 rue Fontgiève,"Clermont-Ferrand, 63000",Clermont-Ferrand,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://restaurantle62clermont.fr/,Bib Gourmand,0.5,3.077339,45.7808357
-Auberge de l'Abbaye,5 route de l'Abbaye,"Hambye, 50450",Coutances,50,Manche,Saint-Lô,Normandy,€€,Modern Cuisine,https://www.aubergedelabbayehambye.com/,Bib Gourmand,0.5,-1.2677766,48.9243064
+Auberge de l'Abbaye,5 route de l'Abbaye,"Hambye, 50450",Coutances,50,Manche,Saint-Lô,Normandie,€€,Modern Cuisine,https://www.aubergedelabbayehambye.com/,Bib Gourmand,0.5,-1.2677766,48.9243064
 Ô Moulin,1 place Martin-Dolt,"Carsac-Aillac, 24200",Sarlat-la-Canéda,24,Dordogne,Périgueux,Nouvelle-Aquitaine,€€,Modern Cuisine,https://www.latabledumoulin.com,Bib Gourmand,0.5,1.2729812,44.8408811
 Auberge Metzger,55 rue Principale,"Natzwiller, 67130",Molsheim,67,Bas-Rhin,Strasbourg,Grand Est,€€,Traditional Cuisine,http://www.hotel-aubergemetzger.com,Bib Gourmand,0.5,7.2581969,48.4363567
-Le Brélévenez,1 rue Stang-Ar-Béo,"Lannion, 22300",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€,Modern Cuisine,https://www.restaurant-lebrelevenez.fr/,Bib Gourmand,0.5,-3.455017,48.7379433
+Le Brélévenez,1 rue Stang-Ar-Béo,"Lannion, 22300",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€,Modern Cuisine,https://www.restaurant-lebrelevenez.fr/,Bib Gourmand,0.5,-3.455017,48.7379433
 Sodade,21 avenue du Président-Georges-Pompidou,"Chaudes-Aigues, 15110",Saint-Flour,15,Cantal,Aurillac,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.sergevieira.com/,Bib Gourmand,0.5,3.0032348,44.8516289
 Le Cygne,35 Grande-Rue,"Gundershoffen, 67110",Haguenau-Wissembourg,67,Bas-Rhin,Strasbourg,Grand Est,€€,Modern Cuisine,http://www.aucygne.fr,Bib Gourmand,0.5,7.6590408,48.9066307
 L'Épine,19 place de la République,"Azay-le-Rideau, 37190",Tours,37,Indre-et-Loire,Tours,Centre-Val de Loire,€€,Modern Cuisine,http://www.restaurant-lepine.fr,Bib Gourmand,0.5,0.4674999,47.2612347
 Auberge La Gaillotière,Lieu-dit La Gaillotière,"Château-Thébaud, 44690",Nantes,44,Loire-Atlantique,Nantes,Pays de la Loire,€,Traditional Cuisine,https://auberge-la-gaillotiere.fr/,Bib Gourmand,0.5,-1.43327,47.13114
 L'Assiette au Jardin,9 rue du Robinet,"Noirmoutier-en-l'Île, 85330",Sables-d'Olonne,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€,Traditional Cuisine,https://lassietteaujardin.fr/,Bib Gourmand,0.5,-2.2426451,47.0007779
 Le Confidentiel,24 route des Moulins,"Menthon-Saint-Bernard, 74290",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.restaurant-leconfidentiel.fr/,Bib Gourmand,0.5,6.1964034,45.8600546
-SaQuaNa,22 place Hamelin,"Honfleur, 14600",Lisieux,14,Calvados,Caen,Normandy,€€,"Creative, Modern Cuisine",https://alexandre-bourdas.com/,Bib Gourmand,0.5,0.2329105,49.421549
+SaQuaNa,22 place Hamelin,"Honfleur, 14600",Lisieux,14,Calvados,Caen,Normandie,€€,"Creative, Modern Cuisine",https://alexandre-bourdas.com/,Bib Gourmand,0.5,0.2329105,49.421549
 Auberge de l'Île,3 place Bouchard,"L'Ile-Bouchard, 37220",Chinon,37,Indre-et-Loire,Tours,Centre-Val de Loire,€€,Modern Cuisine,https://www.aubergedelile.fr/,Bib Gourmand,0.5,0.4255419,47.1200762
 Double Dragon,52 rue Saint-Maur,"Paris, 75011",11th (Popincourt),75,Paris,Paris,Île-de-France,€€,Asian,https://www.doubledragonparis.com/,Bib Gourmand,0.5,2.3797202,48.8626799
 Le Café des Arts,2 rue de la Poste,"Beaulieu-sous-la-Roche, 85190",Sables-d'Olonne,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€,Modern Cuisine,https://www.lecafedesarts-beaulieu.com/,Bib Gourmand,0.5,-1.6110704,46.6760985
@@ -693,7 +693,7 @@ Manat,3 rue Cité-Bartissol,"Perpignan, 66000",Perpignan,66,Pyrénées-Orientale
 Perle des Vosges,22 route Gaschney,"Muhlbach-sur-Munster, 68380",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€,Modern Cuisine,https://www.perledesvosges.net/,Bib Gourmand,0.5,7.0800817,48.0277805
 Le Bon Temps,2600 RD7N Est,"Sénas, 13560",Aix-en-Provence,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€,Farm to table,,Bib Gourmand,0.5,5.1133033,43.7402188
 Côté Bastide,4 rue de l'Abattoir,"Sainte-Foy-la-Grande, 33220",Libourne,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€,Modern Cuisine,https://www.cote-bastide.org/,Bib Gourmand,0.5,0.2221237,44.8403558
-La Maison de Kerdiès,"5 route de Perherel, à Saint-Samson","Plougasnou, 29630",Morlaix,29,Finistère,Quimper,Brittany,€€,Traditional Cuisine,https://maisonkerdies.com,Bib Gourmand,0.5,-3.8398,48.6855
+La Maison de Kerdiès,"5 route de Perherel, à Saint-Samson","Plougasnou, 29630",Morlaix,29,Finistère,Quimper,Bretagne,€€,Traditional Cuisine,https://maisonkerdies.com,Bib Gourmand,0.5,-3.8398,48.6855
 La Chatellenie,1 rue du Commerce,"Availles-Limouzine, 86460",Montmorillon,86,Vienne,Poitiers,Nouvelle-Aquitaine,€€,"Traditional Cuisine, Modern Cuisine",https://www.lachatellenie.fr,Bib Gourmand,0.5,0.6557141,46.1211416
 Atelier Salone,6 rue du Maréchal-Joffre,"Salon-de-Provence, 13300",Aix-en-Provence,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,https://villa-salone.com/,Bib Gourmand,0.5,5.0986434,43.641406
 Chez les Anges,54 boulevard de la Tour-Maubourg,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris,Île-de-France,€€,Classic Cuisine,https://www.chezlesanges.com/,Bib Gourmand,0.5,2.3100155,48.8582703
@@ -704,11 +704,11 @@ La Table du Pouyaud,57 route de Paris,"Champcevinel, 24750",Périgueux,24,Dordog
 Les Petits Parisiens,49 avenue Jean-Moulin,"Paris, 75014",14th (Observatoire),75,Paris,Paris,Île-de-France,€€,Traditional Cuisine,https://petits-parisiens.fr/,Bib Gourmand,0.5,2.3204462,48.8250001
 20 Eiffel,20 rue de Monttessuy,"Paris, 75007",7th (Palais-Bourbon),75,Paris,Paris,Île-de-France,€€,"Traditional Cuisine, Modern Cuisine",https://www.restaurant20eiffel.fr/,Bib Gourmand,0.5,2.2985472,48.8594686
 Chez Davia,11 bis rue Grimaldi,"Nice, 06000",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€,Regional Cuisine,http://www.chezdavia.com,Bib Gourmand,0.5,7.2648092,43.6992114
-Le Bouche à Oreille,19 rue Paul-Doumer,"Le Havre, 76600",Havre,76,Seine-Maritime,Rouen,Normandy,€€,"Modern Cuisine, Traditional Cuisine",,Bib Gourmand,0.5,0.1010396,49.4925851
+Le Bouche à Oreille,19 rue Paul-Doumer,"Le Havre, 76600",Havre,76,Seine-Maritime,Rouen,Normandie,€€,"Modern Cuisine, Traditional Cuisine",,Bib Gourmand,0.5,0.1010396,49.4925851
 C'la Vie,12 avenue du Jasset,"Orsan, 30200",Nîmes,30,Gard,Nîmes,Occitanie,€€,Modern Cuisine,https://restaurant-clavie.fr/,Bib Gourmand,0.5,4.6653987,44.1297774
-Erasmo,4 rue du Général-Lambert,"Carhaix-Plouguer, 29270",Châteaulin,29,Finistère,Quimper,Brittany,€€,Modern Cuisine,http://www.restaurant-erasmo.fr,Bib Gourmand,0.5,-3.5728737,48.2762187
+Erasmo,4 rue du Général-Lambert,"Carhaix-Plouguer, 29270",Châteaulin,29,Finistère,Quimper,Bretagne,€€,Modern Cuisine,http://www.restaurant-erasmo.fr,Bib Gourmand,0.5,-3.5728737,48.2762187
 Téjérina - Hôtel de la Place,51 place de la Mairie,"Polliat, 01310",Bourg-en-Bresse,01,Ain,Bourg-en-Bresse,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,https://www.restaurant-tejerina-logis.fr/,Bib Gourmand,0.5,5.12659,46.24887
-La Gare,"4 rue des Ormelets, à Beaussais-sur-Mer","Ploubalay, 22650",Dinan,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€,Traditional Cuisine,https://www.restaurant-la-gare-ploubalay.com/,Bib Gourmand,0.5,-2.1445203,48.5802845
+La Gare,"4 rue des Ormelets, à Beaussais-sur-Mer","Ploubalay, 22650",Dinan,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€,Traditional Cuisine,https://www.restaurant-la-gare-ploubalay.com/,Bib Gourmand,0.5,-2.1445203,48.5802845
 Le Garriane,15 rue Valette,"Perpignan, 66000",Perpignan,66,Pyrénées-Orientales,Perpignan,Occitanie,€€,Modern Cuisine,https://le-garriane-restaurant.eatbu.com/?lang=fr,Bib Gourmand,0.5,2.8804252,42.6974636
 Bistrot Louise,80 place Jean-Vinay,"L'Albenc, 38470",Grenoble,38,Isère,Grenoble,Auvergne-Rhône-Alpes,€€,Modern Cuisine,,Bib Gourmand,0.5,5.439505899999999,45.2236254
 Kisin,7-9 rue de Ponthieu,"Paris, 75008",8th (Élysée),75,Paris,Paris,Île-de-France,€€,Japanese,http://udon-kisin.fr/,Bib Gourmand,0.5,2.31057,48.87035
@@ -726,22 +726,22 @@ Les Mets d'Adélaïde,36 avenue Georges-Alquier-Les Salvages,"Castres, 81100",Ca
 La Table d'Élise,5 rue Marie-Lemonnier,"L'Herbaudière, 85330",Sables-d'Olonne,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€,"Seafood, Modern Cuisine",https://www.alexandrecouillon.com/fr/,Bib Gourmand,0.5,-2.298846,47.0236705
 Les Grands Arbres - Verte Vallée,10 rue Alfred-Hartmann,"Munster, 68140",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€,Modern Cuisine,https://www.vertevallee.com/,Bib Gourmand,0.5,7.1426447,48.0406369
 La Beaugravière,214 avenue du Pont-Neuf (N7),"Mondragon, 84430",Carpentras,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Traditional Cuisine,https://www.beaugraviere.com/,Bib Gourmand,0.5,4.7121761,44.243922
-L'Éden,7 rue Henri-Fouchard,"Houlgate, 14510",Lisieux,14,Calvados,Caen,Normandy,€€,"Modern Cuisine, Traditional Cuisine",https://www.eden-houlgate.com/,Bib Gourmand,0.5,-0.0776368,49.3023239
-Le Moulin Fouret,"2 route du Moulin-Fouret, à Saint-Aubin-le-Vertueux","Bernay, 27300",Bernay,27,Eure,Évreux,Normandy,€€,Modern Cuisine,https://www.lemoulinfouret.fr/,Bib Gourmand,0.5,0.5962514,49.0613415
-A Mandria di Pigna,Village,"Pigna, 20220",Calvi,2B,Haute-Corse,Bastia,Corsica,€€,Corsican,https://www.restaurantpigna.com/,Bib Gourmand,0.5,8.90319,42.59878
+L'Éden,7 rue Henri-Fouchard,"Houlgate, 14510",Lisieux,14,Calvados,Caen,Normandie,€€,"Modern Cuisine, Traditional Cuisine",https://www.eden-houlgate.com/,Bib Gourmand,0.5,-0.0776368,49.3023239
+Le Moulin Fouret,"2 route du Moulin-Fouret, à Saint-Aubin-le-Vertueux","Bernay, 27300",Bernay,27,Eure,Évreux,Normandie,€€,Modern Cuisine,https://www.lemoulinfouret.fr/,Bib Gourmand,0.5,0.5962514,49.0613415
+A Mandria di Pigna,Village,"Pigna, 20220",Calvi,2B,Haute-Corse,Bastia,Corse,€€,Corsican,https://www.restaurantpigna.com/,Bib Gourmand,0.5,8.90319,42.59878
 Bellavista,Place du Foiral,"Prats-de-Mollo-la-Preste, 66230",Céret,66,Pyrénées-Orientales,Perpignan,Occitanie,€€,"Modern Cuisine, Catalan",https://www.hotel-le-bellevue.fr/,Bib Gourmand,0.5,2.4801504,42.4043058
 Le Chardonnay,1 place Philippe-Marcombes,"Clermont-Ferrand, 63000",Clermont-Ferrand,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.lechardonnay.fr/,Bib Gourmand,0.5,3.086473,45.779382
 Bistrot DuPont,5 place Charles-de-Gaulle,"Pont-Sainte-Marie, 10150",Troyes,10,Aube,Troyes,Grand Est,€€,Traditional Cuisine,http://www.bistrotdupont.com/,Bib Gourmand,0.5,4.0985415,48.314106
-Le Comptoir de La Butte,12 rue de la Mer,"Plouider, 29260",Brest,29,Finistère,Quimper,Brittany,€,Traditional Cuisine,https://labutte.fr/,Bib Gourmand,0.5,-4.2987684,48.6110364
+Le Comptoir de La Butte,12 rue de la Mer,"Plouider, 29260",Brest,29,Finistère,Quimper,Bretagne,€,Traditional Cuisine,https://labutte.fr/,Bib Gourmand,0.5,-4.2987684,48.6110364
 Le Cochon qui Boit,23 rue Royale,"Lyon, 69001",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.lecochonquiboit.fr/,Bib Gourmand,0.5,4.8372579,45.7705867
 Brigade du Tigre,38 rue du Faubourg-Poissonnière,"Paris, 75010",10th (Entrepôt),75,Paris,Paris,Île-de-France,€€,Asian,https://www.brigadedutigre.fr/,Bib Gourmand,0.5,2.3479318,48.8734837
 Restaurant Dimofski,2 quartier de la Gare,"Wœlfling-lès-Sarreguemines, 57200",Sarreguemines,57,Moselle,Metz,Grand Est,€€,Modern Cuisine,,Bib Gourmand,0.5,7.1903845,49.0940585
 Saveurs de l'Abbaye,1 place Saint-Pallais,"Saintes, 17100",Saintes,17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,€€,"Modern Cuisine, Farm to table",https://saveurs-abbaye.com/,Bib Gourmand,0.5,-0.6249336,45.745458
-Ti-Coz,4 Hent-Koz,"Quimper, 29000",Quimper,29,Finistère,Quimper,Brittany,€€,Traditional Cuisine,http://www.restaurantticoz.com/,Bib Gourmand,0.5,-4.0725792,48.0423858
-Kalamansi,10 place du Général-de-Gaulle,"Coutances, 50200",Coutances,50,Manche,Saint-Lô,Normandy,€€,Modern Cuisine,https://www.kalamansi.fr/,Bib Gourmand,0.5,-1.4425987,49.0474072
+Ti-Coz,4 Hent-Koz,"Quimper, 29000",Quimper,29,Finistère,Quimper,Bretagne,€€,Traditional Cuisine,http://www.restaurantticoz.com/,Bib Gourmand,0.5,-4.0725792,48.0423858
+Kalamansi,10 place du Général-de-Gaulle,"Coutances, 50200",Coutances,50,Manche,Saint-Lô,Normandie,€€,Modern Cuisine,https://www.kalamansi.fr/,Bib Gourmand,0.5,-1.4425987,49.0474072
 La Table,"1 traverse de Jas, Les Ribas","Tourtour, 83690",Brignoles,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,http://www.latable.fr/,Bib Gourmand,0.5,6.3032316,43.588977
 Racines by Daniel Gallacher,59 rue Georges-Bonnac,"Bordeaux, 33000",Bordeaux,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€€,Creative,https://racines-bordeaux.com,Bib Gourmand,0.5,-0.584089,44.8402677
-Fidelis,10 rue Jacques-Cartier,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€,Modern Cuisine,https://fidelis.metro.rest/?lang=fr,Bib Gourmand,0.5,-2.0233676,48.650034
+Fidelis,10 rue Jacques-Cartier,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€,Modern Cuisine,https://fidelis.metro.rest/?lang=fr,Bib Gourmand,0.5,-2.0233676,48.650034
 Spica,48 rue de la Préfecture,"Dijon, 21000",Dijon,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€,Modern Cuisine,https://www.restaurantspica.com/,Bib Gourmand,0.5,5.0425494,47.3248008
 La Table du Fleuve,2 place du Port,"Bourg-Charente, 16200",Cognac,16,Charente,Angoulême,Nouvelle-Aquitaine,€,Farm to table,https://latabledufleuve.com/index.php,Bib Gourmand,0.5,-0.2244992,45.6735609
 Le Malu,1 route de Tours,"Vendôme, 41100",Vendôme,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€,Modern Cuisine,https://lemalu2.wixsite.com/restaurantlemalu,Bib Gourmand,0.5,1.063564,47.7821898
@@ -766,7 +766,7 @@ Le Cerisier,1 rue Saint-Joseph,"Tournon-sur-Rhône, 07300",Tournon-sur-Rhône,07
 Restaurant Anne & Matthieu Omont - Hôtel de France,1 rue Marx-Dormoy,"Montmarault, 03390",Montluçon,03,Allier,Moulins,Auvergne-Rhône-Alpes,€€€,Modern Cuisine,https://hoteldefrance-montmarault.com/fr/,Bib Gourmand,0.5,2.9562153,46.3190731
 Le Bistrot de Guillaume,13 rue de Pont,"Moulins, 03000",Moulins,03,Allier,Moulins,Auvergne-Rhône-Alpes,€€,Modern Cuisine,,Bib Gourmand,0.5,3.3318984,46.5643976
 La Capitelle,1 rue du Boulanger,"Mirmande, 26270",Die,26,Drôme,Valence,Auvergne-Rhône-Alpes,€€,"Modern Cuisine, Farm to table",http://www.lacapitelle.com/,Bib Gourmand,0.5,4.8357862,44.6992634
-La Fleur de Sel,17 rue Haute,"Honfleur, 14600",Lisieux,14,Calvados,Caen,Normandy,€€,Modern Cuisine,http://www.lafleurdesel-honfleur.com/,Bib Gourmand,0.5,0.2323132,49.4221162
+La Fleur de Sel,17 rue Haute,"Honfleur, 14600",Lisieux,14,Calvados,Caen,Normandie,€€,Modern Cuisine,http://www.lafleurdesel-honfleur.com/,Bib Gourmand,0.5,0.2323132,49.4221162
 La Chaize Gourmande,2 place du Marché,"La Chaize-Giraud, 85220",Sables-d'Olonne,85,Vendée,La Roche-sur-Yon,Pays de la Loire,€,Farm to table,https://www.lachaizegourmande.com/,Bib Gourmand,0.5,-1.81778,46.64788
 PY Restaurant,16 cours Vitton,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://pyrestaurant.fr/fr,Bib Gourmand,0.5,4.851688,45.7693113
 Le Muratore,8 place du Docteur-Jean-Bernex,"Évian-les-Bains, 74500",Thonon-les-Bains,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,https://www.muratore-restaurant-evian.com/,Bib Gourmand,0.5,6.5912584,46.4006543
@@ -782,7 +782,7 @@ Impérial Choisy,32 avenue de Choisy,"Paris, 75013",13th (Gobelins),75,Paris,Par
 L'Antre Amis,9 rue Bouchut,"Paris, 75015",15th (Vaugirard),75,Paris,Paris,Île-de-France,€€,Modern Cuisine,https://www.lantreamis.com/,Bib Gourmand,0.5,2.310224,48.8468197
 L'Araignée Gourmande,8 rue de la Paix,"Laragne-Montéglin, 05300",Gap,05,Hautes-Alpes,Gap,Provence-Alpes-Côte d'Azur,€€,Traditional Cuisine,https://www.laraignee-gourmande.fr/,Bib Gourmand,0.5,5.8225646,44.3149388
 Au Petit Relais,445 Grande-Rue,"Coligny, 01270",Bourg-en-Bresse,01,Ain,Bourg-en-Bresse,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,https://www.aupetitrelais.fr/,Bib Gourmand,0.5,5.3456859,46.3846303
-L'Alcôve,31 rue Larcher,"Bayeux, 14400",Bayeux,14,Calvados,Caen,Normandy,€€,Modern Cuisine,https://sites.google.com/view/lalcovebayeux/accueil,Bib Gourmand,0.5,-0.7019807,49.2756464
+L'Alcôve,31 rue Larcher,"Bayeux, 14400",Bayeux,14,Calvados,Caen,Normandie,€€,Modern Cuisine,https://sites.google.com/view/lalcovebayeux/accueil,Bib Gourmand,0.5,-0.7019807,49.2756464
 Auberge de la Baraque,2 route de Bordeaux,"Orcines, 63870",Clermont-Ferrand,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.laubrieres.com/,Bib Gourmand,0.5,3.0215572,45.7801005
 Hostellerie d'Héloïse,7 route de Mâcon,"Cluny, 71250",Mâcon,71,Saône-et-Loire,Mâcon,Bourgogne-Franche-Comté,€€,Traditional Cuisine,https://www.hostelleriedheloise.com/,Bib Gourmand,0.5,4.6652795,46.4254309
 Art'zain,20 place d'Ospitalia (au bourg),"Irissarry, 64780",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€,Farm to table,http://www.restaurant-art-zain.fr/fr/,Bib Gourmand,0.5,-1.2325073,43.2570495
@@ -807,28 +807,28 @@ L'Atelier Flavien Valère,62 cours des Fossés,"Langon, 33210",Langon,33,Gironde
 Sépia,28 rue Frédéric-Mistral,"Valras-Plage, 34350",Béziers,34,Hérault,Montpellier,Occitanie,€€,Modern Cuisine,http://www.restaurant-sepia-valras.fr,Bib Gourmand,0.5,3.2890988,43.2439605
 Jouvence,172 bis rue du Faubourg-Saint-Antoine,"Paris, 75012",12th (Reuilly),75,Paris,Paris,Île-de-France,€€,Modern Cuisine,https://www.jouvence.paris/,Bib Gourmand,0.5,2.3824694,48.8502734
 Auberge Pyrénées Cévennes,106 rue de la Folie-Méricourt,"Paris, 75011",11th (Popincourt),75,Paris,Paris,Île-de-France,€€,Traditional Cuisine,https://www.auberge-pyrenees-cevennes.fr/,Bib Gourmand,0.5,2.3685454,48.8680983
-Le Tire Bouchon,45 rue Jules-le-Grand,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Brittany,€€,Traditional Cuisine,https://restaurantalorient.com/,Bib Gourmand,0.5,-3.3579756,47.7486582
+Le Tire Bouchon,45 rue Jules-le-Grand,"Lorient, 56100",Lorient,56,Morbihan,Vannes,Bretagne,€€,Traditional Cuisine,https://restaurantalorient.com/,Bib Gourmand,0.5,-3.3579756,47.7486582
 Le CasseNoix,56 rue de la Fédération,"Paris, 75015",15th (Vaugirard),75,Paris,Paris,Île-de-France,€€,Traditional Cuisine,https://www.le-cassenoix.fr/,Bib Gourmand,0.5,2.2952226,48.8534216
 La Vieille Forge,1 rue des Écoles,"Kaysersberg, 68240",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€,"Modern Cuisine, Traditional Cuisine",https://vieilleforge-kb.com/,Bib Gourmand,0.5,7.2623713,48.1387112
 Le Jour du Poisson,3 rue de l'Ormeau,"Saint-Denis-d'Oléron, 17650",Rochefort,17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,€€,Seafood,,Bib Gourmand,0.5,-1.3797556,46.0331756
-U Licettu,Plaine de Cuttoli,"Cuttoli, 20167",Ajaccio,2A,Corse-du-Sud,Ajaccio,Corsica,€€,Traditional Cuisine,https://www.u-licettu.com/,Bib Gourmand,0.5,8.8458305,41.9639362
+U Licettu,Plaine de Cuttoli,"Cuttoli, 20167",Ajaccio,2A,Corse-du-Sud,Ajaccio,Corse,€€,Traditional Cuisine,https://www.u-licettu.com/,Bib Gourmand,0.5,8.8458305,41.9639362
 Le Balcon,2 Grande-Rue,"Combeaufontaine, 70120",Vesoul,70,Haute-Saône,Vesoul,Bourgogne-Franche-Comté,€€,"Traditional Cuisine, Country cooking",https://le-balcon-70.fr/,Bib Gourmand,0.5,5.8879472,47.7119734
-L'Angle Saint-Laurent,2 rue des Bouchers,"Bayeux, 14400",Bayeux,14,Calvados,Caen,Normandy,€€,Modern Cuisine,https://www.langlesaintlaurent.com/,Bib Gourmand,0.5,-0.7008366,49.2776278
+L'Angle Saint-Laurent,2 rue des Bouchers,"Bayeux, 14400",Bayeux,14,Calvados,Caen,Normandie,€€,Modern Cuisine,https://www.langlesaintlaurent.com/,Bib Gourmand,0.5,-0.7008366,49.2776278
 La Maison de Celou,5 rue Saint-Jouin,"Châteauneuf-de-Gadagne, 84470",Avignon,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,https://www.lamaisondecelou84.com/,Bib Gourmand,0.5,4.9456783,43.9288995
 Relais de l'Abbaye,415 route du Beaujolais,"Charlieu, 42190",Roanne,42,Loire,Saint-Étienne,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.relais-abbaye.fr/,Bib Gourmand,0.5,4.173191,46.1557916
 Le Relais des Salines,Port-des-Salines,"Le Grand-Village-Plage, 17370",Rochefort,17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,€€,Seafood,http://www.lerelaisdessalines.fr,Bib Gourmand,0.5,-1.2288191,45.8621099
 Bistrot Saveurs,5 rue Sainte-Foy,"Castres, 81100",Castres,81,Tarn,Albi,Occitanie,€€,Modern Cuisine,http://bistrot-saveurs-81.fr/,Bib Gourmand,0.5,2.2456883,43.6054304
-Le Flaveur,4 rue Duquesne,"Concarneau, 29900",Quimper,29,Finistère,Quimper,Brittany,€€,Modern Cuisine,,Bib Gourmand,0.5,-3.9166643,47.8694755
+Le Flaveur,4 rue Duquesne,"Concarneau, 29900",Quimper,29,Finistère,Quimper,Bretagne,€€,Modern Cuisine,,Bib Gourmand,0.5,-3.9166643,47.8694755
 L'Écureuil,18 rue Saint-Adjutor,"Clermont-Ferrand, 63000",Clermont-Ferrand,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://ecureuil-restaurant.com,Bib Gourmand,0.5,3.0804584,45.7789926
 Le Beauvoir,1 avenue Marx-Dormoy,"Bourges, 18000",Bourges,18,Cher,Bourges,Centre-Val de Loire,€€,Modern Cuisine,http://www.restaurant-lebeauvoir.com/,Bib Gourmand,0.5,2.4015398,47.090477
 Les Quatre Saisons,10 rue Jean-Baptiste-Champeil,"Aurillac, 15000",Aurillac,15,Cantal,Aurillac,Auvergne-Rhône-Alpes,€€,Modern Cuisine,http://www.quatresaisons.onlc.fr/,Bib Gourmand,0.5,2.4469405,44.929825
-La Rapière,53 rue Saint-Jean,"Bayeux, 14400",Bayeux,14,Calvados,Caen,Normandy,€€,"Modern Cuisine, Traditional Cuisine",https://www.larapiere.net/,Bib Gourmand,0.5,-0.6991351,49.2762699
+La Rapière,53 rue Saint-Jean,"Bayeux, 14400",Bayeux,14,Calvados,Caen,Normandie,€€,"Modern Cuisine, Traditional Cuisine",https://www.larapiere.net/,Bib Gourmand,0.5,-0.6991351,49.2762699
 Italie là-bas,23 rue de la Bancasse,"Avignon, 84000",Avignon,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Italian,https://www.italielabas.fr/,Bib Gourmand,0.5,4.8063376,43.9477652
 La Cour de Rémi,1 rue Baillet,"Bermicourt, 62130",Arras,62,Pas-de-Calais,Arras,Hauts-de-France,€€,Traditional Cuisine,http://www.lacourderemi.com/,Bib Gourmand,0.5,2.2291703,50.4062836
 Au Bon Accueil,1 rue de Laval,"Richardménil, 54630",Nancy,54,Meurthe-et-Moselle,Nancy,Grand Est,€€,Modern Cuisine,http://www.aubonaccueil-restaurant.com/,Bib Gourmand,0.5,6.1659064,48.5916357
 Le Martin Bel Air,3 place du 19-Mars-1962,"Saint-Martin-du-Tertre, 89100",Sens,89,Yonne,Auxerre,Bourgogne-Franche-Comté,€€,Modern Cuisine,https://www.lemartinbelair.com,Bib Gourmand,0.5,3.2584615,48.2123244
 La Terrasse,Place de l'Église,"Meyronne, 46200",Gourdon,46,Lot,Cahors,Occitanie,€€,Modern Cuisine,https://www.hotel-la-terrasse.com/,Bib Gourmand,0.5,1.5769684,44.8770129
-La Croix d'Or,6 rue de la Herse,"Le Pin-la-Garenne, 61400",Mortagne-au-Perche,61,Orne,Alençon,Normandy,€€,Traditional Cuisine,http://lacroixdor.free.fr,Bib Gourmand,0.5,0.5461498,48.4408769
+La Croix d'Or,6 rue de la Herse,"Le Pin-la-Garenne, 61400",Mortagne-au-Perche,61,Orne,Alençon,Normandie,€€,Traditional Cuisine,http://lacroixdor.free.fr,Bib Gourmand,0.5,0.5461498,48.4408769
 L'Orangerie,9 rue de la Prépoise,"Pornic, 44210",Saint-Nazaire,44,Loire-Atlantique,Nantes,Pays de la Loire,€€,Modern Cuisine,http://www.restaurant-orangerie.com,Bib Gourmand,0.5,-2.1007568,47.1153064
 L'AO - L'Aigle d'Or,5 rue Principale,"Rimbach-près-Guebwiller, 68500",Thann-Guebwiller,68,Haut-Rhin,Colmar,Grand Est,€€,"Modern Cuisine, Regional Cuisine",https://hotelaigledor.com/,Bib Gourmand,0.5,7.1568894,47.9050398
 In-Fine,2 rue de l'Hôtel-de-Ville,"Frontignan, 34110",Montpellier,34,Hérault,Montpellier,Occitanie,€€,Modern Cuisine,https://infinerestaurant.fr/,Bib Gourmand,0.5,3.75673,43.44588
@@ -836,7 +836,7 @@ La Falène Bleue,Place de la Mairie,"Lannepax, 32190",Condom,32,Gers,Auch,Occita
 Clamato,80 rue de Charonne,"Paris, 75011",11th (Popincourt),75,Paris,Paris,Île-de-France,€€,"Seafood, Modern Cuisine",https://www.clamato-charonne.fr/,Bib Gourmand,0.5,2.3806195,48.8536111
 Quai 17,17 quai Maréchal-de-Lattre-de-Tassigny,"Sète, 34200",Montpellier,34,Hérault,Montpellier,Occitanie,€€,Mediterranean Cuisine,http://www.legrandhotelsete.com/quai-17-restaurant-gastronomique-sete,Bib Gourmand,0.5,3.69648,43.40539
 Côté Saisons,10 avenue de la Côte-Vermeille,"Laroque-des-Albères, 66740",Céret,66,Pyrénées-Orientales,Perpignan,Occitanie,€€,Modern Cuisine,https://www.cotesaisons.fr/,Bib Gourmand,0.5,2.9358838,42.5224669
-Au Bon Accueil,23 place Saint-Michel,"Juvigny-sous-Andaine, 61140",Alençon,61,Orne,Alençon,Normandy,€€,Creative,https://www.aubonaccueil-normand.com/,Bib Gourmand,0.5,-0.5083354,48.5520169
+Au Bon Accueil,23 place Saint-Michel,"Juvigny-sous-Andaine, 61140",Alençon,61,Orne,Alençon,Normandie,€€,Creative,https://www.aubonaccueil-normand.com/,Bib Gourmand,0.5,-0.5083354,48.5520169
 Paris Méditerranée,47 rue Pierre-Semard,"Sète, 34200",Montpellier,34,Hérault,Montpellier,Occitanie,€€,Modern Cuisine,,Bib Gourmand,0.5,3.699485,43.40585
 Caillebotte,8 rue Hippolyte-Lebas,"Paris, 75009",9th (Opéra),75,Paris,Paris,Île-de-France,€€,Modern Cuisine,https://www.lapantruchoise.com/,Bib Gourmand,0.5,2.3407373,48.8771253
 Lou Pinatou,Le Bourg,"Solignac-sous-Roche, 43130",Yssingeaux,43,Haute-Loire,Le Puy-en-Velay,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.auberge-loupinatou.fr/,Bib Gourmand,0.5,3.9982288,45.2510355
@@ -852,17 +852,17 @@ Auberge de Combes,Le Bourg,"Combes, 34240",Béziers,34,Hérault,Montpellier,Occi
 L'Ourdissoir,40 rue Saint-Bonaventure,"Cholet, 49300",Cholet,49,Maine-et-Loire,Angers,Pays de la Loire,€€,Modern Cuisine,https://lourdissoir.com/,Bib Gourmand,0.5,-0.8765558,47.0593903
 L'Auberge du Laminak,Route de Nouzonville,"Montcy-Notre-Dame, 08090",Charleville-Mézières,08,Ardennes,Charleville-Mézières,Grand Est,€€,Modern Cuisine,,Bib Gourmand,0.5,4.7496866,49.7950148
 Le Boudes La Vigne,Place de la Mairie,"Boudes, 63340",Issoire,63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,http://le-boudes-la-vigne.com,Bib Gourmand,0.5,3.184899,45.458736
-Au Petit Vatel,72 place du Commandant-Desmeulles,"Alençon, 61000",Alençon,61,Orne,Alençon,Normandy,€€,Modern Cuisine,https://www.aupetitvatel.fr/,Bib Gourmand,0.5,0.0844569,48.4324958
+Au Petit Vatel,72 place du Commandant-Desmeulles,"Alençon, 61000",Alençon,61,Orne,Alençon,Normandie,€€,Modern Cuisine,https://www.aupetitvatel.fr/,Bib Gourmand,0.5,0.0844569,48.4324958
 L'Équilibre,10 place de la Libération,"Balma, 31130",Toulouse,31,Haute-Garonne,Toulouse,Occitanie,€€,"Modern Cuisine, Farm to table",https://www.restaurant-lequilibre.fr/,Bib Gourmand,0.5,1.4984218,43.6095687
 L'Émotion,13 place Cadelade,"Puy-en-Velay, 43000",Puy-en-Velay,43,Haute-Loire,Le Puy-en-Velay,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.restaurant-lemotion.fr/,Bib Gourmand,0.5,3.8883818,45.0434718
 La Merenda,4 rue Raoul-Bosio,"Nice, 06000",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€,Provençal,http://www.lamerenda.net,Bib Gourmand,0.5,7.2730239,43.696531
 L'Évidence,53 rue Jeannin,"Dijon, 21000",Dijon,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€,Modern Cuisine,https://restaurant-levidence-dijon.com,Bib Gourmand,0.5,5.04689,47.3217416
 La Table d'Inomoto,85 rue Nationale,"Saint-André-de-Cubzac, 33240",Blaye,33,Gironde,Bordeaux,Nouvelle-Aquitaine,€,Modern Cuisine,https://www.latabledinomoto.fr/,Bib Gourmand,0.5,-0.4480008,44.9929332
 La Mandale,32 rue Léon-Jamin,"Nantes, 44000",Nantes,44,Loire-Atlantique,Nantes,Pays de la Loire,€,Farm to table,https://www.instagram.com/lamandalerestaurant/,Bib Gourmand,0.5,-1.559135,47.21951
-Hyacinthe & Robert,100 rue Nationale,"Pontivy, 56300",Pontivy,56,Morbihan,Vannes,Brittany,€€,Modern Cuisine,https://hyacinthe-et-robert.fr/,Bib Gourmand,0.5,-2.9673556,48.0617678
+Hyacinthe & Robert,100 rue Nationale,"Pontivy, 56300",Pontivy,56,Morbihan,Vannes,Bretagne,€€,Modern Cuisine,https://hyacinthe-et-robert.fr/,Bib Gourmand,0.5,-2.9673556,48.0617678
 Le Saisonnier,56 rue de la Verrerie,"Roye, 70200",Lure,70,Haute-Saône,Vesoul,Bourgogne-Franche-Comté,€€€,Modern Cuisine,https://restaurant-lesaisonnier.com/,Bib Gourmand,0.5,6.5356996,47.6774416
 Le Bistrot de Villedieu,21 place de la Libération,"Villedieu, 84110",Carpentras,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Provençal,http://www.azoulay-gastronomie.com/le-bistrot-de-villedieu,Bib Gourmand,0.5,5.0342051,44.2840228
-Le Margote,50 quai Michel-Féré,"Le Havre, 76600",Havre,76,Seine-Maritime,Rouen,Normandy,€€,"Modern Cuisine, Creative",https://www.lemargote.fr,Bib Gourmand,0.5,0.1111413,49.4895114
+Le Margote,50 quai Michel-Féré,"Le Havre, 76600",Havre,76,Seine-Maritime,Rouen,Normandie,€€,"Modern Cuisine, Creative",https://www.lemargote.fr,Bib Gourmand,0.5,0.1111413,49.4895114
 Les Jardins,1533 route du Port-de-l'Angle,"Parnac, 46140",Cahors,46,Lot,Cahors,Occitanie,€€,Creative,https://restaurant-lesjardins.fr/,Bib Gourmand,0.5,1.3156241,44.4934193
 Racines,"1981 avenue de Trévoux, à Saint-Denis-lès-Bourg","Bourg-en-Bresse, 01000",Bourg-en-Bresse,01,Ain,Bourg-en-Bresse,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://domainedulac-racines.fr/,Bib Gourmand,0.5,5.181661,46.1979845
 Briket' Bistrot,142 rue de l'Église,"Guéthary, 64210",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€,Modern Cuisine,https://www.briketenia.com/fr/,Bib Gourmand,0.5,-1.6059891,43.419617
@@ -872,7 +872,7 @@ Les Plaisirs,2 rue Puada-dau-Gourguet,"Peillon, 06440",Nice,06,Alpes-Maritimes,N
 Bistrot la Coulemelle,2 rue du Fanget,"Saint-Bonnet-le-Froid, 43290",Yssingeaux,43,Haute-Loire,Le Puy-en-Velay,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,https://www.lesmaisonsmarcon.fr/,Bib Gourmand,0.5,4.4357631,45.1421938
 Auberge du Pont de la Zorn,2 rue de la République,"Weyersheim, 67720",Haguenau-Wissembourg,67,Bas-Rhin,Strasbourg,Grand Est,€€,"Alsatian, Country cooking",http://www.pontdelazorn.fr,Bib Gourmand,0.5,7.800315,48.7103709
 L'Alicanta,Route de Meyrueis,"Le Rozier, 48150",Florac,48,Lozère,Mende,Occitanie,€€,Modern Cuisine,https://www.hotel-restaurant-gorgesdutarn.com,Bib Gourmand,0.5,3.2090457,44.1903716
-Le Biniou,121 rue Clemenceau,"Pléneuf-Val-André, 22370",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€,Traditional Cuisine,https://restaurant-lebiniou.fr/,Bib Gourmand,0.5,-2.5525543,48.5895315
+Le Biniou,121 rue Clemenceau,"Pléneuf-Val-André, 22370",Saint-Brieuc,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€,Traditional Cuisine,https://restaurant-lebiniou.fr/,Bib Gourmand,0.5,-2.5525543,48.5895315
 Le Patio by Lou Caléou,23 place de la Libération,"Sommières, 30250",Nîmes,30,Gard,Nîmes,Occitanie,€€,"Modern Cuisine, Farm to table",https://www.le-patio-by-lou-caleou.com/,Bib Gourmand,0.5,4.087726,43.7816743
 La Table de Léo,13 rue de l'Abbaye (Le Bourg),"Saint-Avit-Sénieur, 24440",Bergerac,24,Dordogne,Périgueux,Nouvelle-Aquitaine,€€,Modern Cuisine,https://www.latabledeleo.fr/,Bib Gourmand,0.5,0.8159677,44.7746774
 L'Hibiscus,175 rue de Bourgogne,"Orléans, 45000",Orléans,45,Loiret,Orléans,Centre-Val de Loire,€€,Modern Cuisine,https://www.hibiscus-orleans.fr,Bib Gourmand,0.5,1.9111469,47.9002687
@@ -883,25 +883,25 @@ Akashon,"L'Heliopic, 50 place de l'Aiguille-du-Midi","Chamonix-Mont-Blanc, 74400
 Le Nid,37 boulevard Jean-Moulin,"Flayosc, 83780",Draguignan,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,https://www.restaurantlenid-flayosc.fr/,Bib Gourmand,0.5,6.3946225,43.53454
 Le Bistro des Glycines,4 avenue de Laugerie,"Les Eyzies-de-Tayac-Sireuil, 24620",Sarlat-la-Canéda,24,Dordogne,Périgueux,Nouvelle-Aquitaine,€€,Modern Cuisine,https://www.les-glycines-dordogne.com/fr/hotel-les-eyzies,Bib Gourmand,0.5,1.0074809,44.9407156
 Ô en Couleur,9 rue de Beaugency,"Oucques, 41290",Blois,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€,Traditional Cuisine,https://www.o-en-couleur-oucques.com/,Bib Gourmand,0.5,1.2954536,47.822947
-La Gazette,7 rue Saint-Sauveur,"Evreux, 27000",Évreux,27,Eure,Évreux,Normandy,€€,Modern Cuisine,https://www.restaurant-lagazette.fr/,Bib Gourmand,0.5,1.1458837,49.025604
+La Gazette,7 rue Saint-Sauveur,"Evreux, 27000",Évreux,27,Eure,Évreux,Normandie,€€,Modern Cuisine,https://www.restaurant-lagazette.fr/,Bib Gourmand,0.5,1.1458837,49.025604
 La Chaumière,96 avenue Emmanuel-Brousse,"Font-Romeu, 66120",Prades,66,Pyrénées-Orientales,Perpignan,Occitanie,€€,Catalan,https://www.restaurantlachaumiere.fr/,Bib Gourmand,0.5,2.0433532,42.5052975
 Le Saint-Georges,4 boulevard Maréchal-Foch,"Palavas-les-Flots, 34250",Montpellier,34,Hérault,Montpellier,Occitanie,€€,Modern Cuisine,http://restaurant-st-georges.fr/,Bib Gourmand,0.5,3.9312468,43.5265905
 Vigne en Foule,80 place de la Libération,"Gaillac, 81600",Albi,81,Tarn,Albi,Occitanie,€€,Modern Cuisine,https://vigneenfoule.fr/,Bib Gourmand,0.5,1.8980057,43.9001435
 L'Agape,21 place des Corps-Saints,"Avignon, 84000",Avignon,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,http://www.restaurant-agape-avignon.com,Bib Gourmand,0.5,4.8078128,43.9445551
 Avenio,19 rue des Trois-Faucons,"Avignon, 84000",Avignon,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,https://restaurant-avenio.fr/,Bib Gourmand,0.5,4.8076681,43.9457547
 Café Brochier,4 place de la Fontaine,"Saint-Julien-en-Vercors, 26420",Die,26,Drôme,Valence,Auvergne-Rhône-Alpes,€,"Modern Cuisine, Traditional Cuisine",https://www.cafebrochier.com/,Bib Gourmand,0.5,5.4489366,45.0501262
-Le P'tit Goustan,9 place Saint-Sauveur,"Auray, 56400",Lorient,56,Morbihan,Vannes,Brittany,€€,Modern Cuisine,https://www.restaurantleptitgoustan.com/,Bib Gourmand,0.5,-2.9785482,47.6659926
+Le P'tit Goustan,9 place Saint-Sauveur,"Auray, 56400",Lorient,56,Morbihan,Vannes,Bretagne,€€,Modern Cuisine,https://www.restaurantleptitgoustan.com/,Bib Gourmand,0.5,-2.9785482,47.6659926
 Les Maisons Du'O - Le Bistro Panoramique,16 rue Gaston-Gevaudan,"Vaison-la-Romaine, 84110",Carpentras,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Farm to table,https://www.maisonsduo.com/,Bib Gourmand,0.5,5.0723295,44.2390826
 Cartouches,38 rue Pierre-Paul-Riquet,"Toulouse, 31000",Toulouse,31,Haute-Garonne,Toulouse,Occitanie,€€,Farm to table,https://www.cartouches-restaurant.fr/,Bib Gourmand,0.5,1.4542,43.60474
 Le Temps d'Aime,2 rue des Consuls,"Lattes, 34970",Montpellier,34,Hérault,Montpellier,Occitanie,€,Modern Cuisine,http://www.restaurant-tempsdaime.com,Bib Gourmand,0.5,3.8982964,43.5727527
 Bistrot d'Antoine,27 rue de la Préfecture,"Nice, 06300",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€,Traditional Cuisine,,Bib Gourmand,0.5,7.2762832,43.69635
 Le Bistrot d'Antoine,3 rue de la Courtine,"Strasbourg, 67000",Strasbourg,67,Bas-Rhin,Strasbourg,Grand Est,€€,Traditional Cuisine,https://www.lebistrotdantoine.com/,Bib Gourmand,0.5,7.7552606,48.5835496
 L'Atelier L'Art des Mets,500 route de Robion,"Taillades, 84300",Apt,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,"Traditional Cuisine, Farm to table",https://www.latelierlartdesmets.fr/,Bib Gourmand,0.5,5.0806265,43.8438177
-La Ferme de la Haute Crémonville,Route de Crémonville,"Saint-Étienne-du-Vauvray, 27430",Andelys,27,Eure,Évreux,Normandy,€€,Traditional Cuisine,https://www.lafermedelahautecremonville.com/,Bib Gourmand,0.5,1.1992666,49.2404295
+La Ferme de la Haute Crémonville,Route de Crémonville,"Saint-Étienne-du-Vauvray, 27430",Andelys,27,Eure,Évreux,Normandie,€€,Traditional Cuisine,https://www.lafermedelahautecremonville.com/,Bib Gourmand,0.5,1.1992666,49.2404295
 Le Grand Saint-Benoît,7 place Saint-André,"Saint-Benoît-sur-Loire, 45730",Orléans,45,Loiret,Orléans,Centre-Val de Loire,€€,Traditional Cuisine,https://www.restaurant-grand-saint-benoit.com/,Bib Gourmand,0.5,2.3062427,47.8107648
 Le Bistrot du 11,10 rue de Satory,"Versailles, 78000",Versailles,78,Yvelines,Versailles,Île-de-France,€€,Modern Cuisine,https://www.lebistrotdu11.com/,Bib Gourmand,0.5,2.12518,48.800906
-Le Comptoir Breizh Café,6 rue de l'Orme,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€€,Breton,https://www.breizhcafe.com/,Bib Gourmand,0.5,-2.0251233,48.6479451
-Auberge des Deux Magots,1 place du Bouffay,"La Roche-Bernard, 56130",Vannes,56,Morbihan,Vannes,Brittany,€€,Modern Cuisine,https://www.aubergedesdeuxmagots.fr/,Bib Gourmand,0.5,-2.3025745,47.518524
+Le Comptoir Breizh Café,6 rue de l'Orme,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€€,Breton,https://www.breizhcafe.com/,Bib Gourmand,0.5,-2.0251233,48.6479451
+Auberge des Deux Magots,1 place du Bouffay,"La Roche-Bernard, 56130",Vannes,56,Morbihan,Vannes,Bretagne,€€,Modern Cuisine,https://www.aubergedesdeuxmagots.fr/,Bib Gourmand,0.5,-2.3025745,47.518524
 Le Carré de l'Ange,chemin du Parc (Palais des Évêques),"Saint-Lizier, 09190",Saint-Girons,09,Ariège,Foix,Occitanie,€€,Modern Cuisine,https://www.lecarredelange.com/,Bib Gourmand,0.5,1.1373639,43.0027665
 Au Relais des Ménétriers,10 avenue du Général-de-Gaulle,"Ribeauvillé, 68150",Colmar-Ribeauvillé,68,Haut-Rhin,Colmar,Grand Est,€€,Modern Cuisine,https://restaurant-menetriers.com/,Bib Gourmand,0.5,7.3249812,48.1906505
 L'Oustalet Maïanen,16 avenue Lamartine,"Maillane, 13910",Arles,13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€,Traditional Cuisine,http://www.restaurant-saint-remy-de-provence.fr/,Bib Gourmand,0.5,4.7825229,43.8311951
@@ -932,7 +932,7 @@ Le Zeste Gourmand,93 rue Bossuet,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhô
 La Clé des Champs,Place des Frères-Caudron,"Favières, 80120",Abbeville,80,Somme,Amiens,Hauts-de-France,€€,Modern Cuisine,https://www.restaurant-lacledeschamps.com/,Bib Gourmand,0.5,1.6621716,50.2377902
 M Restaurant,47 avenue Maréchal-Foch,"Lyon, 69006",Lyon,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€,Farm to table,https://www.mrestaurant.fr/,Bib Gourmand,0.5,4.8436828,45.7705598
 L'Amandier,19 rue Marc-Antoine-Désaugiers,"Fréjus, 83600",Draguignan,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,https://www.restaurant-lamandier-frejus.com/,Bib Gourmand,0.5,6.7369235,43.4327861
-La Table d'Hôtes,10 avenue du Général-Leclerc,"Ouistreham, 14150",Caen,14,Calvados,Caen,Normandy,€€,Modern Cuisine,https://latabledhotes-caen.com/,Bib Gourmand,0.5,-0.25908,49.28358
+La Table d'Hôtes,10 avenue du Général-Leclerc,"Ouistreham, 14150",Caen,14,Calvados,Caen,Normandie,€€,Modern Cuisine,https://latabledhotes-caen.com/,Bib Gourmand,0.5,-0.25908,49.28358
 L'Auberge des Montagnes,Le Bourg,"Pailherols, 15800",Aurillac,15,Cantal,Aurillac,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,https://www.auberge-des-montagnes.com/,Bib Gourmand,0.5,2.6836877,44.9504857
 Le Montcenis,2  place du Champ-de-Foire,"Montcenis, 71710",Autun,71,Saône-et-Loire,Mâcon,Bourgogne-Franche-Comté,€€,Traditional Cuisine,https://restaurant-lemontcenis.fr/,Bib Gourmand,0.5,4.3889573,46.7913339
 Restaurant du Dauphin,3 rue d'Huisne,"La Ferté-Bernard, 72400",Mamers,72,Sarthe,Le Mans,Pays de la Loire,€€,Modern Cuisine,https://www.restaurant-du-dauphin.com/,Bib Gourmand,0.5,0.651538,48.186594
@@ -952,10 +952,10 @@ Veronatuti,122 rue Montesquieu,"Lyon, 69007",Lyon,69,Rhône,Lyon,Auvergne-Rhône
 Le Bel'Art,2 allée Jean-Boiteux,"Champcevinel, 24750",Périgueux,24,Dordogne,Périgueux,Nouvelle-Aquitaine,€,Traditional Cuisine,http://le-bel-art-restaurant.fr,Bib Gourmand,0.5,0.7450092,45.2046356
 La Table de Nernier,11 place du Musée,"Nernier, 74140",Thonon-les-Bains,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://la-table-de-nernier-restaurant.eatbu.com/,Bib Gourmand,0.5,6.303752100000001,46.3655032
 Meraki,2 rue Menou,"Nantes, 44000",Nantes,44,Loire-Atlantique,Nantes,Pays de la Loire,€€,Modern Cuisine,http://www.meraki-nantes.com,Bib Gourmand,0.5,-1.5629942,47.2204773
-La Chaumière de Pomper,"Le Moulin de Pomper, 14 hameau de Kerhervé","Baden, 56870",Vannes,56,Morbihan,Vannes,Brittany,€,Breton,https://lachaumieredepomper.fr/,Bib Gourmand,0.5,-2.8724528,47.6217962
-Manoir de la Pommeraie,L'Auvère,"Vire, 14500",Vire,14,Calvados,Caen,Normandy,€€,Modern Cuisine,http://www.manoirdelapommeraie.com,Bib Gourmand,0.5,-0.8608496,48.8297661
-Vivace,Place de Crec'h-Héry,"Trébeurden, 22560",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Brittany,€€,Modern Cuisine,http://www.vivace.restaurant,Bib Gourmand,0.5,-3.5774216,48.7721778
-La Chebaudière,6 rue Abbé-Joseph-Martin,"Auray, 56400",Lorient,56,Morbihan,Vannes,Brittany,€€,Modern Cuisine,,Bib Gourmand,0.5,-2.9819532,47.6638622
+La Chaumière de Pomper,"Le Moulin de Pomper, 14 hameau de Kerhervé","Baden, 56870",Vannes,56,Morbihan,Vannes,Bretagne,€,Breton,https://lachaumieredepomper.fr/,Bib Gourmand,0.5,-2.8724528,47.6217962
+Manoir de la Pommeraie,L'Auvère,"Vire, 14500",Vire,14,Calvados,Caen,Normandie,€€,Modern Cuisine,http://www.manoirdelapommeraie.com,Bib Gourmand,0.5,-0.8608496,48.8297661
+Vivace,Place de Crec'h-Héry,"Trébeurden, 22560",Lannion,22,Côtes-d'Armor,Saint-Brieuc,Bretagne,€€,Modern Cuisine,http://www.vivace.restaurant,Bib Gourmand,0.5,-3.5774216,48.7721778
+La Chebaudière,6 rue Abbé-Joseph-Martin,"Auray, 56400",Lorient,56,Morbihan,Vannes,Bretagne,€€,Modern Cuisine,,Bib Gourmand,0.5,-2.9819532,47.6638622
 Chez Loustic,19 rue Reclusane,"Toulouse, 31000",Toulouse,31,Haute-Garonne,Toulouse,Occitanie,€€,Modern Cuisine,https://www.chez-loustic.fr/,Bib Gourmand,0.5,1.43292,43.598755
 La Table de Mee,6 rue des Ciseaux,"Paris, 75006",6th (Luxembourg),75,Paris,Paris,Île-de-France,€€,Korean,,Bib Gourmand,0.5,2.3340394,48.8530426
 Baca'v - Boulogne,33 avenue du Général-Leclerc,"Boulogne-Billancourt, 92100",Boulogne-Billancourt,92,Hauts-de-Seine,Nanterre,Île-de-France,€€,Traditional Cuisine,https://www.bacav.fr/,Bib Gourmand,0.5,2.2383199,48.83182
@@ -971,16 +971,16 @@ Air Accueil,75 ter route Nationale,"Brebières, 62117",Arras,62,Pas-de-Calais,Ar
 Iida-Ya,18 rue Arney,"Dole, 39100",Dole,39,Jura,Lons-le-Saunier,Bourgogne-Franche-Comté,€€,Japanese,https://iida-ya.fr/fr/,Bib Gourmand,0.5,5.4948113,47.0938975
 Minami,19 faubourg Sainte-Claire,"Annecy, 74000",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€,Japanese,,Bib Gourmand,0.5,6.1228744,45.8972875
 Épices et Tout,15 avenue Carnot,"Alès, 30100",Alès,30,Gard,Nîmes,Occitanie,€€,Modern Cuisine,https://www.epicesettout.fr/,Bib Gourmand,0.5,4.0827824,44.1213924
-Bistrot du Pollet,23 rue Tête-de-Bœuf,"Dieppe, 76200",Dieppe,76,Seine-Maritime,Rouen,Normandy,€€,"Seafood, Traditional Cuisine",,Bib Gourmand,0.5,1.0836092,49.9271053
+Bistrot du Pollet,23 rue Tête-de-Bœuf,"Dieppe, 76200",Dieppe,76,Seine-Maritime,Rouen,Normandie,€€,"Seafood, Traditional Cuisine",,Bib Gourmand,0.5,1.0836092,49.9271053
 Au Clair de la Vigne,25 rue du Docteur-Louis-Marçon,"Bandol, 83150",Toulon,83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,http://www.au-clair-de-la-vigne-restaurant-bandol.fr,Bib Gourmand,0.5,5.7575593,43.1368612
 Bistrot des Anges,Rue de l'Ouest,"Le Cannet, 06110",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€,Traditional Cuisine,https://www.bruno-oger.com,Bib Gourmand,0.5,7.0145284,43.5716685
 Le Denti,25 bis avenue de Loverchy,"Annecy, 74000",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€,Modern Cuisine,,Bib Gourmand,0.5,6.1207042,45.896455
 L'Alchimie,14 rue Maccarani,"Nice, 06000",Nice,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€,"Modern Cuisine, Contemporary",http://www.lalchimie-restaurant.com,Bib Gourmand,0.5,7.26433,43.69898
 En Cuisine,39 avenue Édouard-Herriot,"Brive-la-Gaillarde, 19100",Brive-la-Gaillarde,19,Corrèze,Tulle,Nouvelle-Aquitaine,€€,Modern Cuisine,https://www.encuisine.net/,Bib Gourmand,0.5,1.5330328,45.1537272
 AHPĒ,34 avenue du Président-John-Fitzgerald-Kennedy,"Biarritz, 64200",Bayonne,64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,€€,Modern Cuisine,http://ahpe-restaurant.fr,Bib Gourmand,0.5,-1.5558152,43.4723153
-Orizhon,2 quai Jacques-de-Thézac,"Audierne, 29770",Quimper,29,Finistère,Quimper,Brittany,€€,Seafood,https://orizhon-restaurant.fr,Bib Gourmand,0.5,-4.53556,48.01963
+Orizhon,2 quai Jacques-de-Thézac,"Audierne, 29770",Quimper,29,Finistère,Quimper,Bretagne,€€,Seafood,https://orizhon-restaurant.fr,Bib Gourmand,0.5,-4.53556,48.01963
 L'Esprit Bistrot,1 place Clodomir,"Vezeronce-Curtin, 38510",Tour-du-Pin,38,Isère,Grenoble,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,,Bib Gourmand,0.5,5.4714242,45.6506547
-The Presbytere,16 rue de la Sienne,"Heugueville-sur-Sienne, 50200",Coutances,50,Manche,Saint-Lô,Normandy,€€,"Modern Cuisine, Gastropub",https://www.thepresbytere.com,Bib Gourmand,0.5,-1.5249411,49.0345872
+The Presbytere,16 rue de la Sienne,"Heugueville-sur-Sienne, 50200",Coutances,50,Manche,Saint-Lô,Normandie,€€,"Modern Cuisine, Gastropub",https://www.thepresbytere.com,Bib Gourmand,0.5,-1.5249411,49.0345872
 Aux Bons Enfants,80 rue Meynadier,"Cannes, 06400",Grasse,06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,€€,Provençal,https://aux-bons-enfants-cannes.com/,Bib Gourmand,0.5,7.0120202,43.5516153
 L'Ardoise,7 place Molière,"Angers, 49000",Angers,49,Maine-et-Loire,Angers,Pays de la Loire,€€,"Mediterranean Cuisine, Traditional Cuisine",https://lardoise-angers.fr,Bib Gourmand,0.5,-0.5545996,47.4742919
 Le Bourgeon,8 place du Trophée,"Alby-sur-Chéran, 74540",Annecy,74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,€€,Modern Cuisine,http://www.restaurantlebourgeon.cm,Bib Gourmand,0.5,6.0205378,45.8172029
@@ -999,20 +999,20 @@ Histoire Ancienne,20 rue Royale,"Calais, 62100",Calais,62,Pas-de-Calais,Arras,Ha
 Solelh,30 avenue des Compagnons de la Libération,"L'Isle-sur-la-Sorgue, 84800",Avignon,84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€,Modern Cuisine,http://www.solelh-restaurant.fr,Bib Gourmand,0.5,5.0485989,43.9180452
 Le Moulin de la Santoire,La Plaine,"Saint-Saturnin, 15190",Saint-Flour,15,Cantal,Aurillac,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.lemoulindelasantoire.fr/,Bib Gourmand,0.5,2.8036229,45.2583308
 La Ferme du Poulet,180 rue Georges-Mangin,"Villefranche-sur-Saône, 69400",Villefranche-sur-Saône,69,Rhône,Lyon,Auvergne-Rhône-Alpes,€€,Traditional Cuisine,https://www.lafermedupoulet.com/,Bib Gourmand,0.5,4.7388388,45.9910681
-Éclosion,3 rue Laennec,"Quimper, 29000",Quimper,29,Finistère,Quimper,Brittany,€€,Modern Cuisine,http://eclosion-restaurant.fr,Bib Gourmand,0.5,-4.1064778,47.9951847
-L'Aghjalle,Toro Soprano,"Santa-Reparata-di-Balagna, 20220",Calvi,2B,Haute-Corse,Bastia,Corsica,€€,Corsican,http://www.laghjalle.com,Bib Gourmand,0.5,8.9211341,42.5865206
+Éclosion,3 rue Laennec,"Quimper, 29000",Quimper,29,Finistère,Quimper,Bretagne,€€,Modern Cuisine,http://eclosion-restaurant.fr,Bib Gourmand,0.5,-4.1064778,47.9951847
+L'Aghjalle,Toro Soprano,"Santa-Reparata-di-Balagna, 20220",Calvi,2B,Haute-Corse,Bastia,Corse,€€,Corsican,http://www.laghjalle.com,Bib Gourmand,0.5,8.9211341,42.5865206
 L'Itinérance,24 esplanade du Général-Leclerc,"Mers-les-Bains, 80350",Abbeville,80,Somme,Amiens,Hauts-de-France,€€,Modern Cuisine,https://litinerance.fr,Bib Gourmand,0.5,1.385464,50.0684249
 Ose,3 rue Durantin,"Paris, 75018",18th (Butte-Montmartre),75,Paris,Paris,Île-de-France,€€,Modern Cuisine,https://oseabbesses.fr/,Bib Gourmand,0.5,2.3373871,48.8852338
 Rēpu,944 avenue de la République,"Marcq-en-Barœul, 59700",Lille,59,Nord,Lille,Hauts-de-France,€€,"Modern Cuisine, Traditional Cuisine",http://www.repu.fr,Bib Gourmand,0.5,3.0975604,50.6623595
 Oxalis,Place de la Fontaine,"Marcolès, 15220",Aurillac,15,Cantal,Aurillac,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.aubergedela-tour.com,Bib Gourmand,0.5,2.351852,44.7814847
 Le Voyage d'Ernestine,182 Grand-Rue,"Alvignac, 46500",Gourdon,46,Lot,Cahors,Occitanie,€€,Modern Cuisine,http://www.le-voyage-ernestine.fr,Bib Gourmand,0.5,1.6922221,44.825918
 Château de Cîteaux - Bistrot La Cueillette,18 rue de Cîteaux,"Meursault, 21190",Beaune,21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,€€,Traditional Cuisine,http://www.lacueillette.com,Bib Gourmand,0.5,4.7723799,46.9780964
-Entre Nous,20 rue d'en Bas,"Vitré, 35500",Fougères-Vitré,35,Ille-et-Vilaine,Rennes,Brittany,€€,Modern Cuisine,http://restaurant-entre-nous.fr,Bib Gourmand,0.5,-1.2138621,48.123713
+Entre Nous,20 rue d'en Bas,"Vitré, 35500",Fougères-Vitré,35,Ille-et-Vilaine,Rennes,Bretagne,€€,Modern Cuisine,http://restaurant-entre-nous.fr,Bib Gourmand,0.5,-1.2138621,48.123713
 L'Ourse,1 rue Montesquieu,"Nantes, 44000",Nantes,44,Loire-Atlantique,Nantes,Pays de la Loire,€€,Farm to table,,Bib Gourmand,0.5,-1.5657453,47.2130523
 Kwon,7 rue Ernest-Cresson,"Paris, 75014",14th (Observatoire),75,Paris,Paris,Île-de-France,€,Korean,,Bib Gourmand,0.5,2.3296003,48.8325318
 Rosette,77 rue de Paris,"Clichy, 92110",Nanterre,92,Hauts-de-Seine,Nanterre,Île-de-France,€€,Traditional Cuisine,,Bib Gourmand,0.5,2.3040649,48.9005361
-Sème,33 place Charles-de-Gaulle,"Saint-Pair-sur-Mer, 50380",Avranches,50,Manche,Saint-Lô,Normandy,€€,"Traditional Cuisine, Modern Cuisine",http://www.semerestaurant.fr,Bib Gourmand,0.5,-1.5700696,48.8154557
-Doma,4 Grand Rue,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Brittany,€,Modern Cuisine,https://www.doma.bzh/,Bib Gourmand,0.5,-2.02419,48.64901
-Paul-Arthur,23-25 place de la Pucelle,"Rouen, 76000",Rouen,76,Seine-Maritime,Rouen,Normandy,€€,Modern Cuisine,http://www.paul-arthurrestaurant.fr,Bib Gourmand,0.5,1.0884942,49.4423399
+Sème,33 place Charles-de-Gaulle,"Saint-Pair-sur-Mer, 50380",Avranches,50,Manche,Saint-Lô,Normandie,€€,"Traditional Cuisine, Modern Cuisine",http://www.semerestaurant.fr,Bib Gourmand,0.5,-1.5700696,48.8154557
+Doma,4 Grand Rue,"Saint-Malo, 35400",Saint-Malo,35,Ille-et-Vilaine,Rennes,Bretagne,€,Modern Cuisine,https://www.doma.bzh/,Bib Gourmand,0.5,-2.02419,48.64901
+Paul-Arthur,23-25 place de la Pucelle,"Rouen, 76000",Rouen,76,Seine-Maritime,Rouen,Normandie,€€,Modern Cuisine,http://www.paul-arthurrestaurant.fr,Bib Gourmand,0.5,1.0884942,49.4423399
 La Salamandre,7 place de l'Église,"Saint-Aignan, 41110",Romorantin-Lanthenay,41,Loir-et-Cher,Blois,Centre-Val de Loire,€€,Modern Cuisine,https://www.restaurantlasalamandre.fr,Bib Gourmand,0.5,1.3759075,47.26964
 L'Acte 2,7 place aux Champignons,"Saint-Bonnet-le-Froid, 43290",Yssingeaux,43,Haute-Loire,Le Puy-en-Velay,Auvergne-Rhône-Alpes,€€,Modern Cuisine,https://www.lacte2-restaurant.fr,Bib Gourmand,0.5,4.4360243,45.1428131
