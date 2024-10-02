@@ -118,6 +118,7 @@ app.layout = html.Div([
     dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
     dcc.Store(id='department-centroid-store', data={}),
     dcc.Store(id='paris-arrondissement-centroid', data={}),
+    dcc.Store(id='region-demographics-centroid', data={}),
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout())  # Set initial content
 ])
@@ -684,57 +685,6 @@ def update_region_button_active_state(n_clicks_list, ids):
     return update_button_active_state_helper(n_clicks_list, ids, 'analysis')
 
 
-# LOCATION MATCHING content
-
-@app.callback(
-    Output('matched-city-output', 'children'),
-    [Input('submit-city-button', 'n_clicks'),
-     Input('clear-city-button', 'n_clicks')],
-    [State('city-input', 'value')]
-)
-def update_city_match_output(n_submit_clicks, n_clear_clicks, city_input):
-    if n_submit_clicks > 0 or n_clear_clicks > 0:
-        if city_input == '' or n_clear_clicks >= n_submit_clicks:
-            # Clear the output when the 'Clear' button is clicked or empty input
-            return html.Div(
-                children=[html.P("", className='default-message')]
-            )
-        else:
-            matcher = LocationMatcher(all_france)
-            result = matcher.find_region_department(city_input)
-
-            if isinstance(result, dict):
-                city_details = [
-                    html.P(f"Matched Location: {result.get('Matched Location', 'Unknown')}", className='match-title'),
-                    html.P(f"Region: {result.get('Region', 'Unknown')}", className='match-details'),
-                    html.P(f"Department: {result.get('Department', 'Unknown')}", className='match-details')
-                ]
-                # Only add Capital Status if it's not an empty string
-                if result.get('Is Capital'):
-                    city_details.append(html.P(f"Capital Status: {result['Is Capital']}", className='match-details'))
-
-                return html.Div(city_details, className='city-match-container')
-
-            elif isinstance(result, str):
-                return html.Div([
-                    html.P(f"No match found. '{city_input}' is not in represented in the Michelin Guide", className='no-match-message')
-                ])
-
-    return html.Div([
-        html.H5("", className='default-message')
-    ])
-
-
-@app.callback(
-    Output('city-input', 'value'),
-    Input('clear-city-button', 'n_clicks')
-)
-def clear_input(n_clicks):
-    if n_clicks > 0:
-        return ''  # Return an empty string to clear the input field
-    return dash.no_update  # Keep the current value if the clear button is not clicked
-
-
 # DEPARTMENT content
 
 @app.callback(
@@ -800,7 +750,6 @@ def update_department_button_active_state(n_clicks_list, ids):
 
 
 # ARRONDISSEMENT content
-
 
 @app.callback(
     Output('arrondissement-content-wrapper', 'className'),
@@ -938,10 +887,10 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
 # DEMOGRAPHICS content
 
 @app.callback(
-    [Output('demographics-map-graph', 'figure'),
+    [Output('demographics-dropdown-analysis', 'value'),
+     Output('demographics-map-graph', 'figure'),
      Output('demographics-bar-chart-graph', 'figure'),
      Output('demographics-add-remove', 'style'),
-     Output('demographics-dropdown-analysis', 'value'),
      Output('demographics-chart-math', 'style'),
      Output('weighted-mean', 'style'),
      Output('star-filter-demographics', 'style')],
@@ -949,12 +898,18 @@ def update_ranking_output(granularity, star_rating, top_n, n_clicks):
      Input('granularity-dropdown-demographics', 'value'),
      Input('demographics-dropdown-analysis', 'value'),
      Input('toggle-show-details-demographics', 'n_clicks'),  # Button to toggle restaurants
-     Input({'type': 'filter-button-demographics', 'index': ALL}, 'n_clicks')]  # Selected star ratings
+     Input({'type': 'filter-button-demographics', 'index': ALL}, 'n_clicks')],
+    [State('map-view-store-demo', 'data')]
 )
-def update_demographics_map(selected_metric, selected_dropdown, selected_regions, n_clicks_rest, n_clicks_stars):
+def update_demographics_map(selected_metric, selected_dropdown, selected_regions, n_clicks_rest, n_clicks_stars,
+                            mapview_data):
     # Handle "Select All"
     if 'all' in selected_regions:
         selected_regions = unique_regions  # Select all regions if "Select All" is chosen
+
+    # Ensure `selected_regions` is not None
+    if not selected_regions:
+        selected_regions = unique_regions  # Default to all regions when none are selected
 
     # Set granularity based on whether a region is selected in the dropdown
     if selected_dropdown != 'All France':
@@ -966,9 +921,8 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
 
     if selected_granularity == 'region':
         df = region_df.sort_values('region').copy()  # Use region-level data
-        if selected_regions:
-            df = df[df['region'].isin(selected_regions)].copy()
-            filtered_restaurants = all_france[all_france['region'].isin(selected_regions)].copy()
+        df = df[df['region'].isin(selected_regions)].copy()
+        filtered_restaurants = all_france[all_france['region'].isin(selected_regions)].copy()
     else:
         df = department_df.copy()
         # If a region is selected in the dropdown, filter to that region
@@ -990,6 +944,15 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
     else:
         selected_stars = stars
 
+    # **Check if any restaurants exist for the selected stars in the region**
+    available_stars = filtered_restaurants['stars'].unique().tolist()
+    selected_stars = [star for star in selected_stars if star in available_stars]
+
+    # **Handle the case where no stars are selected**
+    if not selected_stars:
+        show_restaurants = False  # No stars to show
+        filtered_restaurants = filtered_restaurants.iloc[0:0]  # Empty DataFrame to avoid plotting
+
     # If no metric is selected, just show map boundaries without data coloring
     if not selected_metric:
         fig_map = plot_demographic_choropleth_plotly(
@@ -1000,10 +963,11 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
             show_labels=False,
             cmap='Blues',
             restaurants=show_restaurants,  # Show restaurants based on button press
-            selected_stars=selected_stars  # Filter based on selected stars
+            selected_stars=selected_stars,  # Filter based on selected stars
+            zoom_data=mapview_data
         )
         empty_fig = go.Figure()  # Return empty figure for bar chart
-        return (fig_map, empty_fig, region_selector_style, selected_regions,
+        return (selected_regions, fig_map, empty_fig, region_selector_style,
                 {'display': 'none'}, {'display': 'none'}, star_filter_style)
 
     if selected_granularity == 'region':
@@ -1030,7 +994,8 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
         show_labels=False,
         cmap='Blues',
         restaurants=show_restaurants,
-        selected_stars=selected_stars
+        selected_stars=selected_stars,
+        zoom_data=mapview_data
     )
 
     fig_bar = plot_demographics_barchart(
@@ -1040,7 +1005,46 @@ def update_demographics_map(selected_metric, selected_dropdown, selected_regions
         weighted_mean=weighted_mean
     )
 
-    return fig_map, fig_bar, region_selector_style, selected_regions, {'display': 'block'}, weighted_mean_style, star_filter_style
+    return (selected_regions, fig_map, fig_bar, region_selector_style,
+            {'display': 'block'}, weighted_mean_style, star_filter_style)
+
+
+@app.callback(
+    Output('map-view-store-demo', 'data'),
+    [Input('demographics-map-graph', 'relayoutData'),
+     Input('granularity-dropdown-demographics', 'value')],
+    [State('map-view-store-demo', 'data')]
+)
+def store_map_view_demo(relayout_data, region_dropdown, existing_data):
+    # Initialize existing_data if it's None
+    if existing_data is None:
+        existing_data = {}
+
+    # Reset zoom data when region or department changes
+    ctx = dash.callback_context
+    triggered_input = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+
+    if triggered_input == 'granularity-dropdown-demographics':
+        return {}  # Clear zoom data when region dropdown changes
+
+    # If relayoutData is None or empty, do not update the store
+    if not relayout_data:
+        raise dash.exceptions.PreventUpdate
+
+    # Define the keys that indicate a user interaction
+    user_interaction_keys = {'map.zoom', 'map.center'}
+
+    # Check if relayoutData contains any of the user interaction keys
+    if user_interaction_keys.intersection(relayout_data.keys()):
+        zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
+        center = relayout_data.get('map.center', existing_data.get('center'))
+
+        if zoom and center:
+            existing_data['zoom'] = zoom
+            existing_data['center'] = center
+            return existing_data
+
+    raise dash.exceptions.PreventUpdate
 
 
 @app.callback(
@@ -1136,6 +1140,7 @@ def store_map_view(relayout_data, existing_data):
 
     # If no user interaction keys are present, prevent updating the store
     raise dash.exceptions.PreventUpdate
+
 
 @app.callback(
     [Output({'type': 'filter-button-wine', 'index': ALL}, 'className'),
