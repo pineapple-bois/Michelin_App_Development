@@ -3,8 +3,6 @@
    ------------------------- */
 body {
     font-family: 'Libre Franklin', sans-serif;
-    margin-left: 50px;
-    margin-right: 50px;
 }
 
 
@@ -335,6 +333,8 @@ body {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 140px);  /* 80px header + 60px footer */
+    margin-left: 50px;
+    margin-right: 50px;
     /*overflow: hidden;  !* Prevent overflow *!*/
 }
 
@@ -434,7 +434,7 @@ body {
    Description and Instructions Styles
    ------------------------- */
 .description-container {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .site-description {
@@ -604,7 +604,7 @@ body {
     flex-direction: row;
     width: 100%;
     height: calc(100vh - 60px); /* Subtracting footer height */
-    padding: 0 !important;
+    padding-left: 50px;
 }
 
 .analysis-container {
@@ -630,19 +630,19 @@ body {
     border-bottom: 1px solid black;
     padding-top: 20px;
     padding-bottom: 0;
-    width: 100%;
+    width: calc(100% - 50px);
 }
 
 .michelin-title-paragraph {
     margin-bottom: 20px;
     font-size: 18px;
     font-weight: 600;
-    line-height: 1.6;
+    line-height: 1.4;
 }
 
 .michelin-text-paragraph {
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.4;
     margin-bottom: 20px;
 }
 
@@ -670,6 +670,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     padding-bottom: 40px; /* Space between region and department sections */
+    padding-right: 50px;
 }
 
 .distribution-header {
@@ -795,6 +796,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     padding-bottom: 40px; /* Space between department and other sections */
+    padding-right: 50px;
 }
 
 /* Department description taking full width */
@@ -881,6 +883,7 @@ body {
     transition: height 0.3s ease-in-out;
     height: auto; /* Dynamic height based on content */
     padding-bottom: 40px; /* Space between arrondissement and other sections */
+    padding-right: 50px;
 }
 
 /* Wrapper for arrondissement content */
@@ -889,6 +892,7 @@ body {
     flex-direction: column;  /* Stacks the description, controls, and main content */
     width: 100%;
     box-sizing: border-box;
+    padding-right: 50px;
 }
 
 /* Arrondissement description taking full width */
@@ -1004,8 +1008,9 @@ body {
     border-top: 1px solid black;
     display: flex;
     flex-direction: column;  /* Stack description, controls, and content */
-    width: 100%;
+    width: calc(100% - 50px);
     box-sizing: border-box;
+    padding-right: 50px;
 }
 
 .ranking-header {
@@ -1093,6 +1098,14 @@ body {
    Demographics Section Styling
    ------------------------- */
 
+/* Wrapper to couple the main content and filter for demographics */
+.demographics-container {
+    /*background-color: #e2f0f9; !* Light pastel blue *!*/
+    width: 100%;
+    gap: 40px;
+    padding-right: 50px;
+}
+
 .demographics-text-container {
     /*background-color: #f5f5f5; !* Light grey for neutrality *!*/
     border-top: 1px solid #007bff;
@@ -1110,13 +1123,6 @@ body {
 .demographics-text-paragraph {
     font-size: 18px;
     line-height: 1.2;
-}
-
-/* Wrapper to couple the main content and filter for demographics */
-.demographics-container {
-    /*background-color: #e2f0f9; !* Light pastel blue *!*/
-    width: 100%;
-    gap: 40px;
 }
 
 .demographics-filter-container {
@@ -1141,7 +1147,6 @@ body {
 #demographics-add-remove {
     min-height: 60px; /* Set a reasonable minimum height */
     max-height: 150px; /* Allow the height to adjust up to 150px depending on the content */
-    overflow: hidden;  /* Prevent content overflow */
 }
 
 .demographics-restaurants-controls {
@@ -1250,6 +1255,11 @@ body {
    Wine Section Styling
    ------------------------- */
 
+.wine-container {
+    padding-right: 50px;
+}
+
+
 .wine-text-container {
     /*background-color: #f5f5f5;*/
     border-top: 1px solid #28a745;
@@ -1266,9 +1276,9 @@ body {
 }
 
 .wine-text-paragraph {
-    margin-bottom: 10px;
     font-size: 18px;
     line-height: 1.2;
+    margin-bottom: 20px;
 }
 
 .wine-tagline-paragraph {
@@ -1396,6 +1406,10 @@ body {
         padding-top: 80px;
     }
 
+    .analysis-container {
+        margin-top: 60px; /* Adjust for header */
+    }
+
     .description-container {
         margin-bottom: 10px;
     }
@@ -1414,7 +1428,7 @@ body {
 /* Media Query for screens smaller than 1250px (Tablet Layout) */
 @media screen and (max-width: 1250px) {
     /* Global layout changes */
-    body {
+    .main-content {
         margin-left: 30px;
         margin-right: 30px;
     }
@@ -1594,98 +1608,71 @@ body {
         justify-content: space-around;  /* Evenly distribute star rating sections */
         margin-top: 10px;
     }
+
+    /* Analysis layout changes */
+    .analysis-container {
+        margin-top: 60px; /* Adjust for header */
+    }
+
+    .content-container {
+        padding-left: 30px;
+    }
+
+    .michelin-title-paragraph {
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+
+    .region-content-wrapper {
+        padding-right: 30px;
+    }
+
+    .region-description {
+        font-size: 16px;
+    }
+
+    .department-content-wrapper {
+        padding-right: 30px;
+    }
+
+    .department-description {
+        font-size: 16px;
+    }
+
+    .visible-section {
+        padding-right: 30px;
+    }
+
+    .arrondissement-description {
+        font-size: 16px;
+    }
+
+    .ranking-content-wrapper {
+        width: calc(100% - 30px);
+        padding-right: 30px;
+    }
+
+    .ranking-description {
+        font-size: 16px;
+    }
+
+    .demographics-container {
+        padding-right: 30px;
+    }
+
+    .demographics-text-paragraph {
+        font-size: 16px;
+    }
+
+    .wine-container {
+        padding-right: 30px;
+    }
+
+    .wine-text-paragraph {
+        font-size: 16px;
+    }
 }
 
-/* -> WORK IN PROGRESS */
 
-/*!* Mobile Devices *!*/
-/*@media (max-width: 768px) {*/
-
-/*    body {*/
-/*    margin-top: 10px;*/
-/*    margin-left: 20px;*/
-/*    margin-right: 20px;*/
-/*    }*/
-
-/*    .sidebar-container,*/
-/*    .map-section {*/
-/*        width: 100%;*/
-/*        float: none;*/
-/*        order: 3;  !* Adjust order if necessary based on other content *!*/
-/*        height: auto; !* Allow container to fit content on mobile *!*/
-/*        flex-direction: column; !* Stack children vertically *!*/
-/*        font-size: 10px; !important;*/
-/*    }*/
-
-/*    .title-section,*/
-/*    .description-container,*/
-/*    .instructions-container,*/
-/*    .dropdown-container,*/
-/*    .restaurant-details-container,*/
-/*    .ratings-container {*/
-/*        order: 1;  !* Top section appears above everything else *!*/
-/*    }*/
-
-/*    .map-section {*/
-/*        order: 2;*/
-/*    }*/
-
-/*    .map-display {*/
-/*        height: 50vh;*/
-/*    }*/
-
-/*    .title-section {*/
-/*        font-size: 18px; !* Reduce title size for smaller screens *!*/
-/*        margin-left: 0;*/
-/*        margin-bottom: 10px;*/
-/*    }*/
-
-/*    .description-container {*/
-/*        margin-bottom: 10px;*/
-/*    }*/
-
-/*    .instructions-container {*/
-/*        margin-bottom: 10px;*/
-/*    }*/
-
-/*    .dropdown-container {*/
-/*        margin-bottom: 10px; !* Consistent spacing between dropdowns and other content *!*/
-/*    }*/
-
-/*    .michelin_star .bib-image {*/
-/*        width: 12px;*/
-/*    }*/
-
-/*    .star-description-title {*/
-/*        font-weight: bold;*/
-/*        font-size: 8px; !* Adjust as needed *!*/
-/*        margin-top: 2px;*/
-/*        margin-bottom: 0; !* Remove bottom margin *!*/
-/*}*/
-
-/*    .star-description-text {*/
-/*        font-size: 6px; !* Smaller text for description *!*/
-/*        margin-bottom: 10px;*/
-/*}*/
-
-/*    .site-description {*/
-/*        font-size: 10px; !* Smaller text for descriptions and instructions *!*/
-/*    }*/
-
-/*!* -------------------------*/
-/*   THESE TWO BELOW CAUSE MEGA RENDERING BUGS!*/
-/*   ------------------------- *!*/
-/*    .dropdown-container .dropdown-title {*/
-/*        font-size: 10px; !* This sets the size for the titles of the dropdowns *!*/
-/*        margin-bottom: 5px; !* This gives some space below the titles *!*/
-/*    }*/
-
-/*    .dropdown-container .Select-control,*/
-/*    .dropdown-container .Select-value,*/
-/*    .dropdown-container .Select-placeholder {*/
-/*        font-size: 10px !* Forces the font size if being overridden *!*/
-/*    }*/
-
-/*}*/
 
 
