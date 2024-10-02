@@ -626,7 +626,7 @@ def get_demographics_content():
                     html.Div(
                         className='demographics-dropdown-container',
                         children=[
-                            html.H6("Select a Region to Show Selected Metric by Department"),
+                            html.H6("Select a Region to Show Metric by Department"),
                             dcc.Dropdown(
                                 id='granularity-dropdown-demographics',
                                 options=[{'label': 'All France', 'value': 'All France'}] + [
@@ -648,17 +648,17 @@ def get_demographics_content():
                                     html.H5("Add or Remove Regions of France", className='region-filter-title'),
                                     dcc.Dropdown(
                                         id='demographics-dropdown-analysis',
-                                        options = [{'label': 'Select All', 'value': 'all'}] +
-                                                  [{'label': region, 'value': region} for region in unique_regions],
+                                        options=[{'label': 'Select All', 'value': 'all'}] +
+                                                [{'label': region, 'value': region} for region in unique_regions],
                                         value=unique_regions,  # All regions selected by default
                                         className='dropdown-category-demographics',
                                         multi=True,  # Multi-select enabled
-                                        clearable=True
+                                        clearable=True,
                                     ),
                                 ]
                             )
                         ],
-                    ),
+                    )
                 ],
             ),
 
@@ -708,7 +708,9 @@ def get_demographics_content():
                             dcc.Graph(
                                 id='demographics-map-graph',
                                 config={'displayModeBar': False}
-                            )
+                            ),
+                            dcc.Store(id='map-view-store-demo', data={}),
+                            dcc.Store(id='map-view-demo-updated', data={})
                         ],
                         style={'width': '50%', 'display': 'inline-block'}
                     ),
