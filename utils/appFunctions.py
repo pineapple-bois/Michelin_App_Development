@@ -977,9 +977,10 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
     return components
 
 
-def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity='region', show_labels=True, cmap='Blues', restaurants=False, selected_stars=[1, 2, 3]):
+def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity='region', show_labels=True, cmap='Blues',
+                                    restaurants=False, selected_stars=[1, 2, 3], zoom_data=None):
     """
-    Plot a choropleth map for demographic metrics using Plotly. Optionally, plot restaurant locations from 'all_france'.
+    Plot a choropleth map for demographic metrics using Plotly's map object. Optionally, plot restaurant locations from 'all_france'.
 
     Args:
         df (GeoDataFrame): The DataFrame containing the geographic data.
@@ -990,6 +991,7 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
         cmap (str): The colormap to use. Default is 'Blues'.
         restaurants (bool): Whether to plot restaurant locations. Default is False.
         selected_stars (list): List of selected star ratings (e.g., [1, 2, 3]).
+        zoom_data (dict): Dictionary containing 'zoom' and 'center' information.
 
     Returns:
         fig (Plotly Figure): The Plotly figure object.
@@ -1013,14 +1015,7 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
         3: "#C2282D"     # 3 stars
     }
 
-    # all_france has some English region names -> easy way to solve
-    region_mapping = {
-        'Brittany': 'Bretagne',
-        'Corsica': 'Corse',
-        'Normandy': 'Normandie'
-    }
-
-    # Initialize Plotly figure
+    # Initialize Plotly figure for a map
     fig = go.Figure()
 
     # Plot the choropleth map if a metric is provided
@@ -1033,7 +1028,7 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
 
         # Add choropleth trace
         fig.add_trace(
-            go.Choropleth(
+            go.Choroplethmap(
                 geojson=df.__geo_interface__,
                 z=df[metric],
                 locations=df.index,
@@ -1048,7 +1043,7 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
     else:
         # If no metric is provided, show only the boundaries
         fig.add_trace(
-            go.Choropleth(
+            go.Choroplethmap(
                 geojson=df.__geo_interface__,
                 z=[0] * len(df),
                 locations=df.index,
@@ -1060,33 +1055,38 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
             )
         )
 
+    # **Handle empty restaurant case**
     if restaurants and selected_stars:
-        # Map the English region names to the French ones used in df
-        all_france['region'] = all_france['region'].replace(region_mapping)
         filtered_restaurants = all_france[all_france['stars'].isin(selected_stars)]
 
+        # Filter by the regions present in the dataframe (df)
         if granularity == 'department':
             filtered_restaurants = filtered_restaurants[filtered_restaurants['region'].isin(df['region'].unique())]
+
+        # **If no restaurants match, skip plotting**
+        if filtered_restaurants.empty:
+            restaurants = False  # Set to False to skip plotting
 
         for star in selected_stars:
             star_data = filtered_restaurants[filtered_restaurants['stars'] == star]
 
             # Plot each restaurant as a scatter point on the map
-            fig.add_trace(
-                go.Scattergeo(
-                    lon=star_data['longitude'],
-                    lat=star_data['latitude'],
-                    mode='markers',
-                    marker=dict(size=8, color=star_colors.get(star)),
-                    hovertemplate=(
-                        f'<b>Restaurant Name:</b> %{{customdata[0]}}<br>'
-                        f'<b>Location:</b> %{{customdata[1]}}<br>'
-                    ),
-                    customdata=star_data[['name', 'location']].values,  # Pass restaurant names and locations
-                    showlegend=False,  # Ensure no legend is created for restaurants
-                    name=f"{'★' * int(star)}"
+            if not star_data.empty:
+                fig.add_trace(
+                    go.Scattermap(
+                        lon=star_data['longitude'],
+                        lat=star_data['latitude'],
+                        mode='markers',
+                        marker=dict(size=8, color=star_colors.get(star)),
+                        hovertemplate=(
+                            f'<b>Restaurant Name:</b> %{{customdata[0]}}<br>'
+                            f'<b>Location:</b> %{{customdata[1]}}<br>'
+                        ),
+                        customdata=star_data[['name', 'location']].values,  # Pass restaurant names and locations
+                        showlegend=False,  # Ensure no legend is created for restaurants
+                        name=f"{'★' * int(star)}"
+                    )
                 )
-            )
 
     # Optionally show labels (region or department)
     if show_labels:
@@ -1094,7 +1094,7 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
         centroids = df.geometry.centroid
         for x, y, label in zip(centroids.x, centroids.y, df[label_column]):
             fig.add_trace(
-                go.Scattergeo(
+                go.Scattermap(
                     lon=[x],
                     lat=[y],
                     text=label,
@@ -1104,21 +1104,31 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
                 )
             )
 
-    # Update the layout for the map
+    # **Calculate zoom and center based on region geometry if zoom_data is not provided**
+    if not zoom_data and granularity == 'department':
+        # Use the first geometry in the DataFrame
+        try:
+            specific_geometry = df['geometry'].iloc[0]
+            centroid = specific_geometry.centroid
+            zoom = 5.5  # Adjust as needed for the zoom level
+            center = {'lat': centroid.y, 'lon': centroid.x}
+        except Exception as e:
+            print(f"Error calculating centroid: {str(e)}")
+            zoom = 4.5  # Fallback zoom level
+            center = {'lat': 46.603354, 'lon': 1.888334}  # Default center on France
+    else:
+        zoom = zoom_data.get('zoom', 4.5)
+        center = zoom_data.get('center', {'lat': 46.603354, 'lon': 1.888334})
+
     fig.update_layout(
-        geo=dict(
-            scope='europe',
-            resolution=50,
-            showcoastlines=False,
-            showland=True,
-            landcolor="lightgray",
-            center=dict(lat=46.603354, lon=1.888334),
-            projection_scale=6,
+        map=dict(
+            style="../assets/basicTileMap.json",
+            #style="carto-positron-nolabels",
+            center=center,
+            zoom=zoom
         ),
-        height=700,
         margin=dict(l=10, r=10, t=30, b=10),
-        hovermode='closest',  # Focus on the closest point for hover
-        hoverdistance=5,      # Set the minimum distance for hover (tweak as needed)
+        height=700
     )
 
     return fig
