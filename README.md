@@ -19,10 +19,11 @@ The Guide Page of the Michelin Guide to France allows users to explore Michelin-
 
 #### Key Features:
 1. **Search by Location:**
-   - Users can input a city or location in France to find the corresponding Region and Department
+   - Users can input location in France to find the corresponding Region and Department if that location exists in the Michelin Guide.
+   - The entered location will be matched by the [LocationMatcher](utils/locationMatcher.py) class which disregards accents, punctuation and capitalisation.
 
 2. **Michelin Rating Filter:**
-   - Users can filter restaurants by their Michelin rating (1, 2, 3 stars, and Bib Gourmand). When a department is selected, available star categories are shown, allowing users to refine the results displayed on the map.
+   - Users can filter restaurants by Michelin rating (1, 2, 3 stars, and Bib Gourmand). When a department is selected, available star categories are shown, allowing users to refine the results displayed on the map.
 
 3. **Detailed Restaurant Information:**
    - By clicking on a restaurant marker on the map, users can see detailed information about that restaurant, including its name, address, cuisine, and website.
@@ -34,7 +35,7 @@ The Guide Page of the Michelin Guide to France allows users to explore Michelin-
 ![img](assets/Images/DemoGifs/MichelinAnalysisPage.gif)
 
 ### Overview
-The Analysis Page provides users with insights into the distribution of Michelin-rated restaurants across France. Users can interact with the data, filter results, and view trends related distributions, regions, and star ratings.
+The Analysis Page provides users with insights into the distribution of Michelin-rated restaurants across France. Users can interact with the data, filter results, and observe trends related to distributions, regions, and star ratings.
 
 #### Key Features:
 1. **Restaurant distributions by `Region`, `Department` & `Arrondissement`:**
@@ -81,7 +82,7 @@ The application provides a highly interactive experience through the use of dyna
    - Interactions with the app are managed through Dash callbacks that handle `clickData` events from Plotly charts. For example, when a user clicks on a restaurant marker on the map, details of the restaurant are dynamically fetched and displayed. This level of interactivity gives users real-time feedback based on their actions.
 
 **User-Centric Zoom Persistence with `relayoutData`:**
-   - To enhance user experience, the app preserves the zoom level and map center position when users explore wine regions. By storing the `relayoutData` from Plotly's map component, the app maintains the user's preferred zoom level and center point, ensuring a seamless experience when toggling between filters which inherently trigger a map reload.
+   - To enhance user experience, the app preserves the zoom level and map center position when users explore tile maps. By storing the `relayoutData` from Plotly's map component, the app maintains the user's preferred zoom level and center point, ensuring a seamless experience when toggling between filters which inherently trigger a map reload.
 
 **Customised Restaurant Filtering:**
    - The Michelin award filtering system allows users to select different levels of Michelin ratings which dynamically updates the map. This enables granular control over which restaurants are displayed, making it easier for users to explore their preferred dining options.
@@ -128,9 +129,6 @@ The development of this project will continue with the release of the 2025 Miche
 **Comprehensive Wine Regions Database:**
 - I plan to source and create a full set of wine regions, currently missing *Savoie*, *Sud-Ouest*, *Jura*, and *Corse*.
 - Automating the labeling of individual **AOCs** (Appellations d'Origine Contrôlée) will also be part of this enhancement to improve wine region exploration.
-
-**Enhanced User Experience with Zoom Persistence:**
-- I am considering implementing `relayoutData` for the Guide page to preserve user zoom levels and map positioning when filtering restaurant ratings. This will make map navigation more seamless as users switch between filters and views.
 
 ----
 
@@ -196,7 +194,7 @@ def before_request():
 
 2.	**Enable Debugging Mode**:
 
-By default, the app is set to run in a production mode where debugging features are disabled. For local development, you can enable debugging by modifying lines 1075-76 of [`michelin_app.py`](michelin_app.py):
+By default, the app is set to run in a production mode where debugging features are disabled. For local development, you can enable debugging by modifying lines 1224-25 of [`michelin_app.py`](michelin_app.py):
 
 
 ```python
@@ -204,7 +202,7 @@ By default, the app is set to run in a production mode where debugging features 
 if __name__ == '__main__':
     app.run_server(debug=True)  # Change from debug=False to debug=True
 ```
-Setting `debug=True` enables useful features such as hot-reloading, which automatically restarts the server when changes are made to the code. This makes development smoother and faster by reducing the need for manual restarts.
+Setting `debug=True` enables useful features such as hot-reloading, which automatically restarts the server when changes are made to the code.
 
 Once these changes are made, the app will run locally on http://127.0.0.1:8050 without enforcing HTTPS
 
