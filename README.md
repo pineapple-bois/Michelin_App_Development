@@ -181,7 +181,7 @@ Before running the application locally, a few modifications are necessary to ens
 
 1. **Disable HTTPS Redirection**:
 
-In [`michelin_app.py`](michelin_app.py), lines 75-80 contain a function that enforces HTTPS by redirecting HTTP requests to HTTPS. This is necessary for production environments but can cause issues when running the app locally. You can comment out these lines to prevent HTTPS enforcement:
+In [`michelin_app.py`](michelin_app.py), lines 77-81 contain a function that enforces HTTPS by redirecting HTTP requests to HTTPS. This is necessary for production environments but can cause issues when running the app locally. You can comment out these lines to prevent HTTPS enforcement:
 
 ```python
 # Comment out to launch locally (development)
@@ -194,7 +194,7 @@ def before_request():
 
 2.	**Enable Debugging Mode**:
 
-By default, the app is set to run in a production mode where debugging features are disabled. For local development, you can enable debugging by modifying lines 1224-25 of [`michelin_app.py`](michelin_app.py):
+By default, the app is set to run in a production mode where debugging features are disabled. For local development, you can enable debugging by modifying lines 1240-41 of [`michelin_app.py`](michelin_app.py):
 
 
 ```python
