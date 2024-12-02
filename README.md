@@ -6,7 +6,9 @@
 ## Overview
 The Michelin Guide to France application extends the [Michelin Rated Restaurants](https://github.com/pineapple-bois/Michelin_Rated_Restaurants) project as a dynamic user interface offering a variety of ways to explore Michelin-rated restaurants across France.
 
-### Visit the live app here: [michelin-guide-france.net](https://michelin-guide-france.net).
+### Visit the live app here: [michelin-guide-france.net](https://michelin-guide-france.net)
+
+This app came first place in [Plotly's Autumn App Challenge 2024](https://community.plotly.com/t/autumn-app-challenge/87373/26) 🥇
 
 ----
 
@@ -95,8 +97,6 @@ The application provides a highly interactive experience through the use of dyna
 
 
 ## Motivation
-
-This app was developed as an entry to [Plotly's Autumn App Challenge 2024](https://community.plotly.com/t/autumn-app-challenge/87373). *Caveat emptor*, I have been collecting and transforming [Jerry Ng's Michelin Dataset](https://www.kaggle.com/datasets/ngshiheng/michelin-guide-restaurants-2021) since 2023...
 
 Whilst at university studying maths & physics I'm teaching myself to become a data engineer and this dataset contains a number of things that interest me; particularly, restaurants and geography! I was a chef in my previous career and worked for a number of Michelin rated chefs and well as spending time in France during my years behind the stove.
 
