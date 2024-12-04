@@ -5,6 +5,7 @@ import dash
 import dash_bootstrap_components as dbc
 import os
 import uuid
+import httpx
 from openai import OpenAI
 from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
@@ -60,6 +61,7 @@ client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     organization=os.getenv("OPENAI_ORG_ID"),
     project=os.getenv("OPENAI_PROJECT_ID"),
+    http_client=httpx.Client(proxies=None)  # Explicitly disable proxies
 )
 
 # -----------------> App and server setup
@@ -76,11 +78,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
