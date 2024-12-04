@@ -5,7 +5,7 @@ import dash
 import dash_bootstrap_components as dbc
 import os
 import uuid
-from openai import OpenAI
+import openai
 from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
@@ -55,10 +55,8 @@ region_to_name = {region: region for region in geo_df['region'].unique()}
 
 
 load_dotenv()
-# Initialize OpenAI client with API key
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+# Initialize openai with API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # -----------------> App and server setup
 
@@ -74,11 +72,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -1294,7 +1292,7 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
     prompt = generate_optimized_prompt(wine_region)
     try:
-        response = client.chat.completions.create(
+        response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {
@@ -1318,4 +1316,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
