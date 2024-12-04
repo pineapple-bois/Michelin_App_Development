@@ -106,6 +106,7 @@ def get_city_match_section():
                                         id='city-input-mainpage',
                                         type='text',
                                         placeholder='Enter a location in France',
+                                        debounce=True,
                                         className='city-input-field'
                                     ),
                                     # Submit button
