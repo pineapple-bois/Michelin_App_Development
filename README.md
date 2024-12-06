@@ -6,7 +6,7 @@
 ## Overview
 The Michelin Guide to France application extends the [Michelin Rated Restaurants](https://github.com/pineapple-bois/Michelin_Rated_Restaurants) project as a dynamic user interface offering a variety of ways to explore Michelin-rated restaurants across France.
 
-### Visit the live app here: [michelin-guide-france.net](https://michelin-guide-france.net)
+### Visit the live app here: [restaurant-guide-france.net](https://restaurant-guide-france.net)
 
 This app came first place in [Plotly's Autumn App Challenge 2024](https://community.plotly.com/t/autumn-app-challenge/87373/26) 🥇
 
