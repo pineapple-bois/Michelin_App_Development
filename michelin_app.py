@@ -57,9 +57,7 @@ region_to_name = {region: region for region in geo_df['region'].unique()}
 load_dotenv()
 # Initialize openai with API key
 client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    organization=os.getenv("OPENAI_ORG_ID"),
-    project=os.getenv("OPENAI_PROJECT_ID")
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
 # -----------------> App and server setup
