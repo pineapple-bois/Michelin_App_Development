@@ -5,7 +5,6 @@ import dash
 import dash_bootstrap_components as dbc
 import os
 import uuid
-import httpx
 from openai import OpenAI
 from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
@@ -60,8 +59,7 @@ load_dotenv()
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     organization=os.getenv("OPENAI_ORG_ID"),
-    project=os.getenv("OPENAI_PROJECT_ID"),
-    http_client=httpx.Client(proxies=None)  # Explicitly disable proxies
+    project=os.getenv("OPENAI_PROJECT_ID")
 )
 
 # -----------------> App and server setup
