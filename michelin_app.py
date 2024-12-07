@@ -111,7 +111,7 @@ server.secret_key = secret_key  # Assign secret key for sessions
 
 
 # App set up
-app.title = 'Michelin Guide to France - pineapple-bois'
+app.title = 'Gastronomic Guide to France - pineapple-bois'
 app.index_string = open('assets/custom_header.html', 'r').read()
 app.layout = html.Div([
     dcc.Store(id='selected-stars', data=[]),
@@ -261,78 +261,6 @@ def toggle_collapse_and_handle_search(n_info_clicks, n_submit_clicks, n_clear_cl
     # Default to no update if no actions were triggered
     return (dash.no_update, dash.no_update, dash.no_update, 'city-match-output-container-mainpage',
             dash.no_update, dash.no_update)
-
-
-"""Older version currently deployed"""
-# @app.callback(
-#     [Output('info-collapse', 'is_open'),
-#      Output('city-input-mainpage', 'value'),
-#      Output('matched-city-output-mainpage', 'children'),
-#      Output('matched-city-output-mainpage', 'className'),
-#      Output('region-dropdown', 'value'),
-#      Output('department-dropdown', 'value')],
-#     [Input('info-toggle-button', 'n_clicks'),
-#      Input('submit-city-button-mainpage', 'n_clicks'),
-#      Input('clear-city-button-mainpage', 'n_clicks')],
-#     [State('info-collapse', 'is_open'),
-#      State('city-input-mainpage', 'value')]
-# )
-# def toggle_collapse_and_handle_search(n_info_clicks, n_submit_clicks, n_clear_clicks, is_open, city_input):
-#     """
-#     Callback function to manage the information collapse section and handle city search functionality.
-#     This function handles three main user interactions:
-#     1. Toggling the visibility of the information collapse section when the info button is clicked.
-#     2. Processing the city search when the submit button is clicked, updating the matched city output,
-#        and setting the region and department dropdown values based on the search result.
-#     3. Clearing the city input and resetting outputs when the clear button is clicked.
-#     """
-#     # Ensure clicks are initialized
-#     n_info_clicks = n_info_clicks or 0
-#     n_submit_clicks = n_submit_clicks or 0
-#     n_clear_clicks = n_clear_clicks or 0
-#
-#     # Collapse logic: only triggered by the toggle button
-#     ctx = dash.callback_context
-#     if ctx.triggered[0]['prop_id'] == 'info-toggle-button.n_clicks':
-#         if is_open:
-#             # Collapse: clear input and match result
-#             return False, '', html.Div([html.P("", className='default-message')]), \
-#                    'city-match-output-container-mainpage', dash.no_update, dash.no_update
-#         else:
-#             # Expand the collapse without resetting input/output
-#             return (True, dash.no_update, dash.no_update, 'city-match-output-container-mainpage',
-#                     dash.no_update, dash.no_update)
-#
-#     # Handle clearing the input and resetting the output when clear is clicked
-#     if ctx.triggered[0]['prop_id'] == 'clear-city-button-mainpage.n_clicks':
-#         return dash.no_update, '', html.Div([html.P("", className='default-message')]), \
-#                'city-match-output-container-mainpage', dash.no_update, dash.no_update
-#
-#     # Handle the search functionality triggered by the submit button
-#     if ctx.triggered[0]['prop_id'] == 'submit-city-button-mainpage.n_clicks' and city_input:
-#         matcher = LocationMatcher(all_france)
-#         result = matcher.find_region_department(city_input)
-#         if isinstance(result, dict):
-#             city_details = [
-#                 html.P(
-#                     f"Match:  {result.get('Matched Location', 'Unknown')},  "
-#                     f"Region:  {result.get('Region', 'Unknown')},  "
-#                     f"Department:  {result.get('Department', 'Unknown')}",
-#                     className='match-details'
-#                 ),
-#             ]
-#             # Populate region and department dropdowns
-#             return dash.no_update, dash.no_update, html.Div(city_details, className='city-match-container'), \
-#                    'city-match-output-container-mainpage visible', result.get('Region'), result.get('Department')
-#         else:
-#             return dash.no_update, dash.no_update, html.Div([
-#                 html.P(f"No match found. '{city_input}' is not represented in the Michelin Guide",
-#                        className='no-match-message')
-#             ]), 'city-match-output-container-mainpage visible', dash.no_update, dash.no_update
-#
-#     # Default to no update if no actions were triggered
-#     return (dash.no_update, dash.no_update, dash.no_update, 'city-match-output-container-mainpage',
-#             dash.no_update, dash.no_update)
 
 
 @app.callback(
