@@ -253,8 +253,7 @@ body {
 .info-container {
     /*background-color: lightblue; !* Debug color for the content container *!*/
     width: 100%;
-    padding-left: 50px;
-    padding-right: 50px;
+    padding: 0 50px; /* Add space on the sides */
     display: flex; /* Flexbox for horizontal alignment */
     align-items: center; /* Vertically center the children */
     justify-content: flex-start; /* Align content to the left */
@@ -263,7 +262,22 @@ body {
 /* Styling for GitHub image */
 .info-image {
     margin-right: 0.5rem; /* Space between image and text */
-    width: 30px;
+    width: 32px;
+}
+
+/* Wrapper for all text */
+.text-container {
+    display: flex;
+    flex-direction: column; /* Stack the two lines vertically */
+    line-height: 1.1; /* Adjust line spacing (smaller value reduces the gap) */
+}
+
+/* First line with GitHub link */
+.info-line {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 0;
 }
 
 /* Link styling */
@@ -277,6 +291,17 @@ body {
     text-decoration: underline; /* Underline on hover */
 }
 
+/* Info text styling */
+.info-text {
+    font-size: 12px;
+    color: black;
+}
+
+.info-footer, .disclaimer-text, .disclaimer-link {
+    margin: 0; /* Ensures no unwanted spacing */
+    padding: 0;
+}
+
 /* Footer text styling */
 .info-footer {
     font-size: 9px;
@@ -284,11 +309,18 @@ body {
     opacity: 0.7; /* Slight transparency */
 }
 
-/* Info text styling */
-.info-text {
-    font-size: 12px;
-    color: black;
+/* Disclaimer text styling */
+.disclaimer-text {
+    font-size: 10px;
+    color: #555; /* Subtle grey color */
 }
+
+/* Styling for disclaimer link */
+.disclaimer-link {
+    font-size: 10px; /* Match disclaimer font size */
+    color: #007bff; /* Subtle blue for links */
+}
+
 
 /* -------------------------
    404 Styles

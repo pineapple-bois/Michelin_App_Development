@@ -145,20 +145,45 @@ def get_footer():
                     html.Img(src="assets/Images/github-mark.png", className='info-image'),
                     html.Div(
                         children=[
-                            html.Span("The Michelin Guide to France was built from this ", className='info-text'),
-                            dcc.Link("GitHub Repository", href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
-                                     target="_blank", className='info-link'),
-                            html.Div("© pineapple-bois 2024", className='info-footer')
+                            # Info text on one line
+                            html.Div(
+                                children=[
+                                    html.Span("The Michelin Guide to France was built from this ", className='info-text'),
+                                    dcc.Link(
+                                        "GitHub Repository",
+                                        href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
+                                        target="_blank",
+                                        className='info-link'
+                                    ),
+                                ],
+                                className='info-line'  # New class for the first line
+                            ),
+                            # Copyright and disclaimer on another line
+                            html.Div(
+                                children=[
+                                    html.Span("© pineapple-bois 2024", className='info-footer'),
+                                    html.Span(
+                                        " | This website is an independent project and is not affiliated with or endorsed by ",
+                                        className='disclaimer-text'
+                                    ),
+                                    dcc.Link(
+                                        "the official Michelin Guide",
+                                        href="https://guide.michelin.com/en/fr/restaurants",
+                                        target="_blank",
+                                        className='disclaimer-link'
+                                    ),
+                                ],
+                                className='footer-inline'
+                            )
                         ],
-                        style={'flexDirection': 'column'}  # Stack the text and the new line on top of each other
+                        className='text-container'
                     )
                 ],
-                className='info-container'  # Inner container
+                className='info-container'
             )
         ],
-        className='footer-main'  # Main div for debug coloring
+        className='footer-main'
     )
-
 
 # Define the row with buttons logic as functions
 def create_star_button(value, label):
