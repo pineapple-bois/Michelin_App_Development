@@ -5,7 +5,6 @@ import dash
 import dash_bootstrap_components as dbc
 import os
 import uuid
-import httpx
 from openai import OpenAI
 from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
@@ -57,10 +56,8 @@ region_to_name = {region: region for region in geo_df['region'].unique()}
 
 load_dotenv()
 # Initialize openai with API key
-http_client = httpx.Client(proxies=None)
 client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    http_client=http_client
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
 # -----------------> App and server setup
@@ -79,8 +76,6 @@ app = dash.Dash(
 # Comment out to launch locally (development)
 @server.before_request
 def before_request():
-    if request.endpoint in ['static', 'api_call']:  # Replace with relevant endpoints
-        return None
     if not request.is_secure:
         url = request.url.replace('http://', 'https://', 1)
         return redirect(url, code=301)
@@ -1323,4 +1318,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
