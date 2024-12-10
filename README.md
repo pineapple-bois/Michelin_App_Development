@@ -218,6 +218,12 @@ Thank you for your interest in improving the Michelin Guide to France app!
 
 ----
 
+### Attributions
+
+- **Michelin Star Logo**: Nikolaos Dimos, CC BY-SA 3.0 via [Wikimedia Commons](https://creativecommons.org/licenses/by-sa/3.0/)
+
+----
+
 [![Licence: MIT](https://img.shields.io/badge/Licence-MIT-yellow.svg)](LICENSE.md) [![Pineapple Bois](https://img.shields.io/badge/Website-Pineapple_Bois-5087B2.svg?style=flat&logo=telegram)](https://pineapple-bois.github.io)
 
 ----
