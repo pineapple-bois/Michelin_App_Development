@@ -1407,7 +1407,7 @@ body {
     flex-grow: 1;  /* Allow the text to take remaining space */
 }
 
-.disclaimer-text {
+.disclaimer-text-ai {
     font-size: 10px;
     color: #666;  /* Grey text color for the disclaimer */
     margin-top: 20px !important;
