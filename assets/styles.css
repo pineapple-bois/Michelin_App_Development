@@ -431,18 +431,11 @@ body {
     padding-right: 10px;   /* Optional: small gap between columns */
 }
 
-.michelin_star {
-    width: 20px;
-    vertical-align: middle;
-}
-
-.bib-image {
-    width: 20px;
-    vertical-align: middle;
-}
-
+.michelin-star,
+.bib-image,
 .green-star {
-    width: 20px;
+    height: 20px;
+    width: auto;
     vertical-align: middle;
 }
 
