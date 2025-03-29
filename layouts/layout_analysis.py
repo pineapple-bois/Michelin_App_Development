@@ -134,7 +134,7 @@ def get_intro_section():
                         children=[
                             html.P([bib_gourmand()], className='star-description-title'),
                             html.P('Bib Gourmand', className='star-description-title'),
-                            html.P('Exceptionally good food at moderate prices',
+                            html.P('Good food at moderate prices',
                                    className='star-description-text'),
                         ], className='bib-child'
                     ),
