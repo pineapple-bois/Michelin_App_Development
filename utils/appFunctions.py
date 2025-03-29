@@ -382,21 +382,24 @@ def get_restaurant_details(row):
         location_info = html.Span(f"{location}", className='restaurant-location')
 
     # Determine if it's a Bib Gourmand or how many Michelin stars
-    if stars == 0.5:
-        star_component = bib_gourmand()
-    else:
-        star_component = michelin_stars(stars)
+    components = []
 
+    if stars == 0.5:
+        components.append(bib_gourmand())
+    else:
+        components.extend(michelin_stars(stars))
     # Append green star if applicable
     if greenstar == 1:
-        star_component.append(green_star())
+        components.append(green_star(with_margin=bool(components)))
+
+    star_component = html.Span(components, className='restaurant-stars')
 
     # Create HTML content to display this information, organized in divs
     details_layout = html.Div([
         html.Div([
             html.Div([
                 html.Span(name, className='restaurant-name'),
-                html.Span(children=star_component, className='restaurant-stars'),
+                star_component
             ], className='details-header'),
             html.Div([
                 html.Span(f"{cuisine}", className='restaurant-cuisine')
