@@ -4,11 +4,12 @@ import plotly.graph_objects as go
 from shapely.geometry import Point
 from dash import html, dcc
 
-from layouts.layout_main import michelin_stars, bib_gourmand, color_map
+from layouts.layout_main import michelin_stars, bib_gourmand, green_star, color_map
 
 
 # Hover-tip text
 text_color_map = {
+    0.1:  "#689c44",   # Green star green
     0.5: "#FFB84D",
     1: "#640A64",
     2: "#640A64",
@@ -208,6 +209,23 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars,
         arr_data['color'] = arr_data['stars'].map(color_map)
         arr_data['hover_text'] = arr_data.apply(generate_hover_text, axis=1)
 
+        # First layer: green outline behind markers
+        green_outline_data = arr_data[arr_data['greenstar'] == 1]
+        if not green_outline_data.empty:
+            fig.add_trace(go.Scattermap(
+                lat=green_outline_data['latitude'],
+                lon=green_outline_data['longitude'],
+                mode='markers',
+                marker=dict(
+                    size=15,
+                    color='#689c44',
+                    opacity=0.4
+                ),
+                hoverinfo='skip',
+                showlegend=False
+            ))
+
+        # Main layer: star-coloured markers
         for star, color in color_map.items():
             subset = arr_data[arr_data['stars'] == star]
 
@@ -220,7 +238,10 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars,
                 lat=subset['latitude'],
                 lon=subset['longitude'],
                 mode='markers',
-                marker=go.scattermap.Marker(size=11, color=color),
+                marker=dict(
+                    size=11,
+                    color=color
+                ),
                 text=subset['hover_text'],
                 customdata=subset.index,
                 hovertemplate='%{text}',
@@ -340,6 +361,7 @@ def get_restaurant_details(row):
     try:
         name = row['name']
         stars = row['stars']
+        greenstar = row['greenstar']
         cuisine = row['cuisine']
         price = row['price']
         address = row['address']
@@ -365,12 +387,16 @@ def get_restaurant_details(row):
     else:
         star_component = michelin_stars(stars)
 
+    # Append green star if applicable
+    if greenstar == 1:
+        star_component.append(green_star())
+
     # Create HTML content to display this information, organized in divs
     details_layout = html.Div([
         html.Div([
             html.Div([
                 html.Span(name, className='restaurant-name'),
-                html.Span(star_component, className='restaurant-stars'),
+                html.Span(children=star_component, className='restaurant-stars'),
             ], className='details-header'),
             html.Div([
                 html.Span(f"{cuisine}", className='restaurant-cuisine')
@@ -496,11 +522,27 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         dept_data['color'] = dept_data['stars'].map(color_map)
         dept_data['hover_text'] = dept_data.apply(generate_hover_text, axis=1)
 
+        # Plot background outlines for green star restaurants
+        green_outline_data = dept_data[dept_data['greenstar'] == 1]
+        if not green_outline_data.empty:
+            fig.add_trace(go.Scattermap(
+                lat=green_outline_data['latitude'],
+                lon=green_outline_data['longitude'],
+                mode='markers',
+                marker=dict(
+                    size=15,
+                    color='#689c44',
+                    opacity=0.4  # Subtle green glow
+                ),
+                hoverinfo='skip',  # We only want hover on the top marker
+                showlegend=False
+            ))
+
+        # Plot the regular markers on top
         for star, color in color_map.items():
             subset = dept_data[dept_data['stars'] == star]
-
             if subset.empty:
-                continue  # Skip if no data for this star rating
+                continue
 
             label_name = '🍽️' if star == 0.5 else f"{'★' * int(star)}"
 
@@ -508,7 +550,10 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                 lat=subset['latitude'],
                 lon=subset['longitude'],
                 mode='markers',
-                marker=go.scattermap.Marker(size=11, color=color),
+                marker=dict(
+                    size=11,
+                    color=color
+                ),
                 text=subset['hover_text'],
                 customdata=subset.index,
                 hovertemplate='%{text}',
