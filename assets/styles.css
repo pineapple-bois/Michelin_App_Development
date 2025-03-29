@@ -422,6 +422,13 @@ body {
     width: 70%;
     margin-top: 10px;
     margin-bottom: 60px;
+    justify-content: space-between; /* Ensures equal spacing */
+}
+
+.star-ratings-container-main > div {
+    flex: 1;               /* Makes all 5 items equal width */
+    text-align: left;      /* Aligns content to the left inside each block */
+    padding-right: 10px;   /* Optional: small gap between columns */
 }
 
 .michelin_star {
@@ -430,6 +437,11 @@ body {
 }
 
 .bib-image {
+    width: 20px;
+    vertical-align: middle;
+}
+
+.green-star {
     width: 20px;
     vertical-align: middle;
 }
