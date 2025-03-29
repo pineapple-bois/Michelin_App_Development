@@ -30,6 +30,7 @@ unique_regions = ['Auvergne-Rhône-Alpes',
 #  wikipedia image links:
 # https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg
 # https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png
+# https://commons.wikimedia.org/wiki/File:MichelinGreenStar.svg
 
 
 # Standard michelin images
@@ -43,6 +44,11 @@ def michelin_stars(count):
 def bib_gourmand():
     return html.Img(src="assets/Images/Michelin_Bib.png",
                     className='bib-image',
+                    style={'width': '20px', 'vertical-align': 'middle'})
+
+def green_star():
+    return html.Img(src="assets/Images/MichelinGreenStar.png",
+                    className='green-star',
                     style={'width': '20px', 'vertical-align': 'middle'})
 
 
@@ -208,8 +214,13 @@ def create_star_button(value, label):
 
 
 def star_filter_row(available_stars):
-    # Create a button for each available star rating
-    buttons = [create_star_button(star, inverted_michelin_stars(star) if star != 0.5 else inverted_bib_gourmand()) for star in available_stars]
+    buttons = [
+        create_star_button(
+            star,
+            inverted_michelin_stars(star) if star in [1, 2, 3] else inverted_bib_gourmand()
+        )
+        for star in available_stars if star != 0.25
+    ]
     return html.Div(buttons, className='star-filter-buttons')
 
 
@@ -327,8 +338,15 @@ def get_main_content_with_city_match(unique_regions):
                 children=[
                     html.P([bib_gourmand()], className='star-description-title'),
                     html.P('Bib Gourmand', className='star-description-title'),
-                    html.P('Exceptionally good food at moderate prices', className='star-description-text'),
+                    html.P('Good food at moderate prices', className='star-description-text'),
                 ], className='bib-child'
+            ),
+            html.Div(
+                children=[
+                    html.P([green_star()], className='star-description-title'),
+                    html.P('Green Star', className='star-description-title'),
+                    html.P('High sustainability standards', className='star-description-text'),
+                ], className='green-child'
             ),
         ],
     )
