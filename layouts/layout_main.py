@@ -35,36 +35,55 @@ unique_regions = ['Auvergne-Rhône-Alpes',
 
 # Standard michelin images
 def michelin_stars(count):
-    # Returns a list of image components for each star
-    return [html.Img(src="assets/Images/Michelin_star.png",
-                     className='michelin-star',
-                     style={'width': '20px', 'vertical-align': 'middle', 'margin-right': '3px'}) for _ in range(int(count))]
+    # Returns a list of image components for each star, with spacing between all but the last
+    stars = []
+    for i in range(int(count)):
+        style = {
+            'height': '20px',
+            'width': 'auto',
+            'vertical-align': 'middle'
+        }
+        if i < count - 1:
+            style['marginRight'] = '3px'
+        stars.append(html.Img(
+            src="assets/Images/Michelin_star.png",
+            className='michelin-star',
+            style=style
+        ))
+    return stars
 
 
 def bib_gourmand():
     return html.Img(src="assets/Images/Michelin_Bib.png",
                     className='bib-image',
-                    style={'width': '20px', 'vertical-align': 'middle'})
+                    style={'height': '20px', 'width': 'auto', 'vertical-align': 'middle'})
 
-def green_star():
-    return html.Img(src="assets/Images/MichelinGreenStar.png",
-                    className='green-star',
-                    style={'width': '20px', 'vertical-align': 'middle'})
+
+def green_star(with_margin=False):
+    style = {'height': '20px', 'width': 'auto', 'vertical-align': 'middle'}
+    if with_margin:
+        style['marginLeft'] = '3px'
+
+    return html.Img(
+        src="assets/Images/MichelinGreenStar.png",
+        className='green-star',
+        style=style
+    )
 
 
 # Inverted michelin images
 def inverted_michelin_stars(count):
     # Returns a list of Michelin star image components each with inverted colors
     return [html.Img(src="assets/Images/Michelin_star.png",
-                     className='michelin-star',
+                     className='michelin-star-invert',
                      style={'width': '16px', 'vertical-align': 'middle', 'margin-right': '2px', 'filter': 'brightness(0) invert(1)'}) for _ in range(int(count))]
 
 
 def inverted_bib_gourmand():
     # Returns the Bib Gourmand image component with inverted colors
     return html.Img(src="assets/Images/Michelin_Bib.png",
-                    className='bib-image',
-                    style={'width': '16px', 'vertical-align': 'middle', 'filter': 'brightness(0) invert(1)'})
+                    className='bib-image-invert',
+                    style={'width': '18px', 'vertical-align': 'middle', 'filter': 'brightness(0) invert(1)'})
 
 
 def get_header_with_buttons():
