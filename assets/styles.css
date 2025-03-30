@@ -683,8 +683,8 @@ body {
     margin-bottom: 20px;
 }
 
-.three-child, .two-child, .one-child, .bib-child {
-    width: 25%;
+.three-child, .two-child, .one-child, .bib-child, .green-child {
+    width: 20%;
     box-sizing: border-box; /* Ensure padding is included in the width calculation */
 }
 
@@ -1048,6 +1048,19 @@ body {
     width: calc(100% - 50px);
     box-sizing: border-box;
     padding-right: 50px;
+}
+
+/* Apply margin to all stars */
+.star-group .michelin-star-header {
+    margin-right: 3px;
+    width: 25px;
+    height: auto;
+    vertical-align: middle;
+}
+
+/* Remove margin from the last star in each group */
+.star-group .michelin-star-header:last-of-type {
+    margin-right: 0;
 }
 
 .ranking-header {

@@ -1,7 +1,8 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from .layout_main import (michelin_stars, bib_gourmand, inverted_michelin_stars, inverted_bib_gourmand,
+from .layout_main import (michelin_stars, bib_gourmand, green_star,
+                          inverted_michelin_stars, inverted_bib_gourmand,
                           get_header_with_buttons, get_footer)
 
 
@@ -30,10 +31,14 @@ unique_regions = ['Auvergne-Rhône-Alpes',
                   ]
 
 def michelin_star_header(count):
-    # Returns a list of image components for each star
-    return [html.Img(src="assets/Images/Michelin_star.png",
-                     className='michelin-star',
-                     style={'width': '25px', 'vertical-align': 'middle', 'margin-right': '4px'}) for _ in range(int(count))]
+    return [
+        html.Img(
+            src="assets/Images/Michelin_star.png",
+            className='michelin-star-header',
+            style={'width': '25px', 'vertical-align': 'middle'}  # removed margin-right
+        )
+        for _ in range(int(count))
+    ]
 
 
 def create_star_button(value, label, filter_type):
@@ -130,6 +135,13 @@ def get_intro_section():
             html.Div(
                 className='star-ratings-container',  # Class for the parent container
                 children=[
+                    html.Div(
+                        children=[
+                            html.P([green_star()], className='star-description-title'),
+                            html.P('Green Star', className='star-description-title'),
+                            html.P('High sustainability standards', className='star-description-text'),
+                        ], className='green-child'
+                    ),
                     html.Div(
                         children=[
                             html.P([bib_gourmand()], className='star-description-title'),
@@ -462,9 +474,9 @@ def get_top_ranking_section():
                 className='ranking-header',
                 children=[
                     "Most ",
-                    *michelin_star_header(2),  # Unpack the list of images for 2 stars
+                    html.Span(michelin_star_header(2), className='star-group'),
                     " & ",
-                    *michelin_star_header(3),  # Unpack the list of images for 3 stars
+                    html.Span(michelin_star_header(3), className='star-group'),
                     " Restaurants",
                 ]
             ),
