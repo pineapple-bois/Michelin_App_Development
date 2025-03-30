@@ -232,39 +232,59 @@ def create_star_button(value, label):
     )
 
 
-def star_filter_row(available_stars):
-    buttons = [
+def star_filter_section(available_stars=star_placeholder):
+    standard_stars = [s for s in available_stars if s != 0.25]
+    has_selected = 0.25 in available_stars
+
+    star_buttons = [
         create_star_button(
             star,
             inverted_michelin_stars(star) if star in [1, 2, 3] else inverted_bib_gourmand()
         )
-        for star in available_stars if star != 0.25
+        for star in standard_stars
     ]
-    return html.Div(buttons, className='star-filter-buttons')
 
-
-# def star_filter_section(available_stars=star_placeholder):
-#     star_buttons = star_filter_row(available_stars)
-#     return html.Div([
-#         html.H6("Filter by Michelin Rating", className='star-select-title'),
-#         star_buttons
-#     ], className='star-filter-section', id='star-filter', style={'display': 'none'})
-
-
-def star_filter_section(available_stars=star_placeholder):
-    star_buttons = star_filter_row(available_stars)
     toggle_button = html.Button(
-        "Selected Restaurants",
+        "Selected",
         id="toggle-selected-btn",
         n_clicks=0,
         className="selected-toggle-button",
-        style={'display': 'block'}  # Initially hidden; this can be toggled in your callbacks
+        style={'display': 'block'}
     )
-    return html.Div([
-        html.H6("Filter by Michelin Rating", className='star-select-title'),
-        star_buttons,
-        toggle_button
-    ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+
+    # Shared layout title
+    title = html.H6("Filter by Michelin Rating", className='star-select-title')
+
+    # Case 1: inline (fits in same row)
+    if has_selected and len(standard_stars) <= 3:
+        star_buttons.append(toggle_button)
+        return html.Div([
+            title,
+            html.Div(star_buttons, className='star-filter-buttons')
+        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+
+    # Case 2: on a new row, wrapped in its own aligned container
+    elif has_selected:
+        return html.Div([
+            title,
+            html.Div(star_buttons, className='star-filter-buttons'),
+            html.Div(
+                [
+                    html.Div(toggle_button, className='selected-toggle-inner'),
+                    html.Div(className='selected-toggle-spacer'),
+                    html.Div(className='selected-toggle-spacer'),
+                    html.Div(className='selected-toggle-spacer')
+                ],
+                className='selected-toggle-wrapper'
+            )
+        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+
+    # Case 3: no toggle at all
+    else:
+        return html.Div([
+            title,
+            html.Div(star_buttons, className='star-filter-buttons')
+        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
 
 def get_main_content_with_city_match(unique_regions):

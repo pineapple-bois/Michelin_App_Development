@@ -522,7 +522,7 @@ body {
 }
 
 .star-button {
-    width: 40px;
+    /*width: 40px;*/
     padding: 5px;
 }
 
@@ -536,6 +536,11 @@ body {
     align-items: center;
     gap: 10px;  /* Adjust this value to manage the gap between buttons */
     margin-bottom: 10px;
+}
+
+.star-filter-buttons > * {
+    flex: 1;
+    text-align: center;
 }
 
 /* Hover effect for star buttons */
@@ -555,24 +560,58 @@ body {
     opacity: 0.5; /* Lower opacity for inactive */
 }
 
+.star-button,
 .selected-toggle-button {
-    padding: 6px 12px;
+    height: 36px;
+    line-height: 1;
+    text-align: center;
+    border-radius: 8px;
+    font-family: inherit;
+    flex: 1;
+}
+
+.selected-toggle-wrapper {
+    display: flex;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.selected-toggle-inner {
+    flex: 1; /* Same width as a star button */
+    display: flex;
+    justify-content: flex-start;  /* Align the button to the left */
+    margin-right: 5px;
+}
+
+.selected-toggle-spacer {
+    flex: 1;  /* Spacer takes up 75% of the row */
+    margin-right: 5px;
+}
+
+.selected-toggle-button {
     background-color: #808080; /* Matches the grey marker */
     color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
     font-size: 14px;
+    text-align: center;
+    border: 1px solid black;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .selected-toggle-button:hover {
-    background-color: #6e6e6e;
+    opacity: 0.8 !important;
+    cursor: pointer;
 }
 
 .selected-toggle-button.active {
-    background-color: #505050;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    background-color: #808080;
+    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Inactive state, specifically less opacity when not active */
+.selected-toggle-button.inactive {
+    opacity: 0.5; /* Lower opacity for inactive */
+    border: 0;
 }
 
 
