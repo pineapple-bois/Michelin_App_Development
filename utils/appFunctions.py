@@ -10,6 +10,7 @@ from layouts.layout_main import michelin_stars, bib_gourmand, green_star, color_
 # Hover-tip text
 text_color_map = {
     0.1:  "#689c44",   # Green star green
+    0.25: '#FFFFFF',   # Selected
     0.5: "#FFB84D",
     1: "#640A64",
     2: "#640A64",
@@ -198,18 +199,19 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars,
                 showlegend=False
             ))
 
-    # Filter the data for the selected arrondissement and stars
-    arr_data = data_df[
-        (data_df['arrondissement'] == arrondissement) &
-        (data_df['stars'].isin(selected_stars))
-    ].copy()
+    # Before filtering, inspect all restaurants in the department
+    all_in_arron = data_df[data_df['arrondissement'] == arrondissement]
 
-    # Proceed to plot restaurants as in your existing plotting functions
+    # Now do star filtering
+    arr_data = all_in_arron[all_in_arron['stars'].isin(selected_stars)].copy()
+
+    # Proceed to plot starred restaurants
+    # If dept_data is not empty, add restaurant points
     if not arr_data.empty:
-        arr_data['color'] = arr_data['stars'].map(color_map)
+        arr_data['color'] = arr_data['stars'].map(color_map).fillna('#808080')  # Default to grey for 0.25
         arr_data['hover_text'] = arr_data.apply(generate_hover_text, axis=1)
 
-        # First layer: green outline behind markers
+        # Plot background outlines for green star restaurants
         green_outline_data = arr_data[arr_data['greenstar'] == 1]
         if not green_outline_data.empty:
             fig.add_trace(go.Scattermap(
@@ -217,30 +219,45 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars,
                 lon=green_outline_data['longitude'],
                 mode='markers',
                 marker=dict(
-                    size=15,
+                    size=11 if (green_outline_data['stars'] == 0.25).any() else 15,
                     color='#689c44',
-                    opacity=0.4
+                    opacity=0.8
                 ),
                 hoverinfo='skip',
                 showlegend=False
             ))
 
-        # Main layer: star-coloured markers
-        for star, color in color_map.items():
+        # Plot each group of star-rated restaurants (including 0.25 if present)
+        for star in sorted(arr_data['stars'].unique(), reverse=False):
             subset = arr_data[arr_data['stars'] == star]
-
             if subset.empty:
                 continue
 
-            label_name = '🍽️' if star == 0.5 else f"{'★' * int(star)}"
+            # Assign label
+            if star == 0.25:
+                label_name = "Selected"
+                marker_size = 8
+                marker_opacity = 0.9
+                marker_color = '#808080'
+            elif star == 0.5:
+                label_name = '🍽️'
+                marker_size = 11
+                marker_opacity = 1
+                marker_color = color_map[0.5]
+            else:
+                label_name = '★' * int(star)
+                marker_size = 11
+                marker_opacity = 1
+                marker_color = color_map[star]
 
             fig.add_trace(go.Scattermap(
                 lat=subset['latitude'],
                 lon=subset['longitude'],
                 mode='markers',
                 marker=dict(
-                    size=11,
-                    color=color
+                    size=marker_size,
+                    color=marker_color,
+                    opacity=marker_opacity
                 ),
                 text=subset['hover_text'],
                 customdata=subset.index,
@@ -386,7 +403,7 @@ def get_restaurant_details(row):
 
     if stars == 0.5:
         components.append(bib_gourmand())
-    else:
+    elif stars in [1, 2, 3]:
         components.extend(michelin_stars(stars))
     # Append green star if applicable
     if greenstar == 1:
@@ -514,15 +531,15 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                 showlegend=False
             ))
 
-    # Filter data for the selected department and stars
-    dept_data = data_df[
-        (data_df['department_num'] == str(department_code)) &
-        (data_df['stars'].isin(selected_stars))
-    ].copy()
+    # Before filtering, inspect all restaurants in the department
+    all_in_dept = data_df[data_df['department_num'] == str(department_code)]
+
+    # Now do star filtering
+    dept_data = all_in_dept[all_in_dept['stars'].isin(selected_stars)].copy()
 
     # If dept_data is not empty, add restaurant points
     if not dept_data.empty:
-        dept_data['color'] = dept_data['stars'].map(color_map)
+        dept_data['color'] = dept_data['stars'].map(color_map).fillna('#808080')  # Default to grey for 0.25
         dept_data['hover_text'] = dept_data.apply(generate_hover_text, axis=1)
 
         # Plot background outlines for green star restaurants
@@ -533,29 +550,45 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                 lon=green_outline_data['longitude'],
                 mode='markers',
                 marker=dict(
-                    size=15,
+                    size=11 if (green_outline_data['stars'] == 0.25).any() else 15,
                     color='#689c44',
-                    opacity=0.4  # Subtle green glow
+                    opacity=0.8
                 ),
-                hoverinfo='skip',  # We only want hover on the top marker
+                hoverinfo='skip',
                 showlegend=False
             ))
 
-        # Plot the regular markers on top
-        for star, color in color_map.items():
+        # Plot each group of star-rated restaurants (including 0.25 if present)
+        for star in sorted(dept_data['stars'].unique(), reverse=False):
             subset = dept_data[dept_data['stars'] == star]
             if subset.empty:
                 continue
 
-            label_name = '🍽️' if star == 0.5 else f"{'★' * int(star)}"
+            # Assign label
+            if star == 0.25:
+                label_name = "Selected"
+                marker_size = 8
+                marker_opacity = 0.9
+                marker_color = '#808080'
+            elif star == 0.5:
+                label_name = '🍽️'
+                marker_size = 11
+                marker_opacity = 1
+                marker_color = color_map[0.5]
+            else:
+                label_name = '★' * int(star)
+                marker_size = 11
+                marker_opacity = 1
+                marker_color = color_map[star]
 
             fig.add_trace(go.Scattermap(
                 lat=subset['latitude'],
                 lon=subset['longitude'],
                 mode='markers',
                 marker=dict(
-                    size=11,
-                    color=color
+                    size=marker_size,
+                    color=marker_color,
+                    opacity=marker_opacity
                 ),
                 text=subset['hover_text'],
                 customdata=subset.index,

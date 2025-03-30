@@ -9,7 +9,7 @@ color_map = {
     3: "#C2282D"
 }
 
-star_placeholder = (0.5, 1, 2, 3)
+star_placeholder = (0.25, 0.5, 1, 2, 3)
 
 unique_regions = ['Auvergne-Rhône-Alpes',
                   'Bourgogne-Franche-Comté',
@@ -243,11 +243,27 @@ def star_filter_row(available_stars):
     return html.Div(buttons, className='star-filter-buttons')
 
 
+# def star_filter_section(available_stars=star_placeholder):
+#     star_buttons = star_filter_row(available_stars)
+#     return html.Div([
+#         html.H6("Filter by Michelin Rating", className='star-select-title'),
+#         star_buttons
+#     ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+
+
 def star_filter_section(available_stars=star_placeholder):
     star_buttons = star_filter_row(available_stars)
+    toggle_button = html.Button(
+        "Selected Restaurants",
+        id="toggle-selected-btn",
+        n_clicks=0,
+        className="selected-toggle-button",
+        style={'display': 'block'}  # Initially hidden; this can be toggled in your callbacks
+    )
     return html.Div([
         html.H6("Filter by Michelin Rating", className='star-select-title'),
-        star_buttons
+        star_buttons,
+        toggle_button
     ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
 
@@ -305,6 +321,14 @@ def get_main_content_with_city_match(unique_regions):
         # Buttons and restaurant details
         html.Div([
             star_filter_section(star_placeholder),
+            # html.Button(
+            #     "Selected Restaurants",
+            #     id="toggle-selected-btn",
+            #     n_clicks=0,
+            #     className="selected-toggle-button",
+            #     style={'display': 'none'}
+            # ),
+            # dcc.Store(id='show-selected-toggle', data='none'),
             html.Div(id='restaurant-details', children=[], className='restaurant-details-container')
         ], className='star-ratings-and-details-container')
 

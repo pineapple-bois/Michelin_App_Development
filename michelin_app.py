@@ -43,13 +43,16 @@ wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
 departments_with_restaurants = all_france['department_num'].unique()
 # Filter geo_df
 geo_df = department_df[department_df['code'].isin(departments_with_restaurants)]
-star_placeholder = (0.5, 1, 2, 3)
+star_placeholder = (0.25, 0.5, 1, 2, 3)
 
 
 # Use geo_df to get unique regions and departments for the initial dropdowns
 unique_regions = sorted(geo_df['region'].unique())
 initial_departments = geo_df[geo_df['region'] == unique_regions[0]][['department', 'code']].drop_duplicates().to_dict('records')
-initial_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in initial_departments]
+initial_options = [{
+    'label': f"{dept['department']} ({dept['code']})",
+    'value': dept['department']
+} for dept in initial_departments]
 dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
 region_to_name = {region: region for region in geo_df['region'].unique()}
 
@@ -74,11 +77,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -324,6 +327,8 @@ def update_department_and_filters(selected_region, selected_department, selected
                 available_stars.append(star_level)
         if department_row['bib_gourmand'] > 0:
             available_stars.append(0.5)
+        if department_row['selected'] > 0:
+            available_stars.append(0.25)
 
         # Only show the filter if there are stars available
         if available_stars:
@@ -336,56 +341,83 @@ def update_department_and_filters(selected_region, selected_department, selected
 @app.callback(
     [Output({'type': 'filter-button', 'index': ALL}, 'className'),
      Output({'type': 'filter-button', 'index': ALL}, 'style'),
-     Output('selected-stars', 'data')],  # This output updates the list of active stars
-    [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks')],
+     Output('selected-stars', 'data'),
+     Output('toggle-selected-btn', 'className'),
+     Output('toggle-selected-btn', 'style')],
+    [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks'),
+     Input('toggle-selected-btn', 'n_clicks')],
     [State({'type': 'filter-button', 'index': ALL}, 'id'),
      State('selected-stars', 'data'),
-     State('available-stars', 'data')],
-
+     State('available-stars', 'data')]
 )
-def update_button_active_state(n_clicks_list, ids, current_stars, available_stars):
+def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
+                               current_stars, available_stars):
+
     # Handle cases where not all data is available, especially at initialization
-    if not n_clicks_list or not available_stars:
+    if (not n_clicks_list or not available_stars or len(available_stars) == 0) and available_stars != [0.25]:
         raise PreventUpdate
 
     # Initialize empty lists to store class names and styles
     class_names = []
     styles = []
 
-    # Initialize the new list of active stars
-    new_stars = [star for star in current_stars if star in available_stars]
+    # Initialize the new list of active stars from current state filtered by available stars
+    new_stars = [star for star in current_stars if star in available_stars and star != 0.25]
 
     for n_clicks, button_id in zip(n_clicks_list, ids):
         index = button_id['index']
-
         if index not in available_stars:
             continue  # Skip processing for stars not available
 
-        # Determine if the button is currently active
-        is_active = n_clicks % 2 == 0  # Even clicks means 'active'
+        # Determine if the button is active (even number of clicks means active)
+        is_active = n_clicks % 2 == 0
 
         if is_active:
             if index not in new_stars:
-                new_stars.append(index)  # Add if not already in the list
-            background_color = color_map[index]  # Full color for active state
+                new_stars.append(index)
+            background_color = color_map[index]
         else:
             if index in new_stars:
-                new_stars.remove(index)  # Remove if in the list but not active
-            background_color = (f"rgba({int(color_map[index][1:3], 16)},"
-                                f"{int(color_map[index][3:5], 16)},"
-                                f"{int(color_map[index][5:7], 16)},"
-                                f"0.6)")  # Lighter color for inactive
+                new_stars.remove(index)
+            background_color = (
+                f"rgba({int(color_map[index][1:3], 16)},"
+                f"{int(color_map[index][3:5], 16)},"
+                f"{int(color_map[index][5:7], 16)},0.6)"
+            )
 
         class_name = "me-1 star-button" + (" active" if is_active else "")
         color_style = {
-            "display": 'inline-block',
-            "width": '100%',
-            'backgroundColor': background_color,
+            "display": "inline-block",
+            "width": "100%",
+            "backgroundColor": background_color,
         }
         class_names.append(class_name)
         styles.append(color_style)
 
-    return class_names, styles, new_stars
+    # ---- Toggle Selected Button Logic ----
+    selected_active = toggle_selected_clicks % 2 == 0
+    if selected_active and 0.25 not in new_stars:
+        new_stars.append(0.25)
+    elif not selected_active and 0.25 in new_stars:
+        new_stars.remove(0.25)
+
+    selected_class = "selected-toggle-button" + (" active" if selected_active else " inactive")
+    # Compute display: show the toggle button only if 0.25 is an available star rating
+    toggle_display = "block" if 0.25 in available_stars else "none"
+    selected_style = {
+        "display": toggle_display,
+        "backgroundColor": "#808080" if selected_active else "rgba(128, 128, 128, 0.6)",
+        "color": "#FFFFFF",
+        "border": "none",
+        "borderRadius": "4px",
+        "fontSize": "14px",
+        "cursor": "pointer",
+        "padding": "6px 12px",
+        "transition": "background-color 0.3s ease",
+        "opacity": 1 if selected_active else 0.5,
+    }
+
+    return class_names, styles, new_stars, selected_class, selected_style
 
 
 @app.callback(
@@ -1246,4 +1278,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
