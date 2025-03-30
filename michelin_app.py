@@ -406,15 +406,6 @@ def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
     toggle_display = "block" if 0.25 in available_stars else "none"
     selected_style = {
         "display": toggle_display,
-        "backgroundColor": "#808080" if selected_active else "rgba(128, 128, 128, 0.6)",
-        "color": "#FFFFFF",
-        "border": "none",
-        "borderRadius": "4px",
-        "fontSize": "14px",
-        "cursor": "pointer",
-        "padding": "6px 12px",
-        "transition": "background-color 0.3s ease",
-        "opacity": 1 if selected_active else 0.5,
     }
 
     return class_names, styles, new_stars, selected_class, selected_style
