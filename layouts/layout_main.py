@@ -221,7 +221,7 @@ def create_star_button(value, label, type_name='filter-button-mainpage'):
             'type': type_name,
             'index': value,
         },
-        className=f"me-1 star-button-{type_name}",
+        className=f"me-1 star-button",
         outline=True,
         style={
             'display': 'inline-block',
@@ -258,14 +258,28 @@ def star_filter_section(available_stars=star_placeholder):
     title = html.H6("Filter by Michelin Rating", className='star-select-title')
 
     # Case 1: inline (fits in same row)
-    if has_selected and len(standard_stars) <= 3:
+    if has_selected and 1 <= len(standard_stars) <= 3:
         star_buttons.append(toggle_button)
         return html.Div([
             title,
             html.Div(star_buttons, className='star-filter-buttons')
         ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
-    # Case 2: on a new row, wrapped in its own aligned container
+    # Case 2: only 0.25 available → show selected on its own row, 50% width
+    elif has_selected and not standard_stars:
+        return html.Div([
+            title,
+            html.Div(
+                [
+                    html.Div(toggle_button, className='selected-toggle-inner'),
+                    html.Div(className='selected-toggle-spacer')
+                ],
+                className='selected-toggle-wrapper'
+            )
+        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+
+
+    # Case 3: selected on a new row, wrapped in its own aligned container
     elif has_selected:
         return html.Div([
             title,
@@ -281,8 +295,9 @@ def star_filter_section(available_stars=star_placeholder):
             )
         ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
-    # Case 3: no toggle at all
+    # Case 4: no toggle at all (fallback)
     else:
+        print("Case 4")
         return html.Div([
             title,
             html.Div(star_buttons, className='star-filter-buttons')

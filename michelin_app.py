@@ -400,7 +400,7 @@ def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
 
         if index not in available_stars:
             # Still return something so Dash output lengths match
-            class_names.append("me-1 star-button-filter-button-mainpage inactive")
+            class_names.append("me-1 star-button inactive")
             styles.append({
                 "display": "inline-block",
                 "width": "100%",
@@ -424,7 +424,7 @@ def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
                 f"{int(color_map[index][5:7], 16)},0.6)"
             )
 
-        class_name = f"me-1 star-button-{button_id['type']}" + (" active" if is_active else "")
+        class_name = "me-1 star-button" + (" active" if is_active else "")
         color_style = {
             "display": "inline-block",
             "width": "100%",

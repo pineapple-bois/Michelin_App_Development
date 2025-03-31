@@ -604,14 +604,13 @@ body {
 }
 
 .selected-toggle-button.active {
-    background-color: #808080;
+    opacity: 1;
     box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Inactive state, specifically less opacity when not active */
 .selected-toggle-button.inactive {
     opacity: 0.5; /* Lower opacity for inactive */
-    border: 0;
 }
 
 
