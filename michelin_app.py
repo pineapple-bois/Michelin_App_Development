@@ -27,6 +27,9 @@ from utils.appFunctions import (plot_regional_outlines, plot_department_outlines
 
 # Load restaurant data
 all_france = pd.read_csv("assets/Data/all_restaurants(arrondissements).csv")
+# Load Monaco data (department_num is inferred 'int' by Pandas)
+all_monaco = pd.read_csv("assets/Data/monaco_restaurants.csv", dtype={'department_num': str})
+
 # Load regional GeoJSON data
 region_df = gpd.read_file("assets/Data/region_restaurants.geojson")
 # Load departmental GeoJSON data
@@ -35,8 +38,31 @@ department_df = gpd.read_file("assets/Data/department_restaurants.geojson")
 arron_df = gpd.read_file("assets/Data/arrondissement_restaurants.geojson")
 # Load Paris GeoJSON data
 paris_df = gpd.read_file("assets/Data/paris_restaurants.geojson")
+# Load Monaco GeoJSON data (departmental aggregation)
+monaco_df = gpd.read_file("assets/Data/monaco_restaurants.geojson")
 # Load wine GeoJSON data
 wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
+
+
+# Create France + Monaco for guide
+def get_combined_restaurant_data(include_monaco=False):
+    if include_monaco:
+        return pd.concat([all_france, all_monaco], ignore_index=True)
+    return all_france
+
+
+# Create Departmental France + Monaco geojson for guide
+def get_geo_df(include_monaco=False):
+    combined = all_france if not include_monaco else pd.concat([all_france, all_monaco], ignore_index=True)
+    dept_codes = combined['department_num'].unique()
+
+    if not include_monaco:
+        return department_df[department_df['code'].isin(dept_codes)]
+
+    # Concatenate and cast to GeoDataFrame
+    merged_df = pd.concat([department_df, monaco_df], ignore_index=True)
+    merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geometry', crs=department_df.crs)
+    return merged_gdf
 
 
 # Get unique department numbers with restaurants
@@ -77,11 +103,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -276,8 +302,11 @@ def toggle_collapse_and_handle_search(n_info_clicks, n_submit_clicks, n_clear_cl
         Input('arrondissement-dropdown', 'value')]
 )
 def update_department_and_filters(selected_region, selected_department, selected_arrondissement):
+    # Use dynamic geo_df based on region
+    geo_df_dynamic = get_geo_df(include_monaco=(selected_region == "Provence-Alpes-Côte d'Azur"))
+
     # Fetch department options based on the selected region.
-    departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
+    departments = geo_df_dynamic[geo_df_dynamic['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
     department_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in departments]
 
     if not selected_department:
@@ -312,7 +341,7 @@ def update_department_and_filters(selected_region, selected_department, selected
     else:
         # For departments other than Paris
         # Fetch the row for the selected department
-        department_row = geo_df[geo_df['department'] == selected_department]
+        department_row = geo_df_dynamic[geo_df_dynamic['department'] == selected_department]
 
         if department_row.empty:
             # Handle the case where the department is not found
@@ -415,9 +444,10 @@ def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
     Output('restaurant-details', 'children'),
     [Input('map-display', 'clickData'),
      Input('department-dropdown', 'value'),
+     Input('region-dropdown', 'value'),
      Input('selected-stars', 'data')],
 )
-def update_sidebar(clickData, selected_department, selected_stars):
+def update_sidebar(clickData, selected_department, selected_region, selected_stars):
     ctx = dash.callback_context
 
     # Placeholder messages
@@ -445,6 +475,9 @@ def update_sidebar(clickData, selected_department, selected_stars):
     if not selected_stars:
         return select_stars_placeholder
 
+    include_monaco = selected_region == "Provence-Alpes-Côte d'Azur"
+    combined_data = get_combined_restaurant_data(include_monaco)
+
     # Determine which input triggered the callback
     triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -454,19 +487,12 @@ def update_sidebar(clickData, selected_department, selected_stars):
             point = clickData['points'][0]
             if 'customdata' in point:
                 restaurant_index = point['customdata']
-                restaurant_info = all_france.loc[restaurant_index]
-                # Check if the restaurant's star rating is in selected_stars
-                if restaurant_info['stars'] in selected_stars:
-                    return get_restaurant_details(restaurant_info)
-                else:
-                    # Restaurant's star rating is not selected, clear details
-                    return restaurant_placeholder
-            else:
-                # ClickData doesn't contain 'customdata', possibly clicked on non-data area
-                return restaurant_placeholder
-        else:
-            # Map was clicked but not on a data point
-            return restaurant_placeholder
+                if restaurant_index in combined_data.index:
+                    restaurant_info = combined_data.loc[restaurant_index]
+                    # Check if the restaurant's star rating is in selected_stars
+                    if restaurant_info['stars'] in selected_stars:
+                        return get_restaurant_details(restaurant_info)
+        return restaurant_placeholder
 
     # For any other triggers, clear the restaurant details
     return restaurant_placeholder
@@ -506,6 +532,12 @@ def update_map(selected_department, selected_region, selected_stars, paris_arron
     ctx = callback_context
     triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
 
+    # Use combined restaurant + geo data for PACA
+    include_monaco = selected_region == "Provence-Alpes-Côte d'Azur"
+    restaurant_data = get_combined_restaurant_data(include_monaco=include_monaco)
+    geo_df_dynamic = get_geo_df(include_monaco=include_monaco)
+    dept_to_code_dynamic = geo_df_dynamic.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
+
     # Set view_data once, then reuse it
     view_data = mapview_data if mapview_data else dept_viewdata
 
@@ -519,28 +551,28 @@ def update_map(selected_department, selected_region, selected_stars, paris_arron
             if triggered_id == 'selected-stars':
                 # Plot selected arrondissement with stars
                 if selected_stars:
-                    return plot_paris_arrondissement(all_france, paris_df, paris_arrondissement, selected_stars, view_data)
+                    return plot_paris_arrondissement(restaurant_data, paris_df, paris_arrondissement, selected_stars, view_data)
                 return plot_arrondissement_outlines(paris_df, paris_arrondissement, view_data)
 
         # Plot entire Paris department when no arrondissement selected
         view_data = mapview_data if mapview_data else dept_viewdata
         if triggered_id == 'selected-stars':
             if selected_stars:
-                return plot_interactive_department(all_france, geo_df, department_code, selected_stars, view_data)
-            return plot_department_outlines(geo_df, department_code, view_data)
+                return plot_interactive_department(restaurant_data, geo_df_dynamic, department_code, selected_stars, view_data)
+            return plot_department_outlines(geo_df_dynamic, department_code, view_data)
 
     # Case 1: Department selected (non-Paris)
     if triggered_id == 'department-dropdown' and selected_department:
-        department_code = dept_to_code.get(selected_department)
-        return plot_department_outlines(geo_df, department_code, view_data)
+        department_code = dept_to_code_dynamic.get(selected_department)
+        return plot_department_outlines(geo_df_dynamic, department_code, view_data)
 
     # Case 2: Handle stars selection
     if triggered_id == 'selected-stars' and selected_department:
-        department_code = dept_to_code.get(selected_department)
+        department_code = dept_to_code_dynamic.get(selected_department)
         if selected_stars:
-            return plot_interactive_department(all_france, geo_df, department_code, selected_stars, view_data)
+            return plot_interactive_department(restaurant_data, geo_df_dynamic, department_code, selected_stars, view_data)
         else:
-            return plot_department_outlines(geo_df, department_code, view_data)
+            return plot_department_outlines(geo_df_dynamic, department_code, view_data)
 
     # Case 3: Handle region selection
     if selected_region or triggered_id == 'region-dropdown':
@@ -553,37 +585,48 @@ def update_map(selected_department, selected_region, selected_stars, paris_arron
 
 
 @app.callback(
-    Output('department-centroid-store', 'data'),
-    [Input('department-dropdown', 'value')]
+Output('department-centroid-store', 'data'),
+[Input('department-dropdown', 'value'),
+ Input('region-dropdown', 'value')]
 )
-def calculate_department_centroid(selected_department):
+def calculate_department_centroid(selected_department, selected_region):
     if not selected_department:
         return {}
 
-    # Find the geometry for the selected department
-    department_code = dept_to_code.get(selected_department)
-    filtered_geo = geo_df[geo_df['code'] == str(department_code)]
+    # Dynamically include Monaco for PACA
+    include_monaco = selected_region == "Provence-Alpes-Côte d'Azur"
+    geo_df_dynamic = get_geo_df(include_monaco=include_monaco)
 
+    # Generate dept_to_code dynamically from the active geo_df
+    dept_to_code_dynamic = geo_df_dynamic.drop_duplicates(subset='department').set_index('department')[
+        'code'].to_dict()
+    department_code = dept_to_code_dynamic.get(selected_department)
+
+    if not department_code:
+        return {}
+
+    filtered_geo = geo_df_dynamic[geo_df_dynamic['code'] == str(department_code)]
     if filtered_geo.empty:
-        return {}  # Return empty if the department is not found
+        return {}
 
-    # Calculate the centroid of the selected department's geometry
     specific_geometry = filtered_geo['geometry'].iloc[0]
     centroid = specific_geometry.centroid
 
-    # Determine zoom level (you can adjust the logic if necessary)
-    zoom_level = 8 if department_code != '75' else 11  # Use 11 for Paris (code 75), otherwise default to 8
+    # Adjust zoom level
+    if department_code == '75':
+        zoom_level = 11  # Paris
+    elif department_code == '98':
+        zoom_level = 13.5  # Monaco
+    else:
+        zoom_level = 8
 
-    # Create the dictionary to store
-    stored_data = {
+    return {
         'zoom': zoom_level,
         'center': {
             'lat': centroid.y,
             'lon': centroid.x
         }
     }
-
-    return stored_data
 
 
 @app.callback(
@@ -1269,4 +1312,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

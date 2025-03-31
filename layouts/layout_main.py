@@ -3,6 +3,7 @@ import dash_bootstrap_components as dbc
 
 
 color_map = {
+    0.25: '#808080',
     0.5: "#640A64",
     1: "#FFB84D",
     2: "#FE6F64",
