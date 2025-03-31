@@ -594,7 +594,8 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                 customdata=subset.index,
                 hovertemplate='%{text}',
                 name=label_name,
-                showlegend=False
+                showlegend=False,
+                meta = subset.index,  # <- NEW: include explicitly
             ))
 
         # Calculate the center if zoom_data doesn't have it
@@ -1204,7 +1205,7 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
     fig.update_layout(
         map=dict(
             style="../assets/basicTileMap.json",
-            #style="carto-positron-nolabels",
+            #style="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
             center=center,
             zoom=zoom
         ),

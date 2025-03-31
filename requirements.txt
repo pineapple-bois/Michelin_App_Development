@@ -1,12 +1,12 @@
 dash~=2.18.1
 dash-bootstrap-components==1.4.2
 dash-table==5.0.0
-geopandas==1.0.1
-shapely==2.0.4
-fiona==1.10.1
+geopandas==0.14.3
+shapely==2.0.7
+fiona==1.9.6
 gunicorn==23.0.0
 openai==1.47.0
-httpx==0.27.2
+httpx==0.26.0
 numpy~=2.0.2
 pandas~=2.2.3
 plotly~=5.24.1

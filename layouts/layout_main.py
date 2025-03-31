@@ -212,16 +212,16 @@ def get_footer():
     )
 
 # Define the row with buttons logic as functions
-def create_star_button(value, label):
+def create_star_button(value, label, type_name='filter-button-mainpage'):
     # Generate color with reduced opacity for active state
     normal_bg_color = color_map[value]
     return dbc.Button(
         label,
         id={
-            'type': 'filter-button',
+            'type': type_name,
             'index': value,
         },
-        className="me-1 star-button",
+        className=f"me-1 star-button-{type_name}",
         outline=True,
         style={
             'display': 'inline-block',
@@ -240,7 +240,8 @@ def star_filter_section(available_stars=star_placeholder):
     star_buttons = [
         create_star_button(
             star,
-            inverted_michelin_stars(star) if star in [1, 2, 3] else inverted_bib_gourmand()
+            inverted_michelin_stars(star) if star in [1, 2, 3] else inverted_bib_gourmand(),
+            type_name='filter-button-mainpage'
         )
         for star in standard_stars
     ]

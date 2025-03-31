@@ -103,11 +103,11 @@ app = dash.Dash(
 
 
 # Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+# @server.before_request
+# def before_request():
+#     if not request.is_secure:
+#         url = request.url.replace('http://', 'https://', 1)
+#         return redirect(url, code=301)
 
 
 @server.before_request
@@ -162,7 +162,7 @@ cache = Cache(app.server, config={
 # Define callback to handle page navigation
 @app.callback(
     Output('page-content', 'children'),
-    [Input('url', 'pathname')]
+    Input('url', 'pathname')
 )
 def display_page(pathname):
     if pathname == '/analysis':
@@ -266,7 +266,9 @@ def toggle_collapse_and_handle_search(n_info_clicks, n_submit_clicks, n_clear_cl
             return dash.no_update, '', html.Div([html.P("Enter a valid location.", className='default-message')]), \
                 'city-match-output-container-mainpage', dash.no_update, dash.no_update
 
-        matcher = LocationMatcher(all_france)
+        # Add Monaco to dataset
+        plus_monaco = get_combined_restaurant_data(include_monaco=True)
+        matcher = LocationMatcher(plus_monaco)
         result = matcher.find_region_department(city_input)
         if isinstance(result, dict):
             # Valid result, update outputs
@@ -368,20 +370,19 @@ def update_department_and_filters(selected_region, selected_department, selected
 
 
 @app.callback(
-    [Output({'type': 'filter-button', 'index': ALL}, 'className'),
-     Output({'type': 'filter-button', 'index': ALL}, 'style'),
+    [Output({'type': 'filter-button-mainpage', 'index': ALL}, 'className'),
+     Output({'type': 'filter-button-mainpage', 'index': ALL}, 'style'),
      Output('selected-stars', 'data'),
      Output('toggle-selected-btn', 'className'),
      Output('toggle-selected-btn', 'style')],
-    [Input({'type': 'filter-button', 'index': ALL}, 'n_clicks'),
+    [Input({'type': 'filter-button-mainpage', 'index': ALL}, 'n_clicks'),
      Input('toggle-selected-btn', 'n_clicks')],
-    [State({'type': 'filter-button', 'index': ALL}, 'id'),
+    [State({'type': 'filter-button-mainpage', 'index': ALL}, 'id'),
      State('selected-stars', 'data'),
      State('available-stars', 'data')]
 )
 def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
                                current_stars, available_stars):
-
     # Handle cases where not all data is available, especially at initialization
     if (not n_clicks_list or not available_stars or len(available_stars) == 0) and available_stars != [0.25]:
         raise PreventUpdate
@@ -393,10 +394,19 @@ def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
     # Initialize the new list of active stars from current state filtered by available stars
     new_stars = [star for star in current_stars if star in available_stars and star != 0.25]
 
-    for n_clicks, button_id in zip(n_clicks_list, ids):
+    for i, button_id in enumerate(ids):
         index = button_id['index']
+        n_clicks = n_clicks_list[i] if i < len(n_clicks_list) else 0  # fallback to 0
+
         if index not in available_stars:
-            continue  # Skip processing for stars not available
+            # Still return something so Dash output lengths match
+            class_names.append("me-1 star-button-filter-button-mainpage inactive")
+            styles.append({
+                "display": "inline-block",
+                "width": "100%",
+                "backgroundColor": "#cccccc"
+            })
+            continue
 
         # Determine if the button is active (even number of clicks means active)
         is_active = n_clicks % 2 == 0
@@ -414,7 +424,7 @@ def update_button_active_state(n_clicks_list, toggle_selected_clicks, ids,
                 f"{int(color_map[index][5:7], 16)},0.6)"
             )
 
-        class_name = "me-1 star-button" + (" active" if is_active else "")
+        class_name = f"me-1 star-button-{button_id['type']}" + (" active" if is_active else "")
         color_style = {
             "display": "inline-block",
             "width": "100%",
@@ -485,13 +495,13 @@ def update_sidebar(clickData, selected_department, selected_region, selected_sta
     if triggered_id == 'map-display':
         if clickData and 'points' in clickData and len(clickData['points']) > 0:
             point = clickData['points'][0]
-            if 'customdata' in point:
-                restaurant_index = point['customdata']
-                if restaurant_index in combined_data.index:
-                    restaurant_info = combined_data.loc[restaurant_index]
-                    # Check if the restaurant's star rating is in selected_stars
-                    if restaurant_info['stars'] in selected_stars:
-                        return get_restaurant_details(restaurant_info)
+            restaurant_index = point.get('meta') or point.get('customdata')
+
+            if restaurant_index in combined_data.index:
+                restaurant_info = combined_data.loc[restaurant_index]
+                # Check if the restaurant's star rating is in selected_stars
+                if restaurant_info['stars'] in selected_stars:
+                    return get_restaurant_details(restaurant_info)
         return restaurant_placeholder
 
     # For any other triggers, clear the restaurant details
@@ -1312,4 +1322,4 @@ def update_wine_info(clickData, wine_region_curve_numbers):
 
 # For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
