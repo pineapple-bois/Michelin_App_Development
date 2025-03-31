@@ -69,7 +69,7 @@ def get_geo_df(include_monaco=False):
 departments_with_restaurants = all_france['department_num'].unique()
 # Filter geo_df
 geo_df = department_df[department_df['code'].isin(departments_with_restaurants)]
-star_placeholder = (0.25, 0.5, 1, 2, 3)
+star_placeholder = (0.5, 1, 2, 3)
 
 
 # Use geo_df to get unique regions and departments for the initial dropdowns
