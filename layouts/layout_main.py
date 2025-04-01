@@ -91,7 +91,7 @@ def get_header_with_buttons():
     return html.Div(
         children=[
             html.Div([
-                html.H1(["Michelin Guide to France. ", html.Span("2024", className='year-text')],
+                html.H1(["Michelin Guide to France. ", html.Span("2025", className='year-text')],
                         className='title-section'),
                 ], className='header-title'
             ),
