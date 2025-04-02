@@ -99,14 +99,13 @@ body {
     border-radius: 4px;
     opacity: 0;
     transform: translateY(-10px);
+    pointer-events: none;
     transition: opacity 0.25s ease, transform 0.25s ease;
-    pointer-events: none; /* Prevents clicking when hidden */
 }
 
-/* Open state */
-.nav-dropdown.show {
+/* When visible */
+.nav-dropdown.visible {
     opacity: 1;
-    visibility: visible;
     transform: translateY(0);
     pointer-events: auto;
 }

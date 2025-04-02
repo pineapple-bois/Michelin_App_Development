@@ -109,7 +109,6 @@ def get_header_with_buttons():
             html.Div(
                 id='navigation-menu',
                 className='nav-dropdown',
-                # style={'display': 'none'},  # Initially hidden
                 children=[
                     html.A("Guide", href='/', id='home-button', className='nav-link'),
                     html.A("Analysis", href='/analysis', id='analysis-button', className='nav-link'),

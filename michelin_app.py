@@ -148,7 +148,6 @@ app.layout = html.Div([
     dcc.Store(id='department-centroid-store', data={}),
     dcc.Store(id='paris-arrondissement-centroid', data={}),
     dcc.Store(id='region-demographics-centroid', data={}),
-    dcc.Store(id='menu-open', data=False),
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout())  # Set initial content
 ])
@@ -176,17 +175,16 @@ def display_page(pathname):
 
 # Toggle nav menu open/closed
 @app.callback(
-    [Output('menu-open', 'data'),
-     Output('navigation-menu', 'className')],
+    Output('navigation-menu', 'className'),
     Input('hamburger-icon', 'n_clicks'),
-    State('menu-open', 'data'),
+    State('navigation-menu', 'className'),
     prevent_initial_call=True
 )
-def toggle_menu_state(n_clicks, is_open):
-    new_state = not is_open
-    # When menu is open, apply 'show' class for visibility
-    new_class = 'nav-dropdown' if new_state else 'nav-dropdown show'
-    return new_state, new_class
+def toggle_menu_class(n_clicks, current_class):
+    if current_class == 'nav-dropdown':
+        return 'nav-dropdown visible'
+    else:
+        return 'nav-dropdown'
 
 
 @app.callback(
