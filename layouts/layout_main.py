@@ -255,7 +255,7 @@ def star_filter_section(available_stars=star_placeholder):
     )
 
     def hidden_toggle_button():
-        return html.Button("", id="toggle-selected-btn", n_clicks=0, style={"display": "none"})
+        return html.Button("", id="toggle-selected-btn", n_clicks=1, style={"display": "none"})
 
     # Shared layout title
     title = html.H6("Filter by Michelin Rating", className='star-select-title')
