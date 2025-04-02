@@ -263,7 +263,8 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars,
                 customdata=subset.index,
                 hovertemplate='%{text}',
                 name=label_name,
-                showlegend=False
+                showlegend=False,
+                meta=subset.index,  # <- NEW: include explicitly for clickData
             ))
 
         # Use restaurant data to calculate map center if no zoom_data center
@@ -595,7 +596,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
                 hovertemplate='%{text}',
                 name=label_name,
                 showlegend=False,
-                meta = subset.index,  # <- NEW: include explicitly
+                meta = subset.index,  # <- NEW: include explicitly for clickData
             ))
 
         # Calculate the center if zoom_data doesn't have it
