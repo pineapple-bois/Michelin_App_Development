@@ -254,6 +254,9 @@ def star_filter_section(available_stars=star_placeholder):
         style={'display': 'block'}
     )
 
+    def hidden_toggle_button():
+        return html.Button("", id="toggle-selected-btn", n_clicks=0, style={"display": "none"})
+
     # Shared layout title
     title = html.H6("Filter by Michelin Rating", className='star-select-title')
 
@@ -278,8 +281,21 @@ def star_filter_section(available_stars=star_placeholder):
             )
         ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
+    # Case 3: single available bib → show on its own row, 50% width
+    elif not has_selected and standard_stars == [0.5]:
+        return html.Div([
+            title,
+            html.Div(
+                [
+                    html.Div(star_buttons[0], className='selected-toggle-inner'),
+                    html.Div(className='selected-toggle-spacer')
+                ],
+                className='selected-toggle-wrapper'
+            ),
+            hidden_toggle_button()
+        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
-    # Case 3: selected on a new row, wrapped in its own aligned container
+    # Case 4: selected on a new row, wrapped in its own aligned container
     elif has_selected:
         return html.Div([
             title,
@@ -295,12 +311,12 @@ def star_filter_section(available_stars=star_placeholder):
             )
         ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
-    # Case 4: no toggle at all (fallback)
+    # Case 5: no toggle at all (fallback)
     else:
-        print("Case 4")
         return html.Div([
             title,
-            html.Div(star_buttons, className='star-filter-buttons')
+            html.Div(star_buttons, className='star-filter-buttons'),
+            hidden_toggle_button()
         ], className='star-filter-section', id='star-filter', style={'display': 'none'})
 
 
