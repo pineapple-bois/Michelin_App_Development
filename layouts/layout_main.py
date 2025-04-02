@@ -95,12 +95,25 @@ def get_header_with_buttons():
                         className='title-section'),
                 ], className='header-title'
             ),
+            # Hamburger toggle
             html.Div(
-                [
-                    dbc.Button("Guide", href='/', id='home-button', className='header-button', color='primary'),
-                    dbc.Button("Analysis", href='/analysis', id='analysis-button', className='header-button', color='secondary')
-                ],
-                className='header-buttons'
+                id='hamburger-icon',
+                n_clicks=0,
+                className='hamburger-menu',
+                children=[
+                    html.Div(className='bar'),
+                    html.Div(className='bar'),
+                    html.Div(className='bar'),
+                ]
+            ),
+            html.Div(
+                id='navigation-menu',
+                className='nav-dropdown',
+                # style={'display': 'none'},  # Initially hidden
+                children=[
+                    html.A("Guide", href='/', id='home-button', className='nav-link'),
+                    html.A("Analysis", href='/analysis', id='analysis-button', className='nav-link'),
+                ]
             )
         ], className='header-container'
     )

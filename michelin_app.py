@@ -148,6 +148,7 @@ app.layout = html.Div([
     dcc.Store(id='department-centroid-store', data={}),
     dcc.Store(id='paris-arrondissement-centroid', data={}),
     dcc.Store(id='region-demographics-centroid', data={}),
+    dcc.Store(id='menu-open', data=False),
     dcc.Location(id='url', refresh=False),  # Tracks the url
     html.Div(id='page-content', children=get_main_layout())  # Set initial content
 ])
@@ -173,30 +174,42 @@ def display_page(pathname):
         return get_main_layout() if pathname == '/' else get_404_layout()
 
 
-# Callback to update the button classes based on the current page
+# Toggle nav menu open/closed
+@app.callback(
+    [Output('menu-open', 'data'),
+     Output('navigation-menu', 'className')],
+    Input('hamburger-icon', 'n_clicks'),
+    State('menu-open', 'data'),
+    prevent_initial_call=True
+)
+def toggle_menu_state(n_clicks, is_open):
+    new_state = not is_open
+    # When menu is open, apply 'show' class for visibility
+    new_class = 'nav-dropdown' if new_state else 'nav-dropdown show'
+    return new_state, new_class
+
+
 @app.callback(
     [Output('home-button', 'className'),
      Output('analysis-button', 'className')],
-    [Input('url', 'pathname')]
+    Input('url', 'pathname')
 )
-def update_button_classes(pathname):
-    # Define active and inactive classes
-    active_class = 'header-button active'
-    inactive_class = 'header-button inactive'
+def update_nav_classes(pathname):
+    active_class = 'nav-link active'
+    inactive_class = 'nav-link'
 
-    # Check the current URL path and apply the active class to the corresponding button
-    if pathname == '/' or pathname == '/home':
-        return active_class, inactive_class  # Home button active
+    if pathname in ['/', '/home']:
+        return active_class, inactive_class
     elif pathname == '/analysis':
-        return inactive_class, active_class  # Analysis button active
+        return inactive_class, active_class
     else:
-        return inactive_class, inactive_class  # Default case, both inactive
+        return inactive_class, inactive_class
 
 
 # -----------------------> "Guide Page"
 
 
-# Get rid of the 'hand' when hovering over restaurants
+# Get rid of the 'hand' when hovering over restaurants (doesn't work with Safari...)
 app.clientside_callback(
     """
     function(hoverData) {
