@@ -5,7 +5,6 @@ from .layout_main import (michelin_stars, bib_gourmand, green_star,
                           inverted_michelin_stars, inverted_bib_gourmand,
                           get_header_with_buttons, get_footer)
 
-
 color_map = {
     0.5: "#640A64",
     1: "#FFB84D",
@@ -15,30 +14,39 @@ color_map = {
 
 star_placeholder = [0.5, 1, 2, 3]
 
-unique_regions = ['Auvergne-Rhône-Alpes',
-                  'Bourgogne-Franche-Comté',
-                  'Bretagne',
-                  'Centre-Val de Loire',
-                  'Corse',
-                  'Grand Est',
-                  'Hauts-de-France',
-                  'Normandie',
-                  'Nouvelle-Aquitaine',
-                  'Occitanie',
-                  'Pays de la Loire',
-                  "Provence-Alpes-Côte d'Azur",
-                  'Île-de-France'
-                  ]
+unique_regions = [
+    'Auvergne-Rhône-Alpes',
+    'Bourgogne-Franche-Comté',
+    'Bretagne',
+    'Centre-Val de Loire',
+    'Corse',
+    'Grand Est',
+    'Hauts-de-France',
+    'Normandie',
+    'Nouvelle-Aquitaine',
+    'Occitanie',
+    'Pays de la Loire',
+    "Provence-Alpes-Côte d'Azur",
+    'Île-de-France'
+]
 
 def michelin_star_header(count):
     return [
         html.Img(
             src="assets/Images/Michelin_star.png",
             className='michelin-star-header',
-            style={'width': '25px', 'vertical-align': 'middle'}  # removed margin-right
+            style={'width': '25px', 'vertical-align': 'middle'}
         )
         for _ in range(int(count))
     ]
+
+
+def green_star_header():
+    return html.Img(
+            src="assets/Images/MichelinGreenStar.png",
+            className='green-star-header',
+            style={'width': '27px', 'vertical-align': 'middle'}
+        )
 
 
 def create_star_button(value, label, filter_type):
@@ -475,8 +483,10 @@ def get_top_ranking_section():
                 children=[
                     "Most ",
                     html.Span(michelin_star_header(2), className='star-group'),
-                    " & ",
+                    " , ",
                     html.Span(michelin_star_header(3), className='star-group'),
+                    " & ",
+                    html.Span(green_star_header(), className='star-group'),
                     " Restaurants",
                 ]
             ),
@@ -484,9 +494,9 @@ def get_top_ranking_section():
             html.Div(
                 className='ranking-description',
                 children=[
-                    "Which regions, departments, and arrondissements have the highest concentration of two and three star restaurants?",
+                    "Which parts of France boast multi Michelin-starred restaurants — and which are leading the way in sustainability?",
                     html.Br(),
-                    "Select the granularity and ranking criteria below to see the top culinary destinations in France."
+                    "Select a viewpoint. Discover the best."
                 ]
             ),
 
@@ -531,16 +541,17 @@ def get_top_ranking_section():
                             )
                         ],
                     ),
-                    # Dropdown for selecting 2- or 3-star restaurants
+                    # Dropdown for selecting greenstar, 2- or 3-star restaurants
                     html.Div(
                         className='rating-filter-container',
                         children=[
-                            html.H6("Filter by Michelin Stars"),
+                            html.H6("Filter by Michelin Rating"),
                             dcc.Dropdown(
                                 id='star-dropdown-ranking',
                                 options=[
-                                    {'label': '2 Stars', 'value': 2},
-                                    {'label': '3 Stars', 'value': 3}
+                                    {'label': 'Two Stars', 'value': 2},
+                                    {'label': 'Three Stars', 'value': 3},
+                                    {'label': 'Green Star', 'value': 'green'}
                                 ],
                                 value=2,  # Default selection
                                 className='dropdown-star-ranking',

@@ -892,8 +892,13 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
     if granularity not in data.columns:
         raise ValueError(f"Data must contain '{granularity}' column.")
 
-    # Filter the data to include only the restaurants with the specified star rating
-    filtered_data = data[data['stars'] == star_rating]
+    # Filter the data based on star type
+    if star_rating == 'green':
+        filtered_data = data[data['greenstar'] == 1]
+        star_icon = html.Span(green_star(with_margin=False), style={"vertical-align": "middle"})
+    else:
+        filtered_data = data[data['stars'] == star_rating]
+        star_icon = html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"})
 
     # Special handling for Paris department or Île-de-France region
     if top_n == 'paris':
@@ -938,7 +943,7 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
             html.Div(display_area, style={"font-weight": "bold", "font-size": "20px"}),
             html.Div([
                 f"{restaurant_count} ",
-                html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),
+                star_icon,
                 f" {restaurant_word}"
             ], style={"margin-left": "10px", "display": "inline-block"})
         ], style={"margin-bottom": "40px", "text-align": "center"})
@@ -983,7 +988,7 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
                     html.Div(display_area, style={"font-weight": "bold", "font-size": "20px"}),
                     html.Div([
                         f"{restaurant_count} ",
-                        html.Span(michelin_stars(star_rating), style={"vertical-align": "middle"}),
+                        star_icon,
                         f" {restaurant_word}"
                     ], style={"margin-left": "10px", "display": "inline-block"})
                 ], style={"margin-bottom": "40px", "text-align": "center"})
