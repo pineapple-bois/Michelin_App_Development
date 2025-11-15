@@ -42,6 +42,7 @@ paris_df = gpd.read_file("assets/Data/paris_restaurants.geojson")
 monaco_df = gpd.read_file("assets/Data/monaco_restaurants.geojson")
 # Load wine GeoJSON data
 wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
+# wine_df = gpd.read_file("assets/Data/wine_regions_simplified.geojson")
 
 
 # Create France + Monaco for guide
@@ -121,7 +122,7 @@ def before_request():
 
 def is_request_limit_exceeded():
     # Request limit for OpenAi API calls
-    REQUEST_LIMIT = 5
+    REQUEST_LIMIT = 10
 
     # Check if request_count exists in session
     if 'request_count' not in session:
@@ -1310,13 +1311,8 @@ def update_wine_info(clickData, wine_region_curve_numbers):
     prompt = generate_optimized_prompt(wine_region)
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
+            model="gpt-4o-mini",
+            messages=[{"role": "user","content": prompt}],
             max_tokens=400
         )
         content = response.choices[0].message.content.strip()

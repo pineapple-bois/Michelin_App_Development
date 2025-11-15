@@ -1512,24 +1512,29 @@ def generate_optimized_prompt(wine_region):
     local_cuisine_regions = ['Provence', 'Dordogne', 'Languedoc-Roussillon']
 
     if wine_region in michelin_regions:
-        prompt = f"""
-        Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and top appellations or Grand Crus. 
-        Ensure the focus remains only on appellations within {wine_region}. 
-        Emphasize how the wines from {wine_region} are integral to Michelin-starred dining, highlighting their pairing with gourmet dishes and their role in high-end culinary experiences.
-        Keep the response organized in sub-paragraphs for clarity.
-        """
+        focus = (
+            f"Explain how wines from {wine_region} are used in Michelin-level dining, "
+            f"with specific examples of pairings where appropriate."
+        )
     elif wine_region in local_cuisine_regions:
-        prompt = f"""
-        Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and top appellations. 
-        Ensure the focus remains only on appellations within {wine_region}. 
-        Focus on how the wines from {wine_region} complement the local cuisine, avoiding any mention of Michelin-starred dining unless it is highly relevant.
-        Keep the response organized in sub-paragraphs for clarity.
-        """
+        focus = (
+            f"Explain how wines from {wine_region} complement the region’s traditional cuisine. "
+            f"Do not mention Michelin dining unless it is genuinely relevant."
+        )
     else:
-        prompt = f"""
-        Provide a concise overview of the {wine_region} wine region, focusing on its main grape varieties and top appellations or Grand Crus. 
-        Ensure the focus remains only on appellations within {wine_region}. 
-        Provide an accurate description of the wines and how they complement local cuisine or fine dining as applicable.
-        Keep the response organized in sub-paragraphs for clarity.
-        """
+        focus = (
+            "Describe how the region’s wines fit into both everyday local cuisine and fine dining when applicable."
+        )
+
+    prompt = (
+        f"Write a concise, factual overview of the {wine_region} wine region.\n"
+        f"- Include the main grape varieties.\n"
+        f"- Give a brief description of the climate and key terroir features, focusing on how they influence wine style.\n"
+        f"- List key appellations (only within {wine_region}).\n"
+        f"- {focus}\n"
+        f"- Structure the output in short, clear paragraphs (not bullet points).\n"
+        f"- Avoid exaggerated language.\n"
+        f"- Keep it to approximately 3–4 short paragraphs."
+    )
+
     return prompt
