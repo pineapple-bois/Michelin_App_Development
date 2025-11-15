@@ -386,14 +386,6 @@ def get_main_content_with_city_match(unique_regions):
         # Buttons and restaurant details
         html.Div([
             star_filter_section(star_placeholder),
-            # html.Button(
-            #     "Selected Restaurants",
-            #     id="toggle-selected-btn",
-            #     n_clicks=0,
-            #     className="selected-toggle-button",
-            #     style={'display': 'none'}
-            # ),
-            # dcc.Store(id='show-selected-toggle', data='none'),
             html.Div(id='restaurant-details', children=[], className='restaurant-details-container')
         ], className='star-ratings-and-details-container')
 
