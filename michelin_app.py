@@ -1,5 +1,3 @@
-import pandas as pd
-import geopandas as gpd
 import plotly.graph_objects as go
 import dash
 import dash_bootstrap_components as dbc
@@ -12,6 +10,7 @@ from flask import Flask, session, request, redirect
 from flask_caching import Cache
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from app_data import DATA
 from app_config import CONFIG
 from layouts.layout_main import get_main_layout, color_map, star_filter_section
 from layouts.layout_analysis import get_analysis_layout
@@ -25,63 +24,22 @@ from utils.appFunctions import (plot_regional_outlines, plot_department_outlines
                                 calculate_weighted_mean, plot_demographics_barchart, plot_wine_choropleth_plotly,
                                 generate_optimized_prompt)
 
-# Load restaurant data
-all_france = pd.read_csv(CONFIG.data_path("all_restaurants(arrondissements).csv"))
-# Load Monaco data (department_num is inferred 'int' by Pandas)
-all_monaco = pd.read_csv(CONFIG.data_path("monaco_restaurants.csv"), dtype={'department_num': str})
-
-# Load regional GeoJSON data
-region_df = gpd.read_file(CONFIG.data_path("region_restaurants.geojson"))
-# Load departmental GeoJSON data
-department_df = gpd.read_file(CONFIG.data_path("department_restaurants.geojson"))
-# Load arrondissement GeoJSON data
-arron_df = gpd.read_file(CONFIG.data_path("arrondissement_restaurants.geojson"))
-# Load Paris GeoJSON data
-paris_df = gpd.read_file(CONFIG.data_path("paris_restaurants.geojson"))
-# Load Monaco GeoJSON data (departmental aggregation)
-monaco_df = gpd.read_file(CONFIG.data_path("monaco_restaurants.geojson"))
-# Load wine GeoJSON data
-wine_df = gpd.read_file(CONFIG.data_path("wine_regions_cleaned.geojson"))
-# wine_df = gpd.read_file("assets/Data/wine_regions_simplified.geojson")
-
-
-# Create France + Monaco for guide
-def get_combined_restaurant_data(include_monaco=False):
-    if include_monaco:
-        return pd.concat([all_france, all_monaco], ignore_index=True)
-    return all_france
-
-
-# Create Departmental France + Monaco geojson for guide
-def get_geo_df(include_monaco=False):
-    combined = all_france if not include_monaco else pd.concat([all_france, all_monaco], ignore_index=True)
-    dept_codes = combined['department_num'].unique()
-
-    if not include_monaco:
-        return department_df[department_df['code'].isin(dept_codes)]
-
-    # Concatenate and cast to GeoDataFrame
-    merged_df = pd.concat([department_df, monaco_df], ignore_index=True)
-    merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geometry', crs=department_df.crs)
-    return merged_gdf
-
-
-# Get unique department numbers with restaurants
-departments_with_restaurants = all_france['department_num'].unique()
-# Filter geo_df
-geo_df = department_df[department_df['code'].isin(departments_with_restaurants)]
+all_france = DATA.all_france
+all_monaco = DATA.all_monaco
+region_df = DATA.region_df
+department_df = DATA.department_df
+arron_df = DATA.arron_df
+paris_df = DATA.paris_df
+monaco_df = DATA.monaco_df
+wine_df = DATA.wine_df
+geo_df = DATA.geo_df
 star_placeholder = (0.5, 1, 2, 3)
-
-
-# Use geo_df to get unique regions and departments for the initial dropdowns
-unique_regions = sorted(geo_df['region'].unique())
-initial_departments = geo_df[geo_df['region'] == unique_regions[0]][['department', 'code']].drop_duplicates().to_dict('records')
-initial_options = [{
-    'label': f"{dept['department']} ({dept['code']})",
-    'value': dept['department']
-} for dept in initial_departments]
-dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
-region_to_name = {region: region for region in geo_df['region'].unique()}
+unique_regions = DATA.unique_regions
+initial_options = DATA.initial_options
+dept_to_code = DATA.dept_to_code
+region_to_name = DATA.region_to_name
+get_combined_restaurant_data = DATA.get_combined_restaurant_data
+get_geo_df = DATA.get_geo_df
 
 
 # Initialize openai with API key

@@ -169,6 +169,8 @@ pip install -r requirements.txt
 
 The geospatial stack uses GeoPandas with Pyogrio for local GeoJSON reads. Fiona is not a direct application dependency.
 
+Runtime data loading lives in `app_data.py`, which reads the restaurant CSVs and deployed GeoJSON files from repo-relative paths and checks the columns needed by the current app.
+
 ### Step 4: Set Up Environment Variables
 
 Create a .env file in the root directory with the following:

@@ -16,7 +16,8 @@ The first implementation pass should be architectural. Styling work should stay 
 
 The deployed application is currently concentrated in a small number of large modules:
 
-- `michelin_app.py`: application entrypoint, data loading, Flask server setup, Dash setup, pseudo-router, cache setup, OpenAI client setup, and all callbacks.
+- `michelin_app.py`: application entrypoint, Flask server setup, Dash setup, pseudo-router, cache setup, OpenAI client setup, and all callbacks.
+- `app_data.py`: central restaurant/GeoJSON loading, schema checks, and existing derived dropdown/map lookup values.
 - `layouts/layout_main.py`: Guide page layout plus shared header, footer, Michelin icon helpers, and main-page star filters.
 - `layouts/layout_analysis.py`: one large combined Analysis layout containing the future Analysis, Economics, and Wine page sections.
 - `layouts/layout_404.py`: 404 layout.
@@ -40,7 +41,8 @@ There is no true Dash Pages setup yet. The current router is a manual callback o
 | `Aptfile` | Installs GDAL/native GIS packages for the Heroku geospatial build path. | Keep for now; remove only after dedicated Heroku build verification. |
 | `requirements.txt` | Pins Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and runtime packages. | Keep package changes scoped; avoid unrelated upgrades mixed with routing changes. |
 | `README.md` | Product and local setup docs. | Keep current with runtime/config changes as the refactor progresses. |
-| `michelin_app.py` | Monolithic app, data loading, routing, callbacks, services. | Shrink to deployment entrypoint plus app creation/registration. |
+| `michelin_app.py` | Monolithic app, routing, callbacks, and services. | Shrink to deployment entrypoint plus app creation/registration. |
+| `app_data.py` | Loads app data and builds existing derived lookup values. | Keep as the data boundary when callbacks move into page modules. |
 | `layouts/layout_main.py` | Guide layout plus shared header/footer/icons/star filter. | Split Guide layout from shared components. |
 | `layouts/layout_analysis.py` | Combined Analysis/Economics/Wine layout. | Split into three page modules. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
@@ -139,8 +141,8 @@ The current file name can stay to avoid deployment churn.
 - Move environment handling into `app/config.py`.
 - Keep the environment-aware HTTPS redirect contract intact. Local development should not require commenting code out.
 - Move `OPENAI_API_KEY`, `FLASK_SECRET_KEY`, cache settings, and request limits into config.
-- Move CSV/GeoJSON loading into `app/data.py`.
-- Normalize key data types at load time, especially `department_num` and geographic `code` columns.
+- Keep CSV/GeoJSON loading in `app_data.py` until a package/app-factory structure is introduced.
+- Preserve explicit string-like identifier checks for `department_num` and geographic `code` columns.
 - Use repository-relative `Path` objects rather than relying on the process working directory.
 
 ### Phase 2: Shared Components
@@ -244,18 +246,18 @@ Current callback ownership in `michelin_app.py`:
 
 | Current area | Current callback lines | Target owner |
 | --- | ---: | --- |
-| Pseudo-router and nav | 164-199 | `app/callbacks/navigation.py` or Dash Pages metadata |
-| Guide page | 212-733 | `app/callbacks/guide.py` |
-| Analysis distributions | 735-947 | `app/callbacks/analysis.py` |
-| Rankings | 948-999 | `app/callbacks/analysis.py` |
-| Economics/demographics | 1001-1174 | `app/callbacks/economics.py` |
-| Wine | 1176-1328 | `app/callbacks/wine.py` |
+| Pseudo-router and nav | 114-154 | `app/callbacks/navigation.py` or Dash Pages metadata |
+| Guide page | 158-680 | `app/callbacks/guide.py` |
+| Analysis distributions | 681-950 | `app/callbacks/analysis.py` |
+| Rankings | 951-1073 | `app/callbacks/analysis.py` |
+| Economics/demographics | 1074-1206 | `app/callbacks/economics.py` |
+| Wine | 1207-1281 | `app/callbacks/wine.py` |
 
 ## Known Risks and Decisions
 
 - `layout_analysis.py` already contains the future page split, but the sections share helper names, CSS classes, and star-filter conventions. Split layout first, then clean names.
 - Several callbacks assume list inputs are never `None`. Clearing multi-select dropdowns can expose this.
-- `department_num` is compared as a string in several places, but France restaurant data is read without an explicit dtype while Monaco data is read with `dtype={"department_num": str}`.
+- `department_num` is compared as a string in several places. `app_data.py` now reads both restaurant CSVs with `dtype={"department_num": str}`; defer deeper normalization so leading-zero and Corsican code semantics remain unchanged.
 - Flask `before_request` hooks now have distinct names for HTTPS enforcement and session setup. Keep this clarity during later app-factory work.
 - There are duplicate Python callback function names. Dash has already registered the decorated callables, but this makes debugging harder.
 - `Flask-Caching` is configured as `simple`, which is per-process memory. Multiple Gunicorn workers or dynos will not share cache entries.
@@ -265,6 +267,7 @@ Current callback ownership in `michelin_app.py`:
 - `assets/basicTileMap.json` contains an embedded tile-service key. Decide whether this is intentionally public and restricted, or move it to config.
 - Local HTTPS behavior is now config-driven. Keep this contract intact during later routing work.
 - Fiona has been removed as a direct dependency; Pyogrio is the intended GeoPandas file I/O path. Keep `Aptfile` until Heroku build evidence shows native GDAL packages are unnecessary.
+- Data loading now lives in `app_data.py`; defer deeper data normalization so map/chart semantics stay unchanged.
 
 ## Definition of Done
 

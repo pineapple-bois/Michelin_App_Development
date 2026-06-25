@@ -23,7 +23,7 @@ This file is for future agents working on the Michelin Dash app. It documents th
 
 `michelin_app.py` currently does almost everything:
 
-- imports data from `assets/Data`
+- binds data frames and derived lookup values from `app_data.py`
 - creates the Flask `server`
 - creates the Dash `app`
 - imports runtime/path configuration from `app_config.py`
@@ -36,6 +36,15 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - exposes `server` for Gunicorn
 
 This file should be reduced over time, but preserve the `server` export until deployment is intentionally changed.
+
+`app_data.py`
+
+- Loads the two restaurant CSVs and deployed GeoJSON files from `CONFIG.data_path(...)`.
+- Uses `geopandas.read_file(..., engine="pyogrio")` for GeoJSON I/O.
+- Keeps `department_num` string-like in restaurant CSVs so values such as `06`, `2A`, `2B`, and `75` continue to match existing callback logic.
+- Checks required columns for restaurants, aggregate geography, demographics, Paris, Monaco, and wine data at import time.
+- Builds the existing derived values used by callbacks: `geo_df`, `unique_regions`, `initial_options`, `dept_to_code`, and `region_to_name`.
+- Provides `get_combined_restaurant_data(...)` and `get_geo_df(...)` methods to preserve current France/Monaco behavior.
 
 ### Layout Modules
 
@@ -93,7 +102,7 @@ This module mixes pure plotting, Dash component rendering, and service prompt lo
 
 ### Geospatial Dependencies
 
-- `michelin_app.py` uses `geopandas.read_file(...)` for local GeoJSON files and `geopandas.GeoDataFrame(...)` for Monaco/France geometry combination.
+- `app_data.py` uses `geopandas.read_file(...)` for local GeoJSON files and `geopandas.GeoDataFrame(...)` for Monaco/France geometry combination.
 - `utils/appFunctions.py` uses GeoPandas CRS helpers and Shapely geometry objects. It does not read or write files.
 - Pyogrio is the intended GeoPandas I/O backend. Do not re-add Fiona unless a future feature requires Fiona-specific behavior.
 - `Aptfile` remains conservative for Heroku 24 builds. Pyogrio wheels include GDAL on supported platforms, but remove `gdal-bin`/`libgdal-dev` only after a dedicated deployment/build verification.
@@ -238,7 +247,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - The OpenAI client is created at import time. Missing or invalid `OPENAI_API_KEY` should be handled gracefully by the Wine page.
 - Fiona is no longer installed directly. If it reappears transitively, verify why before accepting the dependency.
 - `Aptfile` may eventually be removable, but that is a Heroku build/deployment validation task, not part of page-routing work.
-- `department_num` is read without explicit dtype for France but with `dtype={"department_num": str}` for Monaco. Many comparisons assume strings.
+- `department_num` is now explicitly read as string-like for both France and Monaco. Do not normalize department codes further without checking leading-zero and Corsican `2A`/`2B` behavior.
 - The Guide page includes Monaco only when the selected region is `Provence-Alpes-Côte d'Azur`. Analysis, Economics, and Wine currently use France data only unless explicitly changed.
 - `layout_main.py` and `layout_analysis.py` both define star-filter helpers with overlapping names but different ID conventions.
 - Some callback function names are duplicated or misleading. Dash registers the decorated function object, but duplicate names are painful for debugging.
@@ -249,6 +258,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - `assets/scroll-script.js` targets the old single Analysis page and should be updated or removed after routing changes.
 - `Development/` is ignored scratch/reference material, not deployed code.
 - Do not commit `__pycache__/` artifacts. They are currently present as untracked local files.
+- `assets/Data/wine_regions_simplified.geojson` is currently untracked and unrelated to the deployed `wine_regions_cleaned.geojson` path.
 
 ## Safe Refactor Order
 
