@@ -31,7 +31,14 @@ The deployed application is currently concentrated in a small number of large mo
 - `layouts/wine.py`: Wine page section builder and page layout.
 - `layouts/analysis_shared.py`: shared page shell and star-filter helpers for the analysis-style pages.
 - `layouts/layout_404.py`: 404 layout.
-- `utils/appFunctions.py`: Plotly map/chart builders, restaurant card rendering, star-button helper logic, wine prompt generation, and other mixed presentation/data helpers.
+- `utils/guide_figures.py`: Guide/Home map figure builders and outline helpers.
+- `utils/analysis_figures.py`: core Analysis figure builders and ranking helper.
+- `utils/economics_figures.py`: Economics/Demographics map, bar, and weighted-mean helpers.
+- `utils/wine_figures.py`: Wine-region map figure builder.
+- `utils/restaurant_cards.py`: restaurant detail/card rendering helper.
+- `utils/star_filters.py`: star-filter active-state helper.
+- `utils/wine_prompts.py`: Wine/OpenAI prompt construction helper.
+- `utils/appFunctions.py`: temporary compatibility shim re-exporting the focused utility modules.
 - `utils/locationMatcher.py`: fuzzy location lookup used by the Guide page.
 - `assets/`: CSS, client JS, custom Dash index template, images, CSV/GeoJSON data, and a tile style JSON.
 - `Procfile`: Heroku web command, `gunicorn michelin_app:server`.
@@ -66,7 +73,14 @@ Dash Pages now owns the routing shell. Analysis, Economics, and Wine are now sep
 | `layouts/wine.py` | Wine page layout and section builder. | Keep IDs/classes stable; split wine service/prompt helpers later. |
 | `layouts/analysis_shared.py` | Shared page shell and star-filter helpers for Analysis/Economics/Wine layouts. | Keep as a small shared layout helper until the later package restructure. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
-| `utils/appFunctions.py` | Mixed plotting, Dash components, ranking, wine prompt, helper logic. | Split into figures, components, and services. |
+| `utils/guide_figures.py` | Guide/Home map figure builders and outline helpers. | Keep behaviour stable; direct callback imports can move here next. |
+| `utils/analysis_figures.py` | Core Analysis figures and ranking helper. | Keep behaviour stable; direct callback imports can move here next. |
+| `utils/economics_figures.py` | Economics/Demographics map, bar chart, and weighted-mean helpers. | Keep behaviour stable; direct callback imports can move here next. |
+| `utils/wine_figures.py` | Wine-region map figure builder. | Keep behaviour stable; direct callback imports can move here next. |
+| `utils/restaurant_cards.py` | Restaurant detail/card rendering helper. | Keep card markup and classes stable. |
+| `utils/star_filters.py` | Shared star-filter active-state helper. | Keep callback output shape stable. |
+| `utils/wine_prompts.py` | Wine/OpenAI prompt construction helper. | Preserve prompt wording unless changing Wine behavior intentionally. |
+| `utils/appFunctions.py` | Compatibility shim re-exporting moved helper functions. | Remove after direct-import cleanup if no compatibility reason remains. |
 | `utils/locationMatcher.py` | Fuzzy city/department lookup. | Move or keep as service; add tests around accent/case matching. |
 | `assets/styles.css` | Main styling. | Preserve class names and avoid broad styling changes during routing migration. |
 | `assets/scroll-script.js` | Analysis/Economics/Wine nav scroll helper. | Revisit after page/callback ownership settles. |
@@ -237,15 +251,19 @@ The layout-module cleanup is also complete: the old large `layouts/layout_analys
 
 ### Phase 6: Figure and Service Refactor
 
-Split `utils/appFunctions.py` by purpose:
+The first Phase 6 split is complete. The large mixed `utils/appFunctions.py` implementation is now separated by purpose:
 
-- pure figure builders
-- Dash component builders
-- restaurant card rendering
-- star filter button state helpers
-- OpenAI/wine prompt service
+- `utils/guide_figures.py`: Guide/Home map figure builders and outline helpers.
+- `utils/analysis_figures.py`: core Analysis figure builders and ranking helper.
+- `utils/economics_figures.py`: demographic/economic map, bar, and weighted-mean helpers.
+- `utils/wine_figures.py`: wine map helper.
+- `utils/restaurant_cards.py`: restaurant detail/card renderer.
+- `utils/star_filters.py`: star-filter active-state helper.
+- `utils/wine_prompts.py`: OpenAI/wine prompt helper.
 
-This should make callback files thin. A good callback should mostly validate inputs, select data, call a figure/service helper, and return Dash outputs.
+`utils/appFunctions.py` remains as a temporary compatibility shim that re-exports the moved functions. Current callbacks still import from the shim to keep this extraction narrow. The next Phase 6 subtask is direct-import cleanup in the callback modules, followed by removing the shim if no external compatibility reason remains.
+
+A good callback should mostly validate inputs, select data, call a figure/service helper, and return Dash outputs.
 
 ### Phase 7: Tests and Verification
 
@@ -305,6 +323,7 @@ Section-level layout builders for these pages now live in `layouts/analysis.py`,
 - Fiona has been removed as a direct dependency; Pyogrio is the intended GeoPandas file I/O path. Keep `Aptfile` until Heroku build evidence shows native GDAL packages are unnecessary.
 - Data loading now lives in `app_data.py`; defer deeper data normalization so map/chart semantics stay unchanged.
 - A later packaging step should move `callbacks/`, `components/`, `layouts/`, `pages/`, `utils/`, `app_config.py`, and `app_data.py` under an outer `app/` package while keeping root `michelin_app.py` as the Heroku entrypoint.
+- Callback imports still go through the `utils/appFunctions.py` compatibility shim. This is intentional for the first Phase 6 extraction and should be cleaned up in the next small PR.
 
 ## Definition of Done
 
