@@ -2,9 +2,34 @@
    Global Styles
    ------------------------- */
 
+/* -------------------------
+   Foundation Tokens
+
+   Values below mirror repeated literals already used in this file. Keep this
+   layer conservative so future visual work can move toward tokens without
+   changing the current rendered app.
+   ------------------------- */
+
+:root {
+    --color-brand-red: #C2282D;
+    --color-text-primary: black;
+    --color-text-muted: #555;
+    --color-surface: white;
+    --color-surface-control: #f0f0f0;
+    --color-surface-control-hover: #ddd;
+    --color-border-subtle: #ddd;
+    --color-border-control: #ccc;
+    --color-link: #007bff;
+    --shadow-active-control: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+}
+
 body {
     font-family: 'Libre Franklin', sans-serif;
 }
+
+/* -------------------------
+   Application Shell: Header and Navigation
+   ------------------------- */
 
 /* Header section: fixed at the top */
 .header {
@@ -14,9 +39,9 @@ body {
     left: 0;
     right: 0;
     height: 80px; /* Adjust height as needed */
-    background-color: white; /* Set background color for visibility */
+    background-color: var(--color-surface); /* Set background color for visibility */
     z-index: 1000; /* Ensure it stays above other content */
-    border-bottom: 1px solid #ddd; /* Optional: Add border for separation */
+    border-bottom: 1px solid var(--color-border-subtle); /* Optional: Add border for separation */
 }
 
 /* Body section will grow to fill available space */
@@ -33,7 +58,7 @@ body {
 
 .container-style {
     padding: 1rem;
-    background-color: white/*#EAECEE*/;
+    background-color: var(--color-surface)/*#EAECEE*/;
 }
 
 /* -------------------------
@@ -57,12 +82,12 @@ body {
     font-family: "Kaisei Decol", serif;
     font-size: 60px;
     margin-left: 50px;
-    color: black;
+    color: var(--color-text-primary);
     font-weight: 400;
 }
 
 .year-text {
-    color: #C2282D;
+    color: var(--color-brand-red);
 }
 
 /* -------------------------
@@ -82,7 +107,7 @@ body {
 
 .bar {
     height: 3px;
-    background-color: #C2282D; /* Michelin Red */
+    background-color: var(--color-brand-red); /* Michelin Red */
     border-radius: 2px;
 }
 
@@ -91,8 +116,8 @@ body {
     position: absolute;
     right: 50px;
     top: 80px;
-    background-color: white;
-    border: 1px solid #ddd;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     z-index: 999;
     padding: 10px;
@@ -113,7 +138,7 @@ body {
 .nav-link {
     display: block;
     padding: 8px 12px;
-    color: black;
+    color: var(--color-text-primary);
     text-decoration: none;
     font-weight: 500;
     opacity: 1;
@@ -126,11 +151,11 @@ body {
 }
 
 .nav-link.active {
-    color: #C2282D;
+    color: var(--color-brand-red);
 }
 
 /* -------------------------
-   City match section styling
+   Guide Page: City Match Section Styling
    ------------------------- */
 
 .city-match-content-wrapper-mainpage {
@@ -171,9 +196,9 @@ body {
 }
 
 .info-toggle-button {
-    background-color: #f0f0f0;  /* Light grey background */
-    color: #555;  /* Muted text color */
-    border: 1px solid #ccc;  /* Light border */
+    background-color: var(--color-surface-control);  /* Light grey background */
+    color: var(--color-text-muted);  /* Muted text color */
+    border: 1px solid var(--color-border-control);  /* Light border */
     border-radius: 5px;
     padding: 5px 10px;
     font-size: 14px;
@@ -188,10 +213,10 @@ body {
     top: 50%;
     left: 105%;  /* Move the tooltip to the right of the button */
     transform: translateY(-50%);  /* Vertically center the tooltip */
-    background-color: #f0f0f0;
+    background-color: var(--color-surface-control);
     padding: 5px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-control);
     color: #333;
     font-size: 12px;
     white-space: nowrap;
@@ -201,7 +226,7 @@ body {
 }
 
 .info-toggle-button:hover {
-    background-color: #ddd;  /* Darken on hover for subtle effect */
+    background-color: var(--color-surface-control-hover);  /* Darken on hover for subtle effect */
 }
 
 /* Add margin around the button */
@@ -210,8 +235,8 @@ body {
 }
 
 .city-input-field {
-    color: #555;  /* Text color */
-    border: 1px solid #ddd;  /* Light border matching the buttons */
+    color: var(--color-text-muted);  /* Text color */
+    border: 1px solid var(--color-border-subtle);  /* Light border matching the buttons */
     border-radius: 5px;  /* Rounded corners matching buttons */
     padding: 5px 10px;  /* Ensure similar padding to buttons */
     font-size: 14px;  /* Matching the font size */
@@ -225,9 +250,9 @@ body {
 
 .submit-city-button-mainpage,
 .clear-city-button-mainpage {
-    background-color: #f0f0f0;  /* Light grey background */
-    color: #555;  /* Muted text color */
-    border: 1px solid #ccc;  /* Light border */
+    background-color: var(--color-surface-control);  /* Light grey background */
+    color: var(--color-text-muted);  /* Muted text color */
+    border: 1px solid var(--color-border-control);  /* Light border */
     border-radius: 5px;
     padding: 3px 10px;
     font-size: 14px;
@@ -237,7 +262,7 @@ body {
 
 .submit-city-button-mainpage:hover,
 .clear-city-button-mainpage:hover {
-    background-color: #ddd;  /* Darken on hover */
+    background-color: var(--color-surface-control-hover);  /* Darken on hover */
 }
 
 /* -------------------------
@@ -254,10 +279,10 @@ body {
     width: 100%;
     z-index: 1000;
     /*background-color: lightcoral; !* Debug color for visibility *!*/
-    background-color: white;
+    background-color: var(--color-surface);
     display: flex;
     align-items: center;
-    border-top: 1px solid #ddd; /* Optional: Add border for separation */
+    border-top: 1px solid var(--color-border-subtle); /* Optional: Add border for separation */
 }
 
 /* Info container with its own debug color */
@@ -294,7 +319,7 @@ body {
 /* Link styling */
 .info-link {
     text-decoration: none; /* Removes underline */
-    color: #007bff;
+    color: var(--color-link);
     font-size: 12px;
 }
 
@@ -305,7 +330,7 @@ body {
 /* Info text styling */
 .info-text {
     font-size: 12px;
-    color: black;
+    color: var(--color-text-primary);
 }
 
 .info-footer, .disclaimer-text, .disclaimer-link {
@@ -316,20 +341,20 @@ body {
 /* Footer text styling */
 .info-footer {
     font-size: 9px;
-    color: #555; /* Grey color for footer text */
+    color: var(--color-text-muted); /* Grey color for footer text */
     opacity: 0.7; /* Slight transparency */
 }
 
 /* Disclaimer text styling */
 .disclaimer-text {
     font-size: 10px;
-    color: #555; /* Subtle grey color */
+    color: var(--color-text-muted); /* Subtle grey color */
 }
 
 /* Styling for disclaimer link */
 .disclaimer-link {
     font-size: 10px; /* Match disclaimer font size */
-    color: #007bff; /* Subtle blue for links */
+    color: var(--color-link); /* Subtle blue for links */
 }
 
 /* -------------------------
@@ -357,7 +382,7 @@ body {
 }
 
 /* -------------------------
-   Main Content Container for Map and Sidebar
+   Guide Page: Main Content Container for Map and Sidebar
    ------------------------- */
 
 /* Main layout wrapping everything */
@@ -456,7 +481,7 @@ body {
 
 .star-description-text {
     font-size: 10px; /* Smaller text for description */
-    color: #555; /* Darker grey for the description text */
+    color: var(--color-text-muted); /* Darker grey for the description text */
     margin-top: 0; /* Space after the title */
     margin-bottom: 10px; /* Remove bottom margin */
 }
@@ -472,7 +497,7 @@ body {
 .ratings-container,
 .restaurant-details-container{
     padding: 0; /* Remove padding */
-    background-color: white;/*#f8f9fa*/;
+    background-color: var(--color-surface);/*#f8f9fa*/;
 }
 
 /* -------------------------
@@ -562,7 +587,7 @@ body {
 /* Active state for star buttons */
 .star-button.active {
     opacity: 1;
-    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-active-control);
 }
 
 /* Inactive state, specifically less opacity when not active */
@@ -615,7 +640,7 @@ body {
 
 .selected-toggle-button.active {
     opacity: 1;
-    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-active-control);
 }
 
 /* Inactive state, specifically less opacity when not active */
@@ -628,10 +653,10 @@ body {
    ------------------------- */
 
 .restaurant-details {
-    background-color: white;
+    background-color: var(--color-surface);
     padding: 15px;
     border-radius: 8px;
-    border: 2px solid #ccc;  /* Default border color */
+    border: 2px solid var(--color-border-control);  /* Default border color */
 }
 
 .placeholder-text {
@@ -700,7 +725,7 @@ body {
 
 /* -------------------------
    -------------------------
-   Analysis Page
+   Analysis-Style Pages: Shared Shell and Analysis Page
    -------------------------
    ------------------------- */
 
@@ -856,7 +881,7 @@ body {
 /* Change the background and text color of selected dropdown values */
 .dropdown-region-analysis .Select-value {
     background-color: rgba(194, 40, 45, 0.2) !important; /* Semi-transparent red background */
-    color: #C2282D !important;  /* Bold red text */
+    color: var(--color-brand-red) !important;  /* Bold red text */
     border-radius: 5px;
     border: none !important; /* Remove blue border */
 }
@@ -864,7 +889,7 @@ body {
 /* Target the label inside each selected value to ensure bold red text */
 .dropdown-region-analysis .Select-value-label {
     font-size: 14px;
-    color: #C2282D !important; /* Bold red text */
+    color: var(--color-brand-red) !important; /* Bold red text */
     box-shadow: none !important; /* Remove blue shadow */
 }
 
@@ -875,12 +900,12 @@ body {
 
 /* Customize the "x" button on hover */
 .dropdown-region-analysis .Select-value-icon:hover {
-    color: #C2282D !important; /* Red color for the "x" icon on hover */
+    color: var(--color-brand-red) !important; /* Red color for the "x" icon on hover */
 }
 
 /* Ensure the "x" stays black when not hovered */
 .dropdown-region-analysis .Select-value-icon {
-    color: black !important; /* Black color for the "x" by default */
+    color: var(--color-text-primary) !important; /* Black color for the "x" by default */
 }
 
 /* Remove blue outline when the "x" button or value is focused */
@@ -1092,7 +1117,7 @@ body {
 .star-filter-section-demographics .star-button-demographics.active,
 .star-filter-section-wine .star-button-wine.active {
     opacity: 1;
-    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-active-control);
 }
 
 .star-filter-section-analysis .star-button-analysis.inactive,
@@ -1199,7 +1224,7 @@ body {
 /* Button for 'Show Restaurant Details' */
 .button-show-details {
     padding: 10px 20px;
-    background-color: #C2282D;
+    background-color: var(--color-brand-red);
     border-radius: 5px;
     border: none;
     cursor: pointer;
@@ -1214,7 +1239,7 @@ body {
 }
 
 /* -------------------------
-   Demographics Section Styling
+   Economics Page: Demographics Section Styling
    ------------------------- */
 
 /* Wrapper to couple the main content and filter for demographics */
@@ -1464,7 +1489,7 @@ body {
     padding-top: 10px;
     padding-bottom: 10px;
     padding-left: 20px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--color-border-control);
     background-color: #f7f7f7;
     width: 100%;
     text-align: left;
@@ -1802,6 +1827,13 @@ body {
 }
 
 
+
+/* -------------------------
+   Deprecated / Pending Review: Commented Wine Styling Notes
+
+   This historical block is intentionally left inactive. Review or remove it
+   during a dedicated Wine styling cleanup rather than reviving it incidentally.
+   ------------------------- */
 
 /*!* -------------------------*/
 /*   WORK IN PROGRESS!*/
