@@ -32,21 +32,21 @@ The Guide Page of the Michelin Guide to France allows users to explore Michelin-
 
 ----
 
-## Analysis Page
+## Analysis, Economics, and Wine Pages
 
 ![img](assets/Images/DemoGifs/MichelinAnalysisPage.gif)
 
 ### Overview
-The Analysis Page provides users with insights into the distribution of Michelin-rated restaurants across France. Users can interact with the data, filter results, and observe trends related to distributions, regions, and star ratings.
+The Analysis, Economics, and Wine pages provide users with insights into Michelin-rated restaurants across France. The original combined analysis experience is now split across first-class routes while preserving the existing controls, maps, and chart behaviour.
 
 #### Key Features:
 1. **Restaurant distributions by `Region`, `Department` & `Arrondissement`:**
    - Users can select a granularity and filter restaurants based on their Michelin rating which dynamically adjusts the map and bar chart outputs.
 
-2. **Socioeconomic section:**
+2. **Economics page:**
    - Users can explore the distribution of starred restaurants along with various socioeconomic metrics obtained from [INSEE](https://www.insee.fr/fr/accueil)
 
-3. **Wine regions:**
+3. **Wine page:**
    - Users can explore the geographic distribution of France's main wine regions. 
    - Clicking a wine region connects to the [`OpenAI API`](https://openai.com/api/) and returns information on the main grape varieties, AOCs, Grand Crus, and food pairings.
 
@@ -65,7 +65,8 @@ The app is developed using Dash, a Python framework for building analytical web 
 **Backend Framework**: Flask serves as the web server for the application, managing HTTP requests and sessions.
   - Flask powers the integration with external services like the OpenAI API for wine region information and provides caching to optimise performance.
   - Dash operates as a set of routes within Flask. This modular integration separates concerns between the backend (Flask) and frontend (Dash), ensuring a scalable architecture.
-  - Routing is handled by Dash Pages through the thin modules in `pages/`. The app now exposes `/analysis`, `/economics`, and `/wine` as separate routes composed from section builders in `layouts/layout_analysis.py`.
+  - Routing is handled by Dash Pages through the thin modules in `pages/`. The app now exposes `/analysis`, `/economics`, and `/wine` as separate routes composed from page-specific layout builders in `layouts/analysis.py`, `layouts/economics.py`, and `layouts/wine.py`.
+  - Shared Analysis/Economics/Wine page-shell and Michelin rating filter helpers live in `layouts/analysis_shared.py`.
   - Shared header, footer, visible navigation metadata, and Michelin icon helpers live in `components/shared.py`.
   - Navigation callbacks are registered from `callbacks/navigation.py`; Guide/Home callbacks are registered from `callbacks/guide.py`; core Analysis callbacks are registered from `callbacks/analysis.py`; Economics callbacks are registered from `callbacks/economics.py`; Wine/OpenAI callbacks are registered from `callbacks/wine.py`.
 

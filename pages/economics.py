@@ -1,6 +1,6 @@
 import dash
 
-from layouts.layout_analysis import get_economics_layout
+from layouts.economics import get_economics_layout
 
 
 dash.register_page(

@@ -1,6 +1,6 @@
 import dash
 
-from layouts.layout_analysis import get_analysis_layout
+from layouts.analysis import get_analysis_layout
 
 
 dash.register_page(

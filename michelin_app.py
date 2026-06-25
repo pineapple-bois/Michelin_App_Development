@@ -21,7 +21,6 @@ client = OpenAI(
     api_key=CONFIG.openai_api_key
 )
 
-# -----------------> App and server setup
 
 server = Flask(__name__)
 server.wsgi_app = ProxyFix(server.wsgi_app, x_proto=1, x_host=1)
@@ -53,16 +52,15 @@ def ensure_session():
         session['request_count'] = 0  # Initialize request count for new session
 
 
-# App set up
 app.title = 'Gastronomic Guide to France - pineapple-bois'
 app.index_string = CONFIG.asset_path("custom_header.html").read_text(encoding="utf-8")
 app.layout = html.Div([
     dcc.Store(id='selected-stars', data=[]),
-    dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
+    dcc.Store(id='available-stars', data=[]),
     dcc.Store(id='department-centroid-store', data={}),
     dcc.Store(id='paris-arrondissement-centroid', data={}),
     dcc.Store(id='region-demographics-centroid', data={}),
-    dcc.Location(id='url', refresh=False),  # Tracks the url
+    dcc.Location(id='url', refresh=False),
     dash.page_container
 ])
 
@@ -70,25 +68,9 @@ app.layout = html.Div([
 cache = Cache(app.server, config=CONFIG.cache_config)
 
 register_navigation_callbacks(app)
-
-
-# -----------------------> "Guide Page"
-
 register_guide_callbacks(app, DATA)
-
-
-# -----------------------> "Analysis Page"
-
 register_analysis_callbacks(app, DATA)
-
-
-# ECONOMICS content
-
 register_economics_callbacks(app, DATA)
-
-
-# WINE content
-
 register_wine_callbacks(app, DATA, CONFIG, cache, client)
 
 

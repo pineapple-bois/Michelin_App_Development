@@ -114,30 +114,49 @@ Navigation callbacks are registered from `callbacks/navigation.py`. Guide page c
 - Main Guide star-filter layout.
 - Imports shared header/footer/icon helpers from `components/shared.py`.
 
-`layouts/layout_analysis.py`
+`layouts/analysis.py`
 
-- Provides page-level layout composition for the three analysis-style routes.
-- Exposes section-level builders used by the page wrappers:
+- Analysis page layout for `/analysis`.
+- Exposes Analysis section builders:
+  - `build_analysis_intro_section()`
+  - `build_region_distribution_section()`
+  - `build_department_distribution_section()`
+  - `build_arrondissement_distribution_section()`
+  - `build_restaurant_distribution_section()`
+  - `build_rankings_section()`
   - `build_analysis_sections()`
-  - `build_economics_section()`
-  - `build_wine_section()`
-  - `build_combined_analysis_content()`
-- Contains the future Analysis page sections:
+- Contains the Analysis page sections:
   - Michelin intro
   - region distribution
   - department distribution
   - arrondissement distribution
   - ranking section
-- Contains the future Economics page:
+
+`layouts/economics.py`
+
+- Economics page layout for `/economics`.
+- Owns `build_economics_section()`:
   - demographic metric selector
   - demographic map
   - demographic bar chart
   - weighted mean explanation
-- Contains the future Wine page:
+  - optional starred restaurant overlay controls
+
+`layouts/wine.py`
+
+- Wine page layout for `/wine`.
+- Owns `build_wine_section()`:
   - wine map
   - restaurant overlay controls
   - LLM output panel
   - generated-content disclaimer
+
+`layouts/analysis_shared.py`
+
+- Shared Analysis/Economics/Wine page shell.
+- Shared analysis-style star filter helpers and the `unique_regions` list used by those layouts.
+- `layouts/layout_analysis.py` was removed rather than retained as a shim. `build_combined_analysis_content()` was removed because the old combined public page is no longer exposed and no code uses the helper.
+- The layout-module cleanup did not move callbacks; callback ownership remains in `callbacks/guide.py`, `callbacks/navigation.py`, `callbacks/analysis.py`, `callbacks/economics.py`, and `callbacks/wine.py`.
 
 `layouts/layout_404.py`
 
@@ -317,8 +336,8 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - `Aptfile` may eventually be removable, but that is a Heroku build/deployment validation task, not part of page-routing work.
 - `department_num` is now explicitly read as string-like for both France and Monaco. Do not normalize department codes further without checking leading-zero and Corsican `2A`/`2B` behavior.
 - The Guide page includes Monaco only when the selected region is `Provence-Alpes-Côte d'Azur`. Analysis, Economics, and Wine currently use France data only unless explicitly changed.
-- `layout_main.py` and `layout_analysis.py` both define star-filter helpers with overlapping names but different ID conventions.
-- `layouts/layout_analysis.py` still contains Analysis, Economics, and Wine layout builders. Rename or split it in a later layout cleanup PR, not in the callback ownership PR.
+- `layout_main.py` and `layouts/analysis_shared.py` both define star-filter helpers with overlapping names but different ID conventions.
+- Analysis, Economics, and Wine layout builders now live in separate modules, but they still share CSS classes and star-filter conventions. Keep IDs/classes stable until behavior is covered by targeted tests.
 - Some callback function names are duplicated or misleading. Dash registers the decorated function object, but duplicate names are painful for debugging.
 - Some callbacks assume dropdown values are lists and can fail if a multi-select is cleared to `None`.
 - `plot_single_choropleth_plotly` mutates its input frame by writing `total_restaurants`. Pass copies or make the helper copy internally.
@@ -337,18 +356,19 @@ Use `dash.callback` in page callback modules where practical, or register callba
 4. Introduce Dash Pages while keeping existing layouts intact.
 5. Move Guide callbacks. Done: current Guide callbacks live in `callbacks/guide.py`.
 6. Move navigation callbacks. Done: current navigation callbacks live in `callbacks/navigation.py`.
-7. Add section-level builders inside the combined Analysis layout. Done: current builders live in `layouts/layout_analysis.py`.
+7. Add section-level builders inside the combined Analysis layout. Done; the old combined layout module has since been split into `layouts/analysis.py`, `layouts/economics.py`, and `layouts/wine.py`.
 8. Split the combined Analysis route into Analysis, Economics, and Wine pages. Done: current routes live in `pages/analysis.py`, `pages/economics.py`, and `pages/wine.py`.
 9. Move callbacks page by page. Done: Guide, navigation, Analysis, Economics, and Wine/OpenAI callbacks now live in dedicated callback modules.
-10. Split figure/service helpers.
-11. Update README and deployment notes.
+10. Split `utils/appFunctions.py` by purpose.
+11. Package the app modules under an outer `app/` package while keeping root `michelin_app.py` as the Heroku entrypoint.
+12. Update README and deployment notes.
 
 ## Quick Local Checks
 
 After changing architecture, run at least:
 
 ```bash
-python -m py_compile michelin_app.py callbacks/navigation.py callbacks/guide.py callbacks/analysis.py callbacks/economics.py callbacks/wine.py layouts/layout_main.py layouts/layout_analysis.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
+python -m py_compile michelin_app.py callbacks/navigation.py callbacks/guide.py callbacks/analysis.py callbacks/economics.py callbacks/wine.py layouts/layout_main.py layouts/analysis.py layouts/economics.py layouts/wine.py layouts/analysis_shared.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
 ```
 
 If dependencies are installed:

@@ -26,7 +26,10 @@ The deployed application is currently concentrated in a small number of large mo
 - `callbacks/wine.py`: Wine/OpenAI page callbacks registered by `michelin_app.py`.
 - `pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, Analysis, Economics, Wine, and the 404 fallback.
 - `layouts/layout_main.py`: Guide page layout plus main-page star filters.
-- `layouts/layout_analysis.py`: page shell and section-level builders for Analysis, Economics, and Wine pages.
+- `layouts/analysis.py`: Analysis page section builders and page layout.
+- `layouts/economics.py`: Economics page section builder and page layout.
+- `layouts/wine.py`: Wine page section builder and page layout.
+- `layouts/analysis_shared.py`: shared page shell and star-filter helpers for the analysis-style pages.
 - `layouts/layout_404.py`: 404 layout.
 - `utils/appFunctions.py`: Plotly map/chart builders, restaurant card rendering, star-button helper logic, wine prompt generation, and other mixed presentation/data helpers.
 - `utils/locationMatcher.py`: fuzzy location lookup used by the Guide page.
@@ -58,7 +61,10 @@ Dash Pages now owns the routing shell. Analysis, Economics, and Wine are now sep
 | `callbacks/wine.py` | Current Wine/OpenAI callbacks registered by `michelin_app.py`. | Keep as the Wine callback owner; split prompt/cache/service helpers later. |
 | `pages/*` | Dash Pages route wrappers for the current layouts. | Keep wrappers thin; move callback ownership later. |
 | `layouts/layout_main.py` | Guide layout plus main-page star filter. | Keep Guide-specific layout here until a dedicated layout split is worthwhile. |
-| `layouts/layout_analysis.py` | Shared page shell and section-level builders for Analysis, Economics, and Wine. | Keep styling wrappers stable while callbacks move later. |
+| `layouts/analysis.py` | Analysis page layout and section builders. | Keep IDs/classes stable; split figure helpers later. |
+| `layouts/economics.py` | Economics page layout and section builder. | Keep IDs/classes stable; split figure helpers later. |
+| `layouts/wine.py` | Wine page layout and section builder. | Keep IDs/classes stable; split wine service/prompt helpers later. |
+| `layouts/analysis_shared.py` | Shared page shell and star-filter helpers for Analysis/Economics/Wine layouts. | Keep as a small shared layout helper until the later package restructure. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
 | `utils/appFunctions.py` | Mixed plotting, Dash components, ranking, wine prompt, helper logic. | Split into figures, components, and services. |
 | `utils/locationMatcher.py` | Fuzzy city/department lookup. | Move or keep as service; add tests around accent/case matching. |
@@ -75,18 +81,12 @@ Dash Pages now owns the routing shell. Analysis, Economics, and Wine are now sep
 Current public routes are registered with Dash Pages:
 
 - `/` and `/home`: Guide layout from `get_main_layout()`.
-- `/analysis`: combined layout from `get_analysis_layout()`.
-- anything else: `get_404_layout()`.
+- `/analysis`: restaurant distribution and rankings from `layouts/analysis.py`.
+- `/economics`: socioeconomic and demographic maps/charts from `layouts/economics.py`.
+- `/wine`: wine regions and generated wine-region notes from `layouts/wine.py`.
+- anything else: `get_404_layout()` through `pages/not_found_404.py`.
 
-Target public routes:
-
-- `/`: Guide.
-- `/analysis`: restaurant distribution and rankings.
-- `/economics`: socioeconomic and demographic maps/charts.
-- `/wine`: wine regions and generated wine-region notes.
-- `/home`: compatibility redirect or alias to `/`.
-
-Page titles can change later, but the route split should reflect the three distinct callback domains that already exist inside `layout_analysis.py`.
+Page titles can change later, but the route split now reflects the three distinct callback domains.
 
 ## Recommended Target Architecture
 
@@ -201,14 +201,14 @@ Core Analysis callbacks now live in `callbacks/analysis.py` and are registered f
 
 ### Phase 5: Split the Current Analysis Page
 
-`/analysis`, `/economics`, and `/wine` are now real Dash Pages routes composed from `layouts/layout_analysis.py` builders:
+`/analysis`, `/economics`, and `/wine` are real Dash Pages routes composed from page-specific layout modules:
 
-- `build_analysis_sections()`
-- `build_economics_section()`
-- `build_wine_section()`
-- `build_combined_analysis_content()`
+- `layouts/analysis.py`: `build_analysis_sections()`
+- `layouts/economics.py`: `build_economics_section()`
+- `layouts/wine.py`: `build_wine_section()`
+- `layouts/analysis_shared.py`: shared page shell and star-filter helpers
 
-The old combined `/analysis` public page was removed rather than retained as a compatibility route. `build_combined_analysis_content()` remains available internally as a reference/composition helper, but it is not currently exposed by a public page.
+The old combined `/analysis` public page was removed rather than retained as a compatibility route. `build_combined_analysis_content()` was removed because no public page or internal code uses the combined composition helper.
 
 Current page composition:
 
@@ -232,6 +232,8 @@ Current page composition:
   - generated-content disclaimer
 
 Phase 5 callback ownership is complete. Page-specific callbacks no longer live in `michelin_app.py`.
+
+The layout-module cleanup is also complete: the old large `layouts/layout_analysis.py` module has been removed rather than retained as a compatibility shim. This cleanup did not move callbacks; callback ownership remains in the dedicated `callbacks/*` modules.
 
 ### Phase 6: Figure and Service Refactor
 
@@ -284,11 +286,11 @@ Current callback ownership:
 | Economics/demographics | `callbacks/economics.py` | `callbacks/economics.py` |
 | Wine | `callbacks/wine.py` | `callbacks/wine.py` |
 
-Section-level layout builders for these pages still live in `layouts/layout_analysis.py`; rename or split that layout module in a later cleanup PR.
+Section-level layout builders for these pages now live in `layouts/analysis.py`, `layouts/economics.py`, and `layouts/wine.py`. Shared analysis-style layout helpers live in `layouts/analysis_shared.py`.
 
 ## Known Risks and Decisions
 
-- `layout_analysis.py` has page-level layout builders, but the sections still share helper names, CSS classes, and star-filter conventions. Clean names only when callback ownership is clearer.
+- Analysis, Economics, and Wine layout builders are split by module, but the sections still share CSS classes and star-filter conventions. Clean names only when visual behavior is covered by targeted checks.
 - `callbacks/wine.py` preserves the existing OpenAI client, cache, request-limit, and curve-number lookup behavior by dependency injection rather than recreating those services.
 - Several callbacks assume list inputs are never `None`. Clearing multi-select dropdowns can expose this.
 - `department_num` is compared as a string in several places. `app_data.py` now reads both restaurant CSVs with `dtype={"department_num": str}`; defer deeper normalization so leading-zero and Corsican code semantics remain unchanged.
@@ -302,6 +304,7 @@ Section-level layout builders for these pages still live in `layouts/layout_anal
 - Local HTTPS behavior is now config-driven. Keep this contract intact during later routing work.
 - Fiona has been removed as a direct dependency; Pyogrio is the intended GeoPandas file I/O path. Keep `Aptfile` until Heroku build evidence shows native GDAL packages are unnecessary.
 - Data loading now lives in `app_data.py`; defer deeper data normalization so map/chart semantics stay unchanged.
+- A later packaging step should move `callbacks/`, `components/`, `layouts/`, `pages/`, `utils/`, `app_config.py`, and `app_data.py` under an outer `app/` package while keeping root `michelin_app.py` as the Heroku entrypoint.
 
 ## Definition of Done
 
