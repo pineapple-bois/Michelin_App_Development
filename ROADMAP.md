@@ -47,7 +47,7 @@ The deployed application is currently concentrated in a small number of large mo
 
 Dash Pages now owns the routing shell. Analysis, Economics, and Wine are now separate public routes, and Phase 5 callback ownership is split by page callback module.
 
-Runtime application modules now live under the `app/` package. The root `michelin_app.py` entrypoint remains in place for Heroku and passes `CONFIG.pages_dir` to Dash so page discovery uses `app/pages/`. Root `assets/` and `assets/Data/` remain unchanged.
+Runtime application modules now live under the `app/` package. The root `michelin_app.py` entrypoint remains in place for Heroku and passes `CONFIG.pages_dir` to Dash so page discovery uses `app/pages/`. Root `assets/` and `assets/data/` remain unchanged.
 
 ## Repository Change Map
 
@@ -88,8 +88,8 @@ Runtime application modules now live under the `app/` package. The root `micheli
 | `assets/scroll-script.js` | Analysis/Economics/Wine nav scroll helper. | Revisit after page/callback ownership settles. |
 | `assets/custom_header.html` | Dash index template. | Keep unless route-specific meta tags become required. |
 | `assets/basicTileMap.json` | Custom map tile style with embedded tile key. | Decide whether key remains public/restricted or moves to config. |
-| `assets/Data/*` | Deployed CSV/GeoJSON data. | Keep stable; centralize schema validation and dtype normalization. |
-| `assets/Images/*` | Static images and demo GIFs. | No expected architecture change. |
+| `assets/data/*` | Deployed CSV/GeoJSON data. | Keep stable; centralize schema validation and dtype normalization. |
+| `assets/images/*` | Static images and demo GIFs. | Keep filenames lowercase and update app references with asset renames. |
 | `LICENSE.md` | Project license. | No expected change. |
 
 ## Current Page Model
@@ -147,7 +147,7 @@ app/
     wine_prompts.py
     locationMatcher.py
 assets/
-  Data/
+  data/
 ```
 
 `michelin_app.py` should become the small deployment entrypoint:
@@ -279,7 +279,7 @@ Package-level cleanup is complete:
 - Runtime modules now live under `app/`.
 - Root `michelin_app.py` remains the Heroku entrypoint for `gunicorn michelin_app:server`.
 - Dash Pages discovers `app/pages/` through `pages_folder=str(CONFIG.pages_dir)`.
-- `app/app_config.py` calculates the repository root from inside the package and keeps `assets/` plus `assets/Data/` at the repository root.
+- `app/app_config.py` calculates the repository root from inside the package and keeps `assets/` plus `assets/data/` at the repository root.
 - Application imports use `app.*` paths rather than root-level `callbacks/`, `components/`, `layouts/`, `pages/`, or `utils/` packages.
 
 The next cleanup should revisit `suppress_callback_exceptions=True` and app-factory extraction if route/layout smoke tests remain stable.

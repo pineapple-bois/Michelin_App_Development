@@ -16,7 +16,7 @@ from app.layouts.analysis_shared import (
 def michelin_star_header(count):
     return [
         html.Img(
-            src="assets/Images/Michelin_star.png",
+            src="assets/images/michelin_star.png",
             className='michelin-star-header',
             style={'width': '25px', 'vertical-align': 'middle'}
         )
@@ -26,7 +26,7 @@ def michelin_star_header(count):
 
 def green_star_header():
     return html.Img(
-            src="assets/Images/MichelinGreenStar.png",
+            src="assets/images/michelin_green_star.png",
             className='green-star-header',
             style={'width': '27px', 'vertical-align': 'middle'}
         )

@@ -57,7 +57,7 @@ def michelin_stars(count):
         if i < count - 1:
             style["marginRight"] = "3px"
         stars.append(html.Img(
-            src="assets/Images/Michelin_star.png",
+            src="assets/images/michelin_star.png",
             className="michelin-star",
             style=style,
         ))
@@ -66,7 +66,7 @@ def michelin_stars(count):
 
 def bib_gourmand():
     return html.Img(
-        src="assets/Images/Michelin_Bib.png",
+        src="assets/images/michelin_bib.png",
         className="bib-image",
         style={"height": "20px", "width": "auto", "vertical-align": "middle"},
     )
@@ -78,7 +78,7 @@ def green_star(with_margin=False):
         style["marginLeft"] = "3px"
 
     return html.Img(
-        src="assets/Images/MichelinGreenStar.png",
+        src="assets/images/michelin_green_star.png",
         className="green-star",
         style=style,
     )
@@ -87,7 +87,7 @@ def green_star(with_margin=False):
 def inverted_michelin_stars(count):
     return [
         html.Img(
-            src="assets/Images/Michelin_star.png",
+            src="assets/images/michelin_star.png",
             className="michelin-star-invert",
             style={
                 "width": "16px",
@@ -102,7 +102,7 @@ def inverted_michelin_stars(count):
 
 def inverted_bib_gourmand():
     return html.Img(
-        src="assets/Images/Michelin_Bib.png",
+        src="assets/images/michelin_bib.png",
         className="bib-image-invert",
         style={
             "width": "18px",
@@ -157,7 +157,7 @@ def get_footer():
         children=[
             html.Div(
                 children=[
-                    html.Img(src="assets/Images/github-mark.png", className="info-image"),
+                    html.Img(src="assets/images/github-mark.png", className="info-image"),
                     html.Div(
                         children=[
                             html.Div(

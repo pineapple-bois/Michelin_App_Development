@@ -134,7 +134,7 @@ def get_wine_content():
                                                         className="disclaimer-content",
                                                         children=[
                                                             html.Img(
-                                                                src="/assets/Images/openai-lockup.svg",
+                                                                src="/assets/images/openai-lockup.svg",
                                                                 # Path to OpenAI logo
                                                                 className="openai-logo"
                                                             ),

@@ -41,7 +41,7 @@ This file is for future agents working on the Michelin Dash app. It documents th
 
 Preserve the `server` export until deployment is intentionally changed.
 
-The `app/` package contains runtime application modules. Keep `assets/` and `assets/Data/` at the repository root unless a dedicated data-path migration is planned.
+The `app/` package contains runtime application modules. Keep `assets/` and `assets/data/` at the repository root unless a dedicated data-path migration is planned.
 
 ### Page Modules
 
@@ -115,7 +115,7 @@ Dash discovers these modules through `pages_folder=str(CONFIG.pages_dir)` in `mi
 
 - Owns runtime configuration, repo-relative paths, cache settings, debug/HTTPS flags, Flask secret handling, and OpenAI request limits.
 - Because this module now lives inside `app/`, `CONFIG.base_dir` is calculated as the repository root via the package parent, while `CONFIG.package_dir` points to `app/`.
-- `CONFIG.assets_dir` and `CONFIG.data_dir` still point to root `assets/` and `assets/Data/`.
+- `CONFIG.assets_dir` and `CONFIG.data_dir` still point to root `assets/` and `assets/data/`.
 - `CONFIG.pages_dir` points to `app/pages/` and is passed to Dash as the explicit `pages_folder`.
 
 ### Layout Modules
@@ -242,7 +242,7 @@ Dash discovers these modules through `pages_folder=str(CONFIG.pages_dir)` in `mi
 - Custom tile style.
 - Contains an embedded tile service key. Treat it as a deployment/config decision, not incidental styling.
 
-`assets/Data`
+`assets/data`
 
 - `all_restaurants(arrondissements).csv`: main France restaurant data.
 - `monaco_restaurants.csv`: Monaco restaurant rows.
@@ -379,7 +379,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - `assets/scroll-script.js` maps Analysis, Economics, and Wine nav links to their current section anchors. Revisit it after callback/page modules settle.
 - `Development/` is ignored scratch/reference material, not deployed code.
 - Do not commit `__pycache__/` artifacts.
-- `assets/Data/wine_regions_simplified.geojson` is currently untracked and unrelated to the deployed `wine_regions_cleaned.geojson` path.
+- `assets/data/wine_regions_simplified.geojson` is currently untracked and unrelated to the deployed `wine_regions_cleaned.geojson` path.
 
 ## Safe Refactor Order
 
@@ -427,4 +427,4 @@ http://127.0.0.1:8050/missing
 - Avoid broad CSS rewrites during the architecture migration.
 - Leave unrelated local changes alone.
 - Do not stage untracked bytecode.
-- Treat `assets/Data/wine_regions_simplified.geojson` as local/untracked unless the user explicitly asks to add it.
+- Treat `assets/data/wine_regions_simplified.geojson` as local/untracked unless the user explicitly asks to add it.

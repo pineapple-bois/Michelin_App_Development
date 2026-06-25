@@ -1,6 +1,6 @@
 # Michelin Guide to France - Interactive Application
 
-![img](assets/Images/Etoile_Michelin.svg)
+![img](assets/images/etoile_michelin.svg)
 
 
 ## Overview
@@ -14,7 +14,7 @@ This app came first place in [Plotly's Autumn App Challenge 2024](https://commun
 
 ## Guide Page
 
-![img](assets/Images/DemoGifs/MichelinGuidePage.gif)
+![img](assets/images/demogifs/michelin_guide_page.gif)
 
 ### Overview
 The Guide Page of the Michelin Guide to France allows users to explore Michelin-rated restaurants across various regions and departments of France, filtering restaurants based on their Michelin star ratings.
@@ -34,7 +34,7 @@ The Guide Page of the Michelin Guide to France allows users to explore Michelin-
 
 ## Analysis, Economics, and Wine Pages
 
-![img](assets/Images/DemoGifs/MichelinAnalysisPage.gif)
+![img](assets/images/demogifs/michelin_analysis_page.gif)
 
 ### Overview
 The Analysis, Economics, and Wine pages provide users with insights into Michelin-rated restaurants across France. The original combined analysis experience is now split across first-class routes while preserving the existing controls, maps, and chart behaviour.
@@ -111,7 +111,7 @@ It has taken me some time to do this dataset justice and I feel I'm almost there
 
 #### Previous version (April 2024):
 
-![img](assets/Images/previous_site.png)
+![img](assets/images/previous_site.png)
 
 ----
 
@@ -176,7 +176,7 @@ pip install -r requirements.txt
 
 The geospatial stack uses GeoPandas with Pyogrio for local GeoJSON reads. Fiona is not a direct application dependency.
 
-Runtime configuration and data loading live in `app/app_config.py` and `app/app_data.py`. The config module keeps `assets/` and `assets/Data/` rooted at the repository root, while `app/app_data.py` reads the restaurant CSVs and deployed GeoJSON files from those repo-relative paths and checks the columns needed by the current app.
+Runtime configuration and data loading live in `app/app_config.py` and `app/app_data.py`. The config module keeps `assets/` and `assets/data/` rooted at the repository root, while `app/app_data.py` reads the restaurant CSVs and deployed GeoJSON files from those repo-relative paths and checks the columns needed by the current app.
 
 ### Step 4: Set Up Environment Variables
 

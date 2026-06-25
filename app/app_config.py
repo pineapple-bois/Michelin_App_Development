@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 PACKAGE_DIR = Path(__file__).resolve().parent
 BASE_DIR = PACKAGE_DIR.parent
 ASSETS_DIR = BASE_DIR / "assets"
-DATA_DIR = ASSETS_DIR / "Data"
+DATA_DIR = ASSETS_DIR / "data"
 PAGES_DIR = PACKAGE_DIR / "pages"
 
 LOGGER = logging.getLogger(__name__)
