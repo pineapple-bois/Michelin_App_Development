@@ -1803,4 +1803,191 @@ body {
 
 
 
+/*!* -------------------------*/
+/*   WORK IN PROGRESS!*/
+/*   Wine Section Styling*/
+/*   ------------------------- *!*/
 
+/*!* Body section will grow to fill available space *!*/
+/*.wine-body {*/
+/*    flex-grow: 1;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    padding-top: 80px;*/
+/*}*/
+
+/*.wine-content-container {*/
+/*    flex-grow: 1;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
+
+/*!* Wrapper debug blocks *!*/
+/*.wine-section {*/
+/*    background-color: rgba(0, 100, 255, 0.05); !* Light transparent blue for debug *!*/
+/*    padding: 10px;*/
+/*    border: 1px dashed #a0a0a0;*/
+/*}*/
+
+/*!* Map Section: Now on the left *!*/
+/*.map-section-wine {*/
+/*    float: left;*/
+/*    width: 60%;*/
+/*    height: 100%;  !* Full height *!*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    padding-left: 50px;  !* Optional padding for spacing *!*/
+/*    padding-right: 20px;*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+/*.wine-sidebar-container {*/
+/*    float: right;*/
+/*    width: 40%;               !* Adjust based on desired sidebar width *!*/
+/*    height: 100%;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    justify-content: flex-start;*/
+/*    box-sizing: border-box;*/
+/*    overflow-y: auto;*/
+/*    padding-right: 50px;*/
+/*}*/
+
+/*.winemap-sidebar-container {*/
+/*    display: flex;*/
+/*    flex-grow: 1;*/
+/*    height: calc(100vh - 80px);  !* Account for header *!*/
+/*    overflow: hidden;*/
+/*}*/
+
+/*!* Force the dropdown block to use full width on wine page *!*/
+/*.dropdown-block {*/
+/*    width: 100%;*/
+/*    display: block;*/
+/*}*/
+
+/*!* Ensure wine star filter section stretches and aligns *!*/
+/*#star-filter-container-wine {*/
+/*    width: 100%;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
+
+/*!* Flex row for star buttons *!*/
+/*.star-filter-buttons-wine {*/
+/*    display: flex;*/
+/*    justify-content: start;*/
+/*    align-items: center;*/
+/*    gap: 10px;*/
+/*    margin-top: 10px;*/
+/*}*/
+
+/*!* Make each button flexible like the main page *!*/
+/*.star-filter-buttons-wine > * {*/
+/*    flex: 1;*/
+/*    text-align: center;*/
+/*}*/
+
+/*!* Match button size *!*/
+/*.star-button-wine {*/
+/*    padding: 5px;*/
+/*    height: 36px;*/
+/*    line-height: 1;*/
+/*    border-radius: 8px;*/
+/*    font-family: inherit;*/
+/*    flex: 1;*/
+/*    text-align: center;*/
+/*}*/
+
+/*!* Hover + active states *!*/
+/*.star-button-wine:hover {*/
+/*    opacity: 0.8 !important;*/
+/*    cursor: pointer;*/
+/*}*/
+
+/*.star-button-wine.active {*/
+/*    opacity: 1;*/
+/*    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2);*/
+/*}*/
+
+/*.star-button-wine.inactive {*/
+/*    opacity: 0.5;*/
+/*}*/
+
+
+/*.wine-llm-output {*/
+/*    max-height: 300px; !* You can tweak this *!*/
+/*    overflow-y: auto;*/
+/*    flex-grow: 1;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    padding: 10px;*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+/*.wine-description-section {*/
+/*    background-color: rgba(255, 0, 0, 0.05);*/
+/*}*/
+
+/*.wine-controls-section {*/
+/*    background-color: rgba(0, 255, 0, 0.05);*/
+/*}*/
+
+/*.wine-llm-section {*/
+/*    background-color: rgba(0, 0, 255, 0.05);*/
+/*}*/
+
+/*.wine-title {*/
+/*    font-size: 18px;*/
+/*}*/
+
+/*.region-name-placeholder {*/
+/*    font-size: 18px;*/
+/*}*/
+
+/*.LLM-output {*/
+/*    flex-grow: 1;*/
+/*    margin-top: 10px;*/
+/*    font-size: 14px;*/
+/*    overflow-y: auto;*/
+/*}*/
+
+/*!* Disclaimer container layout *!*/
+/*#disclaimer-container {*/
+/*    padding-top: 10px;*/
+/*    padding-bottom: 10px;*/
+/*    padding-left: 20px;*/
+/*    border-top: 1px solid #ccc;*/
+/*    background-color: #f7f7f7;*/
+/*    width: 100%;*/
+/*    text-align: left;*/
+/*    bottom: 0;*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+/*!* Align the image and text side by side *!*/
+/*.disclaimer-content {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: flex-start;*/
+/*    max-width: 100%; !* Prevent overflow of the parent *!*/
+/*    overflow: hidden; !* Hide any potential overflow *!*/
+/*}*/
+
+/*!* Styling for OpenAI logo *!*/
+/*.openai-logo {*/
+/*    width: 80px;  !* Adjust size of the logo *!*/
+/*    margin-right: 10px;  !* Add space between the logo and text *!*/
+/*}*/
+
+/*!* Styling for disclaimer text *!*/
+/*.disclaimer-text-wrapper {*/
+/*    text-align: left;  !* Align text to the left *!*/
+/*    flex-grow: 1;  !* Allow the text to take remaining space *!*/
+/*}*/
+
+/*.disclaimer-text-ai {*/
+/*    font-size: 10px;*/
+/*    color: #666;  !* Grey text color for the disclaimer *!*/
+/*    margin-top: 20px !important;*/
+/*}*/
