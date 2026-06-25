@@ -5,9 +5,8 @@ from dash.exceptions import PreventUpdate
 
 from components.shared import color_map
 from layouts.layout_main import star_filter_section
-from utils.appFunctions import (
+from utils.guide_figures import (
     default_map_figure,
-    get_restaurant_details,
     plot_arrondissement_outlines,
     plot_department_outlines,
     plot_interactive_department,
@@ -15,6 +14,7 @@ from utils.appFunctions import (
     plot_regional_outlines,
 )
 from utils.locationMatcher import LocationMatcher
+from utils.restaurant_cards import get_restaurant_details
 
 
 def register_guide_callbacks(app, data):

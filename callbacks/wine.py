@@ -4,11 +4,9 @@ from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask import session
 
-from utils.appFunctions import (
-    generate_optimized_prompt,
-    plot_wine_choropleth_plotly,
-    update_button_active_state_helper,
-)
+from utils.star_filters import update_button_active_state_helper
+from utils.wine_figures import plot_wine_choropleth_plotly
+from utils.wine_prompts import generate_optimized_prompt
 
 
 def register_wine_callbacks(app, data, config, cache, openai_client):

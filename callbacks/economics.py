@@ -3,12 +3,12 @@ import plotly.graph_objects as go
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from utils.appFunctions import (
+from utils.economics_figures import (
     calculate_weighted_mean,
     plot_demographic_choropleth_plotly,
     plot_demographics_barchart,
-    update_button_active_state_helper,
 )
+from utils.star_filters import update_button_active_state_helper
 
 
 def register_economics_callbacks(app, data):

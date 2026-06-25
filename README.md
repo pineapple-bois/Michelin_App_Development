@@ -69,7 +69,7 @@ The app is developed using Dash, a Python framework for building analytical web 
   - Shared Analysis/Economics/Wine page-shell and Michelin rating filter helpers live in `layouts/analysis_shared.py`.
   - Shared header, footer, visible navigation metadata, and Michelin icon helpers live in `components/shared.py`.
   - Navigation callbacks are registered from `callbacks/navigation.py`; Guide/Home callbacks are registered from `callbacks/guide.py`; core Analysis callbacks are registered from `callbacks/analysis.py`; Economics callbacks are registered from `callbacks/economics.py`; Wine/OpenAI callbacks are registered from `callbacks/wine.py`.
-  - Figure, card, star-filter, and wine-prompt helpers are split by purpose under `utils/`. `utils/appFunctions.py` remains as a temporary compatibility shim for existing imports.
+  - Figure, card, star-filter, and wine-prompt helpers are split by purpose under `utils/`. Callback modules now import those purpose-specific utilities directly.
 
 **Data Processing**: The backend employs `Pandas` and `Geopandas` for efficient data manipulation. Restaurant data is filtered, aggregated, and displayed based on user selections (e.g., regions, star ratings).
   - GeoJSON data is used to map regions and restaurants, and this is rendered via Plotly.

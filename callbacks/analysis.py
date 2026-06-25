@@ -3,12 +3,12 @@ from dash import html
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from utils.appFunctions import (
+from utils.analysis_figures import (
     create_michelin_bar_chart,
     plot_single_choropleth_plotly,
     top_restaurants,
-    update_button_active_state_helper,
 )
+from utils.star_filters import update_button_active_state_helper
 
 
 def register_analysis_callbacks(app, data):

@@ -164,12 +164,6 @@ Navigation callbacks are registered from `callbacks/navigation.py`. Guide page c
 
 ### Utility Modules
 
-`utils/appFunctions.py`
-
-- Temporary compatibility shim.
-- Re-exports the functions that used to live in the large mixed helper module.
-- Current callbacks still import through this shim; direct-import cleanup is the next Phase 6 subtask.
-
 `utils/guide_figures.py`
 
 - Guide/Home map figure builders and geographic outline helpers.
@@ -200,7 +194,7 @@ Navigation callbacks are registered from `callbacks/navigation.py`. Guide page c
 
 - Wine/OpenAI prompt construction helper.
 
-No helpers were intentionally left implemented in `utils/appFunctions.py`; it only re-exports moved functions for compatibility.
+`utils/appFunctions.py` was removed after callback imports were updated to target the purpose-specific utility modules directly.
 
 `utils/locationMatcher.py`
 
@@ -362,7 +356,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - `department_num` is now explicitly read as string-like for both France and Monaco. Do not normalize department codes further without checking leading-zero and Corsican `2A`/`2B` behavior.
 - The Guide page includes Monaco only when the selected region is `Provence-Alpes-Côte d'Azur`. Analysis, Economics, and Wine currently use France data only unless explicitly changed.
 - `layout_main.py` and `layouts/analysis_shared.py` both define star-filter helpers with overlapping names but different ID conventions.
-- Callback imports still go through `utils/appFunctions.py` for compatibility. Remove the shim only after direct imports from the new utility modules are in place and validated.
+- Callback imports now target the purpose-specific `utils/*` modules directly. `utils/appFunctions.py` has been removed.
 - Analysis, Economics, and Wine layout builders now live in separate modules, but they still share CSS classes and star-filter conventions. Keep IDs/classes stable until behavior is covered by targeted tests.
 - Some callback function names are duplicated or misleading. Dash registers the decorated function object, but duplicate names are painful for debugging.
 - Some callbacks assume dropdown values are lists and can fail if a multi-select is cleared to `None`.
@@ -385,17 +379,16 @@ Use `dash.callback` in page callback modules where practical, or register callba
 7. Add section-level builders inside the combined Analysis layout. Done; the old combined layout module has since been split into `layouts/analysis.py`, `layouts/economics.py`, and `layouts/wine.py`.
 8. Split the combined Analysis route into Analysis, Economics, and Wine pages. Done: current routes live in `pages/analysis.py`, `pages/economics.py`, and `pages/wine.py`.
 9. Move callbacks page by page. Done: Guide, navigation, Analysis, Economics, and Wine/OpenAI callbacks now live in dedicated callback modules.
-10. Split `utils/appFunctions.py` by purpose. Done: implementation now lives in focused utility modules, with `utils/appFunctions.py` retained as a compatibility shim.
-11. Update callback imports to use the focused utility modules directly, then remove the shim if no external compatibility reason remains.
-12. Package the app modules under an outer `app/` package while keeping root `michelin_app.py` as the Heroku entrypoint.
-13. Update README and deployment notes.
+10. Split `utils/appFunctions.py` by purpose. Done: implementation now lives in focused utility modules, callback imports target those modules directly, and the old shim has been removed.
+11. Package the app modules under an outer `app/` package while keeping root `michelin_app.py` as the Heroku entrypoint.
+12. Update README and deployment notes.
 
 ## Quick Local Checks
 
 After changing architecture, run at least:
 
 ```bash
-python -m py_compile michelin_app.py callbacks/navigation.py callbacks/guide.py callbacks/analysis.py callbacks/economics.py callbacks/wine.py layouts/layout_main.py layouts/analysis.py layouts/economics.py layouts/wine.py layouts/analysis_shared.py layouts/layout_404.py utils/appFunctions.py utils/guide_figures.py utils/analysis_figures.py utils/economics_figures.py utils/wine_figures.py utils/restaurant_cards.py utils/star_filters.py utils/wine_prompts.py utils/locationMatcher.py
+python -m py_compile michelin_app.py callbacks/navigation.py callbacks/guide.py callbacks/analysis.py callbacks/economics.py callbacks/wine.py layouts/layout_main.py layouts/analysis.py layouts/economics.py layouts/wine.py layouts/analysis_shared.py layouts/layout_404.py utils/guide_figures.py utils/analysis_figures.py utils/economics_figures.py utils/wine_figures.py utils/restaurant_cards.py utils/star_filters.py utils/wine_prompts.py utils/locationMatcher.py
 ```
 
 If dependencies are installed:
