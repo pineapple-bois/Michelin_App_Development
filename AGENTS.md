@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file is for future agents working on the Michelin Dash app. It documents the current architecture, dependencies, runtime assumptions, and gotchas that matter before refactoring the pseudo-multipage app into a true multipage app.
+This file is for future agents working on the Michelin Dash app. It documents the current architecture, dependencies, runtime assumptions, and gotchas that matter while the app is being refactored from a small monolith into a true multipage app.
 
 ## Runtime and Deployment
 
@@ -31,11 +31,22 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - configures Flask session handling
 - configures `Flask-Caching`
 - defines root `dcc.Store` components
-- defines the pseudo-router callback
+- mounts `dash.page_container` for Dash Pages routing
 - defines all page callbacks
 - exposes `server` for Gunicorn
 
 This file should be reduced over time, but preserve the `server` export until deployment is intentionally changed.
+
+### Page Modules
+
+Dash Pages now owns routing. The current page modules are intentionally thin wrappers around the existing layout functions:
+
+- `pages/guide.py`: `/`, current Guide layout.
+- `pages/home.py`: `/home`, compatibility alias for the current Guide layout.
+- `pages/analysis.py`: `/analysis`, current combined Analysis/Economics/Wine layout.
+- `pages/not_found_404.py`: Dash Pages 404 fallback using the existing 404 layout.
+
+Page-specific callbacks have not moved yet; they still live in `michelin_app.py`.
 
 `app_data.py`
 
@@ -184,18 +195,18 @@ region, colour, geometry
 
 ## Current Routing and State
 
-The app is pseudo-multipage:
+Dash Pages owns the current routing shell:
 
-- Root layout contains `dcc.Location(id="url")`.
-- Root layout contains `html.Div(id="page-content")`.
-- `display_page(pathname)` returns a layout based on the URL.
+- Root layout contains `dcc.Location(id="url")` for the existing active-nav callback.
+- Root layout contains `dash.page_container`.
+- The old `display_page(pathname)` callback has been removed.
 
 Current routes:
 
 - `/` -> Guide
-- `/home` -> Guide
+- `/home` -> Guide compatibility page
 - `/analysis` -> combined Analysis/Economics/Wine page
-- anything else -> 404
+- anything else -> Dash Pages 404 fallback using `pages/not_found_404.py`
 
 Root-level stores:
 
@@ -237,8 +248,8 @@ Use `dash.callback` in page callback modules where practical, or register callba
 
 ## Gotchas
 
-- The app has no Dash Pages setup yet. There is no `dash.register_page`, `dash.page_container`, or `use_pages=True`.
-- `suppress_callback_exceptions=True` currently hides missing component problems caused by pseudo-routing. Revisit it after pages are split.
+- Dash Pages owns routing, but page-specific callbacks still live in `michelin_app.py`. Do not import `michelin_app.py` from page modules.
+- `suppress_callback_exceptions=True` remains enabled while callbacks are still centralized and page layouts are mounted by routing. Revisit it after callbacks move closer to page modules.
 - Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
 - HTTPS redirect is environment-aware and proxy-aware through `app_config.py` and `ProxyFix`. Keep it that way during later refactors.
 - Session request counts limit OpenAI calls to 10 per session by default. Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.

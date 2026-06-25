@@ -16,8 +16,9 @@ The first implementation pass should be architectural. Styling work should stay 
 
 The deployed application is currently concentrated in a small number of large modules:
 
-- `michelin_app.py`: application entrypoint, Flask server setup, Dash setup, pseudo-router, cache setup, OpenAI client setup, and all callbacks.
+- `michelin_app.py`: application entrypoint, Flask server setup, Dash Pages setup, cache setup, OpenAI client setup, and all callbacks.
 - `app_data.py`: central restaurant/GeoJSON loading, schema checks, and existing derived dropdown/map lookup values.
+- `pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, the combined Analysis page, and the 404 fallback.
 - `layouts/layout_main.py`: Guide page layout plus shared header, footer, Michelin icon helpers, and main-page star filters.
 - `layouts/layout_analysis.py`: one large combined Analysis layout containing the future Analysis, Economics, and Wine page sections.
 - `layouts/layout_404.py`: 404 layout.
@@ -28,7 +29,7 @@ The deployed application is currently concentrated in a small number of large mo
 - `Aptfile`: native GIS packages, currently `gdal-bin` and `libgdal-dev`.
 - `requirements.txt`: pinned Python dependencies for Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and related libraries.
 
-There is no true Dash Pages setup yet. The current router is a manual callback over `dcc.Location(id="url")` and `html.Div(id="page-content")`.
+Dash Pages now owns the routing shell. The current registered pages still mirror the old public routes, and the Analysis page is still the combined Analysis/Economics/Wine layout.
 
 ## Repository Change Map
 
@@ -43,6 +44,7 @@ There is no true Dash Pages setup yet. The current router is a manual callback o
 | `README.md` | Product and local setup docs. | Keep current with runtime/config changes as the refactor progresses. |
 | `michelin_app.py` | Monolithic app, routing, callbacks, and services. | Shrink to deployment entrypoint plus app creation/registration. |
 | `app_data.py` | Loads app data and builds existing derived lookup values. | Keep as the data boundary when callbacks move into page modules. |
+| `pages/*` | Dash Pages route wrappers for the current layouts. | Split Analysis/Economics/Wine pages here in a later phase. |
 | `layouts/layout_main.py` | Guide layout plus shared header/footer/icons/star filter. | Split Guide layout from shared components. |
 | `layouts/layout_analysis.py` | Combined Analysis/Economics/Wine layout. | Split into three page modules. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
@@ -58,7 +60,7 @@ There is no true Dash Pages setup yet. The current router is a manual callback o
 
 ## Current Page Model
 
-Current public routes:
+Current public routes are registered with Dash Pages:
 
 - `/` and `/home`: Guide layout from `get_main_layout()`.
 - `/analysis`: combined layout from `get_analysis_layout()`.
@@ -155,13 +157,14 @@ The current file name can stay to avoid deployment churn.
 
 ### Phase 3: True Multipage Routing
 
-- Replace the `display_page` callback with Dash Pages:
+- Dash Pages routing shell is in place:
   - `dash.Dash(..., use_pages=True, ...)`
-  - `dash.register_page(...)` in each page module
+  - `dash.register_page(...)` in `pages/`
   - `dash.page_container` in the root layout
+- The old `display_page` callback has been removed.
 - Keep shared stores only when they are genuinely cross-page.
 - Move page-specific stores into the relevant page layout.
-- Preserve `/home` with a redirect or alias until external links are updated.
+- Preserve `/home` with the current compatibility page until external links are updated.
 - Decide whether `suppress_callback_exceptions=True` is still needed after page registration. Keep it only if callbacks are registered before page layouts are available.
 
 ### Phase 4: Guide Page Extraction
@@ -246,12 +249,12 @@ Current callback ownership in `michelin_app.py`:
 
 | Current area | Current callback lines | Target owner |
 | --- | ---: | --- |
-| Pseudo-router and nav | 114-154 | `app/callbacks/navigation.py` or Dash Pages metadata |
-| Guide page | 158-680 | `app/callbacks/guide.py` |
-| Analysis distributions | 681-950 | `app/callbacks/analysis.py` |
-| Rankings | 951-1073 | `app/callbacks/analysis.py` |
-| Economics/demographics | 1074-1206 | `app/callbacks/economics.py` |
-| Wine | 1207-1281 | `app/callbacks/wine.py` |
+| Dash Pages shell and nav | `pages/*`, 113-139 | `pages/*` plus `app/callbacks/navigation.py` |
+| Guide page | 143-665 | `app/callbacks/guide.py` |
+| Analysis distributions | 666-869 | `app/callbacks/analysis.py` |
+| Rankings | 870-933 | `app/callbacks/analysis.py` |
+| Economics/demographics | 934-1108 | `app/callbacks/economics.py` |
+| Wine | 1109-1266 | `app/callbacks/wine.py` |
 
 ## Known Risks and Decisions
 

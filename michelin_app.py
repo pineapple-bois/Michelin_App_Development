@@ -12,9 +12,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app_data import DATA
 from app_config import CONFIG
-from layouts.layout_main import get_main_layout, color_map, star_filter_section
-from layouts.layout_analysis import get_analysis_layout
-from layouts.layout_404 import get_404_layout
+from layouts.layout_main import color_map, star_filter_section
 
 from utils.locationMatcher import LocationMatcher
 from utils.appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
@@ -54,6 +52,7 @@ server.wsgi_app = ProxyFix(server.wsgi_app, x_proto=1, x_host=1)
 server.secret_key = CONFIG.flask_secret_key
 app = dash.Dash(
     __name__,
+    use_pages=True,
     suppress_callback_exceptions=True,
     external_stylesheets=[dbc.themes.BOOTSTRAP,
                           "https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Libre+Franklin:"
@@ -103,25 +102,11 @@ app.layout = html.Div([
     dcc.Store(id='paris-arrondissement-centroid', data={}),
     dcc.Store(id='region-demographics-centroid', data={}),
     dcc.Location(id='url', refresh=False),  # Tracks the url
-    html.Div(id='page-content', children=get_main_layout())  # Set initial content
+    dash.page_container
 ])
 
 # Initialize the cache (Maybe Redis or filesystem-based caching for production...?)
 cache = Cache(app.server, config=CONFIG.cache_config)
-
-
-# Define callback to handle page navigation
-@app.callback(
-    Output('page-content', 'children'),
-    Input('url', 'pathname')
-)
-def display_page(pathname):
-    if pathname == '/analysis':
-        return get_analysis_layout()
-    elif pathname == '/home':
-        return get_main_layout()
-    else:
-        return get_main_layout() if pathname == '/' else get_404_layout()
 
 
 # Toggle nav menu open/closed
