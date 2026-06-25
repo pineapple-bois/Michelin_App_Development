@@ -96,6 +96,11 @@ Navigation callbacks are registered from `callbacks/navigation.py`. The Guide pa
 `layouts/layout_analysis.py`
 
 - One combined layout for several conceptual pages.
+- Exposes section-level builders for the later page split:
+  - `build_analysis_sections()`
+  - `build_economics_section()`
+  - `build_wine_section()`
+  - `build_combined_analysis_content()`
 - Contains the future Analysis page sections:
   - Michelin intro
   - region distribution
@@ -277,6 +282,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 ## Gotchas
 
 - Dash Pages owns routing, but Analysis/Economics/Wine callbacks still live in `michelin_app.py`. Do not import `michelin_app.py` from page modules or callback modules.
+- `/analysis` remains the only visible Analysis-style route. Economics and Wine are still sections inside the combined Analysis page; `/economics` and `/wine` do not exist yet.
 - `suppress_callback_exceptions=True` remains enabled. It was inspected during the navigation callback extraction and left alone because callbacks are still registered separately from page layout mounting. Revisit it after the combined Analysis callbacks move closer to page modules.
 - Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
 - HTTPS redirect is environment-aware and proxy-aware through `app_config.py` and `ProxyFix`. Keep it that way during later refactors.
@@ -307,10 +313,11 @@ Use `dash.callback` in page callback modules where practical, or register callba
 4. Introduce Dash Pages while keeping existing layouts intact.
 5. Move Guide callbacks. Done: current Guide callbacks live in `callbacks/guide.py`.
 6. Move navigation callbacks. Done: current navigation callbacks live in `callbacks/navigation.py`.
-7. Split the combined Analysis layout into Analysis, Economics, and Wine pages.
-8. Move callbacks page by page.
-9. Split figure/service helpers.
-10. Update README and deployment notes.
+7. Add section-level builders inside the combined Analysis layout. Done: current builders live in `layouts/layout_analysis.py`.
+8. Split the combined Analysis route into Analysis, Economics, and Wine pages.
+9. Move callbacks page by page.
+10. Split figure/service helpers.
+11. Update README and deployment notes.
 
 ## Quick Local Checks
 

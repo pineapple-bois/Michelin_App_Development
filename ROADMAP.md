@@ -23,7 +23,7 @@ The deployed application is currently concentrated in a small number of large mo
 - `callbacks/guide.py`: Guide/Home page callbacks registered by `michelin_app.py`.
 - `pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, the combined Analysis page, and the 404 fallback.
 - `layouts/layout_main.py`: Guide page layout plus main-page star filters.
-- `layouts/layout_analysis.py`: one large combined Analysis layout containing the future Analysis, Economics, and Wine page sections.
+- `layouts/layout_analysis.py`: combined Analysis layout with section-level builders for the future Analysis, Economics, and Wine pages.
 - `layouts/layout_404.py`: 404 layout.
 - `utils/appFunctions.py`: Plotly map/chart builders, restaurant card rendering, star-button helper logic, wine prompt generation, and other mixed presentation/data helpers.
 - `utils/locationMatcher.py`: fuzzy location lookup used by the Guide page.
@@ -52,7 +52,7 @@ Dash Pages now owns the routing shell. The current registered pages still mirror
 | `callbacks/guide.py` | Current Guide/Home callbacks registered by `michelin_app.py`. | Keep as the Guide callback owner during later page splits. |
 | `pages/*` | Dash Pages route wrappers for the current layouts. | Split Analysis/Economics/Wine pages here in a later phase. |
 | `layouts/layout_main.py` | Guide layout plus main-page star filter. | Keep Guide-specific layout here until a dedicated layout split is worthwhile. |
-| `layouts/layout_analysis.py` | Combined Analysis/Economics/Wine layout. | Split into three page modules. |
+| `layouts/layout_analysis.py` | Combined Analysis/Economics/Wine layout with section-level builders. | Keep `/analysis` combined for now; split into three page modules later. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
 | `utils/appFunctions.py` | Mixed plotting, Dash components, ranking, wine prompt, helper logic. | Split into figures, components, and services. |
 | `utils/locationMatcher.py` | Fuzzy city/department lookup. | Move or keep as service; add tests around accent/case matching. |
@@ -195,7 +195,16 @@ The combined Analysis/Economics/Wine callbacks remain in `michelin_app.py` until
 
 ### Phase 5: Split the Current Analysis Page
 
-Extract `layouts/layout_analysis.py` by section:
+`layouts/layout_analysis.py` now has section-level builders while preserving the current combined `/analysis` page:
+
+- `build_analysis_sections()`
+- `build_economics_section()`
+- `build_wine_section()`
+- `build_combined_analysis_content()`
+
+The current `/analysis` route still renders these sections together in the original order. `/economics` and `/wine` have not been created, and Economics/Wine are not visible navigation links yet.
+
+Use these layout seams for the later route split:
 
 - `Analysis` page:
   - Michelin intro
@@ -216,7 +225,7 @@ Extract `layouts/layout_analysis.py` by section:
   - OpenAI region summary panel
   - generated-content disclaimer
 
-Move the matching callbacks into `app/callbacks/analysis.py`, `app/callbacks/economics.py`, and `app/callbacks/wine.py`.
+Move the matching callbacks into `callbacks/analysis.py`, `callbacks/economics.py`, and `callbacks/wine.py` after the routes exist.
 
 ### Phase 6: Figure and Service Refactor
 
@@ -269,9 +278,11 @@ Current callback ownership after the navigation extraction:
 | Economics/demographics | `michelin_app.py` | `callbacks/economics.py` |
 | Wine | `michelin_app.py` | `callbacks/wine.py` |
 
+Section-level layout builders for these future pages live in `layouts/layout_analysis.py`; callbacks have not moved for the combined Analysis area.
+
 ## Known Risks and Decisions
 
-- `layout_analysis.py` already contains the future page split, but the sections share helper names, CSS classes, and star-filter conventions. Split layout first, then clean names.
+- `layout_analysis.py` has section-level layout builders for the future split, but the sections still share helper names, CSS classes, and star-filter conventions. Split routes first, then clean names only when callback ownership is clearer.
 - Several callbacks assume list inputs are never `None`. Clearing multi-select dropdowns can expose this.
 - `department_num` is compared as a string in several places. `app_data.py` now reads both restaurant CSVs with `dtype={"department_num": str}`; defer deeper normalization so leading-zero and Corsican code semantics remain unchanged.
 - Flask `before_request` hooks now have distinct names for HTTPS enforcement and session setup. Keep this clarity during later app-factory work.

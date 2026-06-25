@@ -456,22 +456,42 @@ def get_arrondissements_section():
     )
 
 
-def get_analysis_section():
+def build_analysis_intro_section():
+    return get_intro_section()
+
+
+def build_region_distribution_section():
+    return get_regions_section()
+
+
+def build_department_distribution_section():
+    return get_departments_section()
+
+
+def build_arrondissement_distribution_section():
+    return get_arrondissements_section()
+
+
+def build_restaurant_distribution_section():
     return html.Div(
         children=[
             # Michelin Blurb section (common for both regions and departments)
-            get_intro_section(),
+            build_analysis_intro_section(),
 
             # Region Section (both sidebar and main content)
-            get_regions_section(),
+            build_region_distribution_section(),
 
             # Department Section (both sidebar and main content)
-            get_departments_section(),
+            build_department_distribution_section(),
 
             # Arrondissement Section (both sidebar and main content)
-            get_arrondissements_section()
+            build_arrondissement_distribution_section()
         ]
     )
+
+
+def get_analysis_section():
+    return build_restaurant_distribution_section()
 
 
 def get_top_ranking_section():
@@ -591,6 +611,10 @@ def get_top_ranking_section():
             )
         ]
     )
+
+
+def build_rankings_section():
+    return get_top_ranking_section()
 
 
 def get_demographics_content():
@@ -772,6 +796,10 @@ def get_demographics_content():
     )
 
 
+def build_economics_section():
+    return get_demographics_content()
+
+
 def get_wine_content():
     return html.Div(
         className='wine-container',
@@ -930,17 +958,31 @@ def get_wine_content():
     )
 
 
-def get_analysis_content():
+def build_wine_section():
+    return get_wine_content()
+
+
+def build_analysis_sections():
+    return [
+        build_restaurant_distribution_section(),
+        build_rankings_section(),
+    ]
+
+
+def build_combined_analysis_content():
     return html.Div(
         className='analysis-container',
         id='analysis-content-top',
         children=[
-            get_analysis_section(),           # Department and Region Section
-            get_top_ranking_section(),        # Top Ranking Section
-            get_demographics_content(),       # Demographics Section
-            get_wine_content(),               # Wine section
+            *build_analysis_sections(),       # Restaurant distribution and ranking sections
+            build_economics_section(),        # Demographics Section
+            build_wine_section(),             # Wine section
         ]
     )
+
+
+def get_analysis_content():
+    return build_combined_analysis_content()
 
 
 def get_analysis_layout():
