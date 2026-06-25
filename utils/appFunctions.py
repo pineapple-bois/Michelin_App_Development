@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from shapely.geometry import Point
 from dash import html, dcc
 
-from layouts.layout_main import michelin_stars, bib_gourmand, green_star, color_map
+from components.shared import bib_gourmand, color_map, green_star, michelin_stars
 
 
 # Hover-tip text

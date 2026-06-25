@@ -48,6 +48,16 @@ Dash Pages now owns routing. The current page modules are intentionally thin wra
 
 Page-specific callbacks have not moved yet; they still live in `michelin_app.py`.
 
+### Shared Components
+
+`components/shared.py`
+
+- Shared Michelin rating colours, exposed as `color_map` for compatibility with existing helpers.
+- Shared Michelin icon helpers used by Guide, Analysis, and plotting/card helpers.
+- Shared header and footer builders.
+- `NAV_LINKS` and `nav_link_class(...)` for the currently visible Guide/Analysis navigation.
+- Economics and Wine are not visible nav links yet because those pages do not exist as first-class routes.
+
 `app_data.py`
 
 - Loads the two restaurant CSVs and deployed GeoJSON files from `CONFIG.data_path(...)`.
@@ -62,10 +72,8 @@ Page-specific callbacks have not moved yet; they still live in `michelin_app.py`
 `layouts/layout_main.py`
 
 - Guide page layout.
-- Shared header/footer.
-- Michelin icon helpers.
 - Main Guide star-filter layout.
-- Header currently has only `Guide` and `Analysis` links.
+- Imports shared header/footer/icon helpers from `components/shared.py`.
 
 `layouts/layout_analysis.py`
 
@@ -127,8 +135,8 @@ This module mixes pure plotting, Dash component rendering, and service prompt lo
 
 `assets/scroll-script.js`
 
-- Adds a click listener to `analysis-button` and scrolls to `analysis-content-top`.
-- This will become stale after splitting Analysis, Economics, and Wine.
+- Uses event delegation for clicks on `analysis-button` and scrolls to `analysis-content-top` when that element exists.
+- This still assumes the current combined Analysis page anchor and should be revisited when Analysis, Economics, and Wine split.
 
 `assets/custom_header.html`
 

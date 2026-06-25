@@ -12,7 +12,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app_data import DATA
 from app_config import CONFIG
-from layouts.layout_main import color_map, star_filter_section
+from components.shared import color_map, nav_link_class
+from layouts.layout_main import star_filter_section
 
 from utils.locationMatcher import LocationMatcher
 from utils.appFunctions import (plot_regional_outlines, plot_department_outlines, plot_interactive_department,
@@ -129,15 +130,7 @@ def toggle_menu_class(n_clicks, current_class):
     Input('url', 'pathname')
 )
 def update_nav_classes(pathname):
-    active_class = 'nav-link active'
-    inactive_class = 'nav-link'
-
-    if pathname in ['/', '/home']:
-        return active_class, inactive_class
-    elif pathname == '/analysis':
-        return inactive_class, active_class
-    else:
-        return inactive_class, inactive_class
+    return nav_link_class(pathname, 'home-button'), nav_link_class(pathname, 'analysis-button')
 
 
 # -----------------------> "Guide Page"

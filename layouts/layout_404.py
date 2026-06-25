@@ -1,7 +1,6 @@
 from dash import html, dcc
-import dash_bootstrap_components as dbc
 
-from .layout_main import get_header_with_buttons, get_footer
+from components.shared import get_footer, get_header_with_buttons
 
 
 # 404 error page

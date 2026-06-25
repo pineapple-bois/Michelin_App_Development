@@ -1,16 +1,16 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from .layout_main import (michelin_stars, bib_gourmand, green_star,
-                          inverted_michelin_stars, inverted_bib_gourmand,
-                          get_header_with_buttons, get_footer)
-
-color_map = {
-    0.5: "#640A64",
-    1: "#FFB84D",
-    2: "#FE6F64",
-    3: "#C2282D"
-}
+from components.shared import (
+    bib_gourmand,
+    color_map,
+    get_footer,
+    get_header_with_buttons,
+    green_star,
+    inverted_bib_gourmand,
+    inverted_michelin_stars,
+    michelin_stars,
+)
 
 star_placeholder = [0.5, 1, 2, 3]
 

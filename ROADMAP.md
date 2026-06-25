@@ -18,8 +18,9 @@ The deployed application is currently concentrated in a small number of large mo
 
 - `michelin_app.py`: application entrypoint, Flask server setup, Dash Pages setup, cache setup, OpenAI client setup, and all callbacks.
 - `app_data.py`: central restaurant/GeoJSON loading, schema checks, and existing derived dropdown/map lookup values.
+- `components/shared.py`: shared header, footer, visible nav metadata, Michelin icon helpers, and rating colours.
 - `pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, the combined Analysis page, and the 404 fallback.
-- `layouts/layout_main.py`: Guide page layout plus shared header, footer, Michelin icon helpers, and main-page star filters.
+- `layouts/layout_main.py`: Guide page layout plus main-page star filters.
 - `layouts/layout_analysis.py`: one large combined Analysis layout containing the future Analysis, Economics, and Wine page sections.
 - `layouts/layout_404.py`: 404 layout.
 - `utils/appFunctions.py`: Plotly map/chart builders, restaurant card rendering, star-button helper logic, wine prompt generation, and other mixed presentation/data helpers.
@@ -44,8 +45,9 @@ Dash Pages now owns the routing shell. The current registered pages still mirror
 | `README.md` | Product and local setup docs. | Keep current with runtime/config changes as the refactor progresses. |
 | `michelin_app.py` | Monolithic app, routing, callbacks, and services. | Shrink to deployment entrypoint plus app creation/registration. |
 | `app_data.py` | Loads app data and builds existing derived lookup values. | Keep as the data boundary when callbacks move into page modules. |
+| `components/shared.py` | Shared header/footer, visible nav metadata, icon helpers, and rating colours. | Add future visible nav links only after their pages exist. |
 | `pages/*` | Dash Pages route wrappers for the current layouts. | Split Analysis/Economics/Wine pages here in a later phase. |
-| `layouts/layout_main.py` | Guide layout plus shared header/footer/icons/star filter. | Split Guide layout from shared components. |
+| `layouts/layout_main.py` | Guide layout plus main-page star filter. | Keep Guide-specific layout here until Guide callbacks move. |
 | `layouts/layout_analysis.py` | Combined Analysis/Economics/Wine layout. | Split into three page modules. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
 | `utils/appFunctions.py` | Mixed plotting, Dash components, ranking, wine prompt, helper logic. | Split into figures, components, and services. |
@@ -149,10 +151,10 @@ The current file name can stay to avoid deployment churn.
 
 ### Phase 2: Shared Components
 
-- Move header/footer and Michelin icon helpers out of `layout_main.py` into shared components.
-- Convert navigation links to include Guide, Analysis, Economics, and Wine.
-- Update active nav state for the new routes.
-- Update or remove `assets/scroll-script.js`, which currently assumes the single Analysis page and `analysis-content-top`.
+- Header/footer, visible nav metadata, Michelin icon helpers, and rating colours now live in `components/shared.py`.
+- Keep visible navigation at Guide and Analysis until Economics and Wine have real routes.
+- Update active nav state when new routes are added.
+- `assets/scroll-script.js` now uses delegated clicks but still assumes the current combined Analysis anchor, `analysis-content-top`.
 - Keep CSS class names stable where possible to avoid unnecessary styling work.
 
 ### Phase 3: True Multipage Routing
@@ -249,12 +251,12 @@ Current callback ownership in `michelin_app.py`:
 
 | Current area | Current callback lines | Target owner |
 | --- | ---: | --- |
-| Dash Pages shell and nav | `pages/*`, 113-139 | `pages/*` plus `app/callbacks/navigation.py` |
-| Guide page | 143-665 | `app/callbacks/guide.py` |
-| Analysis distributions | 666-869 | `app/callbacks/analysis.py` |
-| Rankings | 870-933 | `app/callbacks/analysis.py` |
-| Economics/demographics | 934-1108 | `app/callbacks/economics.py` |
-| Wine | 1109-1266 | `app/callbacks/wine.py` |
+| Dash Pages shell and nav | `pages/*`, 114-134 | `pages/*` plus `app/callbacks/navigation.py` |
+| Guide page | 136-658 | `app/callbacks/guide.py` |
+| Analysis distributions | 659-873 | `app/callbacks/analysis.py` |
+| Rankings | 874-926 | `app/callbacks/analysis.py` |
+| Economics/demographics | 927-1101 | `app/callbacks/economics.py` |
+| Wine | 1102-1259 | `app/callbacks/wine.py` |
 
 ## Known Risks and Decisions
 

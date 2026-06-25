@@ -1,14 +1,16 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-
-color_map = {
-    0.25: '#808080',
-    0.5: "#640A64",
-    1: "#FFB84D",
-    2: "#FE6F64",
-    3: "#C2282D"
-}
+from components.shared import (
+    bib_gourmand,
+    color_map,
+    get_footer,
+    get_header_with_buttons,
+    green_star,
+    inverted_bib_gourmand,
+    inverted_michelin_stars,
+    michelin_stars,
+)
 
 star_placeholder = (0.25, 0.5, 1, 2, 3)
 
@@ -26,96 +28,6 @@ unique_regions = ['Auvergne-Rhône-Alpes',
                   "Provence-Alpes-Côte d'Azur",
                   'Île-de-France'
                   ]
-
-
-#  wikipedia image links:
-# https://upload.wikimedia.org/wikipedia/commons/a/ad/MichelinStar.svg
-# https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png
-# https://commons.wikimedia.org/wiki/File:MichelinGreenStar.svg
-
-
-# Standard michelin images
-def michelin_stars(count):
-    # Returns a list of image components for each star, with spacing between all but the last
-    stars = []
-    for i in range(int(count)):
-        style = {
-            'height': '20px',
-            'width': 'auto',
-            'vertical-align': 'middle'
-        }
-        if i < count - 1:
-            style['marginRight'] = '3px'
-        stars.append(html.Img(
-            src="assets/Images/Michelin_star.png",
-            className='michelin-star',
-            style=style
-        ))
-    return stars
-
-
-def bib_gourmand():
-    return html.Img(src="assets/Images/Michelin_Bib.png",
-                    className='bib-image',
-                    style={'height': '20px', 'width': 'auto', 'vertical-align': 'middle'})
-
-
-def green_star(with_margin=False):
-    style = {'height': '20px', 'width': 'auto', 'vertical-align': 'middle'}
-    if with_margin:
-        style['marginLeft'] = '3px'
-
-    return html.Img(
-        src="assets/Images/MichelinGreenStar.png",
-        className='green-star',
-        style=style
-    )
-
-
-# Inverted michelin images
-def inverted_michelin_stars(count):
-    # Returns a list of Michelin star image components each with inverted colors
-    return [html.Img(src="assets/Images/Michelin_star.png",
-                     className='michelin-star-invert',
-                     style={'width': '16px', 'vertical-align': 'middle', 'margin-right': '2px', 'filter': 'brightness(0) invert(1)'}) for _ in range(int(count))]
-
-
-def inverted_bib_gourmand():
-    # Returns the Bib Gourmand image component with inverted colors
-    return html.Img(src="assets/Images/Michelin_Bib.png",
-                    className='bib-image-invert',
-                    style={'width': '18px', 'vertical-align': 'middle', 'filter': 'brightness(0) invert(1)'})
-
-
-def get_header_with_buttons():
-    return html.Div(
-        children=[
-            html.Div([
-                html.H1(["Michelin Guide to France. ", html.Span("2026", className='year-text')],
-                        className='title-section'),
-                ], className='header-title'
-            ),
-            # Hamburger toggle
-            html.Div(
-                id='hamburger-icon',
-                n_clicks=0,
-                className='hamburger-menu',
-                children=[
-                    html.Div(className='bar'),
-                    html.Div(className='bar'),
-                    html.Div(className='bar'),
-                ]
-            ),
-            html.Div(
-                id='navigation-menu',
-                className='nav-dropdown',
-                children=[
-                    html.A("Guide", href='/', id='home-button', className='nav-link'),
-                    html.A("Analysis", href='/analysis', id='analysis-button', className='nav-link'),
-                ]
-            )
-        ], className='header-container'
-    )
 
 
 def get_city_match_section():
@@ -174,54 +86,6 @@ def get_city_match_section():
         ]
     )
 
-
-def get_footer():
-    return html.Div(
-        children=[
-            html.Div(
-                children=[
-                    html.Img(src="assets/Images/github-mark.png", className='info-image'),
-                    html.Div(
-                        children=[
-                            # Info text on one line
-                            html.Div(
-                                children=[
-                                    html.Span("The Michelin Guide to France was built from this ", className='info-text'),
-                                    dcc.Link(
-                                        "GitHub Repository",
-                                        href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
-                                        target="_blank",
-                                        className='info-link'
-                                    ),
-                                ],
-                                className='info-line'  # New class for the first line
-                            ),
-                            # Copyright and disclaimer on another line
-                            html.Div(
-                                children=[
-                                    html.Span("© pineapple-bois 2024", className='info-footer'),
-                                    html.Span(
-                                        " | This website is an independent project and is not affiliated with or endorsed by ",
-                                        className='disclaimer-text'
-                                    ),
-                                    dcc.Link(
-                                        "the official Michelin Guide",
-                                        href="https://guide.michelin.com/en/fr/restaurants",
-                                        target="_blank",
-                                        className='disclaimer-link'
-                                    ),
-                                ],
-                                className='footer-inline'
-                            )
-                        ],
-                        className='text-container'
-                    )
-                ],
-                className='info-container'
-            )
-        ],
-        className='footer-main'
-    )
 
 # Define the row with buttons logic as functions
 def create_star_button(value, label, type_name='filter-button-mainpage'):
