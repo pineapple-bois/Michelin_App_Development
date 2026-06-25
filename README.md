@@ -67,6 +67,7 @@ The app is developed using Dash, a Python framework for building analytical web 
   - Dash operates as a set of routes within Flask. This modular integration separates concerns between the backend (Flask) and frontend (Dash), ensuring a scalable architecture.
   - Routing is handled by Dash Pages through the thin modules in `pages/`. The current `/analysis` page still contains the combined Analysis, Economics, and Wine experience until those sections are split in a later phase.
   - Shared header, footer, visible navigation metadata, and Michelin icon helpers live in `components/shared.py`.
+  - Guide/Home callbacks are registered from `callbacks/guide.py`; navigation and the combined Analysis/Economics/Wine callbacks remain in `michelin_app.py` until later migration phases.
 
 **Data Processing**: The backend employs `Pandas` and `Geopandas` for efficient data manipulation. Restaurant data is filtered, aggregated, and displayed based on user selections (e.g., regions, star ratings).
   - GeoJSON data is used to map regions and restaurants, and this is rendered via Plotly.

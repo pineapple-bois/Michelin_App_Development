@@ -32,7 +32,8 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - configures `Flask-Caching`
 - defines root `dcc.Store` components
 - mounts `dash.page_container` for Dash Pages routing
-- defines all page callbacks
+- defines navigation and combined Analysis/Economics/Wine callbacks
+- registers Guide callbacks from `callbacks/guide.py`
 - exposes `server` for Gunicorn
 
 This file should be reduced over time, but preserve the `server` export until deployment is intentionally changed.
@@ -46,7 +47,16 @@ Dash Pages now owns routing. The current page modules are intentionally thin wra
 - `pages/analysis.py`: `/analysis`, current combined Analysis/Economics/Wine layout.
 - `pages/not_found_404.py`: Dash Pages 404 fallback using the existing 404 layout.
 
-Page-specific callbacks have not moved yet; they still live in `michelin_app.py`.
+The Guide page callbacks are registered from `callbacks/guide.py`. Navigation and the combined Analysis/Economics/Wine callbacks still live in `michelin_app.py`.
+
+### Callback Modules
+
+`callbacks/guide.py`
+
+- Exposes `register_guide_callbacks(app, data)`.
+- Owns the current Guide/Home callbacks: search collapse and city matching, department/star filters, restaurant detail sidebar, Paris arrondissement visibility, Guide map updates, centroid stores, and the Guide map-view store.
+- Receives `DATA` from `michelin_app.py` rather than importing `michelin_app.py`, which keeps the callback module usable during future app-factory work.
+- Preserves Monaco behavior for the Guide page when the selected region is `Provence-Alpes-Côte d'Azur`.
 
 ### Shared Components
 
@@ -242,22 +252,24 @@ Many of these are page-specific and should move into page layouts during true mu
 
 ## Callback Ownership
 
-Current callbacks live in `michelin_app.py`.
+Current callback ownership:
 
-Recommended ownership after refactor:
+- `michelin_app.py`: app/server setup, navigation callbacks, cache/OpenAI setup, and the current combined Analysis/Economics/Wine callbacks.
+- `callbacks/guide.py`: Guide/Home callbacks registered through `register_guide_callbacks(app, DATA)`.
 
-- `app/callbacks/navigation.py`: active nav, hamburger menu, redirects or aliases.
-- `app/callbacks/guide.py`: Guide search, filters, map, restaurant details, centroids, main map-view store.
-- `app/callbacks/analysis.py`: region, department, arrondissement, and ranking callbacks.
-- `app/callbacks/economics.py`: demographic map, bar chart, weighted mean, economics map-view store.
-- `app/callbacks/wine.py`: wine map, wine map-view store, wine star buttons, OpenAI summary callback.
+Recommended eventual ownership after the remaining refactor:
+
+- `callbacks/navigation.py`: active nav, hamburger menu, redirects or aliases.
+- `callbacks/analysis.py`: region, department, arrondissement, and ranking callbacks.
+- `callbacks/economics.py`: demographic map, bar chart, weighted mean, economics map-view store.
+- `callbacks/wine.py`: wine map, wine map-view store, wine star buttons, OpenAI summary callback.
 
 Use `dash.callback` in page callback modules where practical, or register callbacks through explicit `register_callbacks(app, deps)` functions. Avoid importing the app object into every module.
 
 ## Gotchas
 
-- Dash Pages owns routing, but page-specific callbacks still live in `michelin_app.py`. Do not import `michelin_app.py` from page modules.
-- `suppress_callback_exceptions=True` remains enabled while callbacks are still centralized and page layouts are mounted by routing. Revisit it after callbacks move closer to page modules.
+- Dash Pages owns routing, but Analysis/Economics/Wine callbacks still live in `michelin_app.py`. Do not import `michelin_app.py` from page modules or callback modules.
+- `suppress_callback_exceptions=True` remains enabled while most callbacks are still centralized and page layouts are mounted by routing. Revisit it after callbacks move closer to page modules.
 - Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
 - HTTPS redirect is environment-aware and proxy-aware through `app_config.py` and `ProxyFix`. Keep it that way during later refactors.
 - Session request counts limit OpenAI calls to 10 per session by default. Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.
@@ -285,7 +297,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 2. Extract data loading with dtype normalization.
 3. Extract shared header/footer/icon/star-filter components.
 4. Introduce Dash Pages while keeping existing layouts intact.
-5. Move Guide callbacks.
+5. Move Guide callbacks. Done: current Guide callbacks live in `callbacks/guide.py`.
 6. Split the combined Analysis layout into Analysis, Economics, and Wine pages.
 7. Move callbacks page by page.
 8. Split figure/service helpers.
@@ -296,7 +308,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 After changing architecture, run at least:
 
 ```bash
-python -m py_compile michelin_app.py layouts/layout_main.py layouts/layout_analysis.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
+python -m py_compile michelin_app.py callbacks/guide.py layouts/layout_main.py layouts/layout_analysis.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
 ```
 
 If dependencies are installed:
@@ -309,12 +321,12 @@ Then verify direct route loads in a browser:
 
 ```text
 http://127.0.0.1:8050/
+http://127.0.0.1:8050/home
 http://127.0.0.1:8050/analysis
-http://127.0.0.1:8050/economics
-http://127.0.0.1:8050/wine
+http://127.0.0.1:8050/missing
 ```
 
-The current app will not have `/economics` or `/wine` until the routing migration lands.
+The current app will not have `/economics` or `/wine` until the combined Analysis page is split.
 
 ## Commit Hygiene
 

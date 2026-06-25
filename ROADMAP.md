@@ -16,9 +16,10 @@ The first implementation pass should be architectural. Styling work should stay 
 
 The deployed application is currently concentrated in a small number of large modules:
 
-- `michelin_app.py`: application entrypoint, Flask server setup, Dash Pages setup, cache setup, OpenAI client setup, and all callbacks.
+- `michelin_app.py`: application entrypoint, Flask server setup, Dash Pages setup, cache setup, OpenAI client setup, navigation callbacks, and the current combined Analysis/Economics/Wine callbacks.
 - `app_data.py`: central restaurant/GeoJSON loading, schema checks, and existing derived dropdown/map lookup values.
 - `components/shared.py`: shared header, footer, visible nav metadata, Michelin icon helpers, and rating colours.
+- `callbacks/guide.py`: Guide/Home page callbacks registered by `michelin_app.py`.
 - `pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, the combined Analysis page, and the 404 fallback.
 - `layouts/layout_main.py`: Guide page layout plus main-page star filters.
 - `layouts/layout_analysis.py`: one large combined Analysis layout containing the future Analysis, Economics, and Wine page sections.
@@ -43,11 +44,12 @@ Dash Pages now owns the routing shell. The current registered pages still mirror
 | `Aptfile` | Installs GDAL/native GIS packages for the Heroku geospatial build path. | Keep for now; remove only after dedicated Heroku build verification. |
 | `requirements.txt` | Pins Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and runtime packages. | Keep package changes scoped; avoid unrelated upgrades mixed with routing changes. |
 | `README.md` | Product and local setup docs. | Keep current with runtime/config changes as the refactor progresses. |
-| `michelin_app.py` | Monolithic app, routing, callbacks, and services. | Shrink to deployment entrypoint plus app creation/registration. |
+| `michelin_app.py` | App/server setup, nav callbacks, service clients, and current Analysis/Economics/Wine callbacks. | Shrink to deployment entrypoint plus app creation/registration. |
 | `app_data.py` | Loads app data and builds existing derived lookup values. | Keep as the data boundary when callbacks move into page modules. |
 | `components/shared.py` | Shared header/footer, visible nav metadata, icon helpers, and rating colours. | Add future visible nav links only after their pages exist. |
+| `callbacks/guide.py` | Current Guide/Home callbacks registered by `michelin_app.py`. | Keep as the Guide callback owner during later page splits. |
 | `pages/*` | Dash Pages route wrappers for the current layouts. | Split Analysis/Economics/Wine pages here in a later phase. |
-| `layouts/layout_main.py` | Guide layout plus main-page star filter. | Keep Guide-specific layout here until Guide callbacks move. |
+| `layouts/layout_main.py` | Guide layout plus main-page star filter. | Keep Guide-specific layout here until a dedicated layout split is worthwhile. |
 | `layouts/layout_analysis.py` | Combined Analysis/Economics/Wine layout. | Split into three page modules. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
 | `utils/appFunctions.py` | Mixed plotting, Dash components, ranking, wine prompt, helper logic. | Split into figures, components, and services. |
@@ -171,7 +173,7 @@ The current file name can stay to avoid deployment churn.
 
 ### Phase 4: Guide Page Extraction
 
-Move the Guide page callbacks out of `michelin_app.py` into `app/callbacks/guide.py`:
+Guide page callbacks now live in `callbacks/guide.py` and are registered from `michelin_app.py` with `register_guide_callbacks(app, DATA)`:
 
 - search collapse and city matching
 - department dropdown population
@@ -182,6 +184,8 @@ Move the Guide page callbacks out of `michelin_app.py` into `app/callbacks/guide
 - centroid and map-view stores
 
 Keep Monaco handling explicit. It is currently included for the Guide page when the selected region is `Provence-Alpes-Côte d'Azur`.
+
+Navigation callbacks remain in `michelin_app.py` for now. The combined Analysis/Economics/Wine callbacks also remain in `michelin_app.py` until those sections are split.
 
 ### Phase 5: Split the Current Analysis Page
 
@@ -247,16 +251,16 @@ For visual regressions, use browser screenshots only after the routing split is 
 
 ## Callback Split Reference
 
-Current callback ownership in `michelin_app.py`:
+Current callback ownership after the Guide extraction:
 
-| Current area | Current callback lines | Target owner |
-| --- | ---: | --- |
-| Dash Pages shell and nav | `pages/*`, 114-134 | `pages/*` plus `app/callbacks/navigation.py` |
-| Guide page | 136-658 | `app/callbacks/guide.py` |
-| Analysis distributions | 659-873 | `app/callbacks/analysis.py` |
-| Rankings | 874-926 | `app/callbacks/analysis.py` |
-| Economics/demographics | 927-1101 | `app/callbacks/economics.py` |
-| Wine | 1102-1259 | `app/callbacks/wine.py` |
+| Current area | Current location | Target owner |
+| --- | --- | --- |
+| Dash Pages shell and nav | `pages/*`, `michelin_app.py` 109-134 | `callbacks/navigation.py` |
+| Guide page | `callbacks/guide.py` 20-539 | `callbacks/guide.py` |
+| Analysis distributions | `michelin_app.py` 141-349 | `callbacks/analysis.py` |
+| Rankings | `michelin_app.py` 354-402 | `callbacks/analysis.py` |
+| Economics/demographics | `michelin_app.py` 407-577 | `callbacks/economics.py` |
+| Wine | `michelin_app.py` 582-733 | `callbacks/wine.py` |
 
 ## Known Risks and Decisions
 
