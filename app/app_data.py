@@ -4,7 +4,7 @@ import geopandas as gpd
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 
-from app_config import CONFIG, RuntimeConfig
+from app.app_config import CONFIG, RuntimeConfig
 
 
 RESTAURANT_COLUMNS = (

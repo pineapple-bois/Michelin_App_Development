@@ -1,4 +1,4 @@
-from components.shared import color_map
+from app.components.shared import color_map
 
 def update_button_active_state_helper(n_clicks_list, ids, filter_type):
     """

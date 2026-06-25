@@ -1,7 +1,7 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from components.shared import (
+from app.components.shared import (
     bib_gourmand,
     color_map,
     get_footer,

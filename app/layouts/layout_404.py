@@ -1,6 +1,6 @@
 from dash import html, dcc
 
-from components.shared import get_footer, get_header_with_buttons
+from app.components.shared import get_footer, get_header_with_buttons
 
 
 # 404 error page

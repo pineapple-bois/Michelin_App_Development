@@ -22,7 +22,7 @@ The Guide Page of the Michelin Guide to France allows users to explore Michelin-
 #### Key Features:
 1. **Search by Location:**
    - Users can input location in France to find the corresponding Region and Department if that location exists in the Michelin Guide.
-   - The entered location will be matched by the [LocationMatcher](utils/locationMatcher.py) class which disregards accents, punctuation and capitalisation.
+   - The entered location will be matched by the [LocationMatcher](app/utils/locationMatcher.py) class which disregards accents, punctuation and capitalisation.
 
 2. **Michelin Rating Filter:**
    - Users can filter restaurants by Michelin rating (1, 2, 3 stars, and Bib Gourmand). When a department is selected, available star categories are shown, allowing users to refine the results displayed on the map.
@@ -65,11 +65,13 @@ The app is developed using Dash, a Python framework for building analytical web 
 **Backend Framework**: Flask serves as the web server for the application, managing HTTP requests and sessions.
   - Flask powers the integration with external services like the OpenAI API for wine region information and provides caching to optimise performance.
   - Dash operates as a set of routes within Flask. This modular integration separates concerns between the backend (Flask) and frontend (Dash), ensuring a scalable architecture.
-  - Routing is handled by Dash Pages through the thin modules in `pages/`. The app now exposes `/analysis`, `/economics`, and `/wine` as separate routes composed from page-specific layout builders in `layouts/analysis.py`, `layouts/economics.py`, and `layouts/wine.py`.
-  - Shared Analysis/Economics/Wine page-shell and Michelin rating filter helpers live in `layouts/analysis_shared.py`.
-  - Shared header, footer, visible navigation metadata, and Michelin icon helpers live in `components/shared.py`.
-  - Navigation callbacks are registered from `callbacks/navigation.py`; Guide/Home callbacks are registered from `callbacks/guide.py`; core Analysis callbacks are registered from `callbacks/analysis.py`; Economics callbacks are registered from `callbacks/economics.py`; Wine/OpenAI callbacks are registered from `callbacks/wine.py`.
-  - Figure, card, star-filter, and wine-prompt helpers are split by purpose under `utils/`. Callback modules now import those purpose-specific utilities directly.
+  - Runtime application modules live under the `app/` package. The root `michelin_app.py` file remains the Heroku/Gunicorn entrypoint and exports `server` for `gunicorn michelin_app:server`.
+  - Dash Pages discovers route modules from `CONFIG.pages_dir`, which points to `app/pages/`.
+  - Routing is handled by Dash Pages through the thin modules in `app/pages/`. The app now exposes `/analysis`, `/economics`, and `/wine` as separate routes composed from page-specific layout builders in `app/layouts/analysis.py`, `app/layouts/economics.py`, and `app/layouts/wine.py`.
+  - Shared Analysis/Economics/Wine page-shell and Michelin rating filter helpers live in `app/layouts/analysis_shared.py`.
+  - Shared header, footer, visible navigation metadata, and Michelin icon helpers live in `app/components/shared.py`.
+  - Navigation callbacks are registered from `app/callbacks/navigation.py`; Guide/Home callbacks are registered from `app/callbacks/guide.py`; core Analysis callbacks are registered from `app/callbacks/analysis.py`; Economics callbacks are registered from `app/callbacks/economics.py`; Wine/OpenAI callbacks are registered from `app/callbacks/wine.py`.
+  - Figure, card, star-filter, and wine-prompt helpers are split by purpose under `app/utils/`. Callback modules now import those purpose-specific utilities directly.
 
 **Data Processing**: The backend employs `Pandas` and `Geopandas` for efficient data manipulation. Restaurant data is filtered, aggregated, and displayed based on user selections (e.g., regions, star ratings).
   - GeoJSON data is used to map regions and restaurants, and this is rendered via Plotly.
@@ -174,7 +176,7 @@ pip install -r requirements.txt
 
 The geospatial stack uses GeoPandas with Pyogrio for local GeoJSON reads. Fiona is not a direct application dependency.
 
-Runtime data loading lives in `app_data.py`, which reads the restaurant CSVs and deployed GeoJSON files from repo-relative paths and checks the columns needed by the current app.
+Runtime configuration and data loading live in `app/app_config.py` and `app/app_data.py`. The config module keeps `assets/` and `assets/Data/` rooted at the repository root, while `app/app_data.py` reads the restaurant CSVs and deployed GeoJSON files from those repo-relative paths and checks the columns needed by the current app.
 
 ### Step 4: Set Up Environment Variables
 

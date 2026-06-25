@@ -1,14 +1,14 @@
 import dash
 
-from layouts.layout_main import get_main_layout
+from app.layouts.layout_main import get_main_layout
 
 
 dash.register_page(
     __name__,
-    path="/",
-    name="Guide",
+    path="/home",
+    name="Home",
     title="Gastronomic Guide to France - pineapple-bois",
-    order=0,
+    order=1,
 )
 
 

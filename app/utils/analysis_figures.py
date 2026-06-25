@@ -3,8 +3,8 @@ import plotly.graph_objects as go
 from dash import html
 from shapely.geometry import Point
 
-from components.shared import color_map, green_star, michelin_stars
-from utils.restaurant_cards import get_restaurant_details
+from app.components.shared import color_map, green_star, michelin_stars
+from app.utils.restaurant_cards import get_restaurant_details
 
 def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
     """

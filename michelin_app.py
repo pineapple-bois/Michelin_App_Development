@@ -7,13 +7,13 @@ from flask import Flask, session, request, redirect
 from flask_caching import Cache
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from app_data import DATA
-from app_config import CONFIG
-from callbacks.analysis import register_analysis_callbacks
-from callbacks.economics import register_economics_callbacks
-from callbacks.guide import register_guide_callbacks
-from callbacks.navigation import register_navigation_callbacks
-from callbacks.wine import register_wine_callbacks
+from app.app_data import DATA
+from app.app_config import CONFIG
+from app.callbacks.analysis import register_analysis_callbacks
+from app.callbacks.economics import register_economics_callbacks
+from app.callbacks.guide import register_guide_callbacks
+from app.callbacks.navigation import register_navigation_callbacks
+from app.callbacks.wine import register_wine_callbacks
 
 
 # Initialize openai with API key
@@ -33,6 +33,7 @@ app = dash.Dash(
                           "https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Libre+Franklin:"
                           "ital,wght@0,100..900;1,100..900&display=swap"],
     external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js'],
+    pages_folder=str(CONFIG.pages_dir),
     server=server)
 
 

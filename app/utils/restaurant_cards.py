@@ -1,6 +1,6 @@
 from dash import html
 
-from components.shared import bib_gourmand, color_map, green_star, michelin_stars
+from app.components.shared import bib_gourmand, color_map, green_star, michelin_stars
 
 def get_restaurant_details(row):
     """

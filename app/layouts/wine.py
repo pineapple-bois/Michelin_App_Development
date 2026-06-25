@@ -1,7 +1,7 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from layouts.analysis_shared import (
+from app.layouts.analysis_shared import (
     get_analysis_page_layout,
     star_filter_section,
     star_placeholder,

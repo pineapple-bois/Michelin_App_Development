@@ -1,6 +1,6 @@
 import dash
 
-from layouts.layout_404 import get_404_layout
+from app.layouts.layout_404 import get_404_layout
 
 
 dash.register_page(

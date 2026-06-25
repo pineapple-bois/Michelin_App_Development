@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 
-from components.shared import color_map
+from app.components.shared import color_map
 
 # Hover-tip text
 text_color_map = {

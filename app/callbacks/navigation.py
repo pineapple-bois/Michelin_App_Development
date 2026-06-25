@@ -1,6 +1,6 @@
 from dash.dependencies import Input, Output, State
 
-from components.shared import NAV_LINKS, nav_link_class
+from app.components.shared import NAV_LINKS, nav_link_class
 
 
 def register_navigation_callbacks(app):

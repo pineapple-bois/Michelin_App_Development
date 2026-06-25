@@ -7,9 +7,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-BASE_DIR = Path(__file__).resolve().parent
+PACKAGE_DIR = Path(__file__).resolve().parent
+BASE_DIR = PACKAGE_DIR.parent
 ASSETS_DIR = BASE_DIR / "assets"
 DATA_DIR = ASSETS_DIR / "Data"
+PAGES_DIR = PACKAGE_DIR / "pages"
 
 LOGGER = logging.getLogger(__name__)
 
@@ -62,8 +64,10 @@ def _get_secret_key(is_production):
 @dataclass(frozen=True)
 class RuntimeConfig:
     base_dir: Path
+    package_dir: Path
     assets_dir: Path
     data_dir: Path
+    pages_dir: Path
     is_production: bool
     force_https: bool
     debug: bool
@@ -93,8 +97,10 @@ def load_config():
     is_production = _detect_production()
     return RuntimeConfig(
         base_dir=BASE_DIR,
+        package_dir=PACKAGE_DIR,
         assets_dir=ASSETS_DIR,
         data_dir=DATA_DIR,
+        pages_dir=PAGES_DIR,
         is_production=is_production,
         force_https=_env_bool("FORCE_HTTPS", default=is_production),
         debug=_env_bool("DASH_DEBUG", default=False),

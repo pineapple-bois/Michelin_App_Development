@@ -3,9 +3,9 @@ from dash import callback_context, html
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from components.shared import color_map
-from layouts.layout_main import star_filter_section
-from utils.guide_figures import (
+from app.components.shared import color_map
+from app.layouts.layout_main import star_filter_section
+from app.utils.guide_figures import (
     default_map_figure,
     plot_arrondissement_outlines,
     plot_department_outlines,
@@ -13,8 +13,8 @@ from utils.guide_figures import (
     plot_paris_arrondissement,
     plot_regional_outlines,
 )
-from utils.locationMatcher import LocationMatcher
-from utils.restaurant_cards import get_restaurant_details
+from app.utils.locationMatcher import LocationMatcher
+from app.utils.restaurant_cards import get_restaurant_details
 
 
 def register_guide_callbacks(app, data):

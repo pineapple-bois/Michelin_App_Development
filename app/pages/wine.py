@@ -1,6 +1,6 @@
 import dash
 
-from layouts.wine import get_wine_layout
+from app.layouts.wine import get_wine_layout
 
 
 dash.register_page(
