@@ -9,8 +9,9 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - Current Heroku entrypoint: `Procfile` runs `gunicorn michelin_app:server`.
 - Current Python marker: `.python-version` contains `3.12`.
 - README local setup should stay aligned with Python `3.12` unless the runtime marker changes deliberately.
-- Native GIS packages are declared in `Aptfile`: `gdal-bin` and `libgdal-dev`.
+- Native GIS packages are still declared in `Aptfile`: `gdal-bin` and `libgdal-dev`.
 - Python dependencies are pinned in `requirements.txt`.
+- GeoPandas reads local GeoJSON through Pyogrio. Fiona is intentionally not a direct dependency.
 - Main environment variables:
   - `OPENAI_API_KEY`: used by the Wine page summary callback.
   - `FLASK_SECRET_KEY`: used for Flask sessions. It is required in production and optional in local development.
@@ -89,6 +90,13 @@ This module mixes pure plotting, Dash component rendering, and service prompt lo
 
 - `LocationMatcher` uses `fuzzywuzzy`, `python-Levenshtein`, and `unidecode`.
 - It normalizes accents and casing, splits the restaurant `location` field, and returns matched region/department data.
+
+### Geospatial Dependencies
+
+- `michelin_app.py` uses `geopandas.read_file(...)` for local GeoJSON files and `geopandas.GeoDataFrame(...)` for Monaco/France geometry combination.
+- `utils/appFunctions.py` uses GeoPandas CRS helpers and Shapely geometry objects. It does not read or write files.
+- Pyogrio is the intended GeoPandas I/O backend. Do not re-add Fiona unless a future feature requires Fiona-specific behavior.
+- `Aptfile` remains conservative for Heroku 24 builds. Pyogrio wheels include GDAL on supported platforms, but remove `gdal-bin`/`libgdal-dev` only after a dedicated deployment/build verification.
 
 ### Assets
 
@@ -228,6 +236,8 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - `Flask-Caching` uses `CACHE_TYPE="simple"`, which is per-process memory. It is not shared across Gunicorn workers or Heroku dynos.
 - The Wine callback uses both `@cache.memoize` and manual `cache.get/cache.set`. Prefer one cache boundary keyed by wine region.
 - The OpenAI client is created at import time. Missing or invalid `OPENAI_API_KEY` should be handled gracefully by the Wine page.
+- Fiona is no longer installed directly. If it reappears transitively, verify why before accepting the dependency.
+- `Aptfile` may eventually be removable, but that is a Heroku build/deployment validation task, not part of page-routing work.
 - `department_num` is read without explicit dtype for France but with `dtype={"department_num": str}` for Monaco. Many comparisons assume strings.
 - The Guide page includes Monaco only when the selected region is `Provence-Alpes-Côte d'Azur`. Analysis, Economics, and Wine currently use France data only unless explicitly changed.
 - `layout_main.py` and `layout_analysis.py` both define star-filter helpers with overlapping names but different ID conventions.

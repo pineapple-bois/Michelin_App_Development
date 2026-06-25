@@ -25,7 +25,7 @@ The deployed application is currently concentrated in a small number of large mo
 - `assets/`: CSS, client JS, custom Dash index template, images, CSV/GeoJSON data, and a tile style JSON.
 - `Procfile`: Heroku web command, `gunicorn michelin_app:server`.
 - `Aptfile`: native GIS packages, currently `gdal-bin` and `libgdal-dev`.
-- `requirements.txt`: pinned Python dependencies for Dash, Flask, GeoPandas, Plotly, OpenAI, and related libraries.
+- `requirements.txt`: pinned Python dependencies for Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and related libraries.
 
 There is no true Dash Pages setup yet. The current router is a manual callback over `dcc.Location(id="url")` and `html.Div(id="page-content")`.
 
@@ -37,8 +37,8 @@ There is no true Dash Pages setup yet. The current router is a manual callback o
 | `.gitignore` | Ignores `.env`, IDE files, `Development/`, and master wine GeoJSON. | Add bytecode/cache ignores before cleanup work. |
 | `.gitattributes` | Text normalization only. | No expected change. |
 | `Procfile` | Heroku web process, `gunicorn michelin_app:server`. | Keep stable unless the deployment module is intentionally renamed. |
-| `Aptfile` | Installs GDAL/native GIS packages for GeoPandas/Fiona. | Keep; re-check when dependency versions move. |
-| `requirements.txt` | Pins Dash, Flask, GeoPandas, Plotly, OpenAI, and runtime packages. | Review only after architecture split; avoid dependency upgrades mixed with routing changes. |
+| `Aptfile` | Installs GDAL/native GIS packages for the Heroku geospatial build path. | Keep for now; remove only after dedicated Heroku build verification. |
+| `requirements.txt` | Pins Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and runtime packages. | Keep package changes scoped; avoid unrelated upgrades mixed with routing changes. |
 | `README.md` | Product and local setup docs. | Keep current with runtime/config changes as the refactor progresses. |
 | `michelin_app.py` | Monolithic app, data loading, routing, callbacks, services. | Shrink to deployment entrypoint plus app creation/registration. |
 | `layouts/layout_main.py` | Guide layout plus shared header/footer/icons/star filter. | Split Guide layout from shared components. |
@@ -264,6 +264,7 @@ Current callback ownership in `michelin_app.py`:
 - The OpenAI client is created at import time. Missing `OPENAI_API_KEY` should degrade gracefully on the Wine page rather than failing unexpectedly.
 - `assets/basicTileMap.json` contains an embedded tile-service key. Decide whether this is intentionally public and restricted, or move it to config.
 - Local HTTPS behavior is now config-driven. Keep this contract intact during later routing work.
+- Fiona has been removed as a direct dependency; Pyogrio is the intended GeoPandas file I/O path. Keep `Aptfile` until Heroku build evidence shows native GDAL packages are unnecessary.
 
 ## Definition of Done
 

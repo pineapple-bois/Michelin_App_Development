@@ -167,6 +167,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+The geospatial stack uses GeoPandas with Pyogrio for local GeoJSON reads. Fiona is not a direct application dependency.
+
 ### Step 4: Set Up Environment Variables
 
 Create a .env file in the root directory with the following:
