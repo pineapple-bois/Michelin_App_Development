@@ -32,7 +32,8 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - configures `Flask-Caching`
 - defines root `dcc.Store` components
 - mounts `dash.page_container` for Dash Pages routing
-- defines navigation and combined Analysis/Economics/Wine callbacks
+- defines the combined Analysis/Economics/Wine callbacks
+- registers navigation callbacks from `callbacks/navigation.py`
 - registers Guide callbacks from `callbacks/guide.py`
 - exposes `server` for Gunicorn
 
@@ -47,9 +48,16 @@ Dash Pages now owns routing. The current page modules are intentionally thin wra
 - `pages/analysis.py`: `/analysis`, current combined Analysis/Economics/Wine layout.
 - `pages/not_found_404.py`: Dash Pages 404 fallback using the existing 404 layout.
 
-The Guide page callbacks are registered from `callbacks/guide.py`. Navigation and the combined Analysis/Economics/Wine callbacks still live in `michelin_app.py`.
+Navigation callbacks are registered from `callbacks/navigation.py`. The Guide page callbacks are registered from `callbacks/guide.py`. The combined Analysis/Economics/Wine callbacks still live in `michelin_app.py`.
 
 ### Callback Modules
+
+`callbacks/navigation.py`
+
+- Exposes `register_navigation_callbacks(app)`.
+- Owns the global header/nav callbacks: hamburger menu open/close state and active Guide/Analysis link classes.
+- Uses `components/shared.py` navigation metadata through `nav_link_class(...)`.
+- Visible navigation is unchanged: Guide and Analysis only. `/home` remains an active-path alias for Guide.
 
 `callbacks/guide.py`
 
@@ -254,12 +262,12 @@ Many of these are page-specific and should move into page layouts during true mu
 
 Current callback ownership:
 
-- `michelin_app.py`: app/server setup, navigation callbacks, cache/OpenAI setup, and the current combined Analysis/Economics/Wine callbacks.
+- `michelin_app.py`: app/server setup, cache/OpenAI setup, and the current combined Analysis/Economics/Wine callbacks.
+- `callbacks/navigation.py`: hamburger menu and active-route callbacks registered through `register_navigation_callbacks(app)`.
 - `callbacks/guide.py`: Guide/Home callbacks registered through `register_guide_callbacks(app, DATA)`.
 
 Recommended eventual ownership after the remaining refactor:
 
-- `callbacks/navigation.py`: active nav, hamburger menu, redirects or aliases.
 - `callbacks/analysis.py`: region, department, arrondissement, and ranking callbacks.
 - `callbacks/economics.py`: demographic map, bar chart, weighted mean, economics map-view store.
 - `callbacks/wine.py`: wine map, wine map-view store, wine star buttons, OpenAI summary callback.
@@ -269,7 +277,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 ## Gotchas
 
 - Dash Pages owns routing, but Analysis/Economics/Wine callbacks still live in `michelin_app.py`. Do not import `michelin_app.py` from page modules or callback modules.
-- `suppress_callback_exceptions=True` remains enabled while most callbacks are still centralized and page layouts are mounted by routing. Revisit it after callbacks move closer to page modules.
+- `suppress_callback_exceptions=True` remains enabled. It was inspected during the navigation callback extraction and left alone because callbacks are still registered separately from page layout mounting. Revisit it after the combined Analysis callbacks move closer to page modules.
 - Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
 - HTTPS redirect is environment-aware and proxy-aware through `app_config.py` and `ProxyFix`. Keep it that way during later refactors.
 - Session request counts limit OpenAI calls to 10 per session by default. Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.
@@ -298,17 +306,18 @@ Use `dash.callback` in page callback modules where practical, or register callba
 3. Extract shared header/footer/icon/star-filter components.
 4. Introduce Dash Pages while keeping existing layouts intact.
 5. Move Guide callbacks. Done: current Guide callbacks live in `callbacks/guide.py`.
-6. Split the combined Analysis layout into Analysis, Economics, and Wine pages.
-7. Move callbacks page by page.
-8. Split figure/service helpers.
-9. Update README and deployment notes.
+6. Move navigation callbacks. Done: current navigation callbacks live in `callbacks/navigation.py`.
+7. Split the combined Analysis layout into Analysis, Economics, and Wine pages.
+8. Move callbacks page by page.
+9. Split figure/service helpers.
+10. Update README and deployment notes.
 
 ## Quick Local Checks
 
 After changing architecture, run at least:
 
 ```bash
-python -m py_compile michelin_app.py callbacks/guide.py layouts/layout_main.py layouts/layout_analysis.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
+python -m py_compile michelin_app.py callbacks/navigation.py callbacks/guide.py layouts/layout_main.py layouts/layout_analysis.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
 ```
 
 If dependencies are installed:

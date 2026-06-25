@@ -13,7 +13,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from app_data import DATA
 from app_config import CONFIG
 from callbacks.guide import register_guide_callbacks
-from components.shared import nav_link_class
+from callbacks.navigation import register_navigation_callbacks
 from utils.appFunctions import (create_michelin_bar_chart, update_button_active_state_helper,
                                 plot_single_choropleth_plotly, top_restaurants, plot_demographic_choropleth_plotly,
                                 calculate_weighted_mean, plot_demographics_barchart, plot_wine_choropleth_plotly,
@@ -105,28 +105,7 @@ app.layout = html.Div([
 # Initialize the cache (Maybe Redis or filesystem-based caching for production...?)
 cache = Cache(app.server, config=CONFIG.cache_config)
 
-
-# Toggle nav menu open/closed
-@app.callback(
-    Output('navigation-menu', 'className'),
-    Input('hamburger-icon', 'n_clicks'),
-    State('navigation-menu', 'className'),
-    prevent_initial_call=True
-)
-def toggle_menu_class(n_clicks, current_class):
-    if current_class == 'nav-dropdown':
-        return 'nav-dropdown visible'
-    else:
-        return 'nav-dropdown'
-
-
-@app.callback(
-    [Output('home-button', 'className'),
-     Output('analysis-button', 'className')],
-    Input('url', 'pathname')
-)
-def update_nav_classes(pathname):
-    return nav_link_class(pathname, 'home-button'), nav_link_class(pathname, 'analysis-button')
+register_navigation_callbacks(app)
 
 
 # -----------------------> "Guide Page"
