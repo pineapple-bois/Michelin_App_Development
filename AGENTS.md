@@ -23,7 +23,6 @@ This file is for future agents working on the Michelin Dash app. It documents th
 
 `michelin_app.py` currently does almost everything:
 
-- binds data frames and derived lookup values from `app_data.py`
 - creates the Flask `server`
 - creates the Dash `app`
 - imports runtime/path configuration from `app_config.py`
@@ -34,7 +33,7 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - mounts `dash.page_container` for Dash Pages routing
 - registers Analysis callbacks from `callbacks/analysis.py`
 - registers Economics callbacks from `callbacks/economics.py`
-- defines the remaining Wine/OpenAI callbacks
+- registers Wine/OpenAI callbacks from `callbacks/wine.py`
 - registers navigation callbacks from `callbacks/navigation.py`
 - registers Guide callbacks from `callbacks/guide.py`
 - exposes `server` for Gunicorn
@@ -52,7 +51,7 @@ Dash Pages now owns routing. The current page modules are intentionally thin wra
 - `pages/wine.py`: `/wine`, wine-region map and generated summary section.
 - `pages/not_found_404.py`: Dash Pages 404 fallback using the existing 404 layout.
 
-Navigation callbacks are registered from `callbacks/navigation.py`. Guide page callbacks are registered from `callbacks/guide.py`. Core Analysis callbacks are registered from `callbacks/analysis.py`. Economics callbacks are registered from `callbacks/economics.py`. Wine/OpenAI callbacks still live in `michelin_app.py`.
+Navigation callbacks are registered from `callbacks/navigation.py`. Guide page callbacks are registered from `callbacks/guide.py`. Core Analysis callbacks are registered from `callbacks/analysis.py`. Economics callbacks are registered from `callbacks/economics.py`. Wine/OpenAI callbacks are registered from `callbacks/wine.py`.
 
 ### Callback Modules
 
@@ -81,7 +80,13 @@ Navigation callbacks are registered from `callbacks/navigation.py`. Guide page c
 - Exposes `register_economics_callbacks(app, data)`.
 - Owns the current Economics/Demographics callbacks: demographic metric map and bar chart, weighted-mean visibility, starred-restaurant overlay controls, map-view persistence, and demographics star-button active state.
 - Receives `DATA` from `michelin_app.py` rather than importing `michelin_app.py`.
-- Wine/OpenAI callbacks intentionally remain in `michelin_app.py`.
+
+`callbacks/wine.py`
+
+- Exposes `register_wine_callbacks(app, data, config, cache, openai_client)`.
+- Owns the current Wine/OpenAI callbacks: wine map, regional-outline selector behavior, starred-restaurant overlay controls, wine map-view persistence, wine star-button active state, wine map click handling, generated summary output, generated-content disclaimer visibility, request-limit handling, and cache reads/writes.
+- Receives `DATA`, `CONFIG`, the configured `Flask-Caching` instance, and the initialized OpenAI client from `michelin_app.py`.
+- Keeps the existing curve-number-to-wine-region lookup unchanged, even though it remains fragile for future multi-trace changes.
 
 ### Shared Components
 
@@ -286,35 +291,34 @@ Many of these are page-specific and should move into page layouts during callbac
 
 Current callback ownership:
 
-- `michelin_app.py`: app/server setup, cache/OpenAI setup, and the current Wine/OpenAI callbacks.
+- `michelin_app.py`: app/server setup, cache/OpenAI setup, Dash root layout, and callback registration.
 - `callbacks/navigation.py`: hamburger menu and active-route callbacks registered through `register_navigation_callbacks(app)`.
 - `callbacks/guide.py`: Guide/Home callbacks registered through `register_guide_callbacks(app, DATA)`.
 - `callbacks/analysis.py`: core Analysis callbacks registered through `register_analysis_callbacks(app, DATA)`.
 - `callbacks/economics.py`: Economics/Demographics callbacks registered through `register_economics_callbacks(app, DATA)`.
+- `callbacks/wine.py`: Wine/OpenAI callbacks registered through `register_wine_callbacks(app, DATA, CONFIG, cache, client)`.
 
-Recommended eventual ownership after the remaining refactor:
-
-- `callbacks/economics.py`: demographic map, bar chart, weighted mean, economics map-view store.
-- `callbacks/wine.py`: wine map, wine map-view store, wine star buttons, OpenAI summary callback.
+Phase 5 callback ownership is complete: page-specific callbacks no longer live in `michelin_app.py`.
 
 Use `dash.callback` in page callback modules where practical, or register callbacks through explicit `register_callbacks(app, deps)` functions. Avoid importing the app object into every module.
 
 ## Gotchas
 
-- Dash Pages owns routing, but Wine/OpenAI callbacks still live in `michelin_app.py`. Do not import `michelin_app.py` from page modules or callback modules.
-- `/analysis`, `/economics`, and `/wine` are real Dash Pages routes. Wine route ownership and callback ownership are temporarily out of sync.
-- `suppress_callback_exceptions=True` remains enabled. It was inspected during the navigation callback extraction and left alone because callbacks are still registered separately from page layout mounting. Revisit it after the Wine/OpenAI callbacks move closer to page modules.
+- Dash Pages owns routing. Do not import `michelin_app.py` from page modules or callback modules.
+- `/analysis`, `/economics`, and `/wine` are real Dash Pages routes with callback ownership split by page callback module.
+- `suppress_callback_exceptions=True` remains enabled. It was inspected during the navigation callback extraction and left alone because callbacks are still registered separately from page layout mounting. Revisit it during a later app-factory or page-layout cleanup.
 - Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
 - HTTPS redirect is environment-aware and proxy-aware through `app_config.py` and `ProxyFix`. Keep it that way during later refactors.
 - Session request counts limit OpenAI calls to 10 per session by default. Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.
 - `Flask-Caching` uses `CACHE_TYPE="simple"`, which is per-process memory. It is not shared across Gunicorn workers or Heroku dynos.
-- The Wine callback uses both `@cache.memoize` and manual `cache.get/cache.set`. Prefer one cache boundary keyed by wine region.
+- The Wine callback uses both `@cache.memoize` and manual `cache.get/cache.set`. Prefer one cache boundary keyed by wine region after behavior is covered by tests.
 - The OpenAI client is created at import time. Missing or invalid `OPENAI_API_KEY` should be handled gracefully by the Wine page.
 - Fiona is no longer installed directly. If it reappears transitively, verify why before accepting the dependency.
 - `Aptfile` may eventually be removable, but that is a Heroku build/deployment validation task, not part of page-routing work.
 - `department_num` is now explicitly read as string-like for both France and Monaco. Do not normalize department codes further without checking leading-zero and Corsican `2A`/`2B` behavior.
 - The Guide page includes Monaco only when the selected region is `Provence-Alpes-Côte d'Azur`. Analysis, Economics, and Wine currently use France data only unless explicitly changed.
 - `layout_main.py` and `layout_analysis.py` both define star-filter helpers with overlapping names but different ID conventions.
+- `layouts/layout_analysis.py` still contains Analysis, Economics, and Wine layout builders. Rename or split it in a later layout cleanup PR, not in the callback ownership PR.
 - Some callback function names are duplicated or misleading. Dash registers the decorated function object, but duplicate names are painful for debugging.
 - Some callbacks assume dropdown values are lists and can fail if a multi-select is cleared to `None`.
 - `plot_single_choropleth_plotly` mutates its input frame by writing `total_restaurants`. Pass copies or make the helper copy internally.
@@ -335,7 +339,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 6. Move navigation callbacks. Done: current navigation callbacks live in `callbacks/navigation.py`.
 7. Add section-level builders inside the combined Analysis layout. Done: current builders live in `layouts/layout_analysis.py`.
 8. Split the combined Analysis route into Analysis, Economics, and Wine pages. Done: current routes live in `pages/analysis.py`, `pages/economics.py`, and `pages/wine.py`.
-9. Move callbacks page by page. In progress: core Analysis callbacks live in `callbacks/analysis.py`, Economics callbacks live in `callbacks/economics.py`, and Wine/OpenAI remain in `michelin_app.py`.
+9. Move callbacks page by page. Done: Guide, navigation, Analysis, Economics, and Wine/OpenAI callbacks now live in dedicated callback modules.
 10. Split figure/service helpers.
 11. Update README and deployment notes.
 
@@ -344,7 +348,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 After changing architecture, run at least:
 
 ```bash
-python -m py_compile michelin_app.py callbacks/navigation.py callbacks/guide.py callbacks/analysis.py callbacks/economics.py layouts/layout_main.py layouts/layout_analysis.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
+python -m py_compile michelin_app.py callbacks/navigation.py callbacks/guide.py callbacks/analysis.py callbacks/economics.py callbacks/wine.py layouts/layout_main.py layouts/layout_analysis.py layouts/layout_404.py utils/appFunctions.py utils/locationMatcher.py
 ```
 
 If dependencies are installed:
