@@ -1,11 +1,6 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from app.components.shared import (
-    bib_gourmand,
-    green_star,
-    michelin_stars,
-)
 from app.layouts.analysis_shared import (
     get_analysis_page_layout,
     star_filter_section,
@@ -30,82 +25,6 @@ def green_star_header():
             className='green-star-header',
             style={'width': '27px', 'vertical-align': 'middle'}
         )
-
-
-def get_intro_section():
-    return html.Div(
-        className='michelin-text-container',
-        children=[
-            html.Div(
-                [
-                    "Michelin introduced its ",
-                    html.A("star ranking system for restaurants",
-                           href="https://guide.michelin.com/gb/en/about-us", target="_blank"),
-                    " to France in 1936. Today, over 40 countries are represented in a Michelin Guide, and globally, approximately 3,500 restaurants have been awarded one, two, or three stars. Of these, over 600 are in France, the spiritual home of ",
-                    html.I("Le Guide Rouge"),
-                    "."
-                ],
-                className='michelin-title-paragraph'
-            ),
-            html.Div(
-                [
-                    "Earning a Michelin Star can be the pinnacle of a chef’s career. Keeping one requires drive, determination, and consistency. The pressures of maintaining a third star can be overwhelming, as tragically illustrated by the story of ",
-                    html.A("Bernard Loiseau",
-                           href="https://www.newyorker.com/magazine/2003/05/12/death-of-a-chef",
-                           target="_blank"),
-                    ". In contrast, in 2017, Sébastien Bras made the unprecedented decision to voluntarily ",
-                    html.A("hand back his three-star rating",
-                           href="https://www.theguardian.com/world/2017/sep/20/sebastien-bras-french-chef-three-michelin-stars-le-suquet-laguiole",
-                           target="_blank"),
-                    ", choosing freedom from the intense expectations that come with such an award. "
-                    "Chefs in France affectionately refer to Michelin Stars as 'macarons', a fitting simile for the elusive nature of perfection—much like the delicate art of baking the perfect macaron."
-                ],
-                className='michelin-text-paragraph'
-            ),
-
-            html.Div(
-                className='star-ratings-container',  # Class for the parent container
-                children=[
-                    html.Div(
-                        children=[
-                            html.P([green_star()], className='star-description-title'),
-                            html.P('Green Star', className='star-description-title'),
-                            html.P('High sustainability standards', className='star-description-text'),
-                        ], className='green-child'
-                    ),
-                    html.Div(
-                        children=[
-                            html.P([bib_gourmand()], className='star-description-title'),
-                            html.P('Bib Gourmand', className='star-description-title'),
-                            html.P('Good food at moderate prices',
-                                   className='star-description-text'),
-                        ], className='bib-child'
-                    ),
-                    html.Div(
-                        children=[
-                            html.P(michelin_stars(1), className='star-description-title'),
-                            html.P('High-quality cooking', className='star-description-title'),
-                            html.P('Worth a stop', className='star-description-text'),
-                        ], className='one-child'
-                    ),
-                    html.Div(
-                        children=[
-                            html.P(michelin_stars(2), className='star-description-title'),
-                            html.P('Excellent cooking', className='star-description-title'),
-                            html.P('Worth a detour', className='star-description-text'),
-                        ], className='two-child'
-                    ),
-                    html.Div(
-                        children=[
-                            html.P(michelin_stars(3), className='star-description-title'),
-                            html.P('Exceptional cuisine', className='star-description-title'),
-                            html.P('Worth a special journey', className='star-description-text'),
-                        ], className='three-child'
-                    ),
-                ]
-            ),
-        ],
-    )
 
 
 def get_regions_section():
@@ -379,10 +298,6 @@ def get_arrondissements_section():
     )
 
 
-def build_analysis_intro_section():
-    return get_intro_section()
-
-
 def build_region_distribution_section():
     return get_regions_section()
 
@@ -398,9 +313,6 @@ def build_arrondissement_distribution_section():
 def build_restaurant_distribution_section():
     return html.Div(
         children=[
-            # Michelin Blurb section (common for both regions and departments)
-            build_analysis_intro_section(),
-
             # Region Section (both sidebar and main content)
             build_region_distribution_section(),
 

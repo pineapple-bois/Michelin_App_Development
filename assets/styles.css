@@ -12,15 +12,27 @@
 
 :root {
     --color-brand-red: #C2282D;
+    --color-brand-red-hover: #A01F25;
     --color-text-primary: black;
     --color-text-muted: #555;
     --color-surface: white;
     --color-surface-control: #f0f0f0;
     --color-surface-control-hover: #ddd;
     --color-border-subtle: #ddd;
+    --color-border-editorial: rgba(0, 0, 0, 0.14);
     --color-border-control: #ccc;
     --color-link: #007bff;
-    --shadow-active-control: 0 0 5px 2px rgba(0, 0, 0, 0.2);
+    --color-control-selected-bg: rgba(194, 40, 45, 0.12);
+    --color-control-selected-bg-strong: rgba(194, 40, 45, 0.18);
+    --color-control-focus-ring: rgba(194, 40, 45, 0.22);
+    --analysis-page-gutter-bg: #f7f7f7;
+    --analysis-paper-bg: #ffffff;
+    --analysis-page-max-width: 1340px;
+    --analysis-page-padding: 50px;
+    --analysis-page-gutter: 24px;
+    --analysis-sheet-padding: calc(var(--analysis-page-padding) - var(--analysis-page-gutter));
+    --analysis-paper-border: rgba(0, 0, 0, 0.10);
+    --shadow-active-control: 0 0 0 1px rgba(0, 0, 0, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.42);
 }
 
 body {
@@ -744,6 +756,26 @@ body {
     margin-top: 80px; /* Adjust for header */
 }
 
+.content-container:has(#analysis-content-top) {
+    background-color: var(--analysis-page-gutter-bg);
+    box-sizing: border-box;
+    padding-left: var(--analysis-page-gutter);
+    padding-right: var(--analysis-page-gutter);
+}
+
+#analysis-content-top {
+    background-color: var(--analysis-paper-bg);
+    border-left: 1px solid var(--analysis-paper-border);
+    border-right: 1px solid var(--analysis-paper-border);
+    box-sizing: border-box;
+    max-width: var(--analysis-page-max-width);
+    min-height: 0;
+    padding: 34px var(--analysis-sheet-padding) 44px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .clearfix::after {
     content: "";
     clear: both;
@@ -756,37 +788,395 @@ body {
     font-size: 20px;
 }
 
-.michelin-text-container {
-    /*background-color: #f5f5f5;*/
-    border-bottom: 1px solid black;
-    padding-top: 20px;
-    padding-bottom: 0;
-    width: calc(100% - 50px);
-}
-
-.michelin-title-paragraph {
-    margin-bottom: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-.michelin-text-paragraph {
-    font-size: 16px;
-    line-height: 1.4;
-    margin-bottom: 20px;
-}
-
 .three-child, .two-child, .one-child, .bib-child, .green-child {
     width: 20%;
     box-sizing: border-box; /* Ensure padding is included in the width calculation */
 }
 
-.star-ratings-container {
-    display: flex;
+/* Analysis pilot: editorial data-report rhythm */
+#analysis-content-top .region-description,
+#analysis-content-top .department-description,
+#analysis-content-top .arrondissement-description,
+#analysis-content-top .ranking-description {
+    max-width: 76ch;
+}
+
+#analysis-content-top .region-description,
+#analysis-content-top .department-description,
+#analysis-content-top .arrondissement-description,
+#analysis-content-top .ranking-description {
+    color: var(--color-text-muted);
+    font-size: 15px;
+    line-height: 1.45;
+    margin-bottom: 14px;
+    padding-top: 0;
+}
+
+#analysis-content-top .department-content-wrapper,
+#analysis-content-top #arrondissement-content-wrapper.visible-section,
+#analysis-content-top .ranking-content-wrapper {
+    border-top: 0;
+    padding-top: 0;
+}
+
+#analysis-content-top .department-content-wrapper::before,
+#analysis-content-top #arrondissement-content-wrapper.visible-section::before,
+#analysis-content-top .ranking-content-wrapper::before {
+    content: "";
+    display: block;
     width: 100%;
-    padding-left: 5%;
-    margin-bottom: 20px;
+    border-top: 1px solid var(--color-border-editorial);
+    margin-bottom: 28px;
+}
+
+#analysis-content-top .region-content-wrapper,
+#analysis-content-top .department-content-wrapper,
+#analysis-content-top #arrondissement-content-wrapper.visible-section,
+#analysis-content-top .ranking-content-wrapper {
+    box-sizing: border-box;
+    padding-bottom: 38px;
+    padding-right: 0;
+    width: 100%;
+}
+
+#analysis-content-top .region-content-wrapper {
+    padding-top: 0;
+}
+
+#analysis-content-top .distribution-header,
+#analysis-content-top .ranking-header {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#analysis-content-top .distribution-section-header {
+    margin-top: 14px;
+    margin-bottom: 8px;
+}
+
+#analysis-content-top .region-controls,
+#analysis-content-top .department-controls,
+#analysis-content-top .arrondissement-controls,
+#analysis-content-top .ranking-controls {
+    align-items: flex-start;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+
+#analysis-content-top .region-filter-title,
+#analysis-content-top .ranking-controls h6,
+#analysis-content-top .star-select-title-analysis,
+#analysis-content-top .star-select-title-department,
+#analysis-content-top .star-select-title-arrondissement {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+#analysis-content-top .dropdown-region-analysis .Select-control,
+#analysis-content-top .dropdown-department-analysis .Select-control,
+#analysis-content-top .dropdown-arrondissement-analysis .Select-control,
+#analysis-content-top .dropdown-granularity .Select-control,
+#analysis-content-top .dropdown-ranking .Select-control,
+#analysis-content-top .dropdown-star-ranking .Select-control {
+    border-color: var(--color-border-control) !important;
+    background-color: var(--color-surface) !important;
+}
+
+#analysis-content-top .dropdown-region-analysis,
+#analysis-content-top .dropdown-department-analysis,
+#analysis-content-top .dropdown-arrondissement-analysis,
+#analysis-content-top .dropdown-granularity,
+#analysis-content-top .dropdown-ranking,
+#analysis-content-top .dropdown-star-ranking {
+    margin-bottom: 8px;
+}
+
+#analysis-content-top .ranking-controls {
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    justify-content: flex-start;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+#analysis-content-top .granularity-filter-container,
+#analysis-content-top .top-ranking-filter-container,
+#analysis-content-top .rating-filter-container {
+    flex: 1 1 170px;
+    max-width: 240px;
+    min-width: 0;
+}
+
+#analysis-content-top .toggle-details-container {
+    align-items: flex-end;
+    align-self: flex-start;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    margin-top: calc(11px * 1.2 + 5px);
+    padding-left: 0;
+}
+
+#analysis-content-top .ranking-controls h6 {
+    font-size: 11px;
+    line-height: 1.2;
+    margin: 0 0 5px;
+}
+
+#analysis-content-top .ranking-controls .Select-control {
+    border-radius: 0 !important;
+    font-size: 13px;
+    height: 34px;
+    min-height: 34px;
+}
+
+#analysis-content-top .ranking-controls .Select-placeholder,
+#analysis-content-top .ranking-controls .Select-value,
+#analysis-content-top .ranking-controls .Select-input {
+    height: 32px;
+    line-height: 32px;
+}
+
+#analysis-content-top .ranking-controls .Select-value-label {
+    color: var(--color-text-primary) !important;
+    font-size: 13px;
+}
+
+#analysis-content-top .dropdown-region-analysis .Select-value {
+    background-color: var(--color-surface-control) !important;
+    color: var(--color-text-muted) !important;
+    border-left: 1px solid var(--color-control-focus-ring) !important;
+}
+
+#analysis-content-top .dropdown-region-analysis .Select-value-label {
+    color: var(--color-text-muted) !important;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+#analysis-content-top .dropdown-region-analysis .Select-value-icon {
+    color: var(--color-text-muted) !important;
+    font-size: 12px;
+}
+
+#analysis-content-top .region-visuals,
+#analysis-content-top .department-visuals,
+#analysis-content-top .arrondissement-visuals,
+#analysis-content-top .ranking-main-content {
+    background: transparent;
+    border-top: 0;
+    border-radius: 0;
+    padding: 8px 0 0;
+    box-sizing: border-box;
+}
+
+#analysis-content-top .ranking-main-content {
+    padding: 8px 0 0;
+}
+
+#analysis-content-top .region-graph,
+#analysis-content-top .region-map,
+#analysis-content-top .department-graph,
+#analysis-content-top .department-map,
+#analysis-content-top .arrondissement-graph,
+#analysis-content-top .arrondissement-map {
+    background-color: var(--color-surface);
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+#analysis-content-top .region-map,
+#analysis-content-top .department-map,
+#analysis-content-top .arrondissement-map {
+    border-left: 1px solid var(--color-border-subtle);
+}
+
+#analysis-content-top .star-button-analysis,
+#analysis-content-top .star-button-department,
+#analysis-content-top .star-button-arrondissement {
+    --analysis-filter-accent: var(--color-brand-red);
+    background-color: transparent !important;
+    border: 1px solid var(--color-border-control) !important;
+    border-bottom-color: var(--color-border-editorial) !important;
+    color: var(--color-text-primary) !important;
+    min-height: 30px;
+    height: 30px;
+    padding: 3px 5px;
+    opacity: 1 !important;
+    box-shadow: none !important;
+}
+
+#analysis-content-top .star-button-analysis:has(.bib-image-invert),
+#analysis-content-top .star-button-department:has(.bib-image-invert),
+#analysis-content-top .star-button-arrondissement:has(.bib-image-invert) {
+    --analysis-filter-accent: #7a2466;
+}
+
+#analysis-content-top .star-button-analysis:has(.michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert)),
+#analysis-content-top .star-button-department:has(.michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert)),
+#analysis-content-top .star-button-arrondissement:has(.michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert)) {
+    --analysis-filter-accent: #d7a23c;
+}
+
+#analysis-content-top .star-button-analysis:has(.michelin-star-invert + .michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert)),
+#analysis-content-top .star-button-department:has(.michelin-star-invert + .michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert)),
+#analysis-content-top .star-button-arrondissement:has(.michelin-star-invert + .michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert)) {
+    --analysis-filter-accent: #df6f61;
+}
+
+#analysis-content-top .star-button-analysis:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert),
+#analysis-content-top .star-button-department:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert),
+#analysis-content-top .star-button-arrondissement:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert) {
+    --analysis-filter-accent: #bd2a34;
+}
+
+#analysis-content-top .star-button-analysis .michelin-star-invert,
+#analysis-content-top .star-button-department .michelin-star-invert,
+#analysis-content-top .star-button-arrondissement .michelin-star-invert,
+#analysis-content-top .star-button-analysis .bib-image-invert,
+#analysis-content-top .star-button-department .bib-image-invert,
+#analysis-content-top .star-button-arrondissement .bib-image-invert {
+    filter: none !important;
+}
+
+#analysis-content-top .star-filter-section-analysis .star-button-analysis.active,
+#analysis-content-top .star-filter-section-department .star-button-department.active,
+#analysis-content-top .star-filter-section-arrondissement .star-button-arrondissement.active {
+    background-color: transparent !important;
+    border-color: var(--color-border-editorial) !important;
+    border-bottom-width: 2px !important;
+    border-bottom-color: var(--analysis-filter-accent) !important;
+    box-shadow: none !important;
+}
+
+#analysis-content-top .star-filter-section-analysis .star-button-analysis.inactive,
+#analysis-content-top .star-filter-section-department .star-button-department.inactive,
+#analysis-content-top .star-filter-section-arrondissement .star-button-arrondissement.inactive {
+    opacity: 0.62 !important;
+}
+
+#analysis-content-top .star-filter-buttons-analysis,
+#analysis-content-top .star-filter-buttons-department,
+#analysis-content-top .star-filter-buttons-arrondissement {
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+#analysis-content-top .button-show-details {
+    background-color: transparent;
+    border: 1px solid var(--color-border-control);
+    border-bottom-color: var(--color-border-editorial);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--color-text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    height: 34px;
+    line-height: 1;
+    min-height: 34px;
+    padding: 0 12px;
+}
+
+#analysis-content-top .button-show-details:hover,
+#analysis-content-top .button-show-details:focus-visible {
+    background-color: var(--color-surface-control) !important;
+    border-color: var(--color-border-editorial);
+    border-bottom-color: var(--color-brand-red);
+    color: var(--color-text-primary) !important;
+    box-shadow: none;
+}
+
+#analysis-content-top .ranking-output-container {
+    width: 100%;
+}
+
+#analysis-content-top .ranking-output-container > div:not(.restaurant-cards-container) {
+    margin-bottom: 16px !important;
+    text-align: left !important;
+}
+
+#analysis-content-top .ranking-output-container > div:not(.restaurant-cards-container) > div:first-child {
+    font-size: 18px !important;
+    line-height: 1.25;
+}
+
+#analysis-content-top .ranking-output-container > div:not(.restaurant-cards-container) > div:last-child {
+    color: var(--color-text-muted);
+    display: block !important;
+    font-size: 13px;
+    margin-left: 0 !important;
+    margin-top: 4px;
+}
+
+#analysis-content-top .restaurant-cards-container {
+    align-items: stretch !important;
+    gap: 12px 16px !important;
+    justify-content: flex-start !important;
+    margin-bottom: 26px !important;
+}
+
+#analysis-content-top .restaurant-details {
+    background-color: var(--color-surface);
+    border-style: solid;
+    border-width: 1px 1px 1px 3px;
+    border-radius: 4px;
+    flex: 1 1 260px;
+    box-shadow: none;
+    box-sizing: border-box;
+    color: var(--color-text-primary);
+    max-width: 340px;
+    padding: 12px 14px 14px;
+}
+
+#analysis-content-top .restaurant-details .details-header {
+    align-items: flex-start;
+    gap: 10px;
+}
+
+#analysis-content-top .restaurant-details .restaurant-name {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-right: 0;
+}
+
+#analysis-content-top .restaurant-details .restaurant-stars {
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0.74;
+}
+
+#analysis-content-top .restaurant-details .restaurant-stars img {
+    height: 16px !important;
+    width: auto !important;
+}
+
+#analysis-content-top .restaurant-details .details-cuisine,
+#analysis-content-top .restaurant-details .details-price,
+#analysis-content-top .restaurant-details .address-info {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+#analysis-content-top .restaurant-details .restaurant-info,
+#analysis-content-top .restaurant-details .address-info {
+    margin-bottom: 8px;
+}
+
+#analysis-content-top .restaurant-details .restaurant-website {
+    color: var(--color-brand-red);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+#analysis-content-top .restaurant-details .restaurant-website:hover,
+#analysis-content-top .restaurant-details .restaurant-website:focus-visible {
+    color: var(--color-brand-red-hover);
+    text-decoration: underline;
 }
 
 /* -------------------------
@@ -875,43 +1265,73 @@ body {
 }
 
 /* -------------------------
-   Region dropdowns
+   Analysis-Style Dropdown Controls
    ------------------------- */
 
-/* Change the background and text color of selected dropdown values */
-.dropdown-region-analysis .Select-value {
-    background-color: rgba(194, 40, 45, 0.2) !important; /* Semi-transparent red background */
+/* Shared multi-select chip treatment for Analysis and Economics region filters */
+.dropdown-region-analysis .Select-value,
+.dropdown-category-demographics .Select-value {
+    background-color: var(--color-control-selected-bg) !important;
     color: var(--color-brand-red) !important;  /* Bold red text */
     border-radius: 5px;
     border: none !important; /* Remove blue border */
 }
 
 /* Target the label inside each selected value to ensure bold red text */
-.dropdown-region-analysis .Select-value-label {
+.dropdown-region-analysis .Select-value-label,
+.dropdown-category-demographics .Select-value-label {
     font-size: 14px;
     color: var(--color-brand-red) !important; /* Bold red text */
     box-shadow: none !important; /* Remove blue shadow */
 }
 
-/* Dropdown styling for regions */
-.dropdown-region-analysis .Select-control {
+/* Dropdown styling for region multi-select controls */
+.dropdown-region-analysis .Select-control,
+.dropdown-category-demographics .Select-control {
     font-size: 14px; /* Adjust font size of labels */
 }
 
 /* Customize the "x" button on hover */
-.dropdown-region-analysis .Select-value-icon:hover {
+.dropdown-region-analysis .Select-value-icon:hover,
+.dropdown-category-demographics .Select-value-icon:hover {
     color: var(--color-brand-red) !important; /* Red color for the "x" icon on hover */
 }
 
 /* Ensure the "x" stays black when not hovered */
-.dropdown-region-analysis .Select-value-icon {
+.dropdown-region-analysis .Select-value-icon,
+.dropdown-category-demographics .Select-value-icon {
     color: var(--color-text-primary) !important; /* Black color for the "x" by default */
 }
 
-/* Remove blue outline when the "x" button or value is focused */
-.dropdown-region-analysis .Select-value:focus,
-.dropdown-region-analysis .Select-value-icon:focus {
-    outline: none !important; /* Remove focus outline */
+/* Replace the default blue focus affordance with the shared Michelin control ring */
+.dropdown-region-analysis .Select-value:focus-visible,
+.dropdown-region-analysis .Select-value-icon:focus-visible,
+.dropdown-category-demographics .Select-value:focus-visible,
+.dropdown-category-demographics .Select-value-icon:focus-visible {
+    outline: 1px solid var(--color-control-focus-ring) !important;
+    outline-offset: 1px;
+}
+
+.analysis-container .Select-control:focus-within {
+    border-color: var(--color-border-editorial) !important;
+    box-shadow: none !important;
+}
+
+.analysis-container .Select-control:has(:focus-visible) {
+    border-color: var(--color-brand-red) !important;
+    box-shadow: 0 0 0 1px var(--color-control-focus-ring) !important;
+}
+
+/* Dropdown menu states shared by Analysis, Economics, and Wine controls */
+.analysis-container .Select-option:hover,
+.analysis-container .Select-option.is-focused {
+    background-color: var(--color-control-selected-bg) !important;
+    color: var(--color-brand-red-hover) !important;
+}
+
+.analysis-container .Select-option.is-selected {
+    background-color: var(--color-control-selected-bg-strong) !important;
+    color: var(--color-brand-red) !important;
 }
 
 /* -------------------------
@@ -1110,6 +1530,12 @@ body {
     cursor: pointer;
 }
 
+.star-button-analysis:focus-visible, .star-button-department:focus-visible, .star-button-arrondissement:focus-visible,
+.star-button-cuisine:focus-visible, .star-button-demographics:focus-visible, .star-button-wine:focus-visible  {
+    outline: 1px solid var(--color-control-focus-ring);
+    outline-offset: 2px;
+}
+
 .star-filter-section-analysis .star-button-analysis.active,
 .star-filter-section-department .star-button-department.active,
 .star-filter-section-arrondissement .star-button-arrondissement.active,
@@ -1233,9 +1659,14 @@ body {
 
 /* Button hover and active states */
 .button-show-details:hover,
-.button-show-details:focus {
-    background-color: #A01F25;
+.button-show-details:focus-visible {
+    background-color: var(--color-brand-red-hover);
     color: white;
+}
+
+.button-show-details:focus-visible {
+    outline: 1px solid var(--color-control-focus-ring);
+    outline-offset: 2px;
 }
 
 /* -------------------------
@@ -1350,49 +1781,6 @@ body {
 .weighted-mean-explanation .dash-markdown {
     margin: 0;  /* Remove any margin from the Markdown element */
     padding: 0;  /* Remove any padding from the Markdown element */
-}
-
-/* Custom styles for socio-economic metric dropdown with blue color scheme */
-.dropdown-category-demographics .Select-value {
-    background-color: rgba(0, 123, 255, 0.2) !important; /* Light blue background */
-    color: #007bff !important; /* Blue text */
-    border-radius: 5px;
-    border: none !important; /* Remove border */
-}
-
-.dropdown-category-demographics .Select-control {
-    font-size: 14px; /* Adjust font size */
-}
-
-.dropdown-category-demographics .Select-value-label {
-    font-size: 14px;
-    color: #007bff !important; /* Blue text */
-    box-shadow: none !important; /* Remove blue shadow */
-}
-
-.dropdown-category-demographics .Select-value-icon:hover {
-    color: #007bff !important; /* Blue color for the "x" icon on hover */
-}
-
-.dropdown-category-demographics .Select-value-icon {
-    color: black !important; /* Black "x" by default */
-}
-
-.dropdown-category-demographics .Select-value:focus,
-.dropdown-category-demographics .Select-value-icon:focus {
-    outline: none !important; /* Remove focus outline */
-}
-
-/* Hover styling for dropdown */
-.dropdown-category-demographics .Select-option:hover {
-    background-color: rgba(0, 123, 255, 0.1) !important; /* Light blue hover effect */
-    color: #0056b3 !important; /* Darker blue on hover */
-}
-
-/* Selected option styling */
-.dropdown-category-demographics .Select-option.is-selected {
-    background-color: rgba(0, 123, 255, 0.2) !important;
-    color: #0056b3 !important; /* Darker blue for selected options */
 }
 
 /* -------------------------
@@ -1568,6 +1956,11 @@ body {
 
 /* Media Query for screens smaller than 1250px (Tablet Layout) */
 @media screen and (max-width: 1250px) {
+    :root {
+        --analysis-page-padding: 30px;
+        --analysis-page-gutter: 16px;
+    }
+
     /* Global layout changes */
     .main-content {
         margin-left: 30px;
@@ -1765,16 +2158,6 @@ body {
     .content-container {
         padding-left: 30px;
     }
-
-    .michelin-title-paragraph {
-        margin-bottom: 20px;
-        font-size: 16px;
-    }
-
-    .michelin-text-container {
-        width: calc(100% - 30px);
-    }
-
 
     .region-content-wrapper {
         padding-right: 30px;

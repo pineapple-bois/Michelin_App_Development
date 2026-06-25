@@ -3,8 +3,25 @@ import plotly.graph_objects as go
 from dash import html
 from shapely.geometry import Point
 
-from app.components.shared import color_map, green_star, michelin_stars
+from app.components.shared import green_star, michelin_stars
 from app.utils.restaurant_cards import get_restaurant_details
+
+ANALYSIS_RATING_COLORS = {
+    0.5: "#7a2466",
+    1: "#d7a23c",
+    2: "#df6f61",
+    3: "#bd2a34",
+}
+
+ANALYSIS_BAR_LINE_COLOR = "rgba(70, 55, 50, 0.18)"
+
+ANALYSIS_CHOROPLETH_COLORSCALE = [
+    [0.0, "#fff8f5"],
+    [0.18, "#f6d9cf"],
+    [0.42, "#ec9f91"],
+    [0.68, "#d95c54"],
+    [1.0, "#a91f29"],
+]
 
 def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
     """
@@ -26,7 +43,10 @@ def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
             y=filtered_df[granularity],
             x=filtered_df['bib_gourmand'],
             name="Bib Gourmand",
-            marker_color=color_map[0.5],
+            marker=dict(
+                color=ANALYSIS_RATING_COLORS[0.5],
+                line=dict(color=ANALYSIS_BAR_LINE_COLOR, width=0.4),
+            ),
             orientation='h',
             hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
         ))
@@ -35,7 +55,10 @@ def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
             y=filtered_df[granularity],
             x=filtered_df['1_star'],
             name="1 Star",
-            marker_color=color_map[1],
+            marker=dict(
+                color=ANALYSIS_RATING_COLORS[1],
+                line=dict(color=ANALYSIS_BAR_LINE_COLOR, width=0.4),
+            ),
             orientation='h',
             hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
         ))
@@ -44,7 +67,10 @@ def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
             y=filtered_df[granularity],
             x=filtered_df['2_star'],
             name="2 Stars",
-            marker_color=color_map[2],
+            marker=dict(
+                color=ANALYSIS_RATING_COLORS[2],
+                line=dict(color=ANALYSIS_BAR_LINE_COLOR, width=0.4),
+            ),
             orientation='h',
             hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
         ))
@@ -53,7 +79,10 @@ def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
             y=filtered_df[granularity],
             x=filtered_df['3_star'],
             name="3 Stars",
-            marker_color=color_map[3],
+            marker=dict(
+                color=ANALYSIS_RATING_COLORS[3],
+                line=dict(color=ANALYSIS_BAR_LINE_COLOR, width=0.4),
+            ),
             orientation='h',
             hovertemplate='<b>Restaurants:</b> %{x}<extra></extra>',
         ))
@@ -65,8 +94,20 @@ def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
         xaxis_title="Number of Restaurants",
         plot_bgcolor='white',
         margin=dict(l=20, r=20, t=60, b=20),
-        xaxis=dict(title_standoff=15),
-        yaxis=dict(ticklabelposition="outside", automargin=True, autorange='reversed')
+        font=dict(color="#333333"),
+        legend=dict(font=dict(size=12), bgcolor="rgba(255, 255, 255, 0)"),
+        xaxis=dict(
+            title_standoff=15,
+            gridcolor="rgba(0, 0, 0, 0.08)",
+            zerolinecolor="rgba(0, 0, 0, 0.12)",
+            tickfont=dict(size=11),
+        ),
+        yaxis=dict(
+            ticklabelposition="outside",
+            automargin=True,
+            autorange='reversed',
+            tickfont=dict(size=11),
+        )
     )
 
     return fig_bar
@@ -124,16 +165,24 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
     else:
         raise ValueError(f"Invalid granularity: {granularity}. Choose from ['region', 'department', 'arrondissement'].")
 
+    colorscale = ANALYSIS_CHOROPLETH_COLORSCALE if cmap == 'Reds' else cmap
+
     # Add the choropleth map with hover info based on granularity
     fig.add_trace(
         go.Choropleth(
             geojson=df.__geo_interface__,  # GeoJSON representation of the dataframe
             z=df['total_restaurants'],  # Use total restaurants for coloring
             locations=df.index,  # Match the locations via index
-            colorscale=cmap,
-            colorbar_title='Restaurants',
-            marker_line_width=0.5,
-            marker_line_color='darkgray',
+            colorscale=colorscale,
+            colorbar=dict(
+                title=dict(text='Restaurants', font=dict(size=12, color="#444444")),
+                tickfont=dict(size=11, color="#555555"),
+                thickness=10,
+                len=0.72,
+                outlinewidth=0,
+            ),
+            marker_line_width=0.35,
+            marker_line_color='rgba(80, 80, 80, 0.45)',
             hovertemplate=hovertemplate,  # Use the dynamic hovertemplate
             customdata=customdata  # Pass the custom data for hover
         )
@@ -217,7 +266,7 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
             resolution=50,
             showcoastlines=False,
             showland=True,
-            landcolor="lightgray",
+            landcolor="#eeeeee",
             center=dict(lat=avg_lat, lon=avg_lon),  # Custom center
             projection_scale=zoom_level,  # Custom zoom
         ),
