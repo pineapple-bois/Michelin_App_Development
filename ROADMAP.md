@@ -4,7 +4,7 @@
 
 This roadmap describes the work needed to turn the current pseudo-multipage Dash app into a true multipage app on the Heroku 24 deployment path, while preserving the existing visual design as much as possible.
 
-The primary product goal is to split the current combined `Analysis` page into three first-class pages:
+The primary product goal is to split the former combined `Analysis` page into three first-class pages:
 
 - `Analysis`: restaurant distribution, Michelin ranking, region, department, and arrondissement views.
 - `Economics`: socioeconomic and demographic exploration.
@@ -16,14 +16,14 @@ The first implementation pass should be architectural. Styling work should stay 
 
 The deployed application is currently concentrated in a small number of large modules:
 
-- `michelin_app.py`: application entrypoint, Flask server setup, Dash Pages setup, cache setup, OpenAI client setup, callback registration, and the current combined Analysis/Economics/Wine callbacks.
+- `michelin_app.py`: application entrypoint, Flask server setup, Dash Pages setup, cache setup, OpenAI client setup, callback registration, and the current Analysis/Economics/Wine callbacks.
 - `app_data.py`: central restaurant/GeoJSON loading, schema checks, and existing derived dropdown/map lookup values.
 - `components/shared.py`: shared header, footer, visible nav metadata, Michelin icon helpers, and rating colours.
 - `callbacks/navigation.py`: global hamburger/menu and active-route callbacks registered by `michelin_app.py`.
 - `callbacks/guide.py`: Guide/Home page callbacks registered by `michelin_app.py`.
-- `pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, the combined Analysis page, and the 404 fallback.
+- `pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, Analysis, Economics, Wine, and the 404 fallback.
 - `layouts/layout_main.py`: Guide page layout plus main-page star filters.
-- `layouts/layout_analysis.py`: combined Analysis layout with section-level builders for the future Analysis, Economics, and Wine pages.
+- `layouts/layout_analysis.py`: page shell and section-level builders for Analysis, Economics, and Wine pages.
 - `layouts/layout_404.py`: 404 layout.
 - `utils/appFunctions.py`: Plotly map/chart builders, restaurant card rendering, star-button helper logic, wine prompt generation, and other mixed presentation/data helpers.
 - `utils/locationMatcher.py`: fuzzy location lookup used by the Guide page.
@@ -32,7 +32,7 @@ The deployed application is currently concentrated in a small number of large mo
 - `Aptfile`: native GIS packages, currently `gdal-bin` and `libgdal-dev`.
 - `requirements.txt`: pinned Python dependencies for Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and related libraries.
 
-Dash Pages now owns the routing shell. The current registered pages still mirror the old public routes, and the Analysis page is still the combined Analysis/Economics/Wine layout.
+Dash Pages now owns the routing shell. Analysis, Economics, and Wine are now separate public routes, while their callbacks still temporarily live together in `michelin_app.py`.
 
 ## Repository Change Map
 
@@ -47,17 +47,17 @@ Dash Pages now owns the routing shell. The current registered pages still mirror
 | `README.md` | Product and local setup docs. | Keep current with runtime/config changes as the refactor progresses. |
 | `michelin_app.py` | App/server setup, callback registration, service clients, and current Analysis/Economics/Wine callbacks. | Shrink to deployment entrypoint plus app creation/registration. |
 | `app_data.py` | Loads app data and builds existing derived lookup values. | Keep as the data boundary when callbacks move into page modules. |
-| `components/shared.py` | Shared header/footer, visible nav metadata, icon helpers, and rating colours. | Add future visible nav links only after their pages exist. |
+| `components/shared.py` | Shared header/footer, visible nav metadata, icon helpers, and rating colours. | Keep active-route metadata aligned with page modules. |
 | `callbacks/navigation.py` | Current hamburger/menu and active-route callbacks registered by `michelin_app.py`. | Keep as the navigation callback owner unless routing behavior changes. |
 | `callbacks/guide.py` | Current Guide/Home callbacks registered by `michelin_app.py`. | Keep as the Guide callback owner during later page splits. |
-| `pages/*` | Dash Pages route wrappers for the current layouts. | Split Analysis/Economics/Wine pages here in a later phase. |
+| `pages/*` | Dash Pages route wrappers for the current layouts. | Keep wrappers thin; move callback ownership later. |
 | `layouts/layout_main.py` | Guide layout plus main-page star filter. | Keep Guide-specific layout here until a dedicated layout split is worthwhile. |
-| `layouts/layout_analysis.py` | Combined Analysis/Economics/Wine layout with section-level builders. | Keep `/analysis` combined for now; split into three page modules later. |
+| `layouts/layout_analysis.py` | Shared page shell and section-level builders for Analysis, Economics, and Wine. | Keep styling wrappers stable while callbacks move later. |
 | `layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
 | `utils/appFunctions.py` | Mixed plotting, Dash components, ranking, wine prompt, helper logic. | Split into figures, components, and services. |
 | `utils/locationMatcher.py` | Fuzzy city/department lookup. | Move or keep as service; add tests around accent/case matching. |
 | `assets/styles.css` | Main styling. | Preserve class names and avoid broad styling changes during routing migration. |
-| `assets/scroll-script.js` | Old Analysis scroll behavior. | Update or remove after pages split. |
+| `assets/scroll-script.js` | Analysis/Economics/Wine nav scroll helper. | Revisit after page/callback ownership settles. |
 | `assets/custom_header.html` | Dash index template. | Keep unless route-specific meta tags become required. |
 | `assets/basicTileMap.json` | Custom map tile style with embedded tile key. | Decide whether key remains public/restricted or moves to config. |
 | `assets/Data/*` | Deployed CSV/GeoJSON data. | Keep stable; centralize schema validation and dtype normalization. |
@@ -156,9 +156,9 @@ The current file name can stay to avoid deployment churn.
 ### Phase 2: Shared Components
 
 - Header/footer, visible nav metadata, Michelin icon helpers, and rating colours now live in `components/shared.py`.
-- Keep visible navigation at Guide and Analysis until Economics and Wine have real routes.
-- Update active nav state when new routes are added.
-- `assets/scroll-script.js` now uses delegated clicks but still assumes the current combined Analysis anchor, `analysis-content-top`.
+- Visible navigation now includes Guide, Analysis, Economics, and Wine.
+- `/home` remains an active Guide alias.
+- `assets/scroll-script.js` maps the visible Analysis/Economics/Wine links to their current page anchors.
 - Keep CSS class names stable where possible to avoid unnecessary styling work.
 
 ### Phase 3: True Multipage Routing
@@ -191,20 +191,20 @@ Navigation callbacks now live in `callbacks/navigation.py` and are registered fr
 
 `suppress_callback_exceptions=True` was inspected during the navigation extraction and left enabled because callbacks are still registered separately from Dash Pages layout mounting.
 
-The combined Analysis/Economics/Wine callbacks remain in `michelin_app.py` until those sections are split.
+The Analysis/Economics/Wine callbacks remain in `michelin_app.py` until callback ownership is split.
 
 ### Phase 5: Split the Current Analysis Page
 
-`layouts/layout_analysis.py` now has section-level builders while preserving the current combined `/analysis` page:
+`/analysis`, `/economics`, and `/wine` are now real Dash Pages routes composed from `layouts/layout_analysis.py` builders:
 
 - `build_analysis_sections()`
 - `build_economics_section()`
 - `build_wine_section()`
 - `build_combined_analysis_content()`
 
-The current `/analysis` route still renders these sections together in the original order. `/economics` and `/wine` have not been created, and Economics/Wine are not visible navigation links yet.
+The old combined `/analysis` public page was removed rather than retained as a compatibility route. `build_combined_analysis_content()` remains available internally as a reference/composition helper, but it is not currently exposed by a public page.
 
-Use these layout seams for the later route split:
+Current page composition:
 
 - `Analysis` page:
   - Michelin intro
@@ -225,7 +225,7 @@ Use these layout seams for the later route split:
   - OpenAI region summary panel
   - generated-content disclaimer
 
-Move the matching callbacks into `callbacks/analysis.py`, `callbacks/economics.py`, and `callbacks/wine.py` after the routes exist.
+Move the matching callbacks into `callbacks/analysis.py`, `callbacks/economics.py`, and `callbacks/wine.py` next.
 
 ### Phase 6: Figure and Service Refactor
 
@@ -278,11 +278,11 @@ Current callback ownership after the navigation extraction:
 | Economics/demographics | `michelin_app.py` | `callbacks/economics.py` |
 | Wine | `michelin_app.py` | `callbacks/wine.py` |
 
-Section-level layout builders for these future pages live in `layouts/layout_analysis.py`; callbacks have not moved for the combined Analysis area.
+Section-level layout builders for these pages live in `layouts/layout_analysis.py`; callbacks have not moved for the Analysis/Economics/Wine area.
 
 ## Known Risks and Decisions
 
-- `layout_analysis.py` has section-level layout builders for the future split, but the sections still share helper names, CSS classes, and star-filter conventions. Split routes first, then clean names only when callback ownership is clearer.
+- `layout_analysis.py` has page-level layout builders, but the sections still share helper names, CSS classes, and star-filter conventions. Clean names only when callback ownership is clearer.
 - Several callbacks assume list inputs are never `None`. Clearing multi-select dropdowns can expose this.
 - `department_num` is compared as a string in several places. `app_data.py` now reads both restaurant CSVs with `dtype={"department_num": str}`; defer deeper normalization so leading-zero and Corsican code semantics remain unchanged.
 - Flask `before_request` hooks now have distinct names for HTTPS enforcement and session setup. Keep this clarity during later app-factory work.

@@ -981,11 +981,37 @@ def build_combined_analysis_content():
     )
 
 
+def build_analysis_page_content():
+    return html.Div(
+        className='analysis-container',
+        id='analysis-content-top',
+        children=build_analysis_sections()
+    )
+
+
+def build_economics_page_content():
+    return html.Div(
+        className='analysis-container',
+        children=[
+            build_economics_section(),
+        ]
+    )
+
+
+def build_wine_page_content():
+    return html.Div(
+        className='analysis-container',
+        children=[
+            build_wine_section(),
+        ]
+    )
+
+
 def get_analysis_content():
-    return build_combined_analysis_content()
+    return build_analysis_page_content()
 
 
-def get_analysis_layout():
+def get_analysis_page_layout(content):
     # Header with buttons
     header = html.Div(
         children=[
@@ -996,7 +1022,7 @@ def get_analysis_layout():
 
     body = html.Div(
         children=[
-            get_analysis_content(),
+            content,
         ],
         className='content-container'
     )
@@ -1009,3 +1035,15 @@ def get_analysis_layout():
         body,
         footer
     ], className='main-layout')
+
+
+def get_analysis_layout():
+    return get_analysis_page_layout(get_analysis_content())
+
+
+def get_economics_layout():
+    return get_analysis_page_layout(build_economics_page_content())
+
+
+def get_wine_layout():
+    return get_analysis_page_layout(build_wine_page_content())

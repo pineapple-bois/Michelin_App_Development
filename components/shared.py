@@ -24,6 +24,18 @@ NAV_LINKS = (
         "id": "analysis-button",
         "active_paths": ("/analysis",),
     },
+    {
+        "label": "Economics",
+        "href": "/economics",
+        "id": "economics-button",
+        "active_paths": ("/economics",),
+    },
+    {
+        "label": "Wine",
+        "href": "/wine",
+        "id": "wine-button",
+        "active_paths": ("/wine",),
+    },
 )
 
 

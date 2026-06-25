@@ -32,7 +32,7 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - configures `Flask-Caching`
 - defines root `dcc.Store` components
 - mounts `dash.page_container` for Dash Pages routing
-- defines the combined Analysis/Economics/Wine callbacks
+- defines the Analysis/Economics/Wine callbacks
 - registers navigation callbacks from `callbacks/navigation.py`
 - registers Guide callbacks from `callbacks/guide.py`
 - exposes `server` for Gunicorn
@@ -45,19 +45,21 @@ Dash Pages now owns routing. The current page modules are intentionally thin wra
 
 - `pages/guide.py`: `/`, current Guide layout.
 - `pages/home.py`: `/home`, compatibility alias for the current Guide layout.
-- `pages/analysis.py`: `/analysis`, current combined Analysis/Economics/Wine layout.
+- `pages/analysis.py`: `/analysis`, core Michelin analysis sections and rankings.
+- `pages/economics.py`: `/economics`, socioeconomic and demographics section.
+- `pages/wine.py`: `/wine`, wine-region map and generated summary section.
 - `pages/not_found_404.py`: Dash Pages 404 fallback using the existing 404 layout.
 
-Navigation callbacks are registered from `callbacks/navigation.py`. The Guide page callbacks are registered from `callbacks/guide.py`. The combined Analysis/Economics/Wine callbacks still live in `michelin_app.py`.
+Navigation callbacks are registered from `callbacks/navigation.py`. The Guide page callbacks are registered from `callbacks/guide.py`. The Analysis/Economics/Wine callbacks still live in `michelin_app.py`.
 
 ### Callback Modules
 
 `callbacks/navigation.py`
 
 - Exposes `register_navigation_callbacks(app)`.
-- Owns the global header/nav callbacks: hamburger menu open/close state and active Guide/Analysis link classes.
+- Owns the global header/nav callbacks: hamburger menu open/close state and active visible nav link classes.
 - Uses `components/shared.py` navigation metadata through `nav_link_class(...)`.
-- Visible navigation is unchanged: Guide and Analysis only. `/home` remains an active-path alias for Guide.
+- Visible navigation includes Guide, Analysis, Economics, and Wine. `/home` remains an active-path alias for Guide.
 
 `callbacks/guide.py`
 
@@ -73,8 +75,7 @@ Navigation callbacks are registered from `callbacks/navigation.py`. The Guide pa
 - Shared Michelin rating colours, exposed as `color_map` for compatibility with existing helpers.
 - Shared Michelin icon helpers used by Guide, Analysis, and plotting/card helpers.
 - Shared header and footer builders.
-- `NAV_LINKS` and `nav_link_class(...)` for the currently visible Guide/Analysis navigation.
-- Economics and Wine are not visible nav links yet because those pages do not exist as first-class routes.
+- `NAV_LINKS` and `nav_link_class(...)` for the currently visible Guide, Analysis, Economics, and Wine navigation.
 
 `app_data.py`
 
@@ -95,8 +96,8 @@ Navigation callbacks are registered from `callbacks/navigation.py`. The Guide pa
 
 `layouts/layout_analysis.py`
 
-- One combined layout for several conceptual pages.
-- Exposes section-level builders for the later page split:
+- Provides page-level layout composition for the three analysis-style routes.
+- Exposes section-level builders used by the page wrappers:
   - `build_analysis_sections()`
   - `build_economics_section()`
   - `build_wine_section()`
@@ -158,8 +159,9 @@ This module mixes pure plotting, Dash component rendering, and service prompt lo
 
 `assets/scroll-script.js`
 
-- Uses event delegation for clicks on `analysis-button` and scrolls to `analysis-content-top` when that element exists.
-- This still assumes the current combined Analysis page anchor and should be revisited when Analysis, Economics, and Wine split.
+- Uses event delegation for Analysis, Economics, and Wine nav clicks.
+- Scrolls to `analysis-content-top`, `demographics-content-top`, or `wine-content-top` when that anchor exists.
+- Retries once after Dash swaps page content for route changes.
 
 `assets/custom_header.html`
 
@@ -236,7 +238,9 @@ Current routes:
 
 - `/` -> Guide
 - `/home` -> Guide compatibility page
-- `/analysis` -> combined Analysis/Economics/Wine page
+- `/analysis` -> core Michelin analysis sections and rankings
+- `/economics` -> socioeconomic and demographics section
+- `/wine` -> wine-region map and generated summary section
 - anything else -> Dash Pages 404 fallback using `pages/not_found_404.py`
 
 Root-level stores:
@@ -261,13 +265,13 @@ Page-level stores inside layouts:
 - `wine-region-curve-numbers`
 - `map-view-store`
 
-Many of these are page-specific and should move into page layouts during true multipage migration.
+Many of these are page-specific and should move into page layouts during callback/page ownership cleanup.
 
 ## Callback Ownership
 
 Current callback ownership:
 
-- `michelin_app.py`: app/server setup, cache/OpenAI setup, and the current combined Analysis/Economics/Wine callbacks.
+- `michelin_app.py`: app/server setup, cache/OpenAI setup, and the current Analysis/Economics/Wine callbacks.
 - `callbacks/navigation.py`: hamburger menu and active-route callbacks registered through `register_navigation_callbacks(app)`.
 - `callbacks/guide.py`: Guide/Home callbacks registered through `register_guide_callbacks(app, DATA)`.
 
@@ -282,8 +286,8 @@ Use `dash.callback` in page callback modules where practical, or register callba
 ## Gotchas
 
 - Dash Pages owns routing, but Analysis/Economics/Wine callbacks still live in `michelin_app.py`. Do not import `michelin_app.py` from page modules or callback modules.
-- `/analysis` remains the only visible Analysis-style route. Economics and Wine are still sections inside the combined Analysis page; `/economics` and `/wine` do not exist yet.
-- `suppress_callback_exceptions=True` remains enabled. It was inspected during the navigation callback extraction and left alone because callbacks are still registered separately from page layout mounting. Revisit it after the combined Analysis callbacks move closer to page modules.
+- `/analysis`, `/economics`, and `/wine` are real Dash Pages routes. Their callbacks still share `michelin_app.py`, so route ownership and callback ownership are temporarily out of sync.
+- `suppress_callback_exceptions=True` remains enabled. It was inspected during the navigation callback extraction and left alone because callbacks are still registered separately from page layout mounting. Revisit it after the Analysis/Economics/Wine callbacks move closer to page modules.
 - Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
 - HTTPS redirect is environment-aware and proxy-aware through `app_config.py` and `ProxyFix`. Keep it that way during later refactors.
 - Session request counts limit OpenAI calls to 10 per session by default. Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.
@@ -300,7 +304,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - `plot_single_choropleth_plotly` mutates its input frame by writing `total_restaurants`. Pass copies or make the helper copy internally.
 - Plotly map usage mixes `Scattermap`, `Choroplethmap`, `Choropleth`, and an older `mapbox_style` property in one fallback figure. Be careful when upgrading Plotly.
 - Wine-region click handling maps Plotly curve numbers back through list positions. Multi-polygon regions can make this fragile. Prefer storing the wine region name in trace `customdata` or `meta`.
-- `assets/scroll-script.js` targets the old single Analysis page and should be updated or removed after routing changes.
+- `assets/scroll-script.js` maps Analysis, Economics, and Wine nav links to their current section anchors. Revisit it after callback/page modules settle.
 - `Development/` is ignored scratch/reference material, not deployed code.
 - Do not commit `__pycache__/` artifacts. They are currently present as untracked local files.
 - `assets/Data/wine_regions_simplified.geojson` is currently untracked and unrelated to the deployed `wine_regions_cleaned.geojson` path.
@@ -314,7 +318,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 5. Move Guide callbacks. Done: current Guide callbacks live in `callbacks/guide.py`.
 6. Move navigation callbacks. Done: current navigation callbacks live in `callbacks/navigation.py`.
 7. Add section-level builders inside the combined Analysis layout. Done: current builders live in `layouts/layout_analysis.py`.
-8. Split the combined Analysis route into Analysis, Economics, and Wine pages.
+8. Split the combined Analysis route into Analysis, Economics, and Wine pages. Done: current routes live in `pages/analysis.py`, `pages/economics.py`, and `pages/wine.py`.
 9. Move callbacks page by page.
 10. Split figure/service helpers.
 11. Update README and deployment notes.
@@ -339,10 +343,10 @@ Then verify direct route loads in a browser:
 http://127.0.0.1:8050/
 http://127.0.0.1:8050/home
 http://127.0.0.1:8050/analysis
+http://127.0.0.1:8050/economics
+http://127.0.0.1:8050/wine
 http://127.0.0.1:8050/missing
 ```
-
-The current app will not have `/economics` or `/wine` until the combined Analysis page is split.
 
 ## Commit Hygiene
 

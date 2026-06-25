@@ -1,6 +1,6 @@
 from dash.dependencies import Input, Output, State
 
-from components.shared import nav_link_class
+from components.shared import NAV_LINKS, nav_link_class
 
 
 def register_navigation_callbacks(app):
@@ -18,9 +18,8 @@ def register_navigation_callbacks(app):
             return 'nav-dropdown'
 
     @app.callback(
-        [Output('home-button', 'className'),
-         Output('analysis-button', 'className')],
+        [Output(link['id'], 'className') for link in NAV_LINKS],
         Input('url', 'pathname')
     )
     def update_nav_classes(pathname):
-        return nav_link_class(pathname, 'home-button'), nav_link_class(pathname, 'analysis-button')
+        return [nav_link_class(pathname, link['id']) for link in NAV_LINKS]
