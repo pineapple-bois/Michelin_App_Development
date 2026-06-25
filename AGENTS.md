@@ -8,13 +8,13 @@ This file is for future agents working on the Michelin Dash app. It documents th
 
 - Current Heroku entrypoint: `Procfile` runs `gunicorn michelin_app:server`.
 - Current Python marker: `.python-version` contains `3.12`.
-- Current README local setup still says Python `3.9`. Treat this as drift and resolve it before depending on either version.
+- README local setup should stay aligned with Python `3.12` unless the runtime marker changes deliberately.
 - Native GIS packages are declared in `Aptfile`: `gdal-bin` and `libgdal-dev`.
 - Python dependencies are pinned in `requirements.txt`.
 - Main environment variables:
   - `OPENAI_API_KEY`: used by the Wine page summary callback.
-  - `FLASK_SECRET_KEY`: used for Flask sessions. If absent, the app generates a random secret at import time.
-- Local development currently runs with `python michelin_app.py`, but HTTPS redirection is hardcoded and the README tells developers to comment it out. Prefer making that config-driven before deeper refactors.
+  - `FLASK_SECRET_KEY`: used for Flask sessions. It is required in production and optional in local development.
+- Local development runs with `python michelin_app.py`; HTTPS redirection is config-driven and disabled by default outside production/Heroku.
 
 ## Current Architecture
 
@@ -25,6 +25,7 @@ This file is for future agents working on the Michelin Dash app. It documents th
 - imports data from `assets/Data`
 - creates the Flask `server`
 - creates the Dash `app`
+- imports runtime/path configuration from `app_config.py`
 - creates the OpenAI client
 - configures Flask session handling
 - configures `Flask-Caching`
@@ -221,9 +222,9 @@ Use `dash.callback` in page callback modules where practical, or register callba
 
 - The app has no Dash Pages setup yet. There is no `dash.register_page`, `dash.page_container`, or `use_pages=True`.
 - `suppress_callback_exceptions=True` currently hides missing component problems caused by pseudo-routing. Revisit it after pages are split.
-- There are two Flask `before_request` functions with the same Python name. Both are registered, but the naming is confusing.
-- HTTPS redirect is hardcoded and makes local development awkward. It should become environment-aware and proxy-aware.
-- Session request counts limit OpenAI calls to 10 per session. Random `FLASK_SECRET_KEY` fallback resets sessions on restart.
+- Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
+- HTTPS redirect is environment-aware and proxy-aware through `app_config.py` and `ProxyFix`. Keep it that way during later refactors.
+- Session request counts limit OpenAI calls to 10 per session by default. Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.
 - `Flask-Caching` uses `CACHE_TYPE="simple"`, which is per-process memory. It is not shared across Gunicorn workers or Heroku dynos.
 - The Wine callback uses both `@cache.memoize` and manual `cache.get/cache.set`. Prefer one cache boundary keyed by wine region.
 - The OpenAI client is created at import time. Missing or invalid `OPENAI_API_KEY` should be handled gracefully by the Wine page.

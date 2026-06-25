@@ -3,6 +3,16 @@
 
 # Ignore environment files
 .env
+.venv/
+venv/
+
+# Ignore Python-generated files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Ignore Development Folder
 /Development/

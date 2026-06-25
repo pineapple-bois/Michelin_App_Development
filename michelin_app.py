@@ -3,16 +3,16 @@ import geopandas as gpd
 import plotly.graph_objects as go
 import dash
 import dash_bootstrap_components as dbc
-import os
 import uuid
 from openai import OpenAI
-from dotenv import load_dotenv
 from dash import dcc, html, callback_context, no_update
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, ALL
 from flask import Flask, session, request, redirect
 from flask_caching import Cache
+from werkzeug.middleware.proxy_fix import ProxyFix
 
+from app_config import CONFIG
 from layouts.layout_main import get_main_layout, color_map, star_filter_section
 from layouts.layout_analysis import get_analysis_layout
 from layouts.layout_404 import get_404_layout
@@ -26,22 +26,22 @@ from utils.appFunctions import (plot_regional_outlines, plot_department_outlines
                                 generate_optimized_prompt)
 
 # Load restaurant data
-all_france = pd.read_csv("assets/Data/all_restaurants(arrondissements).csv")
+all_france = pd.read_csv(CONFIG.data_path("all_restaurants(arrondissements).csv"))
 # Load Monaco data (department_num is inferred 'int' by Pandas)
-all_monaco = pd.read_csv("assets/Data/monaco_restaurants.csv", dtype={'department_num': str})
+all_monaco = pd.read_csv(CONFIG.data_path("monaco_restaurants.csv"), dtype={'department_num': str})
 
 # Load regional GeoJSON data
-region_df = gpd.read_file("assets/Data/region_restaurants.geojson")
+region_df = gpd.read_file(CONFIG.data_path("region_restaurants.geojson"))
 # Load departmental GeoJSON data
-department_df = gpd.read_file("assets/Data/department_restaurants.geojson")
+department_df = gpd.read_file(CONFIG.data_path("department_restaurants.geojson"))
 # Load arrondissement GeoJSON data
-arron_df = gpd.read_file("assets/Data/arrondissement_restaurants.geojson")
+arron_df = gpd.read_file(CONFIG.data_path("arrondissement_restaurants.geojson"))
 # Load Paris GeoJSON data
-paris_df = gpd.read_file("assets/Data/paris_restaurants.geojson")
+paris_df = gpd.read_file(CONFIG.data_path("paris_restaurants.geojson"))
 # Load Monaco GeoJSON data (departmental aggregation)
-monaco_df = gpd.read_file("assets/Data/monaco_restaurants.geojson")
+monaco_df = gpd.read_file(CONFIG.data_path("monaco_restaurants.geojson"))
 # Load wine GeoJSON data
-wine_df = gpd.read_file("assets/Data/wine_regions_cleaned.geojson")
+wine_df = gpd.read_file(CONFIG.data_path("wine_regions_cleaned.geojson"))
 # wine_df = gpd.read_file("assets/Data/wine_regions_simplified.geojson")
 
 
@@ -84,15 +84,16 @@ dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department
 region_to_name = {region: region for region in geo_df['region'].unique()}
 
 
-load_dotenv()
 # Initialize openai with API key
 client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+    api_key=CONFIG.openai_api_key
 )
 
 # -----------------> App and server setup
 
 server = Flask(__name__)
+server.wsgi_app = ProxyFix(server.wsgi_app, x_proto=1, x_host=1)
+server.secret_key = CONFIG.flask_secret_key
 app = dash.Dash(
     __name__,
     suppress_callback_exceptions=True,
@@ -103,16 +104,15 @@ app = dash.Dash(
     server=server)
 
 
-# Comment out to launch locally (development)
 @server.before_request
-def before_request():
-    if not request.is_secure:
+def enforce_https_redirect():
+    if CONFIG.force_https and not request.is_secure:
         url = request.url.replace('http://', 'https://', 1)
         return redirect(url, code=301)
 
 
 @server.before_request
-def before_request():
+def ensure_session():
     # Ensure every session has a user_id,
     if 'user_id' not in session:
         # Regular users get a dynamically generated session ID
@@ -122,7 +122,7 @@ def before_request():
 
 def is_request_limit_exceeded():
     # Request limit for OpenAi API calls
-    REQUEST_LIMIT = 10
+    request_limit = CONFIG.openai_request_limit
 
     # Check if request_count exists in session
     if 'request_count' not in session:
@@ -130,19 +130,14 @@ def is_request_limit_exceeded():
 
     session['request_count'] += 1  # Increment request count
 
-    if session['request_count'] > REQUEST_LIMIT:
+    if session['request_count'] > request_limit:
         return True
     return False
 
 
-# Retrieve the Flask secret key from .env, or assign a default one
-secret_key = os.getenv('FLASK_SECRET_KEY', str(uuid.uuid4()))  # Generate a random key if none is found
-server.secret_key = secret_key  # Assign secret key for sessions
-
-
 # App set up
 app.title = 'Gastronomic Guide to France - pineapple-bois'
-app.index_string = open('assets/custom_header.html', 'r').read()
+app.index_string = CONFIG.asset_path("custom_header.html").read_text(encoding="utf-8")
 app.layout = html.Div([
     dcc.Store(id='selected-stars', data=[]),
     dcc.Store(id='available-stars', data=[]),  # will populate with star rating by department
@@ -154,10 +149,7 @@ app.layout = html.Div([
 ])
 
 # Initialize the cache (Maybe Redis or filesystem-based caching for production...?)
-cache = Cache(app.server, config={
-    'CACHE_TYPE': 'simple',
-    'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds (1 hour)
-})
+cache = Cache(app.server, config=CONFIG.cache_config)
 
 
 # Define callback to handle page navigation
@@ -1327,6 +1319,5 @@ def update_wine_info(clickData, wine_region_curve_numbers):
         return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
 
 
-# For local development, debug=True
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=CONFIG.debug)

@@ -147,18 +147,18 @@ cd Michelin_Guide_France
 
 ### Step 2: Create and Activate a Virtual Environment
 
-Make sure you’re using Python 3.9 for this project.
+Use Python 3.12 for this project. The repository declares this in `.python-version`, which is also the runtime marker used for Heroku builds.
 
 ```bash
 # Create a virtual environment (use venv or virtualenv)
-python3.9 -m venv venv
+python3.12 -m venv .venv
 
 # Activate the virtual environment
 # On macOS/Linux:
-source venv/bin/activate
+source .venv/bin/activate
 
 # On Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 ### Step 3: Install Required Dependencies
@@ -171,40 +171,52 @@ pip install -r requirements.txt
 
 Create a .env file in the root directory with the following:
 ```bash
-OPENAI_API_KEY=<Your-OpenAI-API-Key>
-FLASK_ENV=development
+APP_ENV=development
+FLASK_SECRET_KEY=<local-development-secret>
+OPENAI_API_KEY=<your-openai-api-key>
 ```
 
-### Step 5: Modify the Application for Local Development
+`FLASK_SECRET_KEY` is optional for local development. If it is omitted, the app creates a temporary development-only secret and logs a warning. Set it locally if you want sessions to survive app restarts.
 
-Before running the application locally, a few modifications are necessary to ensure it works in a local environment without SSL redirection and enables development features such as debugging.
+`OPENAI_API_KEY` is only needed for the Wine page's generated region summaries.
 
-1. **Disable HTTPS Redirection**:
+### Step 5: Run the Application Locally
 
-In [`michelin_app.py`](michelin_app.py), lines 77-81 contain a function that enforces HTTPS by redirecting HTTP requests to HTTPS. This is necessary for production environments but can cause issues when running the app locally. You can comment out these lines to prevent HTTPS enforcement:
+Local development no longer requires editing `michelin_app.py` to disable HTTPS redirects. HTTPS redirects are disabled by default outside production/Heroku. To run the app:
 
-```python
-# Comment out to launch locally (development)
-@server.before_request
-def before_request():
-    if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+```bash
+python michelin_app.py
 ```
 
-2.	**Enable Debugging Mode**:
+Then open:
 
-By default, the app is set to run in a production mode where debugging features are disabled. For local development, you can enable debugging by modifying lines 1240-41 of [`michelin_app.py`](michelin_app.py):
-
-
-```python
-# For local development, set debug=True
-if __name__ == '__main__':
-    app.run_server(debug=True)  # Change from debug=False to debug=True
+```text
+http://127.0.0.1:8050
 ```
-Setting `debug=True` enables useful features such as hot-reloading, which automatically restarts the server when changes are made to the code.
 
-Once these changes are made, the app will run locally on http://127.0.0.1:8050 without enforcing HTTPS
+To run locally with Dash debug mode:
+
+```bash
+DASH_DEBUG=true python michelin_app.py
+```
+
+### Heroku Configuration
+
+The Heroku entrypoint remains:
+
+```bash
+gunicorn michelin_app:server
+```
+
+Configure these app config vars for production:
+
+```bash
+heroku config:set APP_ENV=production --app <your-app-name>
+heroku config:set FLASK_SECRET_KEY=<stable-secret-value> --app <your-app-name>
+heroku config:set OPENAI_API_KEY=<your-openai-api-key> --app <your-app-name>
+```
+
+`FLASK_SECRET_KEY` is required in production. `FORCE_HTTPS` defaults to enabled when `APP_ENV=production` or when Heroku sets `DYNO`; set `FORCE_HTTPS=false` only for a non-production test deployment that intentionally serves HTTP.
 
 ---
 
