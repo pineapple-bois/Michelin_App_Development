@@ -1,363 +1,240 @@
-# Michelin App Modernisation Roadmap
-
-## Purpose
-
-This roadmap describes the work needed to turn the current pseudo-multipage Dash app into a true multipage app on the Heroku 24 deployment path, while preserving the existing visual design as much as possible.
-
-The primary product goal is to split the former combined `Analysis` page into three first-class pages:
-
-- `Analysis`: restaurant distribution, Michelin ranking, region, department, and arrondissement views.
-- `Economics`: socioeconomic and demographic exploration.
-- `Wine`: wine-region map, restaurant overlay, and OpenAI-powered region summaries.
-
-The first implementation pass should be architectural. Styling work should stay minimal unless a split page exposes a layout defect.
-
-## Current Repository Shape
-
-The deployed application is currently concentrated in a small number of large modules:
-
-- `michelin_app.py`: application entrypoint, Flask server setup, Dash Pages setup, cache setup, OpenAI client setup, and callback registration.
-- `app/app_config.py`: runtime configuration, repo-root/package paths, cache settings, Flask secret handling, debug/HTTPS flags, and Dash Pages folder path.
-- `app/app_data.py`: central restaurant/GeoJSON loading, schema checks, and existing derived dropdown/map lookup values.
-- `app/components/shared.py`: shared header, footer, visible nav metadata, Michelin icon helpers, and rating colours.
-- `app/callbacks/navigation.py`: global hamburger/menu and active-route callbacks registered by `michelin_app.py`.
-- `app/callbacks/guide.py`: Guide/Home page callbacks registered by `michelin_app.py`.
-- `app/callbacks/analysis.py`: core Analysis page callbacks registered by `michelin_app.py`.
-- `app/callbacks/economics.py`: Economics/Demographics page callbacks registered by `michelin_app.py`.
-- `app/callbacks/wine.py`: Wine/OpenAI page callbacks registered by `michelin_app.py`.
-- `app/pages/`: thin Dash Pages route modules for Guide, `/home` compatibility, Analysis, Economics, Wine, and the 404 fallback.
-- `app/layouts/layout_main.py`: Guide page layout plus main-page star filters.
-- `app/layouts/analysis.py`: Analysis page section builders and page layout.
-- `app/layouts/economics.py`: Economics page section builder and page layout.
-- `app/layouts/wine.py`: Wine page section builder and page layout.
-- `app/layouts/analysis_shared.py`: shared page shell and star-filter helpers for the analysis-style pages.
-- `app/layouts/layout_404.py`: 404 layout.
-- `app/utils/guide_figures.py`: Guide/Home map figure builders and outline helpers.
-- `app/utils/analysis_figures.py`: core Analysis figure builders and ranking helper.
-- `app/utils/economics_figures.py`: Economics/Demographics map, bar, and weighted-mean helpers.
-- `app/utils/wine_figures.py`: Wine-region map figure builder.
-- `app/utils/restaurant_cards.py`: restaurant detail/card rendering helper.
-- `app/utils/star_filters.py`: star-filter active-state helper.
-- `app/utils/wine_prompts.py`: Wine/OpenAI prompt construction helper.
-- `app/utils/locationMatcher.py`: fuzzy location lookup used by the Guide page.
-- `assets/`: CSS, client JS, custom Dash index template, images, CSV/GeoJSON data, and a tile style JSON.
-- `Procfile`: Heroku web command, `gunicorn michelin_app:server`.
-- `Aptfile`: native GIS packages, currently `gdal-bin` and `libgdal-dev`.
-- `requirements.txt`: pinned Python dependencies for Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and related libraries.
-
-Dash Pages now owns the routing shell. Analysis, Economics, and Wine are now separate public routes, and Phase 5 callback ownership is split by page callback module.
-
-Runtime application modules now live under the `app/` package. The root `michelin_app.py` entrypoint remains in place for Heroku and passes `CONFIG.pages_dir` to Dash so page discovery uses `app/pages/`. Root `assets/` and `assets/data/` remain unchanged.
-
-## Repository Change Map
-
-| Path | Current role | Migration action |
-| --- | --- | --- |
-| `.python-version` | Declares Python `3.12`. | Keep aligned with README and Heroku runtime expectations. |
-| `.gitignore` | Ignores `.env`, IDE files, `Development/`, and master wine GeoJSON. | Add bytecode/cache ignores before cleanup work. |
-| `.gitattributes` | Text normalization only. | No expected change. |
-| `Procfile` | Heroku web process, `gunicorn michelin_app:server`. | Keep stable unless the deployment module is intentionally renamed. |
-| `Aptfile` | Installs GDAL/native GIS packages for the Heroku geospatial build path. | Keep for now; remove only after dedicated Heroku build verification. |
-| `requirements.txt` | Pins Dash, Flask, GeoPandas/Pyogrio, Plotly, OpenAI, and runtime packages. | Keep package changes scoped; avoid unrelated upgrades mixed with routing changes. |
-| `README.md` | Product and local setup docs. | Keep current with runtime/config changes as the refactor progresses. |
-| `michelin_app.py` | App/server setup, callback registration, service clients, and root layout. | Shrink to deployment entrypoint plus app creation/registration. |
-| `app/app_config.py` | Runtime config, repo/package paths, cache/debug/HTTPS/OpenAI settings, and Dash Pages folder path. | Keep repo-root path calculation stable after the package move. |
-| `app/app_data.py` | Loads app data and builds existing derived lookup values. | Keep as the data boundary when callbacks move into page modules. |
-| `app/components/shared.py` | Shared header/footer, visible nav metadata, icon helpers, and rating colours. | Keep active-route metadata aligned with page modules. |
-| `app/callbacks/navigation.py` | Current hamburger/menu and active-route callbacks registered by `michelin_app.py`. | Keep as the navigation callback owner unless routing behavior changes. |
-| `app/callbacks/guide.py` | Current Guide/Home callbacks registered by `michelin_app.py`. | Keep as the Guide callback owner during later page splits. |
-| `app/callbacks/analysis.py` | Current core Analysis callbacks registered by `michelin_app.py`. | Keep as the Analysis callback owner; split figure helpers later. |
-| `app/callbacks/economics.py` | Current Economics/Demographics callbacks registered by `michelin_app.py`. | Keep as the Economics callback owner; split figure helpers later. |
-| `app/callbacks/wine.py` | Current Wine/OpenAI callbacks registered by `michelin_app.py`. | Keep as the Wine callback owner; split prompt/cache/service helpers later. |
-| `app/pages/*` | Dash Pages route wrappers for the current layouts. | Keep wrappers thin; move callback ownership later. |
-| `app/layouts/layout_main.py` | Guide layout plus main-page star filter. | Keep Guide-specific layout here until a dedicated layout split is worthwhile. |
-| `app/layouts/analysis.py` | Analysis page layout and section builders. | Keep IDs/classes stable; split figure helpers later. |
-| `app/layouts/economics.py` | Economics page layout and section builder. | Keep IDs/classes stable; split figure helpers later. |
-| `app/layouts/wine.py` | Wine page layout and section builder. | Keep IDs/classes stable; split wine service/prompt helpers later. |
-| `app/layouts/analysis_shared.py` | Shared page shell and star-filter helpers for Analysis/Economics/Wine layouts. | Keep as a small shared layout helper inside the app package. |
-| `app/layouts/layout_404.py` | 404 layout. | Convert to Dash Pages fallback or keep as not-found page. |
-| `app/utils/guide_figures.py` | Guide/Home map figure builders and outline helpers. | Keep behaviour stable; direct callback imports can move here next. |
-| `app/utils/analysis_figures.py` | Core Analysis figures and ranking helper. | Keep behaviour stable; direct callback imports can move here next. |
-| `app/utils/economics_figures.py` | Economics/Demographics map, bar chart, and weighted-mean helpers. | Keep behaviour stable; direct callback imports can move here next. |
-| `app/utils/wine_figures.py` | Wine-region map figure builder. | Keep behaviour stable; direct callback imports can move here next. |
-| `app/utils/restaurant_cards.py` | Restaurant detail/card rendering helper. | Keep card markup and classes stable. |
-| `app/utils/star_filters.py` | Shared star-filter active-state helper. | Keep callback output shape stable. |
-| `app/utils/wine_prompts.py` | Wine/OpenAI prompt construction helper. | Preserve prompt wording unless changing Wine behavior intentionally. |
-| `app/utils/locationMatcher.py` | Fuzzy city/department lookup. | Move or keep as service; add tests around accent/case matching. |
-| `assets/styles.css` | Main styling. | Preserve class names and avoid broad styling changes during routing migration. |
-| `assets/scroll-script.js` | Analysis/Economics/Wine nav scroll helper. | Revisit after page/callback ownership settles. |
-| `assets/custom_header.html` | Dash index template. | Keep unless route-specific meta tags become required. |
-| `assets/basicTileMap.json` | Custom map tile style with embedded tile key. | Decide whether key remains public/restricted or moves to config. |
-| `assets/data/*` | Deployed CSV/GeoJSON data. | Keep stable; centralize schema validation and dtype normalization. |
-| `assets/images/*` | Static images and demo GIFs. | Keep filenames lowercase and update app references with asset renames. |
-| `LICENSE.md` | Project license. | No expected change. |
-
-## Current Page Model
-
-Current public routes are registered with Dash Pages:
-
-- `/` and `/home`: Guide layout from `get_main_layout()`.
-- `/analysis`: restaurant distribution and rankings from `app/layouts/analysis.py`.
-- `/economics`: socioeconomic and demographic maps/charts from `app/layouts/economics.py`.
-- `/wine`: wine regions and generated wine-region notes from `app/layouts/wine.py`.
-- anything else: `get_404_layout()` through `app/pages/not_found_404.py`.
-
-Page titles can change later, but the route split now reflects the three distinct callback domains.
-
-## Current Package Architecture
-
-Use Dash Pages because the repo already uses Dash `2.18.1`, which supports first-class page registration. Keep the Heroku-facing `server` export stable so the current `Procfile` can continue to work.
-
-Current structure:
-
-```text
-michelin_app.py
-app/
-  __init__.py
-  app_config.py
-  app_data.py
-  pages/
-    guide.py
-    analysis.py
-    economics.py
-    wine.py
-    not_found_404.py
-  callbacks/
-    navigation.py
-    guide.py
-    analysis.py
-    economics.py
-    wine.py
-  components/
-    shared.py
-  layouts/
-    layout_main.py
-    analysis.py
-    economics.py
-    wine.py
-    analysis_shared.py
-    layout_404.py
-  utils/
-    guide_figures.py
-    analysis_figures.py
-    economics_figures.py
-    wine_figures.py
-    restaurant_cards.py
-    star_filters.py
-    wine_prompts.py
-    locationMatcher.py
-assets/
-  data/
-```
-
-`michelin_app.py` should become the small deployment entrypoint:
-
-- create Flask `server`
-- create Dash `app`
-- register cache, config, and callbacks
-- expose `server` for Gunicorn
-- optionally run the app locally under `if __name__ == "__main__"`
-
-The current file name can stay to avoid deployment churn.
-
-## Migration Phases
-
-### Phase 0: Baseline and Guardrails
-
-- Keep the supported Python runtime consistent across `.python-version`, `README.md`, and Heroku expectations.
-- Add a repeatable local smoke command before refactoring. At minimum, verify import, route layout creation, and callback registration.
-- Avoid committing generated bytecode. Local `__pycache__/` folders should remain ignored and disposable.
-- Treat the modified `assets/styles.css` WIP wine CSS as existing local work unless explicitly cleaned up.
-- Keep `Procfile` compatibility until the final deployment test passes.
-
-### Phase 1: App Factory, Config, and Data Boundary
-
-- Extract Flask/Dash creation into a small app factory or initializer.
-- Move environment handling into `app/app_config.py`.
-- Keep the environment-aware HTTPS redirect contract intact. Local development should not require commenting code out.
-- Move `OPENAI_API_KEY`, `FLASK_SECRET_KEY`, cache settings, and request limits into config.
-- Keep CSV/GeoJSON loading in `app/app_data.py`.
-- Preserve explicit string-like identifier checks for `department_num` and geographic `code` columns.
-- Use repository-relative `Path` objects rather than relying on the process working directory.
-
-### Phase 2: Shared Components
-
-- Header/footer, visible nav metadata, Michelin icon helpers, and rating colours now live in `app/components/shared.py`.
-- Visible navigation now includes Guide, Analysis, Economics, and Wine.
-- `/home` remains an active Guide alias.
-- `assets/scroll-script.js` maps the visible Analysis/Economics/Wine links to their current page anchors.
-- Keep CSS class names stable where possible to avoid unnecessary styling work.
-
-### Phase 3: True Multipage Routing
-
-- Dash Pages routing shell is in place:
-  - `dash.Dash(..., use_pages=True, ...)`
-  - `dash.register_page(...)` in `app/pages/`
-  - `dash.page_container` in the root layout
-- The old `display_page` callback has been removed.
-- Keep shared stores only when they are genuinely cross-page.
-- Move page-specific stores into the relevant page layout.
-- Preserve `/home` with the current compatibility page until external links are updated.
-- Decide whether `suppress_callback_exceptions=True` is still needed after page registration. Keep it only if callbacks are registered before page layouts are available.
-
-### Phase 4: Guide Page Extraction
-
-Guide page callbacks now live in `app/callbacks/guide.py` and are registered from `michelin_app.py` with `register_guide_callbacks(app, DATA)`:
-
-- search collapse and city matching
-- department dropdown population
-- main-page star filter state
-- restaurant sidebar detail updates
-- Paris arrondissement visibility
-- main map updates
-- centroid and map-view stores
-
-Keep Monaco handling explicit. It is currently included for the Guide page when the selected region is `Provence-Alpes-Côte d'Azur`.
-
-Navigation callbacks now live in `app/callbacks/navigation.py` and are registered from `michelin_app.py` with `register_navigation_callbacks(app)`. Visible navigation includes Guide, Analysis, Economics, and Wine, with `/home` still treated as a Guide active path.
-
-`suppress_callback_exceptions=True` was inspected during the navigation extraction and left enabled because callbacks are still registered separately from Dash Pages layout mounting.
-
-Core Analysis callbacks now live in `app/callbacks/analysis.py` and are registered from `michelin_app.py` with `register_analysis_callbacks(app, DATA)`. Economics callbacks now live in `app/callbacks/economics.py` and are registered from `michelin_app.py` with `register_economics_callbacks(app, DATA)`. Wine/OpenAI callbacks now live in `app/callbacks/wine.py` and are registered from `michelin_app.py` with `register_wine_callbacks(app, DATA, CONFIG, cache, client)`.
-
-### Phase 5: Split the Current Analysis Page
-
-`/analysis`, `/economics`, and `/wine` are real Dash Pages routes composed from page-specific layout modules:
-
-- `app/layouts/analysis.py`: `build_analysis_sections()`
-- `app/layouts/economics.py`: `build_economics_section()`
-- `app/layouts/wine.py`: `build_wine_section()`
-- `app/layouts/analysis_shared.py`: shared page shell and star-filter helpers
-
-The old combined `/analysis` public page was removed rather than retained as a compatibility route. `build_combined_analysis_content()` was removed because no public page or internal code uses the combined composition helper.
-
-Current page composition:
-
-- `Analysis` page:
-  - Michelin intro
-  - region distribution
-  - department distribution
-  - arrondissement distribution
-  - top restaurant rankings
-- `Economics` page:
-  - socioeconomic metric selector
-  - region/department demographic map
-  - demographic bar chart
-  - weighted-mean explanation
-  - optional starred restaurant overlay
-- `Wine` page:
-  - wine-region map
-  - optional regional outlines
-  - optional starred restaurant overlay
-  - OpenAI region summary panel
-  - generated-content disclaimer
-
-Phase 5 callback ownership is complete. Page-specific callbacks no longer live in `michelin_app.py`.
-
-The layout-module cleanup is also complete: the old large `app/layouts/layout_analysis.py` module has been removed rather than retained as a compatibility shim. This cleanup did not move callbacks; callback ownership remains in the dedicated `app/callbacks/*` modules.
-
-### Phase 6: Figure and Service Refactor
-
-Phase 6 utility cleanup is complete. The old mixed `app/utils/appFunctions.py` implementation is separated by purpose:
-
-- `app/utils/guide_figures.py`: Guide/Home map figure builders and outline helpers.
-- `app/utils/analysis_figures.py`: core Analysis figure builders and ranking helper.
-- `app/utils/economics_figures.py`: demographic/economic map, bar, and weighted-mean helpers.
-- `app/utils/wine_figures.py`: wine map helper.
-- `app/utils/restaurant_cards.py`: restaurant detail/card renderer.
-- `app/utils/star_filters.py`: star-filter active-state helper.
-- `app/utils/wine_prompts.py`: OpenAI/wine prompt helper.
-
-Callback modules now import directly from these purpose-specific modules. `app/utils/appFunctions.py` was removed because no code imports it after the direct-import cleanup.
-
-A good callback should mostly validate inputs, select data, call a figure/service helper, and return Dash outputs.
-
-### Phase 6.5: Package Move
-
-Package-level cleanup is complete:
-
-- Runtime modules now live under `app/`.
-- Root `michelin_app.py` remains the Heroku entrypoint for `gunicorn michelin_app:server`.
-- Dash Pages discovers `app/pages/` through `pages_folder=str(CONFIG.pages_dir)`.
-- `app/app_config.py` calculates the repository root from inside the package and keeps `assets/` plus `assets/data/` at the repository root.
-- Application imports use `app.*` paths rather than root-level `callbacks/`, `components/`, `layouts/`, `pages/`, or `utils/` packages.
-
-The next cleanup should revisit `suppress_callback_exceptions=True` and app-factory extraction if route/layout smoke tests remain stable.
-
-### Phase 7: Tests and Verification
-
-Initial pytest smoke-test machinery is now in place. Developers can install `requirements_dev.txt` and run `python -m pytest` from the repository root. The suite currently covers:
-
-- app import and Flask server export
-- non-empty Dash callback registration
-- route shell responses for `/`, `/home`, `/analysis`, `/economics`, `/wine`, and `/missing`
-- central data boundary loading for representative CSV and GeoJSON-backed objects
-- string-like identifier semantics for key department and arrondissement columns
-- layout construction and expected component IDs for Analysis, Economics, and Wine
-
-The pytest configuration limits collection to `tests/` so exploratory files under `Development/` are not treated as the supported test contract. These are smoke tests only: they do not require OpenAI credentials, do not call OpenAI, and do not perform browser or visual regression testing.
-
-Future targeted checks should add:
-
-- location matcher unit test for accent-insensitive matching
-- wine curve-number mapping test
-
-For visual regressions, use browser screenshots only after the routing split is stable.
-
-### Phase 8: Deployment Cleanup
-
-- Keep `gunicorn michelin_app:server` working or update `Procfile` in the same commit as the entrypoint change.
-- Document required Heroku config vars:
-  - `OPENAI_API_KEY`
-  - `FLASK_SECRET_KEY`
-  - any map tile key if it is moved out of `assets/basicTileMap.json`
-- Confirm native GIS dependencies still build on the Heroku 24 stack.
-- Confirm direct-loading each route works after deployment, not just client-side navigation.
-- Update `README.md` after the architecture lands.
-
-## Callback Split Reference
-
-Current callback ownership:
-
-| Current area | Current location | Target owner |
-| --- | --- | --- |
-| Dash Pages shell | `app/pages/*`, root layout in `michelin_app.py` | `app/pages/*` plus app setup |
-| Navigation | `app/callbacks/navigation.py` | `app/callbacks/navigation.py` |
-| Guide page | `app/callbacks/guide.py` | `app/callbacks/guide.py` |
-| Analysis distributions | `app/callbacks/analysis.py` | `app/callbacks/analysis.py` |
-| Rankings | `app/callbacks/analysis.py` | `app/callbacks/analysis.py` |
-| Economics/demographics | `app/callbacks/economics.py` | `app/callbacks/economics.py` |
-| Wine | `app/callbacks/wine.py` | `app/callbacks/wine.py` |
-
-Section-level layout builders for these pages now live in `app/layouts/analysis.py`, `app/layouts/economics.py`, and `app/layouts/wine.py`. Shared analysis-style layout helpers live in `app/layouts/analysis_shared.py`.
-
-## Known Risks and Decisions
-
-- Analysis, Economics, and Wine layout builders are split by module, but the sections still share CSS classes and star-filter conventions. Clean names only when visual behavior is covered by targeted checks.
-- `app/callbacks/wine.py` preserves the existing OpenAI client, cache, request-limit, and curve-number lookup behavior by dependency injection rather than recreating those services.
-- Several callbacks assume list inputs are never `None`. Clearing multi-select dropdowns can expose this.
-- `department_num` is compared as a string in several places. `app/app_data.py` now reads both restaurant CSVs with `dtype={"department_num": str}`; defer deeper normalization so leading-zero and Corsican code semantics remain unchanged.
-- Flask `before_request` hooks now have distinct names for HTTPS enforcement and session setup. Keep this clarity during later app-factory work.
-- There are duplicate Python callback function names. Dash has already registered the decorated callables, but this makes debugging harder.
-- `Flask-Caching` uses the in-process `SimpleCache` backend via the full backend class path. Legacy `CACHE_TYPE=simple` is normalized in config to avoid Flask-Caching's deprecated short-name initializer. Multiple Gunicorn workers or dynos will not share cache entries.
-- The wine callback uses both `@cache.memoize` and manual cache keys. Prefer one service-level cache keyed by wine region.
-- The wine map stores Plotly curve numbers and later maps them back to `wine_df` rows. Multi-polygon wine regions can make this fragile unless trace metadata is added.
-- The OpenAI client is created at import time. Missing `OPENAI_API_KEY` should degrade gracefully on the Wine page rather than failing unexpectedly.
-- `assets/basicTileMap.json` contains an embedded tile-service key. Decide whether this is intentionally public and restricted, or move it to config.
-- Local HTTPS behavior is now config-driven. Keep this contract intact during later routing work.
-- Fiona has been removed as a direct dependency; Pyogrio is the intended GeoPandas file I/O path. Keep `Aptfile` until Heroku build evidence shows native GDAL packages are unnecessary.
-- Data loading now lives in `app/app_data.py`; defer deeper data normalization so map/chart semantics stay unchanged.
-- Package-level cleanup is complete. Keep root `michelin_app.py` as the Heroku entrypoint unless the `Procfile` changes in the same deployment-focused PR.
-- Utility imports now target the purpose-specific `app/utils/*` modules directly. The old `app/utils/appFunctions.py` shim has been removed.
-
-## Definition of Done
-
-The migration is complete when:
-
-- `/`, `/analysis`, `/economics`, and `/wine` can be loaded directly, refreshed, and navigated through the header.
-- Existing Guide behavior still works, including city matching, Paris arrondissement handling, Monaco inclusion, star filtering, map zoom persistence, and restaurant detail clicks.
-- Analysis, Economics, and Wine pages preserve their current functional behavior after being split.
-- Local development does not require editing source code to disable HTTPS redirects.
-- Heroku still starts with Gunicorn and exposes the Flask `server`.
-- README and AGENTS documentation match the new structure.
-- No generated bytecode or local scratch files are committed.
+# Michelin App Styling and Content Modernisation Roadmap
+
+## Current Baseline
+
+The multipage Dash refactor is complete and deployed. Treat the current repository as the stable baseline:
+
+- `michelin_app.py` remains the Heroku/Gunicorn entrypoint and exports `server`.
+- Dash Pages owns routing through thin modules in `app/pages/`.
+- `/`, `/home`, `/analysis`, `/economics`, `/wine`, and the Dash Pages 404 fallback are current supported routes.
+- Guide, navigation, Analysis, Economics, and Wine callbacks live in dedicated modules under `app/callbacks/`.
+- Analysis, Economics, and Wine layouts live in `app/layouts/analysis.py`, `app/layouts/economics.py`, and `app/layouts/wine.py`.
+- Shared Analysis/Economics/Wine shell helpers live in `app/layouts/analysis_shared.py`.
+- Shared header, footer, nav metadata, and Michelin icon helpers live in `app/components/shared.py`.
+- `assets/styles.css` is the primary styling surface and should remain behaviour-preserving until the styling phase begins.
+
+The next phase is visual and content modernisation for the Analysis, Economics, and Wine pages. Preserve the Guide page unless shared styling changes expose a specific Guide issue.
+
+For detailed selector and CSS findings, see `STYLE_AUDIT.md`.
+
+## Design Direction
+
+The target tone is mature, restrained, editorial, and coherent while still feeling connected to Michelin, French geography, restaurants, and wine.
+
+- Use Michelin red as a disciplined accent rather than a dominant or repeated fill.
+- Reduce competing blue, pastel, and section-specific accent treatments.
+- Prefer warmer neutrals, quiet borders, restrained shadows, and consistent spacing.
+- Make text hierarchy feel editorial: clear page heading, section lead, controls, then chart/map output.
+- Make chart and map surroundings feel like analysis surfaces, not playful widgets.
+- Use subtler cards and panels only where they support scanning or grouping.
+- Keep filter and button states consistent across Analysis, Economics, and Wine.
+- Give Wine a refined atmosphere without novelty styling or gimmicks.
+
+## Styling/CSS Audit Findings
+
+`assets/styles.css` is organised roughly by global styles, header/nav, Guide, Analysis, Economics, Wine, responsive rules, then a commented Wine work-in-progress block. It is readable, but not yet a design system.
+
+High-level findings:
+
+- Repeated spacing values include `20px`, `30px`, `40px`, and `50px`, often applied page by page.
+- Repeated border radii include `5px` and `8px`, with no documented rule for when each is used.
+- Repeated shadows are limited but strong enough to make active controls feel heavier than the surrounding editorial layout.
+- Colour usage mixes Michelin red, Bootstrap blue, greys, and many commented pastel/debug colours.
+- Dropdown selected-value styles are page-specific: Analysis uses red while Economics uses blue.
+- Star filter button styling is duplicated across Guide and Analysis-style pages with dynamic class names.
+- Many Analysis/Economics/Wine containers use distinct class families even when they perform the same structural role.
+- Several active class names have no obvious CSS rule, and several CSS rules target classes that are currently absent or only present in commented WIP code.
+- There are many inline Dash `style={...}` widths and heights in the three target layouts; future styling work should either preserve them deliberately or migrate them into CSS in a behaviour-covered pass.
+
+The first styling PR should introduce organisation and shared conventions before changing the look aggressively.
+
+## Responsive/Media Query Findings
+
+There are two active breakpoints:
+
+- `@media screen and (max-width: 1400px)`
+- `@media screen and (max-width: 1250px)`
+
+These mostly adjust header height, header spacing, Guide layout, and some text sizes for Analysis-style pages. There is no dedicated small-mobile breakpoint.
+
+Important responsive issues to inspect visually before implementation:
+
+- Analysis graph/map pairs remain side-by-side by default and rely on fixed 50/50 widths.
+- Economics map/chart uses a fixed `750px` content height and 50/50 layout.
+- Wine map/LLM uses a 50/50 layout and the graph has inline `height: 700px`.
+- Controls often use 50/50 or 25/25/50 assumptions that may not stack gracefully on narrow screens.
+- The fixed header/footer plus `calc(100vh - ...)` layout may leave cramped vertical space on tablets and phones.
+- Several dropdown menus use z-index fixes that should be retested after any responsive changes.
+
+Responsive cleanup should consolidate breakpoints, define page-shell rules for tablet/mobile stacking, and only then tune page-specific exceptions.
+
+## Page-Level Findings
+
+### Analysis
+
+The Analysis page has the strongest data/editorial potential, but currently reads as a set of separate functional blocks rather than one composed article-like page.
+
+Findings:
+
+- Intro, region, department, arrondissement, and ranking sections use related but not unified spacing and hierarchy.
+- The Michelin rating explainer is useful but visually busy; it may need subtler layout and less icon repetition.
+- Region/department/arrondissement blocks repeat similar control and visual patterns with separate class names.
+- Graph/map pairs sit as equal-width technical panels rather than editorial analysis sections.
+- Ranking controls and output need stronger hierarchy and quieter empty-state treatment.
+- Inline widths on graph/map containers should be audited before CSS changes.
+
+Desired next outcome: a polished data/editorial page with consistent section rhythm, restrained control styling, and clear chart/map framing.
+
+### Economics
+
+The Economics page has credible subject matter but the current styling does not yet support that credibility consistently.
+
+Findings:
+
+- The explanatory text is strong enough to serve as a serious lead section, but typography and spacing should make it feel more authoritative.
+- Metric, granularity, add/remove, overlay, and star-filter controls need a clearer hierarchy.
+- Economics dropdown selected values use Bootstrap blue, which visually competes with the Michelin palette and separates the page from Analysis.
+- The weighted mean explanation is functionally useful but visually plain and should become a quiet explanatory note.
+- Map and bar chart sections use fixed height and side-by-side assumptions that need mobile/tablet review.
+
+Desired next outcome: a calm analytical page where demographic context feels rigorous, clear, and connected to the Michelin data.
+
+### Wine
+
+The Wine page should feel refined and atmospheric, but the current implementation is mostly utilitarian with a commented WIP styling block still present.
+
+Findings:
+
+- The page copy sets a refined tone, but controls, map, and generated-summary panel do not yet share a coherent visual language.
+- Wine controls combine outline selection, overlay toggle, and star filters in one row with inline widths.
+- The map/LLM split uses fixed 50/50 assumptions and an inline `700px` graph height.
+- Region summary output and generated-content disclaimer need a more polished, trustworthy treatment.
+- The commented WIP block at the end of `styles.css` should be deleted or revived intentionally during the styling cleanup, not left as background noise.
+
+Desired next outcome: a restrained, wine-editorial page with a polished map/summary relationship and subtle generated-content disclosure.
+
+## Proposed Work Phases
+
+### Phase 1: Styling Inventory and Safety Baseline
+
+- Keep behaviour unchanged.
+- Confirm direct route loads for `/analysis`, `/economics`, and `/wine`.
+- Capture desktop, tablet, and mobile screenshots before making style changes.
+- Decide the target viewport set for visual QA.
+- Record the current Guide screenshots so shared styling changes can be checked against regressions.
+- Identify unused or obsolete CSS selectors using static search and browser inspection.
+
+### Phase 2: CSS Organisation and Design Tokens
+
+- Reorganise `assets/styles.css` into documented sections without changing visual output where practical.
+- Add a small token section for colours, spacing, radii, typography scale, borders, and shadows.
+- Keep existing class names and component IDs.
+- Remove or archive obsolete commented debug/WIP blocks after confirming they are not needed.
+- Normalise comments so they describe current intent rather than past debugging.
+
+### Phase 3: Shared Analysis-Style Page Shell
+
+- Consolidate shared page-shell spacing, section headers, lead paragraphs, control rows, map/chart wrappers, and filter button states.
+- Keep layout modules and callbacks stable.
+- Prefer CSS changes over Python layout changes unless a layout assumption blocks responsive behaviour.
+- Preserve Guide-specific styling unless a shared selector currently affects it.
+
+### Phase 4: Analysis Page Modernisation
+
+- Create a calmer editorial rhythm for the intro and distribution sections.
+- Make section dividers and descriptions consistent.
+- Reduce visual busyness in the Michelin rating explainer.
+- Standardise graph/map container treatment.
+- Improve ranking empty state, controls, and result spacing.
+- Verify that arrondissement reveal/hide behaviour still reads correctly.
+
+### Phase 5: Economics Page Modernisation
+
+- Make the lead explanation visually credible and concise.
+- Unify dropdown and filter styling with the Analysis page.
+- Replace blue selected-value styling with a restrained system accent.
+- Improve weighted-mean note styling.
+- Review map/chart stacking and height behaviour across tablet and mobile.
+
+### Phase 6: Wine Page Modernisation
+
+- Establish a refined palette and atmospheric but quiet typography treatment.
+- Improve the map and generated summary panel relationship.
+- Style the OpenAI/generated-content disclosure as a subtle trust note.
+- Review the overlay controls and hidden star filter state.
+- Remove the obsolete commented Wine WIP CSS block once its useful ideas have been captured or rejected.
+
+### Phase 7: Responsive Consolidation
+
+- Consolidate breakpoints into a small documented set.
+- Add mobile-first or clearly layered rules for Analysis/Economics/Wine.
+- Stack graph/map and map/summary pairs gracefully on smaller viewports.
+- Verify dropdown menus, filter rows, and fixed header/footer interactions.
+- Avoid viewport-width font scaling; use stable type sizes and line heights.
+
+### Phase 8: Browser and Visual QA
+
+- Run the existing smoke tests if any Python, callback, route, or layout code changes.
+- Use browser screenshots for `/analysis`, `/economics`, `/wine`, and a Guide regression check.
+- Test desktop, tablet, and mobile widths.
+- Check first load, route navigation, dropdown open states, filter active/inactive states, map/chart rendering, Wine generated-content loading/error states, and 404 shell.
+- Compare screenshots against the pre-change baseline.
+
+### Phase 9: Deployment Checklist
+
+- Confirm `python -m pytest` passes if code was touched.
+- Confirm no component IDs, routes, callback signatures, dependencies, or deployment files changed unless explicitly intended.
+- Confirm `assets/styles.css` changes are scoped and documented.
+- Confirm direct route loads after deployment:
+  - `/`
+  - `/home`
+  - `/analysis`
+  - `/economics`
+  - `/wine`
+  - `/missing`
+- Confirm Heroku still starts through `gunicorn michelin_app:server`.
+- Confirm no untracked scratch files, generated bytecode, or accidental data files are staged.
+
+## Non-Goals
+
+- Do not redesign or reorganise the Guide page without a specific issue.
+- Do not change routes.
+- Do not change callbacks.
+- Do not change component IDs.
+- Do not change data loading.
+- Do not change dependencies.
+- Do not move packages or modules.
+- Do not alter deployment configuration.
+- Do not mix data/model/service rewrites with visual modernisation.
+- Do not introduce a new frontend framework.
+
+## Risks/Gotchas
+
+- Many callbacks return inline styles to hide/show sections and graphs; styling changes must not fight those returned styles.
+- Dynamic star-filter classes are used across Analysis, Department, Arrondissement, Demographics, and Wine.
+- Some page controls are hidden until callbacks reveal them; QA must cover hidden and visible states.
+- `assets/scroll-script.js` scrolls nav clicks to `analysis-content-top`, `demographics-content-top`, and `wine-content-top`.
+- Dropdown selectors use Dash/React-Select class names such as `.Select-value`; test after changing selected-value styling.
+- Fixed header/footer layout can interact badly with mobile viewport height.
+- Wine click handling remains curve-number based; visual changes should not change trace ordering or callback assumptions.
+- Plotly figures have their own colours and layout defaults in Python helpers; page CSS alone will not fully modernise chart styling.
+- `assets/basicTileMap.json` contains an embedded tile-service key; do not treat it as incidental styling.
+- `assets/data/wine_regions_simplified.geojson` is currently untracked and should remain untouched unless explicitly requested.
+
+## Validation Checklist
+
+For documentation-only work:
+
+- Confirm Markdown files are readable.
+- Confirm no Python, CSS, callback, route, dependency, or deployment files changed.
+- No smoke tests are required if only documentation changed.
+
+For styling/content PRs:
+
+- Run `python -m pytest` if any Python code changes.
+- Capture before/after screenshots for `/analysis`, `/economics`, `/wine`, and `/`.
+- Verify desktop, tablet, and mobile layouts.
+- Verify dropdown open/selected states.
+- Verify star filter active/inactive states.
+- Verify Wine generated-summary loading, cached, missing-key, and request-limit states where practical.
+- Confirm direct route refresh works for every public route.
