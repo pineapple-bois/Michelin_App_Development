@@ -361,7 +361,7 @@ Use `dash.callback` in page callback modules where practical, or register callba
 - Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
 - HTTPS redirect is environment-aware and proxy-aware through `app/app_config.py` and `ProxyFix`. Keep it that way during later refactors.
 - Session request counts limit OpenAI calls to 10 per session by default. Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.
-- `Flask-Caching` uses `CACHE_TYPE="simple"`, which is per-process memory. It is not shared across Gunicorn workers or Heroku dynos.
+- `Flask-Caching` uses the in-process `SimpleCache` backend via the full backend class path. Legacy `CACHE_TYPE=simple` is normalized by `app/app_config.py` to avoid Flask-Caching's deprecated short-name initializer. It is not shared across Gunicorn workers or Heroku dynos.
 - The Wine callback uses both `@cache.memoize` and manual `cache.get/cache.set`. Prefer one cache boundary keyed by wine region after behavior is covered by tests.
 - The OpenAI client is created at import time. Missing or invalid `OPENAI_API_KEY` should be handled gracefully by the Wine page.
 - Fiona is no longer installed directly. If it reappears transitively, verify why before accepting the dependency.
@@ -403,6 +403,15 @@ After changing architecture, run at least:
 ```bash
 python -m py_compile michelin_app.py app/callbacks/navigation.py app/callbacks/guide.py app/callbacks/analysis.py app/callbacks/economics.py app/callbacks/wine.py app/layouts/layout_main.py app/layouts/analysis.py app/layouts/economics.py app/layouts/wine.py app/layouts/analysis_shared.py app/layouts/layout_404.py app/utils/guide_figures.py app/utils/analysis_figures.py app/utils/economics_figures.py app/utils/wine_figures.py app/utils/restaurant_cards.py app/utils/star_filters.py app/utils/wine_prompts.py app/utils/locationMatcher.py
 ```
+
+For the supported smoke-test harness:
+
+```bash
+pip install -r requirements_dev.txt
+python -m pytest
+```
+
+`pytest.ini` limits test discovery to `tests/`. The current pytest suite is intentionally lightweight: it imports the app, checks route shells, verifies central data objects load, and constructs the Analysis/Economics/Wine layouts without OpenAI credentials, browser automation, or visual regression checks.
 
 If dependencies are installed:
 

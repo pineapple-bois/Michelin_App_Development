@@ -14,6 +14,9 @@ DATA_DIR = ASSETS_DIR / "data"
 PAGES_DIR = PACKAGE_DIR / "pages"
 
 LOGGER = logging.getLogger(__name__)
+CACHE_TYPE_ALIASES = {
+    "simple": "flask_caching.backends.simplecache.SimpleCache",
+}
 
 
 def _env_bool(name, default=False):
@@ -31,6 +34,10 @@ def _env_int(name, default):
         return int(value)
     except ValueError as exc:
         raise RuntimeError(f"{name} must be an integer, got {value!r}") from exc
+
+
+def _cache_type(name):
+    return CACHE_TYPE_ALIASES.get(name.strip().lower(), name)
 
 
 def _detect_production():
@@ -107,7 +114,7 @@ def load_config():
         flask_secret_key=_get_secret_key(is_production),
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         openai_request_limit=_env_int("OPENAI_REQUEST_LIMIT", 10),
-        cache_type=os.getenv("CACHE_TYPE", "simple"),
+        cache_type=_cache_type(os.getenv("CACHE_TYPE", "simple")),
         cache_default_timeout=_env_int("CACHE_DEFAULT_TIMEOUT", 3600),
     )
 

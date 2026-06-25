@@ -211,6 +211,18 @@ To run locally with Dash debug mode:
 DASH_DEBUG=true python michelin_app.py
 ```
 
+### Development Smoke Tests
+
+Install the runtime and development test dependencies, then run pytest from the repository root:
+
+```bash
+pip install -r requirements.txt
+pip install -r requirements_dev.txt
+python -m pytest
+```
+
+These smoke tests import the app, exercise the Dash/Flask route shell, verify the central data boundary loads representative CSV and GeoJSON-backed objects, and construct the Analysis, Economics, and Wine layouts. They do not require OpenAI credentials, do not call OpenAI, and do not perform browser or visual regression testing. The harness is intended to protect future refactors, especially the later app-factory and module cleanup work.
+
 ### Heroku Configuration
 
 The Heroku entrypoint remains:

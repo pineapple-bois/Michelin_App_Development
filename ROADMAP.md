@@ -286,15 +286,21 @@ The next cleanup should revisit `suppress_callback_exceptions=True` and app-fact
 
 ### Phase 7: Tests and Verification
 
-Add lightweight checks before larger visual work:
+Initial pytest smoke-test machinery is now in place. Developers can install `requirements_dev.txt` and run `python -m pytest` from the repository root. The suite currently covers:
 
-- app import smoke test
-- page layout smoke tests for `/`, `/analysis`, `/economics`, `/wine`
-- callback registration smoke test
-- data loader schema checks for required CSV/GeoJSON columns
+- app import and Flask server export
+- non-empty Dash callback registration
+- route shell responses for `/`, `/home`, `/analysis`, `/economics`, `/wine`, and `/missing`
+- central data boundary loading for representative CSV and GeoJSON-backed objects
+- string-like identifier semantics for key department and arrondissement columns
+- layout construction and expected component IDs for Analysis, Economics, and Wine
+
+The pytest configuration limits collection to `tests/` so exploratory files under `Development/` are not treated as the supported test contract. These are smoke tests only: they do not require OpenAI credentials, do not call OpenAI, and do not perform browser or visual regression testing.
+
+Future targeted checks should add:
+
 - location matcher unit test for accent-insensitive matching
 - wine curve-number mapping test
-- route smoke checks against a local server
 
 For visual regressions, use browser screenshots only after the routing split is stable.
 
@@ -333,7 +339,7 @@ Section-level layout builders for these pages now live in `app/layouts/analysis.
 - `department_num` is compared as a string in several places. `app/app_data.py` now reads both restaurant CSVs with `dtype={"department_num": str}`; defer deeper normalization so leading-zero and Corsican code semantics remain unchanged.
 - Flask `before_request` hooks now have distinct names for HTTPS enforcement and session setup. Keep this clarity during later app-factory work.
 - There are duplicate Python callback function names. Dash has already registered the decorated callables, but this makes debugging harder.
-- `Flask-Caching` is configured as `simple`, which is per-process memory. Multiple Gunicorn workers or dynos will not share cache entries.
+- `Flask-Caching` uses the in-process `SimpleCache` backend via the full backend class path. Legacy `CACHE_TYPE=simple` is normalized in config to avoid Flask-Caching's deprecated short-name initializer. Multiple Gunicorn workers or dynos will not share cache entries.
 - The wine callback uses both `@cache.memoize` and manual cache keys. Prefer one service-level cache keyed by wine region.
 - The wine map stores Plotly curve numbers and later maps them back to `wine_df` rows. Multi-polygon wine regions can make this fragile unless trace metadata is added.
 - The OpenAI client is created at import time. Missing `OPENAI_API_KEY` should degrade gracefully on the Wine page rather than failing unexpectedly.
