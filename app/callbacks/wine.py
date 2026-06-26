@@ -164,7 +164,7 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         prompt = generate_optimized_prompt(wine_region)
         try:
             response = openai_client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4.1-mini",
                 messages=[{"role": "user","content": prompt}],
                 max_tokens=400
             )
