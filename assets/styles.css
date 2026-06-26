@@ -283,13 +283,9 @@ body {
 
 /* Main footer div with debug color */
 .footer-main {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    flex: 0 0 auto;
     height: 60px;
     width: 100%;
-    z-index: 1000;
     /*background-color: lightcoral; !* Debug color for visibility *!*/
     background-color: var(--color-surface);
     display: flex;
@@ -466,7 +462,7 @@ body {
     display: flex;
     width: 70%;
     margin-top: 10px;
-    margin-bottom: 60px;
+    margin-bottom: 0;
     justify-content: space-between; /* Ensures equal spacing */
 }
 
@@ -746,13 +742,13 @@ body {
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: calc(100vh - 60px); /* Subtracting footer height */
+    min-height: calc(100vh - 60px);
     padding-left: 50px;
 }
 
 .analysis-container {
     flex-grow: 1;
-    overflow-y: auto; /* Allow scrolling if content exceeds view */
+    overflow-y: visible;
     margin-top: 80px; /* Adjust for header */
 }
 

@@ -334,25 +334,16 @@ def get_top_ranking_section():
         className='ranking-content-wrapper',  # Wrapper for the entire section
         children=[
             html.Div(
-                className='ranking-header',
-                children=[
-                    "Most ",
-                    html.Span(michelin_star_header(2), className='star-group'),
-                    " , ",
-                    html.Span(michelin_star_header(3), className='star-group'),
-                    " & ",
-                    html.Span(green_star_header(), className='star-group'),
-                    " Restaurants",
-                ]
+                "Where are France’s top Michelin awards?",
+                className="ranking-header",
             ),
-            # Description section (100% width)
             html.Div(
-                className='ranking-description',
+                className="ranking-description",
                 children=[
-                    "Which parts of France boast multi Michelin-starred restaurants — and which are leading the way in sustainability?",
+                    "Compare regions, departments, and arrondissements by three-star, two-star, or Green Star restaurants.",
                     html.Br(),
-                    "Select a viewpoint. Discover the best."
-                ]
+                    "Choose a view and rating to update the list.",
+                ],
             ),
 
             # Dropdown and filter selection section (100% width, split between dropdowns)
