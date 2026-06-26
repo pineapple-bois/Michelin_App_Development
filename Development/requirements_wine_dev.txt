@@ -1,0 +1,16 @@
+# Optional dependencies for rerunning the Wine development notebooks.
+#
+# Keep this separate from ../requirements.txt: the deployed app should not need
+# Folium, AlphaShape, scikit-learn, or notebook display tooling to serve the
+# lightweight Wine page.
+
+-r ../requirements.txt
+
+alphashape
+branca
+folium
+ipykernel
+mapclassify
+matplotlib
+scikit-learn
+seaborn

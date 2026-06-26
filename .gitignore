@@ -28,3 +28,7 @@ __pycache__/
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# Development work
+/Development/Reference_Notebooks/
+
