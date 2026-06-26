@@ -1,306 +1,247 @@
-# Styling Audit: Analysis, Economics, and Wine
+# Style Audit: Editorial Pages
 
 ## Scope
 
-This audit is a documentation snapshot for the next styling phase. It does not prescribe code changes to make immediately, and it intentionally avoids changing layouts, callbacks, routes, component IDs, or dependencies.
+This audit reflects the current styling direction after the Analysis, Wine, and Economics editorial passes. It is a documentation snapshot for the next phase: shared class, wrapper, and responsive/media-query consolidation.
 
 Primary files inspected:
 
 - `assets/styles.css`
-- `assets/scroll-script.js`
 - `app/layouts/analysis.py`
 - `app/layouts/economics.py`
 - `app/layouts/wine.py`
 - `app/layouts/analysis_shared.py`
-- `app/components/shared.py`
-- `app/pages/analysis.py`
-- `app/pages/economics.py`
-- `app/pages/wine.py`
-- `app/callbacks/navigation.py`
+- `app/utils/restaurant_cards.py`
 
-## Current CSS Organisation
+This audit does not request app-code changes by itself. Keep callbacks, component IDs, routes, data loading, dependencies, and Plotly behavior stable unless a later task explicitly covers them.
 
-`assets/styles.css` has 1,993 lines. The active sections are broadly ordered as:
+## Current Design Language
 
-- global styles
-- header/nav
-- Guide city search and footer
-- Guide map/sidebar, restaurant details, and star filters
-- Analysis page shell and sections
-- Analysis dropdown and star-button styles
-- ranking section
-- Economics/Demographics section
-- Wine section
-- responsive styles
-- large commented Wine work-in-progress block
+The active direction is a mature editorial/report style:
 
-The file is not random, but it is also not yet a styling system. It mostly grew around page sections and feature work. The next cleanup should preserve behaviour while grouping shared rules, design tokens, page-specific rules, and responsive overrides more deliberately.
+- White paper sheet with very pale grey gutters.
+- Internal indentation so content never touches the sheet edge.
+- Plain, direct copy.
+- Quiet outline/accent controls.
+- Filled colour is acceptable for data visualizations, not for broad control slabs.
+- Michelin red is reserved for Michelin objects, rating controls, links, and reference accents.
+- Economic indicators use restrained slate/blue-grey rather than default bright blue or Michelin red.
+- Footer remains in normal document flow, not fixed over content.
 
-## Repeated Values and Patterns
+Avoid:
 
-### Colours
+- Cream, yellow, parchment, or stained-paper backgrounds.
+- Rounded dashboard cards.
+- Generic SaaS-style chart cards.
+- Drop shadows as hierarchy.
+- Tinted evidence panels.
+- Page-specific colour noise that competes with the maps and charts.
 
-Active and commented colour usage includes:
+## Current Implementation Summary
 
-- Michelin red: `#C2282D`
-- darker red hover: `#A01F25`
-- Bootstrap/link blue: `#007bff`, `#0056b3`
-- neutral greys: `#ddd`, `#ccc`, `#555`, `#666`, `#f0f0f0`, `#f5f5f5`, `#f7f7f7`, `#f8f8f8`
-- Michelin selected grey: `#808080`
-- many commented pastel/debug colours: `#fdf5e6`, `#d9edf7`, `#c8e6c9`, `#ffebee`, `#d9f7be`, `#ffe4e1`, `#cce5ff`
+`assets/styles.css` is now a 3,000+ line stylesheet with foundation tokens, global/header/Guide rules, Analysis-style page rules, Economics rules, Wine rules, several responsive blocks, and a deprecated commented Wine block at the end.
 
-The pastel/debug palette appears mostly in comments, but it still signals the old mental model and makes the stylesheet feel less mature. The active Economics selected dropdown styling uses blue and is the clearest live colour conflict with the Michelin-led palette.
+The design language is shared visually, but not yet fully shared structurally:
 
-### Spacing
+- `app/layouts/analysis_shared.py` provides the common `content-container`, `analysis-container`, header, footer, and dynamic star-filter helpers.
+- Analysis uses `#analysis-content-top` as the main page-scoped styling anchor.
+- Economics uses `#demographics-content-top` inside `.analysis-container`, with page-frame styling applied through `:has(...)`.
+- Wine uses `#wine-content-top` inside `.analysis-container`, with page-frame styling applied through `:has(...)`.
+- Many repeated behaviors are still implemented through page-specific selectors rather than shared primitive classes.
 
-Common values repeat across pages:
+Treat this as a consolidation opportunity, not as a reason to rewrite the stylesheet wholesale.
 
-- side gutters: `50px`, reduced to `30px` at the `1250px` breakpoint
-- section gaps: `20px`, `30px`, `40px`
-- control gaps: `20px`, `40px`
-- button padding: `5px`, `10px 20px`
+## Current Page State
 
-These should become named spacing conventions or at least documented CSS variables before visual redesign begins.
+### Analysis
 
-### Typography
+Current decisions:
 
-Current type scale is informal:
+- Starts directly with "Restaurant Distributions Across France."
+- No Michelin history/rating-system preamble.
+- Uses the white sheet, pale grey gutters, internal indentation, and max-width page frame.
+- Uses open chart/map evidence areas, not chart cards.
+- Uses outline/accent rating filters.
+- Uses recognisable but controlled rating colours.
+- Restaurant cards carry Guide-page identity in a denser Analysis form.
 
-- header title: `60px`, then `50px`
-- section/page headers: `25px`
-- subsection headers: `20px`
-- lead/description text: `18px`, reduced to `16px` at tablet width
-- controls: `16px`
-- footer/disclaimer text: `9px`, `10px`, `12px`
+Implementation notes:
 
-There is no dedicated editorial hierarchy for page title, section title, lead copy, control labels, chart notes, and empty states.
+- Primary styling is anchored under `#analysis-content-top`.
+- Section families remain page-specific: `region-*`, `department-*`, `arrondissement-*`, and `ranking-*`.
+- Chart/map pairs still rely partly on layout-level inline width/display styles.
+- Restaurant card markup comes from `app/utils/restaurant_cards.py`; Analysis-specific card styling is scoped under `#analysis-content-top`.
 
-### Borders, Shadows, Radii
+### Wine
 
-- Borders are mostly `1px solid #ddd`, `1px solid black`, or `1px solid #ccc`.
-- Active star controls use `box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.2)`.
-- Header dropdown uses `box-shadow: 0 4px 8px rgba(0,0,0,0.1)`.
-- Radii are usually `5px` or `8px`.
+Current decisions:
 
-The black section rules and heavy active-control shadow are likely contributors to a less refined visual feel.
+- Wine is map-led; the map should dominate desktop space.
+- The region information panel, generated summary, and disclaimer support the map rather than competing with it.
+- Wine rating buttons use the same rating colour language as Analysis.
+- White sheet, pale gutters, internal indentation, and no dashboard-card treatment apply here too.
 
-## Shared Class Groups
+Implementation notes:
 
-These are broadly shared or structural:
+- Primary styling is anchored through `.content-container:has(#wine-content-top)` and `.analysis-container:has(#wine-content-top)`.
+- The active wrapper classes are `wine-container`, `wine-restaurants-controls`, `wine-content-wrapper`, `wine-map`, and `wine-llm-output`.
+- The layout still contains inline width/display and graph-height styles that CSS overrides or works around.
+- The callback maps Plotly curve numbers back to wine regions. Styling work must not change trace ordering or click behavior.
+
+### Economics
+
+Current decisions:
+
+- Economics follows the Analysis page frame.
+- The page uses a civic/statistical colour language for regional indicators.
+- Metric choropleth and bar fills use a restrained slate/blue-grey palette.
+- Michelin red remains appropriate for links, Michelin/rating controls, and the mean/reference line.
+- Economics dropdown selected/hover states should stay slate/neutral rather than red or pink.
+
+Implementation notes:
+
+- Primary styling is anchored through `.content-container:has(#demographics-content-top)` and `.analysis-container:has(#demographics-content-top)`.
+- Page-specific classes include `demographics-container`, `demographics-filter-container`, `demographics-restaurants-controls`, `demographics-content-wrapper`, `demographics-map`, and `demographics-chart-mean`.
+- The Economics layout still contains inline width/display styles for the map/chart split and inline hidden/width behavior around star filters.
+- Plotly palette decisions live in `app/utils/economics_figures.py`; do not assume CSS tokens control the figure colours.
+
+## Styling System Findings
+
+### Tokens
+
+The stylesheet now has foundation tokens for brand red, neutrals, borders, control surfaces, focus rings, rating colours, Analysis page sheet values, and active-control shadow. These tokens are useful, but they are not yet a complete design system.
+
+Watchouts:
+
+- Rating colours are shared through CSS tokens for control styling.
+- Economics figure colours are defined in Python, not CSS.
+- Page-frame tokens are named with `analysis-*` even though the same sheet pattern is now used by Analysis, Economics, and Wine. Rename only in a dedicated consolidation task.
+
+### Shared and Page-Specific Selectors
+
+Actually shared today:
 
 - `.main-layout`
 - `.header`
-- `.header-container`
-- `.title-section`
-- `.year-text`
-- `.hamburger-menu`
-- `.nav-dropdown`
-- `.nav-link`
-- `.footer-main`
-- `.info-container`
 - `.content-container`
 - `.analysis-container`
 - `.button-show-details`
-- `.michelin-star`, `.bib-image`, `.green-star`
-- `.star-button-*`
-- `.star-filter-section-*`
-- `.star-filter-buttons-*`
+- dynamic star-filter classes from `analysis_shared.py`, such as `.star-button-analysis`, `.star-button-demographics`, and `.star-button-wine`
+- Michelin icon classes such as `.michelin-star`, `.bib-image`, and related inverted variants
 
-These should be treated carefully because changes may affect more than one page.
+Page-scoped today:
 
-## Page-Specific Class Groups
+- Analysis: `#analysis-content-top`, `region-*`, `department-*`, `arrondissement-*`, `ranking-*`.
+- Economics: `#demographics-content-top`, `demographics-*`, `dropdown-category-demographics-*`.
+- Wine: `#wine-content-top`, `wine-*`, `dropdown-granularity-wine`.
 
-### Guide
+Candidate shared primitives should be introduced carefully; do not claim these page-scoped classes are already shared.
 
-Mostly uses:
+### Dropdown and React Select Styling
 
-- `.main-content`
-- `.map-sidebar-container`
-- `.map-section`
-- `.sidebar-container`
-- `.city-match-*`
-- `.dropdowns-container-main`
-- `.star-filter-section`
-- `.restaurant-details-container`
-- `.star-ratings-container-main`
+Dropdown styling remains cascade-sensitive because Dash/React Select generates classes such as:
 
-The Guide page is not the target of the next redesign except for shared regressions.
+- `.Select-control`
+- `.Select-value`
+- `.Select-value-label`
+- `.Select-value-icon`
+- `.Select-option`
+- `.VirtualizedSelectFocusedOption`
+- `.VirtualizedSelectSelectedOption`
 
-### Analysis
+Current direction:
 
-Mostly uses:
+- Analysis dropdown chips are quiet metadata tags.
+- Economics metric/dropdown selected states are slate/neutral.
+- Wine dropdown controls use the restrained outline language.
 
-- `.michelin-text-container`
-- `.distribution-header`
-- `.distribution-section-header`
-- `.region-*`
-- `.department-*`
-- `.arrondissement-*`
-- `.ranking-*`
-- `.dropdown-region-analysis`
-- `.dropdown-department-analysis`
-- `.dropdown-arrondissement-analysis`
-- `.dropdown-granularity`
-- `.dropdown-ranking`
-- `.dropdown-star-ranking`
+Risk: broad `.analysis-container .Select-*` rules can unintentionally affect all three editorial pages. Keep page-specific overrides until a shared select primitive is tested across open, hover, selected, multi-chip, clear, and keyboard-focus states.
 
-The repeated region/department/arrondissement class families are candidates for shared section/control/visual wrapper rules.
+### Footer
 
-### Economics
+The footer should remain in normal document flow. Do not restore fixed or floating footer positioning. If gaps appear on Guide or other pages, fix the page-height/layout cause rather than making the footer overlay content again.
 
-Mostly uses:
+## Intended Shared Primitives to Investigate
 
-- `.demographics-container`
-- `.demographics-text-container`
-- `.demographics-header`
-- `.demographics-filter-container`
-- `.demographics-dropdown-container`
-- `.dropdown-category-demographics-selector`
-- `.dropdown-granularity-demographics`
-- `.dropdown-category-demographics`
-- `.demographics-restaurants-controls`
-- `.demographics-content-wrapper`
-- `.weighted-mean-explanation`
+These are candidates for future consolidation. Some exist only as repeated visual behavior today, not as shared classes.
 
-Only `.dropdown-category-demographics` has detailed selected-value styling. `.dropdown-category-demographics-selector` and `.dropdown-granularity-demographics` appear in layout code but have no obvious dedicated CSS rules.
+- Page sheet / page frame: white sheet, pale gutters, internal padding, max width.
+- Page intro / title block: compact title and short explanatory copy.
+- Section block: major section spacing and optional fine rule treatment.
+- Control row: label scale, compact spacing, wrapping behavior.
+- Dropdown/select styling: neutral outline, metadata chips, selected/hover/focus states.
+- Rating filter buttons: outline/accent buttons with rating-specific icon/accent colours.
+- Evidence area / map-chart pairing: open chart/map placement without cards or shadows.
+- Map-led layout: Wine-style map-dominant split with secondary support panel.
+- Restaurant card / guide-entry card: compact Guide-related entries for Analysis ranking output.
+- Notes and disclaimers: weighted-mean explanation, generated-content disclaimer, placeholder/default notes.
+- Normal-flow footer: shared footer placement without fixed positioning.
 
-### Wine
+Consolidation should begin by mapping current selectors to these primitives, then moving one primitive at a time.
 
-Mostly uses:
+## Responsive and Media-Query Findings
 
-- `.wine-container`
-- `.wine-text-container`
-- `.wine-header`
-- `.wine-text-paragraph`
-- `.wine-tagline-paragraph`
-- `.wine-restaurants-controls`
-- `.wine-map-outlines`
-- `.dropdown-granularity-wine`
-- `.wine-content-wrapper`
-- `.wine-map`
-- `.wine-llm-output`
-- `.wine-llm-text`
-- `.wine-title`
-- `.region-name-placeholder`
-- `.LLM-output`
-- `.disclaimer-content`
-- `.openai-logo`
-- `.disclaimer-text-ai`
+Active responsive rules are no longer limited to the old 1400px and 1250px breakpoints. The stylesheet now includes a mix of:
 
-`.wine-map-outlines` has a CSS rule, but `.dropdown-granularity-wine`, `.wine-map`, and `.wine-llm-text` have no obvious active dedicated CSS rules beyond surrounding wrappers and inline layout styles.
+- `max-width: 1400px`
+- `max-width: 1250px`
+- `max-width: 1200px`
+- `max-width: 1050px`
+- `max-width: 900px`
+- `max-width: 600px`
 
-## Obsolete, Unused, or Questionable Selectors
+Current risks:
 
-Candidates to verify in browser/static inspection before deleting:
+- Duplicated breakpoint intent across 1250px and 1200px rules.
+- Wine has a 1050px stacking breakpoint while Analysis/Economics use 900px for major stacking.
+- Sheet gutter and padding variables are updated in several responsive blocks.
+- Chart/map pairs can be constrained by inline widths and Plotly figure layout.
+- Dropdowns and multi-value chips can overflow if the sheet padding and control widths are too tight.
+- Rating button rows need to wrap or stay fixed depending on page context.
+- Restaurant card grids need predictable collapse from multi-column to one column.
+- Header fixed positioning and footer normal-flow spacing need to be checked together on small screens.
+- Plotly graph heights and colourbar/title space can require Python figure changes rather than CSS-only fixes.
 
-- `.dropdown-container` and `.ratings-container` appear in CSS but are not obvious in current target layout code.
-- `.dropdowns-container` appears as CSS but does not obviously match current Analysis ranking markup.
-- `.star-button-cuisine` and `.star-filter-section-cuisine` are included in shared star-button CSS groups but do not appear in current layout code.
-- `.header-button` appears in the 404 layout but has no obvious CSS rule.
-- `.footer-inline` appears in shared footer markup but has no obvious CSS rule.
-- `.restaurant-cards-container` appears in ranking utility output but has no obvious CSS rule.
-- `.default-message`, `.match-details`, `.city-match-container`, and `.no-match-message` appear in Guide callback output but have no obvious CSS rule.
-- `.restaurant-cuisine`, `.restaurant-price`, `.restaurant-address`, `.details-address`, `.details-location`, and `.details-website` appear in card markup but are mostly styled through parent/detail classes.
-- The final commented Wine WIP block duplicates active Wine selectors and should be removed or converted into intentional rules during cleanup.
+The next responsive pass should reduce duplicated page-specific rules only where the behavior is genuinely shared.
 
-Do not delete these solely from static search; some may be generated only after callback interactions.
+## Still-Valid Gotchas
 
-## Conflicts and Inconsistencies
+- Cascade risk is high in `assets/styles.css`; prefer scoped edits and final diff review.
+- Dash/React Select classes can change visual states beyond the selector that was edited.
+- `:has(...)` is currently part of the page-frame strategy. Test browser support and scope before relying on it more broadly.
+- Inline Dash `style={...}` props still define widths, display behavior, hidden states, and graph heights in the target layouts.
+- Callback-returned styles may override CSS for visibility and sizing.
+- Plotly figures have layout, colour, colourbar, and map constraints in Python helpers.
+- Wine map click handling is curve-number based and fragile if trace ordering changes.
+- The final commented Wine block is deprecated/pending review; do not revive it incidentally.
+- Guide is not the styling target, but shared header/footer/control selectors can still affect it.
 
-- `.container-style` is defined twice.
-- `.dropdown-style` is defined twice.
-- `.region-filter-title` is defined twice.
-- Guide and Analysis-style star filters use separate helper functions and overlapping concepts.
-- Layout files use inline `style` props for key dimensions, including 50/50 graph/map splits, hidden star filters, and Wine graph height.
-- Callback-returned styles also control visibility and graph dimensions, especially in Analysis, Economics, and Wine.
-- Analysis selected dropdown values use red; Economics selected dropdown values use blue.
-- Page sections use a mixture of `width: calc(100% - 50px)`, `padding-right: 50px`, and container-level padding.
-- Some layout comments still explain implementation history rather than current design intent.
+## High-Value Next Steps
 
-## Media Query Findings
+- Inventory actual class usage across `assets/styles.css`, the three target layouts, shared helpers, callbacks that return styles, and restaurant-card output.
+- Decide which page-frame selectors can become shared without widening scope to Guide.
+- Create or document shared primitive classes one at a time.
+- Consolidate responsive breakpoints around observed behavior, not a theoretical system.
+- Move repeated control-row and rating-filter behavior only after checking Analysis, Economics, and Wine active/hidden states.
+- Document any responsive problems that require layout or Plotly figure changes rather than forcing brittle CSS.
 
-Active breakpoints:
+## Changes That Should Wait
 
-- `max-width: 1400px`: header height/title size, body padding, Analysis top margin, Guide description and restaurant title sizes.
-- `max-width: 1250px`: Guide layout stacks sidebar above map, adjusts gutters, dropdown wrapping, Guide details/filter row, and reduces Analysis/Economics/Wine paragraph sizes.
+- Broad CSS reordering.
+- Splitting `assets/styles.css`.
+- Renaming many classes at once.
+- Removing inline layout styles without visual coverage.
+- Changing callbacks or component IDs.
+- Changing routes, data loading, dependencies, or deployment config.
+- Changing Wine map trace ordering or click behavior.
+- Redesigning Guide.
+- Reintroducing the Analysis preamble or rating explainer.
 
-No active smaller mobile breakpoint was found. The current `1250px` breakpoint is more tablet/medium-screen focused than mobile-focused.
+## Validation for Consolidation PRs
 
-Responsive risks:
-
-- Analysis graph/map pairs stay side-by-side unless Plotly or callback styles override them.
-- Economics map/chart is fixed at `height: 750px` and side-by-side.
-- Wine graph is inline `height: 700px` and paired side-by-side with the generated summary.
-- Control rows use fixed assumptions such as `width: 50%`, `width: 30%`, and `width: 20%`.
-- Fixed header/footer with content `calc(...)` heights should be tested on mobile browser chrome.
-
-## Visual Inconsistency by Page
-
-### Analysis
-
-Analysis is now the pilot for the mature editorial data-report style.
-
-Established decisions:
-
-- Use a white paper sheet with very pale grey gutters, internal indentation, and a centered max-width content area.
-- Do not use cream/yellow paper tones, dashboard cards, shadows, rounded chart boxes, or tinted evidence containers.
-- Begin directly with “Restaurant Distributions Across France”; the Michelin preamble and rating-system explainer are removed.
-- Keep copy plain and direct. Avoid “patterns,” “clusters,” “insights,” “recognition,” and “geography level.”
-- Controls use outline/accent styling; data visualizations may use filled colour.
-- Rating colours should be recognisable but controlled, neither garish nor muddy.
-- Restaurant cards should carry Guide-page identity in a denser Analysis form.
-- The footer should remain in normal document flow, not fixed over content.
-
-Remaining audit concern: responsive and media-query behaviour for the Analysis pattern should be consolidated before carrying the pattern to Economics and Wine.
-
-### Economics
-
-- Blue dropdown selected-state styling competes with the Michelin palette.
-- The metric explanation deserves a quieter, more credible note style.
-- The control area has several equally weighted elements, which weakens hierarchy.
-- Fixed height and split layout need responsive review.
-
-### Wine
-
-- Copy has a refined tone, but the controls and generated-summary panel are still plain.
-- Inline 50/50 layout and fixed map height may not produce a polished responsive experience.
-- The OpenAI disclaimer is useful but visually utilitarian.
-- The large commented WIP block makes it harder to see the intended current Wine styling.
-
-## Likely Causes of the Too-Colourful or Childish Feel
-
-- Michelin rating buttons use saturated fills as the primary filter affordance.
-- Blue Economics dropdown styling introduces a second strong accent system.
-- Comments and old debug pastel blocks make future changes likely to continue section-by-section colour thinking.
-- Active button shadows are relatively heavy.
-- Repeated icon rows and bright filter states compete with chart/map content.
-- Section spacing and typography are functional rather than editorial.
-
-## High-Value, Low-Risk Changes
-
-Good early styling tasks:
-
-- Add a CSS token section for colours, spacing, type sizes, radii, borders, and shadows.
-- Reorganise `styles.css` into current-state sections without changing selectors.
-- Remove verified-dead commented debug/WIP blocks, especially the final Wine block.
-- Harmonise selected dropdown value styling across Analysis/Economics/Wine.
-- Soften active filter shadows and button borders.
-- Standardise section headings, lead paragraphs, and body copy sizing.
-- Style the weighted mean explanation as a quiet note.
-- Add consistent wrappers for chart/map areas using existing class names.
-- Add mobile stacking rules for Analysis graph/map, Economics map/chart, and Wine map/summary.
-- Next implementation step: consolidate responsive/media-query behaviour for the established Analysis paper-sheet pattern before extending it to Wine and Economics.
-
-## Changes That Should Wait for Layout or Content Decisions
-
-Defer these until the user approves page-level direction:
-
-- Renaming CSS classes.
-- Moving inline Dash layout styles into CSS.
-- Reintroducing the Analysis Michelin preamble or rating-system explainer.
-- Changing page copy substantially outside the approved plain/direct Analysis direction.
-- Combining repeated region/department/arrondissement builders.
-- Changing Plotly figure colour palettes or map trace ordering.
-- Redesigning the Guide page.
-- Changing Wine generated-summary prompt wording.
-- Changing callback-driven visibility contracts.
+- Run `git diff --check`.
+- Run `python -m pytest` if Python or layout code changes.
+- Start the app when practical and inspect `/analysis`, `/economics`, and `/wine`.
+- Check `/`, `/home`, `/guide` if available, and `/missing` when shared shell/header/footer selectors change.
+- Inspect desktop, laptop, tablet, and phone widths.
+- Check for horizontal scroll, sheet padding, dropdown/chip overflow, chart/map stacking, Wine map dominance, restaurant card collapse, footer placement, and React Select hover/selected/focus states.
