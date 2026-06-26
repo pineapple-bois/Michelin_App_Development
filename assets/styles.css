@@ -90,18 +90,25 @@ body {
     display: flex;
     justify-content: space-between; /* Align title to the left, buttons to the right */
     align-items: center;
+    height: 100%;
     width: 100%; /* Take full width of the header */
 }
 
 .header-title {
     /*background-color: lightblue; !* Debug color for the title *!*/
     flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .title-section {
     font-family: "Kaisei Decol", serif;
     font-size: 60px;
-    margin-left: 50px;
+    line-height: 1;
+    margin: 0 0 0 50px;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
     color: var(--color-text-primary);
     font-weight: 400;
 }
@@ -117,6 +124,7 @@ body {
 /* Hamburger styles */
 .hamburger-menu {
     display: flex;
+    flex: 0 0 auto;
     flex-direction: column;
     justify-content: space-between;
     width: 24px;
@@ -785,6 +793,11 @@ body {
     margin-right: auto;
 }
 
+.editorial-page-frame .editorial-page-title {
+    font-size: 25px;
+    line-height: 1.22;
+}
+
 #analysis-content-top {
     min-height: 0;
 }
@@ -1010,39 +1023,50 @@ body {
 #analysis-content-top .star-button-department,
 #analysis-content-top .star-button-arrondissement {
     --analysis-filter-accent: var(--rating-three-stars);
+    --analysis-icon-filter: var(--rating-three-stars-filter);
+    align-items: center;
     background-color: transparent !important;
     border: 1px solid var(--color-border-control) !important;
     border-bottom-color: var(--color-border-editorial) !important;
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    justify-content: center;
     color: var(--color-text-primary) !important;
     min-height: 30px;
     height: 30px;
     padding: 3px 5px;
     opacity: 1 !important;
     box-shadow: none !important;
+    white-space: nowrap;
+    width: 68px !important;
 }
 
 #analysis-content-top .star-button-analysis:has(.bib-image-invert),
 #analysis-content-top .star-button-department:has(.bib-image-invert),
 #analysis-content-top .star-button-arrondissement:has(.bib-image-invert) {
     --analysis-filter-accent: var(--rating-bib-gourmand);
+    --analysis-icon-filter: var(--rating-bib-gourmand-filter);
 }
 
 #analysis-content-top .star-button-analysis:has(.michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert)),
 #analysis-content-top .star-button-department:has(.michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert)),
 #analysis-content-top .star-button-arrondissement:has(.michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert)) {
     --analysis-filter-accent: var(--rating-one-star);
+    --analysis-icon-filter: var(--rating-one-star-filter);
 }
 
 #analysis-content-top .star-button-analysis:has(.michelin-star-invert + .michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert)),
 #analysis-content-top .star-button-department:has(.michelin-star-invert + .michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert)),
 #analysis-content-top .star-button-arrondissement:has(.michelin-star-invert + .michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert)) {
     --analysis-filter-accent: var(--rating-two-stars);
+    --analysis-icon-filter: var(--rating-two-stars-filter);
 }
 
 #analysis-content-top .star-button-analysis:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert),
 #analysis-content-top .star-button-department:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert),
 #analysis-content-top .star-button-arrondissement:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert) {
     --analysis-filter-accent: var(--rating-three-stars);
+    --analysis-icon-filter: var(--rating-three-stars-filter);
 }
 
 #analysis-content-top .star-button-analysis .michelin-star-invert,
@@ -1051,16 +1075,16 @@ body {
 #analysis-content-top .star-button-analysis .bib-image-invert,
 #analysis-content-top .star-button-department .bib-image-invert,
 #analysis-content-top .star-button-arrondissement .bib-image-invert {
-    filter: none !important;
+    filter: var(--analysis-icon-filter) !important;
+    flex: 0 0 auto;
 }
 
 #analysis-content-top .star-filter-section-analysis .star-button-analysis.active,
 #analysis-content-top .star-filter-section-department .star-button-department.active,
 #analysis-content-top .star-filter-section-arrondissement .star-button-arrondissement.active {
     background-color: transparent !important;
-    border-color: var(--color-border-editorial) !important;
-    border-bottom-width: 2px !important;
-    border-bottom-color: var(--analysis-filter-accent) !important;
+    border-color: var(--analysis-filter-accent) !important;
+    border-bottom: 2px solid var(--analysis-filter-accent) !important;
     box-shadow: none !important;
 }
 
@@ -2336,11 +2360,12 @@ body {
     }
 
     .wine-header {
-        font-size: 22px;
+        font-size: 24px;
+        line-height: 1.24;
     }
 
     .wine-text-paragraph {
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .wine-restaurants-controls {
@@ -2371,7 +2396,7 @@ body {
     }
 
     .title-section {
-        font-size: 50px;
+        font-size: 52px;
     }
 
     .nav-dropdown {
@@ -2400,6 +2425,15 @@ body {
     }
 }
 
+/* Editorial responsive primitives: first shared layer for Analysis, Economics,
+   and Wine. Page-specific fallbacks remain below while this layer settles. */
+@media screen and (max-width: 1366px) {
+    :root {
+        --analysis-page-padding: 42px;
+        --analysis-page-gutter: 22px;
+    }
+}
+
 
 /* Media Query for screens smaller than 1250px (Tablet Layout) */
 @media screen and (max-width: 1250px) {
@@ -2419,6 +2453,7 @@ body {
     }
 
     .title-section {
+        font-size: 44px;
         margin-left: 30px;
     }
 
@@ -2611,7 +2646,7 @@ body {
     }
 
     .region-description {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .department-content-wrapper {
@@ -2619,7 +2654,7 @@ body {
     }
 
     .department-description {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .visible-section {
@@ -2627,7 +2662,7 @@ body {
     }
 
     .arrondissement-description {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .ranking-content-wrapper {
@@ -2636,7 +2671,7 @@ body {
     }
 
     .ranking-description {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .demographics-container {
@@ -2644,7 +2679,7 @@ body {
     }
 
     .demographics-text-paragraph {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .wine-container {
@@ -2652,7 +2687,190 @@ body {
     }
 
     .wine-text-paragraph {
-        font-size: 16px;
+        font-size: 15px;
+    }
+}
+
+/* Shared editorial responsive layer. These rules target the additive hooks used
+   by Analysis, Economics, and Wine; page-scoped media queries below keep any
+   remaining one-off behavior intact for this first consolidation pass. */
+@media screen and (max-width: 1024px) {
+    :root {
+        --analysis-page-padding: 30px;
+        --analysis-page-gutter: 14px;
+    }
+
+    .title-section {
+        font-size: 38px;
+    }
+
+    .editorial-page-frame .editorial-page-title {
+        font-size: 24px;
+    }
+
+    .editorial-page-frame {
+        padding-left: var(--analysis-page-gutter);
+        padding-right: var(--analysis-page-gutter);
+    }
+
+    .editorial-sheet {
+        padding-top: 30px;
+        padding-bottom: 40px;
+    }
+
+    .editorial-page-description,
+    .editorial-section-description {
+        max-width: 68ch;
+    }
+
+    .editorial-control-row {
+        gap: 10px 12px;
+    }
+
+    .editorial-control-group,
+    .editorial-select,
+    .editorial-action-button,
+    .editorial-rating-filters,
+    .editorial-note {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .editorial-select .Select-control {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    :root {
+        --analysis-page-padding: 24px;
+        --analysis-page-gutter: 10px;
+    }
+
+    .title-section {
+        font-size: 34px;
+        line-height: 1;
+    }
+
+    .editorial-page-frame .editorial-page-title {
+        font-size: 23px;
+    }
+
+    .editorial-sheet {
+        padding-top: 28px;
+        padding-bottom: 36px;
+    }
+
+    .editorial-control-row {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .editorial-control-group,
+    .editorial-select,
+    .editorial-action-button,
+    .editorial-rating-filters {
+        flex: 0 1 auto;
+        width: 100% !important;
+    }
+
+    .editorial-rating-filter-row {
+        flex-wrap: wrap;
+        margin-bottom: 0;
+    }
+
+    .editorial-rating-button {
+        width: auto !important;
+    }
+
+    .editorial-evidence--split,
+    .editorial-evidence--map-led {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .editorial-evidence--split > .editorial-chart,
+    .editorial-evidence--split > .editorial-map,
+    .editorial-evidence--map-led > .editorial-map,
+    .editorial-evidence--map-led > .editorial-info-panel {
+        display: block !important;
+        flex: 0 1 auto;
+        max-width: none;
+        min-width: 0;
+        width: 100% !important;
+    }
+
+    .editorial-evidence .dash-graph,
+    .editorial-evidence .js-plotly-plot,
+    .editorial-evidence .plot-container,
+    .editorial-evidence .svg-container {
+        max-width: 100% !important;
+    }
+
+    .editorial-info-panel {
+        border-left: 0;
+        border-top: 1px solid var(--color-border-subtle);
+        padding-left: 0;
+        padding-top: 16px;
+    }
+
+    .editorial-card-grid {
+        gap: 10px !important;
+    }
+
+    .editorial-guide-entry {
+        flex-basis: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --analysis-page-padding: 18px;
+        --analysis-page-gutter: 6px;
+    }
+
+    .title-section {
+        font-size: 28px;
+    }
+
+    .editorial-page-frame .editorial-page-title {
+        font-size: 22px;
+        line-height: 1.24;
+    }
+
+    .editorial-page-frame .editorial-page-description,
+    .editorial-page-frame .editorial-section-description {
+        font-size: 15px;
+        line-height: 1.45;
+    }
+
+    .editorial-action-button {
+        min-width: 0;
+        width: auto !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .title-section {
+        font-size: 20px;
+        margin-left: 16px;
+    }
+
+    .editorial-page-frame .editorial-page-title {
+        font-size: 20px;
+        line-height: 1.22;
+    }
+
+    .hamburger-menu {
+        margin-right: 16px;
+    }
+
+    .nav-dropdown {
+        margin-right: 16px;
     }
 }
 
@@ -2723,12 +2941,12 @@ body {
 
     .demographics-header {
         font-size: 22px;
-        line-height: 1.22;
+        line-height: 1.24;
         margin-bottom: 8px;
     }
 
     .demographics-text-paragraph {
-        font-size: 14px;
+        font-size: 15px;
         line-height: 1.45;
     }
 
@@ -2842,7 +3060,7 @@ body {
     #analysis-content-top .star-button-analysis,
     #analysis-content-top .star-button-department,
     #analysis-content-top .star-button-arrondissement {
-        width: auto !important;
+        width: 68px !important;
     }
 
     #analysis-content-top .toggle-details-container {
@@ -2916,7 +3134,7 @@ body {
     #analysis-content-top .distribution-header,
     #analysis-content-top .ranking-header {
         font-size: 22px;
-        line-height: 1.22;
+        line-height: 1.24;
         margin-bottom: 8px;
     }
 
@@ -2929,7 +3147,7 @@ body {
     #analysis-content-top .department-description,
     #analysis-content-top .arrondissement-description,
     #analysis-content-top .ranking-description {
-        font-size: 14px;
+        font-size: 15px;
         line-height: 1.45;
         margin-bottom: 12px;
     }
@@ -2943,7 +3161,7 @@ body {
     #analysis-content-top .star-button-analysis,
     #analysis-content-top .star-button-department,
     #analysis-content-top .star-button-arrondissement {
-        min-width: 38px;
+        min-width: 68px;
     }
 
     #analysis-content-top .button-show-details {
@@ -2959,6 +3177,14 @@ body {
         flex-basis: 100%;
         max-width: 100%;
         min-width: 0;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #analysis-content-top .distribution-header,
+    #analysis-content-top .ranking-header {
+        font-size: 20px;
+        line-height: 1.22;
     }
 }
 
