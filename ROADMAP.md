@@ -4,7 +4,7 @@
 
 The Dash Pages multipage app is the stable architecture baseline. The initial page-specific styling phase for Analysis, Wine, and Economics is substantially complete: all three pages now point toward the same mature editorial/report language, while Guide remains outside the redesign scope unless shared styling creates a specific regression.
 
-Current implementation is still mostly page-scoped. The visual direction is shared, but many wrappers and selectors remain specific to Analysis, Economics, or Wine. The next major work is therefore not another page-by-page visual pass; it is a careful shared-class and responsive/media-query consolidation phase.
+Current implementation now includes shared editorial page-frame hooks, control hooks, evidence/layout hooks, shared responsive rules, corrected header/banner scaling, shared editorial page title scaling, and shared rating filter treatment. The next major work is not another visual styling pass; it is CSS stabilisation and selective cleanup so the new shared hooks can safely replace duplicated page-specific CSS over time.
 
 For detailed selector findings and responsive risks, see `STYLE_AUDIT.md`.
 
@@ -49,60 +49,102 @@ For detailed selector findings and responsive risks, see `STYLE_AUDIT.md`.
 - Michelin red remains appropriate for Michelin objects, links, rating controls, and the reference/mean line.
 - Economics dropdown selected and hover states should stay slate/neutral, not red or pink.
 
-## Next Phase: Shared Class and Responsive Consolidation
+## Next Phase: CSS Stabilisation and Selective Cleanup
 
-Goal: identify common page primitives, reduce duplicated page-specific responsive CSS, and make future Analysis/Wine/Economics changes safer.
+### Purpose
 
-This phase should be incremental. Do not rename classes broadly, move callbacks, or reorganise layouts in one large sweep. Prefer one primitive at a time, with before/after visual checks on all affected pages.
+- Stabilise `assets/styles.css` after the editorial redesign and responsive/typography passes.
+- Use the shared hooks now available to reduce duplicated Analysis, Economics, and Wine CSS:
+  - `editorial-page-frame`, `editorial-sheet`, `editorial-page`, `editorial-page-title`, `editorial-page-description`, `editorial-section`
+  - `editorial-control-row`, `editorial-control-group`, `editorial-control-label`, `editorial-select`, `editorial-chip-select`, `editorial-action-button`, `editorial-rating-filters`, `editorial-rating-button`
+  - `editorial-evidence`, `editorial-evidence--split`, `editorial-evidence--map-led`, `editorial-chart`, `editorial-map`, `editorial-info-panel`, `editorial-note`, `editorial-card-grid`, `editorial-guide-entry`
+- Avoid broad rewrites, large selector moves, and speculative deletion.
+- Preserve the current Analysis, Economics, and Wine visuals.
+- Treat each cleanup PR as audit-first: identify redundant or conflicting rules before removing them.
 
-Candidate primitives to investigate:
+### Breakpoint Cleanup
 
-- page sheet / page frame
-- page intro / title block
-- section block
-- control row
-- dropdown/select styling
-- rating filter buttons
-- evidence area / map-chart pairing
-- map-led layout
-- restaurant card / guide-entry card
-- notes and disclaimers
-- normal-flow footer
+- Audit every `@media` block in `assets/styles.css`.
+- Group breakpoints by purpose:
+  - global/header
+  - editorial page frame
+  - Analysis
+  - Economics
+  - Wine
+  - Guide/Home/other
+- Identify duplicate or near-duplicate rules, especially around sheet padding, control wrapping, stacked evidence layouts, and mobile title handling.
+- Identify old breakpoints that may now be superseded by the shared responsive system around `1366`, `1024`, `768`, `600`, and `480` pixels.
+- Keep `1366px` and `1024px` as proper desktop/tablet layouts, not compressed mobile layouts.
+- Treat phones as minimal support: readable text, no horizontal overflow, no edge collisions.
 
-These are candidates for consolidation, not a claim that shared classes already exist for each primitive.
+### Typography Cleanup
 
-## Proposed Work Phases
+- Audit rules affecting:
+  - global app title/header title
+  - editorial page titles
+  - section headings
+  - page descriptions
+  - control labels
+- Identify rules that fight `.editorial-page-frame .editorial-page-title`.
+- Identify page-specific mobile overrides that may reintroduce old title sizes.
+- Keep the corrected header/banner scaling and shared editorial page-title scale as the current baseline.
+- Remove typography overrides only when visual QA confirms the shared rule already covers the page.
 
-### Phase 1: Current Selector Inventory
+### Rating Filter Cleanup
 
-- Audit active class names in `assets/styles.css` and the Analysis, Wine, and Economics layouts.
-- Identify which visual decisions are already shared by class and which are only repeated through page-specific selectors.
-- Record inline Dash `style={...}` values that constrain widths, heights, hidden states, or responsive behavior.
-- Keep component IDs, routes, callback signatures, Plotly figure logic, and data loading unchanged.
+- Audit selectors affecting rating buttons across Analysis, Economics, and Wine.
+- Decide which shared base styles can move under `.editorial-rating-button`.
+- Preserve page-specific layout differences where needed:
+  - Analysis rating layout and stacked wrapping
+  - Economics overlay/rating layout
+  - Wine fixed-size horizontal layout on desktop
+- Preserve rating colour semantics:
+  - Bib Gourmand: deep wine/purple
+  - 1 Star: warm gold
+  - 2 Stars: coral/salmon
+  - 3 Stars: controlled Michelin red
+- Keep outline/accent controls. Do not return to filled colour slabs or active shadows.
+- Be careful with callback-generated button class names and inline styles from `analysis_shared.py` and `app/utils/star_filters.py`.
 
-### Phase 2: Shared Primitive Plan
+### Page Frame and Sheet Cleanup
 
-- Choose a small shared naming scheme for editorial page primitives.
-- Map existing page-specific selectors to the proposed primitives before changing markup.
-- Decide where CSS-only grouping is enough and where a minimal layout class addition would reduce risk.
-- Keep Guide-specific styling separate unless a shared selector already affects it.
+- Identify duplicate page-frame, sheet, gutter, padding, and max-width rules now covered by `.editorial-page-frame` and `.editorial-sheet`.
+- Keep `:has(...)` scoping until there is a clearly safe replacement.
+- Do not remove scoping that protects Guide/Home from editorial page rules.
+- Do not rename `analysis-*` page-frame tokens until a dedicated token cleanup task covers naming and migration.
 
-### Phase 3: Responsive and Media-Query Consolidation
+### Evidence and Layout Cleanup
 
-- Consolidate toward a small documented breakpoint system while preserving current desktop appearance.
-- Reduce duplicated Analysis/Economics/Wine responsive rules where the layout behavior is the same.
-- Preserve the white sheet, pale gutters, and internal padding at laptop, tablet, and phone widths.
-- Ensure chart/map pairs, Wine map/details, dropdowns, chips, rating filters, and restaurant card grids stack cleanly.
-- Avoid viewport-width font scaling and avoid brittle Plotly CSS overrides.
+- Audit page-specific chart/map/map-led responsive rules now potentially covered by:
+  - `.editorial-evidence`
+  - `.editorial-evidence--split`
+  - `.editorial-evidence--map-led`
+  - `.editorial-chart`
+  - `.editorial-map`
+  - `.editorial-info-panel`
+- Identify what can be consolidated and what should remain page-specific.
+- Keep Wine map-led behavior distinct from Analysis/Economics split evidence.
+- Do not force CSS-only fixes where Plotly sizing, colourbars, or inline Dash styles require a separate layout or figure decision.
 
-### Phase 4: Browser and Visual QA
+### Risk Notes
 
-- Check `/analysis`, `/economics`, and `/wine` at desktop, laptop, tablet, and phone widths.
-- Check `/`, `/home`, `/guide` if available, and `/missing` for shared header/footer or shell regressions.
-- Verify dropdown open/selected states, rating filter active/inactive states, map/chart rendering, Wine map clicks, and footer placement.
-- Use screenshots for visual comparison whenever practical.
+Cleanup can break:
 
-### Phase 5: Deployment Checklist
+- Dash/React Select generated classes and their hover, selected, chip, and focus states.
+- Callback-generated star buttons and active/inactive class/style returns.
+- Wine map click behavior and trace ordering.
+- Plotly sizing, map heights, colourbars, and SVG/canvas layout.
+- Guide/Home shared cards, header, footer, and normal-flow page height.
+
+### Proposed Cleanup Order
+
+- PR A: remove only clearly superseded typography overrides after checking Analysis, Economics, Wine, Guide/Home, and missing route shells.
+- PR B: consolidate rating button base styles under `.editorial-rating-button`, keeping page-specific layout and rating-colour overrides.
+- PR C: remove duplicate sheet/page-frame rules where shared hooks safely cover them and `:has(...)` scoping still protects Guide/Home.
+- PR D: consolidate evidence responsive rules for split and map-led layouts while preserving Wine map dominance.
+- PR E: simplify media queries and remove dead/commented CSS only after visual QA confirms no regressions.
+
+## Ongoing Validation and Deployment Checklist
 
 - Run `python -m pytest` if any Python, callback, route, or layout code changes.
 - Run `git diff --check`.
