@@ -1,5 +1,17 @@
 import plotly.graph_objects as go
 
+
+ECONOMICS_METRIC_COLORSCALE = [
+    [0.0, "#EDF2F5"],
+    [0.35, "#C7D6DE"],
+    [0.68, "#8EACBB"],
+    [1.0, "#23485A"],
+]
+ECONOMICS_BAR_COLOR = "#4F7486"
+ECONOMICS_REFERENCE_RED = "#C2282D"
+ECONOMICS_REFERENCE_RED_DARK = "#A01F25"
+
+
 def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity='region', show_labels=True, cmap='Blues',
                                     restaurants=False, selected_stars=[1, 2, 3], zoom_data=None):
     """
@@ -38,6 +50,8 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
         3: "#C2282D"     # 3 stars
     }
 
+    metric_colorscale = ECONOMICS_METRIC_COLORSCALE if cmap == 'Blues' else cmap
+
     # Initialize Plotly figure for a map
     fig = go.Figure()
 
@@ -55,8 +69,12 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
                 geojson=df.__geo_interface__,
                 z=df[metric],
                 locations=df.index,
-                colorscale=cmap,
-                colorbar_title=metric_titles.get(metric, metric),
+                colorscale=metric_colorscale,
+                colorbar=dict(
+                    title="",
+                    tickfont=dict(color="#40545F", size=11),
+                    outlinewidth=0,
+                ),
                 marker_line_width=0.5,
                 marker_line_color='darkgray',
                 hovertemplate=hovertemplate,
@@ -219,7 +237,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
         y=df[granularity],
         x=df[metric],
         orientation='h',
-        marker=dict(color='#1f77b4'),
+        marker=dict(color=ECONOMICS_BAR_COLOR),
         hovertemplate=(
             f'<b>{granularity.capitalize()}:</b> %{{y}}<br>'
             f'<b>{metric_title}:</b> %{{x:.2f}}{metric_unit}<extra></extra>'
@@ -249,7 +267,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
                 x1=weighted_mean,
                 y0=-0.5,
                 y1=len(df[granularity]) - 0.5,
-                line=dict(color="red", width=2),
+                line=dict(color=ECONOMICS_REFERENCE_RED, width=1.5),
                 name='Weighted Mean'
             )
 
@@ -264,8 +282,8 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
                 arrowhead=2,
                 ax=-30,  # Horizontal offset for the annotation
                 ay=-30,  # Vertical offset for the annotation
-                font=dict(color="red", size=12),
-                arrowcolor="red"
+                font=dict(color=ECONOMICS_REFERENCE_RED_DARK, size=11),
+                arrowcolor=ECONOMICS_REFERENCE_RED
             )
         else:
             # If the weighted mean is out of range, show an annotation on the edge of the chart
@@ -276,7 +294,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
                 yref="paper",
                 text=f"French Mean: {weighted_mean:.2f} {metric_unit} (off-scale)",  # Indicate that it's off-scale
                 showarrow=False,  # No arrow needed
-                font=dict(color="red", size=12)
+                font=dict(color=ECONOMICS_REFERENCE_RED_DARK, size=11)
             )
 
     # Customize layout

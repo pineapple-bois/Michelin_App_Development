@@ -18,18 +18,18 @@ def get_demographics_content():
                 className='demographics-text-container',
                 children=[
                     html.Div(
-                        [
-                            "Michelin Stars and the Economic Health of France"
-                        ],
+                        "Michelin Restaurants and Regional Indicators",
                         className='demographics-header'
                     ),
                     html.Div(
                         [
-                            "We now turn our attention to key economic health metrics such as 'GDP per capita', 'poverty rate', and 'population density', with data sourced from the ",
-                            html.A("National Institute of Statistics and Economic Studies (INSEE)",
-                                   href="https://www.insee.fr/fr/accueil", target="_blank"),
-                            ". While these metrics offer insights into the economic fabric of each region, they are just one part of a much larger picture. "
-                            "Across France, patterns emerge that are influenced by a complex mix of factors—regional culture, economic conditions, and local identity to name a few. The observations that follow provide a starting point for deeper exploration."
+                            "Compare Michelin restaurants with regional data from ",
+                            html.A(
+                                "INSEE",
+                                href="https://www.insee.fr/fr/accueil",
+                                target="_blank"
+                            ),
+                            ". Choose a metric such as GDP per capita, poverty rate, or population density, then select regions to compare them on the map."
                         ],
                         className='demographics-text-paragraph'
                     ),
