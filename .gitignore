@@ -14,9 +14,6 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# Ignore Development Folder
-/Development/
-
 # Master GeoJSON for wine regions
 /assets/data/wine_regions.geojson
 
@@ -31,4 +28,7 @@ __pycache__/
 
 # Development work
 /Development/Reference_Notebooks/
-
+/Development/WineData/
+/Development/WineData/generated/
+/Development/_experiments/
+/Development/.matplotlib-cache/
