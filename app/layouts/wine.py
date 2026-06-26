@@ -24,18 +24,11 @@ def get_wine_content():
                     ),
                     html.Div(
                         [
-                            "France’s wine regions are as diverse and storied as its cuisine. Each one tells a different tale through its vineyards, grape varieties, and winemaking traditions. "
-                            "This tool offers a window into these regions, allowing you to explore their cultural significance and contribution to French gastronomy. "
-                            "By overlaying Michelin-starred restaurants, you can explore how the relationship between food and wine plays out across the country, adding new layers to your understanding of French culinary excellence."
+                            "Explore France’s wine regions on the map. Click a region to learn about its wines, grapes, and food traditions. ",
+                            "Overlay Michelin-starred restaurants to see which restaurants sit within or near each region."
                         ],
                         className='wine-text-paragraph'
                     ),
-                    html.Div(
-                        [
-                            html.I("Nunc est bibendum... À votre santé!"),
-                        ],
-                        className='wine-tagline-paragraph'
-                    )
                 ],
             ),
             # Restaurant selection div
