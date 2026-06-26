@@ -10,24 +10,24 @@ from app.layouts.analysis_shared import (
 
 def get_wine_content():
     return html.Div(
-        className='wine-container',
+        className='wine-container editorial-page',
         id='wine-content-top',
         children=[
             html.Div(
-                className='wine-text-container',
+                className='wine-text-container editorial-section',
                 children=[
                     html.Div(
                         [
                             "French Wine & Gastronomy"
                         ],
-                        className='wine-header'
+                        className='wine-header editorial-page-title'
                     ),
                     html.Div(
                         [
                             "Explore France’s wine regions on the map. Click a region to learn about its wines, grapes, and food traditions. ",
                             "Overlay Michelin-starred restaurants to see which restaurants sit within or near each region."
                         ],
-                        className='wine-text-paragraph'
+                        className='wine-text-paragraph editorial-page-description'
                     ),
                 ],
             ),
@@ -37,21 +37,21 @@ def get_wine_content():
                 children=[
                     # Wrapper for both button and star filter
                     html.Div(
-                        className='wine-restaurants-controls',
+                        className='wine-restaurants-controls editorial-control-row',
                         # Flexbox for side-by-side layout
                         children=[
                             # Region dropdown
                             html.Div(
-                                className='wine-map-outlines',
+                                className='wine-map-outlines editorial-control-group',
                                 children=[
-                                    html.H6("Show Regional Outlines"),
+                                    html.H6("Show Regional Outlines", className='editorial-control-label'),
                                     dcc.Dropdown(
                                         id='granularity-dropdown-wine',
                                         options=[
                                             {'label': 'Regional Outlines', 'value': 'region'},
                                         ],
                                         value=None,  # Default selection
-                                        className='dropdown-granularity-wine',
+                                        className='dropdown-granularity-wine editorial-select',
                                         multi=False,
                                         clearable=True
                                     )
@@ -60,19 +60,19 @@ def get_wine_content():
                             ),
                             # Toggle to show restaurant details
                             html.Div(
-                                className='toggle-details-container-wine',
+                                className='toggle-details-container-wine editorial-control-group',
                                 children=[
                                     dbc.Button(
                                         "Overlay Starred Restaurants",
                                         id='toggle-show-details-wine',
                                         n_clicks=0,
-                                        className='button-show-details'
+                                        className='button-show-details editorial-action-button'
                                     )
                                 ],
                             ),
                             # Star filter specific to wine page
                             html.Div(
-                                className='star-filter-container',
+                                className='star-filter-container editorial-control-group',
                                 id='star-filter-container-wine',
                                 children=[
                                     dcc.Store(id='selected-stars-wine', data=[]),
@@ -165,7 +165,7 @@ def build_wine_section():
 
 def build_wine_page_content():
     return html.Div(
-        className='analysis-container',
+        className='analysis-container editorial-sheet',
         children=[
             build_wine_section(),
         ]

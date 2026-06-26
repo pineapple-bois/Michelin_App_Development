@@ -760,24 +760,33 @@ body {
     margin-top: 80px; /* Adjust for header */
 }
 
-.content-container:has(#analysis-content-top) {
+.editorial-page-frame,
+.content-container:has(#analysis-content-top),
+.content-container:has(#demographics-content-top),
+.content-container:has(#wine-content-top) {
     background-color: var(--analysis-page-gutter-bg);
     box-sizing: border-box;
     padding-left: var(--analysis-page-gutter);
     padding-right: var(--analysis-page-gutter);
 }
 
-#analysis-content-top {
+.editorial-sheet,
+#analysis-content-top,
+.analysis-container:has(#demographics-content-top),
+.analysis-container:has(#wine-content-top) {
     background-color: var(--analysis-paper-bg);
     border-left: 1px solid var(--analysis-paper-border);
     border-right: 1px solid var(--analysis-paper-border);
     box-sizing: border-box;
     max-width: var(--analysis-page-max-width);
-    min-height: 0;
     padding: 34px var(--analysis-sheet-padding) 44px;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+}
+
+#analysis-content-top {
+    min-height: 0;
 }
 
 .clearfix::after {
@@ -1679,25 +1688,6 @@ body {
    Economics Page: Demographics Section Styling
    ------------------------- */
 
-.content-container:has(#demographics-content-top) {
-    background-color: var(--analysis-page-gutter-bg);
-    box-sizing: border-box;
-    padding-left: var(--analysis-page-gutter);
-    padding-right: var(--analysis-page-gutter);
-}
-
-.analysis-container:has(#demographics-content-top) {
-    background-color: var(--analysis-paper-bg);
-    border-left: 1px solid var(--analysis-paper-border);
-    border-right: 1px solid var(--analysis-paper-border);
-    box-sizing: border-box;
-    margin-left: auto;
-    margin-right: auto;
-    max-width: var(--analysis-page-max-width);
-    padding: 34px var(--analysis-sheet-padding) 44px;
-    width: 100%;
-}
-
 /* Wrapper to couple the main content and filter for demographics */
 .demographics-container {
     /*background-color: #e2f0f9; !* Light pastel blue *!*/
@@ -2021,25 +2011,6 @@ body {
 /* -------------------------
    Wine Section Styling
    ------------------------- */
-
-.content-container:has(#wine-content-top) {
-    background-color: var(--analysis-page-gutter-bg);
-    box-sizing: border-box;
-    padding-left: var(--analysis-page-gutter);
-    padding-right: var(--analysis-page-gutter);
-}
-
-.analysis-container:has(#wine-content-top) {
-    background-color: var(--analysis-paper-bg);
-    border-left: 1px solid var(--analysis-paper-border);
-    border-right: 1px solid var(--analysis-paper-border);
-    box-sizing: border-box;
-    max-width: var(--analysis-page-max-width);
-    padding: 34px var(--analysis-sheet-padding) 44px;
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-}
 
 .wine-container {
     padding-right: 0;

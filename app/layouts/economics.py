@@ -11,15 +11,15 @@ from app.layouts.analysis_shared import (
 
 def get_demographics_content():
     return html.Div(
-        className='demographics-container',
+        className='demographics-container editorial-page',
         id='demographics-content-top',
         children=[
             html.Div(
-                className='demographics-text-container',
+                className='demographics-text-container editorial-section',
                 children=[
                     html.Div(
                         "Michelin Restaurants and Regional Indicators",
-                        className='demographics-header'
+                        className='demographics-header editorial-page-title'
                     ),
                     html.Div(
                         [
@@ -31,19 +31,19 @@ def get_demographics_content():
                             ),
                             ". Choose a metric such as GDP per capita, poverty rate, or population density, then select regions to compare them on the map."
                         ],
-                        className='demographics-text-paragraph'
+                        className='demographics-text-paragraph editorial-page-description'
                     ),
                 ],
             ),
             # Demographics dropdowns
             html.Div(
-                className='demographics-filter-container',
+                className='demographics-filter-container editorial-control-row',
                 children=[
                     # Demographics dropdown
                     html.Div(
-                        className='demographics-dropdown-container',
+                        className='demographics-dropdown-container editorial-control-group',
                         children=[
-                            html.H6("Select a Socio-Economic Metric"),
+                            html.H6("Select a Socio-Economic Metric", className='editorial-control-label'),
                             dcc.Dropdown(
                                 id='category-dropdown-demographics',
                                 options=[
@@ -55,7 +55,7 @@ def get_demographics_content():
                                     {'label': 'Municipal Population', 'value': 'municipal_population'},
                                     {'label': 'Population Density (inhabitants/km²)', 'value': 'population_density(inhabitants/sq_km)'}
                                 ],
-                                className='dropdown-category-demographics-selector',
+                                className='dropdown-category-demographics-selector editorial-select',
                                 multi=False,
                                 clearable=True
                             )
@@ -63,15 +63,15 @@ def get_demographics_content():
                     ),
                     # Region dropdown
                     html.Div(
-                        className='demographics-dropdown-container',
+                        className='demographics-dropdown-container editorial-control-group',
                         children=[
-                            html.H6("Select a Region to Show Metric by Department"),
+                            html.H6("Select a Region to Show Metric by Department", className='editorial-control-label'),
                             dcc.Dropdown(
                                 id='granularity-dropdown-demographics',
                                 options=[{'label': 'All France', 'value': 'All France'}] + [
                                     {'label': region, 'value': region} for region in unique_regions],
                                 value='All France',  # Default selection
-                                className='dropdown-granularity-demographics',
+                                className='dropdown-granularity-demographics editorial-select',
                                 multi=False,
                                 clearable=False
                             )
@@ -79,18 +79,18 @@ def get_demographics_content():
                     ),
                     # Add or Remove Regions
                     html.Div(
-                        className='filter-container',
+                        className='filter-container editorial-control-group',
                         children=[
                             html.Div(
                                 id='demographics-add-remove',
                                 children=[
-                                    html.H5("Add or Remove Regions of France", className='region-filter-title'),
+                                    html.H5("Add or Remove Regions of France", className='region-filter-title editorial-control-label'),
                                     dcc.Dropdown(
                                         id='demographics-dropdown-analysis',
                                         options=[{'label': 'Select All', 'value': 'all'}] +
                                                 [{'label': region, 'value': region} for region in unique_regions],
                                         value=unique_regions,  # All regions selected by default
-                                        className='dropdown-category-demographics',
+                                        className='dropdown-category-demographics editorial-select editorial-chip-select',
                                         multi=True,  # Multi-select enabled
                                         clearable=True,
                                     ),
@@ -107,24 +107,24 @@ def get_demographics_content():
                 children=[
                     # Wrapper for both button and star filter
                     html.Div(
-                        className='demographics-restaurants-controls',
+                        className='demographics-restaurants-controls editorial-control-row',
                         # Flexbox for side-by-side layout
                         children=[
                             # Toggle to show restaurant details
                             html.Div(
-                                className='toggle-details-container-demographics',
+                                className='toggle-details-container-demographics editorial-control-group',
                                 children=[
                                     dbc.Button(
                                         "Overlay Starred Restaurants",
                                         id='toggle-show-details-demographics',
                                         n_clicks=0,
-                                        className='button-show-details'
+                                        className='button-show-details editorial-action-button'
                                     )
                                 ],
                             ),
                             # Star filter specific to analysis page
                             html.Div(
-                                className='star-filter-container',
+                                className='star-filter-container editorial-control-group',
                                 children=[
                                     dcc.Store(id='selected-stars-demographics', data=[]),
                                     star_filter_section(star_placeholder, filter_type="demographics", exclude_stars=[0.5]),
@@ -194,7 +194,7 @@ def build_economics_section():
 
 def build_economics_page_content():
     return html.Div(
-        className='analysis-container',
+        className='analysis-container editorial-sheet',
         children=[
             build_economics_section(),
         ]

@@ -31,7 +31,7 @@ def update_button_active_state_helper(n_clicks_list, ids, filter_type):
                                 f"0.6)")  # Lighter color for inactive
 
         # Update class name and style based on the active/inactive state
-        class_name = f"me-1 star-button-{filter_type}" + (" active" if is_active else "")
+        class_name = f"me-1 star-button-{filter_type} editorial-rating-button" + (" active" if is_active else "")
         color_style = {
             "display": 'inline-block',
             "width": '100%',

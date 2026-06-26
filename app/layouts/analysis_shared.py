@@ -38,7 +38,7 @@ def create_star_button(value, label, filter_type):
             'type': f'filter-button-{filter_type}',  # Dynamic ID based on filter type
             'index': value,
         },
-        className=f"me-1 star-button-{filter_type} active",  # Dynamic class name
+        className=f"me-1 star-button-{filter_type} editorial-rating-button active",  # Dynamic class name
         outline=True,
         style={
             'display': 'inline-block',
@@ -67,7 +67,7 @@ def star_filter_row(available_stars, filter_type, exclude_stars=None):
         available_stars = [star for star in available_stars if star not in exclude_stars]
     # Create a button for each available star rating
     buttons = [create_star_button(star, inverted_michelin_stars(star) if star != 0.5 else inverted_bib_gourmand(), filter_type) for star in available_stars]
-    return html.Div(buttons, className=f'star-filter-buttons-{filter_type}')  # Dynamic class
+    return html.Div(buttons, className=f'star-filter-buttons-{filter_type} editorial-rating-filter-row')  # Dynamic class
 
 
 def star_filter_section(available_stars=star_placeholder, filter_type="analysis", exclude_stars=None):
@@ -84,9 +84,9 @@ def star_filter_section(available_stars=star_placeholder, filter_type="analysis"
     """
     star_buttons = star_filter_row(available_stars, filter_type, exclude_stars=exclude_stars)
     return html.Div([
-        html.H6(f"Filter by Michelin Rating", className=f'star-select-title-{filter_type}'),  # Dynamic title
+        html.H6(f"Filter by Michelin Rating", className=f'star-select-title-{filter_type} editorial-control-label'),  # Dynamic title
         star_buttons
-    ], className=f'star-filter-section-{filter_type}', id=f'star-filter-{filter_type}')  # Dynamic ID and class
+    ], className=f'star-filter-section-{filter_type} editorial-rating-filters', id=f'star-filter-{filter_type}')  # Dynamic ID and class
 
 
 def get_analysis_page_layout(content):
@@ -102,7 +102,7 @@ def get_analysis_page_layout(content):
         children=[
             content,
         ],
-        className='content-container'
+        className='content-container editorial-page-frame'
     )
 
     footer = get_footer()
