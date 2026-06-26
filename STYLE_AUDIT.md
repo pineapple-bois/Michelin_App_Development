@@ -238,10 +238,20 @@ Responsive risks:
 
 ### Analysis
 
-- Strong black dividers and repeated icon panels make the page feel busy.
-- Section structure is repeated but not abstracted visually.
-- Graph/map presentation does not yet feel editorial.
-- Ranking empty state is plain compared with the rest of the section.
+Analysis is now the pilot for the mature editorial data-report style.
+
+Established decisions:
+
+- Use a white paper sheet with very pale grey gutters, internal indentation, and a centered max-width content area.
+- Do not use cream/yellow paper tones, dashboard cards, shadows, rounded chart boxes, or tinted evidence containers.
+- Begin directly with “Restaurant Distributions Across France”; the Michelin preamble and rating-system explainer are removed.
+- Keep copy plain and direct. Avoid “patterns,” “clusters,” “insights,” “recognition,” and “geography level.”
+- Controls use outline/accent styling; data visualizations may use filled colour.
+- Rating colours should be recognisable but controlled, neither garish nor muddy.
+- Restaurant cards should carry Guide-page identity in a denser Analysis form.
+- The footer should remain in normal document flow, not fixed over content.
+
+Remaining audit concern: responsive and media-query behaviour for the Analysis pattern should be consolidated before carrying the pattern to Economics and Wine.
 
 ### Economics
 
@@ -279,6 +289,7 @@ Good early styling tasks:
 - Style the weighted mean explanation as a quiet note.
 - Add consistent wrappers for chart/map areas using existing class names.
 - Add mobile stacking rules for Analysis graph/map, Economics map/chart, and Wine map/summary.
+- Next implementation step: consolidate responsive/media-query behaviour for the established Analysis paper-sheet pattern before extending it to Wine and Economics.
 
 ## Changes That Should Wait for Layout or Content Decisions
 
@@ -286,8 +297,8 @@ Defer these until the user approves page-level direction:
 
 - Renaming CSS classes.
 - Moving inline Dash layout styles into CSS.
-- Changing page copy substantially.
-- Reworking the Michelin rating explainer structure.
+- Reintroducing the Analysis Michelin preamble or rating-system explainer.
+- Changing page copy substantially outside the approved plain/direct Analysis direction.
 - Combining repeated region/department/arrondissement builders.
 - Changing Plotly figure colour palettes or map trace ordering.
 - Redesigning the Guide page.

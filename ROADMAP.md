@@ -30,6 +30,17 @@ The target tone is mature, restrained, editorial, and coherent while still feeli
 - Keep filter and button states consistent across Analysis, Economics, and Wine.
 - Give Wine a refined atmosphere without novelty styling or gimmicks.
 
+Established Analysis direction:
+
+- Analysis uses a clean white paper sheet with very pale grey gutters, internal indentation, and a centered max-width content area.
+- Avoid cream/yellow paper tones, dashboard cards, shadows, rounded chart boxes, and tinted evidence containers.
+- Analysis begins directly with “Restaurant Distributions Across France”; the Michelin history preamble and rating explainer are intentionally removed.
+- Copy should be plain and direct. Avoid analyst-speak such as “patterns,” “clusters,” “insights,” “recognition,” and “geography level.”
+- Controls use outline/accent styling. Data visualizations may use filled colour.
+- Rating colours should stay recognisable but controlled: neither garish nor muddy.
+- Analysis restaurant cards should carry Guide-page identity in a denser Analysis form.
+- The shared footer should remain in normal document flow, not fixed over page content.
+
 ## Styling/CSS Audit Findings
 
 `assets/styles.css` is organised roughly by global styles, header/nav, Guide, Analysis, Economics, Wine, responsive rules, then a commented Wine work-in-progress block. It is readable, but not yet a design system.
@@ -72,18 +83,17 @@ Responsive cleanup should consolidate breakpoints, define page-shell rules for t
 
 ### Analysis
 
-The Analysis page has the strongest data/editorial potential, but currently reads as a set of separate functional blocks rather than one composed article-like page.
+The Analysis page is the pilot for the mature editorial data-report pattern.
 
 Findings:
 
-- Intro, region, department, arrondissement, and ranking sections use related but not unified spacing and hierarchy.
-- The Michelin rating explainer is useful but visually busy; it may need subtler layout and less icon repetition.
-- Region/department/arrondissement blocks repeat similar control and visual patterns with separate class names.
-- Graph/map pairs sit as equal-width technical panels rather than editorial analysis sections.
-- Ranking controls and output need stronger hierarchy and quieter empty-state treatment.
+- The page now starts directly with “Restaurant Distributions Across France.”
+- Region, department, arrondissement, and ranking sections should keep the current paper-sheet, plain-copy, and restrained-control direction.
+- Graph/map areas should stay open and editorial; do not reintroduce dashboard cards, tinted evidence boxes, shadows, or rounded chart containers.
+- Ranking controls, result headings, and restaurant cards now define the denser Analysis form of the Guide identity.
 - Inline widths on graph/map containers should be audited before CSS changes.
 
-Desired next outcome: a polished data/editorial page with consistent section rhythm, restrained control styling, and clear chart/map framing.
+Desired next outcome: consolidate responsive and media-query behaviour for this Analysis pattern before carrying the pattern to Economics and Wine.
 
 ### Economics
 
@@ -150,6 +160,7 @@ Desired next outcome: a restrained, wine-editorial page with a polished map/summ
 
 ### Phase 5: Economics Page Modernisation
 
+- Wait until the Analysis responsive/media-query pattern is consolidated.
 - Make the lead explanation visually credible and concise.
 - Unify dropdown and filter styling with the Analysis page.
 - Replace blue selected-value styling with a restrained system accent.
@@ -158,6 +169,7 @@ Desired next outcome: a restrained, wine-editorial page with a polished map/summ
 
 ### Phase 6: Wine Page Modernisation
 
+- Wait until the Analysis responsive/media-query pattern is consolidated.
 - Establish a refined palette and atmospheric but quiet typography treatment.
 - Improve the map and generated summary panel relationship.
 - Style the OpenAI/generated-content disclosure as a subtle trust note.
@@ -166,10 +178,11 @@ Desired next outcome: a restrained, wine-editorial page with a polished map/summ
 
 ### Phase 7: Responsive Consolidation
 
+- Treat this as the next implementation step before extending the Analysis pattern to Wine and Economics.
 - Consolidate breakpoints into a small documented set.
 - Add mobile-first or clearly layered rules for Analysis/Economics/Wine.
 - Stack graph/map and map/summary pairs gracefully on smaller viewports.
-- Verify dropdown menus, filter rows, and fixed header/footer interactions.
+- Verify dropdown menus, filter rows, the fixed header, and the normal-flow footer.
 - Avoid viewport-width font scaling; use stable type sizes and line heights.
 
 ### Phase 8: Browser and Visual QA
@@ -215,7 +228,7 @@ Desired next outcome: a restrained, wine-editorial page with a polished map/summ
 - Some page controls are hidden until callbacks reveal them; QA must cover hidden and visible states.
 - `assets/scroll-script.js` scrolls nav clicks to `analysis-content-top`, `demographics-content-top`, and `wine-content-top`.
 - Dropdown selectors use Dash/React-Select class names such as `.Select-value`; test after changing selected-value styling.
-- Fixed header/footer layout can interact badly with mobile viewport height.
+- The header remains fixed; the footer should stay in normal document flow and must not overlay content.
 - Wine click handling remains curve-number based; visual changes should not change trace ordering or callback assumptions.
 - Plotly figures have their own colours and layout defaults in Python helpers; page CSS alone will not fully modernise chart styling.
 - `assets/basicTileMap.json` contains an embedded tile-service key; do not treat it as incidental styling.

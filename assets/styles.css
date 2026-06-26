@@ -2206,6 +2206,230 @@ body {
 }
 
 
+/* Analysis responsive consolidation: preserves the desktop paper sheet while
+   making the existing section structure stack cleanly on smaller screens. */
+@media screen and (max-width: 1200px) {
+    :root {
+        --analysis-page-padding: 28px;
+        --analysis-page-gutter: 14px;
+    }
+
+    #analysis-content-top {
+        padding-top: 30px;
+        padding-bottom: 40px;
+    }
+
+    #analysis-content-top .region-content-wrapper,
+    #analysis-content-top .department-content-wrapper,
+    #analysis-content-top #arrondissement-content-wrapper.visible-section,
+    #analysis-content-top .ranking-content-wrapper {
+        padding-bottom: 34px;
+    }
+
+    #analysis-content-top .ranking-controls {
+        gap: 10px 12px;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    :root {
+        --analysis-page-padding: 24px;
+        --analysis-page-gutter: 10px;
+    }
+
+    .content-container:has(#analysis-content-top) {
+        padding-left: var(--analysis-page-gutter);
+        padding-right: var(--analysis-page-gutter);
+    }
+
+    #analysis-content-top {
+        padding-top: 28px;
+        padding-bottom: 36px;
+    }
+
+    #analysis-content-top .region-description,
+    #analysis-content-top .department-description,
+    #analysis-content-top .arrondissement-description,
+    #analysis-content-top .ranking-description {
+        max-width: 68ch;
+    }
+
+    #analysis-content-top .department-content-wrapper::before,
+    #analysis-content-top #arrondissement-content-wrapper.visible-section::before,
+    #analysis-content-top .ranking-content-wrapper::before {
+        margin-bottom: 24px;
+    }
+
+    #analysis-content-top .region-controls,
+    #analysis-content-top .department-controls,
+    #analysis-content-top .arrondissement-controls,
+    #analysis-content-top .ranking-controls {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #analysis-content-top .region-filter-container,
+    #analysis-content-top .department-filter-container,
+    #analysis-content-top .arrondissement-filter-container,
+    #analysis-content-top .star-filter-container-region,
+    #analysis-content-top .star-filter-container-department,
+    #analysis-content-top .star-filter-container-arrondissement,
+    #analysis-content-top .granularity-filter-container,
+    #analysis-content-top .top-ranking-filter-container,
+    #analysis-content-top .rating-filter-container,
+    #analysis-content-top .toggle-details-container {
+        flex: 0 1 auto;
+        max-width: none;
+        min-width: 0;
+        width: 100%;
+    }
+
+    #analysis-content-top .star-filter-container-department,
+    #analysis-content-top .star-filter-container-arrondissement {
+        justify-content: flex-start;
+    }
+
+    #analysis-content-top .dropdown-region-analysis,
+    #analysis-content-top .dropdown-department-analysis,
+    #analysis-content-top .dropdown-arrondissement-analysis,
+    #analysis-content-top .dropdown-granularity,
+    #analysis-content-top .dropdown-ranking,
+    #analysis-content-top .dropdown-star-ranking {
+        width: 100%;
+    }
+
+    #analysis-content-top .star-filter-buttons-analysis,
+    #analysis-content-top .star-filter-buttons-department,
+    #analysis-content-top .star-filter-buttons-arrondissement {
+        flex-wrap: wrap;
+        margin-bottom: 0;
+    }
+
+    #analysis-content-top .star-button-analysis,
+    #analysis-content-top .star-button-department,
+    #analysis-content-top .star-button-arrondissement {
+        width: auto !important;
+    }
+
+    #analysis-content-top .toggle-details-container {
+        align-items: flex-start;
+        margin-top: 0;
+    }
+
+    #analysis-content-top .region-visuals,
+    #analysis-content-top .department-visuals,
+    #analysis-content-top .arrondissement-visuals {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    #analysis-content-top .region-graph,
+    #analysis-content-top .region-map,
+    #analysis-content-top .department-graph,
+    #analysis-content-top .department-map,
+    #analysis-content-top .arrondissement-graph,
+    #analysis-content-top .arrondissement-map {
+        display: block !important;
+        min-width: 0;
+        width: 100% !important;
+    }
+
+    #analysis-content-top .region-map,
+    #analysis-content-top .department-map,
+    #analysis-content-top .arrondissement-map {
+        border-left: 0;
+        border-top: 1px solid var(--color-border-subtle);
+        padding-top: 12px;
+    }
+
+    #analysis-content-top .dash-graph,
+    #analysis-content-top .js-plotly-plot,
+    #analysis-content-top .plot-container,
+    #analysis-content-top .svg-container {
+        max-width: 100% !important;
+    }
+
+    #analysis-content-top .ranking-main-content {
+        padding-top: 4px;
+    }
+
+    #analysis-content-top .restaurant-details {
+        flex-basis: calc(50% - 8px);
+        max-width: calc(50% - 8px);
+        min-width: 240px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --analysis-page-padding: 18px;
+        --analysis-page-gutter: 6px;
+    }
+
+    #analysis-content-top {
+        margin-top: clamp(148px, calc(268px - 20vw), 190px);
+        padding-top: 24px;
+        padding-bottom: 32px;
+    }
+
+    #analysis-content-top .region-content-wrapper,
+    #analysis-content-top .department-content-wrapper,
+    #analysis-content-top #arrondissement-content-wrapper.visible-section,
+    #analysis-content-top .ranking-content-wrapper {
+        padding-bottom: 30px;
+    }
+
+    #analysis-content-top .distribution-header,
+    #analysis-content-top .ranking-header {
+        font-size: 22px;
+        line-height: 1.22;
+        margin-bottom: 8px;
+    }
+
+    #analysis-content-top .distribution-section-header {
+        font-size: 18px;
+        line-height: 1.25;
+    }
+
+    #analysis-content-top .region-description,
+    #analysis-content-top .department-description,
+    #analysis-content-top .arrondissement-description,
+    #analysis-content-top .ranking-description {
+        font-size: 14px;
+        line-height: 1.45;
+        margin-bottom: 12px;
+    }
+
+    #analysis-content-top .department-content-wrapper::before,
+    #analysis-content-top #arrondissement-content-wrapper.visible-section::before,
+    #analysis-content-top .ranking-content-wrapper::before {
+        margin-bottom: 20px;
+    }
+
+    #analysis-content-top .star-button-analysis,
+    #analysis-content-top .star-button-department,
+    #analysis-content-top .star-button-arrondissement {
+        min-width: 38px;
+    }
+
+    #analysis-content-top .button-show-details {
+        min-width: 0;
+        width: auto;
+    }
+
+    #analysis-content-top .restaurant-cards-container {
+        gap: 10px !important;
+    }
+
+    #analysis-content-top .restaurant-details {
+        flex-basis: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
+
 
 /* -------------------------
    Deprecated / Pending Review: Commented Wine Styling Notes
