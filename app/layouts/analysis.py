@@ -91,10 +91,10 @@ def get_regions_section():
                 className='region-main-content',
                 children=[
                     html.Div(
-                        className='region-visuals',
+                        className='region-visuals editorial-evidence editorial-evidence--split',
                         children=[
                             html.Div(
-                                className='region-graph',
+                                className='region-graph editorial-chart',
                                 children=[
                                     dcc.Graph(
                                         id='restaurant-analysis-graph',
@@ -104,7 +104,7 @@ def get_regions_section():
                                 style={'width': '50%', 'display': 'inline-block'}
                             ),
                             html.Div(
-                                className='region-map',
+                                className='region-map editorial-map',
                                 children=[
                                     dcc.Graph(
                                         id='region-map',
@@ -178,10 +178,10 @@ def get_departments_section():
                 className='department-main-content',
                 children=[
                     html.Div(
-                        className='department-visuals',
+                        className='department-visuals editorial-evidence editorial-evidence--split',
                         children=[
                             html.Div(
-                                className='department-graph',
+                                className='department-graph editorial-chart',
                                 children=[
                                     dcc.Graph(
                                         id='department-analysis-graph',
@@ -190,7 +190,7 @@ def get_departments_section():
                                 ],
                             ),
                             html.Div(
-                                className='department-map',
+                                className='department-map editorial-map',
                                 children=[
                                     dcc.Graph(
                                         id='department-map',
@@ -268,10 +268,10 @@ def get_arrondissements_section():
                 className='arrondissement-main-content',
                 children=[
                     html.Div(
-                        className='arrondissement-visuals',
+                        className='arrondissement-visuals editorial-evidence editorial-evidence--split',
                         children=[
                             html.Div(
-                                className='arrondissement-graph',
+                                className='arrondissement-graph editorial-chart',
                                 children=[
                                     dcc.Graph(
                                         id='arrondissement-analysis-graph',
@@ -281,7 +281,7 @@ def get_arrondissements_section():
                                 style={'width': '50%', 'display': 'inline-block'}
                             ),
                             html.Div(
-                                className='arrondissement-map',
+                                className='arrondissement-map editorial-map',
                                 children=[
                                     dcc.Graph(
                                         id='arrondissement-map',
@@ -423,7 +423,7 @@ def get_top_ranking_section():
 
             # Main content for rankings (results section)
             html.Div(
-                className='ranking-main-content',
+                className='ranking-main-content editorial-evidence',
                 children=[
                     # Placeholder for ranking output (either restaurant details or ranking summary)
                     html.Div(

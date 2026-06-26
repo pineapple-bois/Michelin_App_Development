@@ -355,11 +355,14 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
         # Display restaurant details for this area if required
         if display_restaurants:
             restaurants_in_area = filtered_data[filtered_data[granularity] == area]
-            restaurant_cards = [get_restaurant_details(row) for _, row in restaurants_in_area.iterrows()]
+            restaurant_cards = [
+                get_restaurant_details(row, extra_class_name='editorial-guide-entry')
+                for _, row in restaurants_in_area.iterrows()
+            ]
 
             components.append(html.Div(
                 children=restaurant_cards,
-                className='restaurant-cards-container',
+                className='restaurant-cards-container editorial-card-grid',
                 style={'display': 'flex', 'flex-wrap': 'wrap', 'gap': '20px', 'margin-bottom': '40px',
                        'justify-content': 'center'}
             ))
@@ -400,11 +403,14 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
                 # Show detailed restaurant info for the tied areas if required
                 if display_restaurants:
                     restaurants_in_area = filtered_data[filtered_data[granularity] == area]
-                    restaurant_cards = [get_restaurant_details(row) for _, row in restaurants_in_area.iterrows()]
+                    restaurant_cards = [
+                        get_restaurant_details(row, extra_class_name='editorial-guide-entry')
+                        for _, row in restaurants_in_area.iterrows()
+                    ]
 
                     tied_components.append(html.Div(
                         children=restaurant_cards,
-                        className='restaurant-cards-container',
+                        className='restaurant-cards-container editorial-card-grid',
                         style={'display': 'flex', 'flex-wrap': 'wrap', 'gap': '20px', 'margin-bottom': '40px',
                                'justify-content': 'center'}
                     ))

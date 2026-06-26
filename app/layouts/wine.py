@@ -87,11 +87,11 @@ def get_wine_content():
 
             # Main Content for wine (Map + LLM Section)
             html.Div(
-                className='wine-content-wrapper',
+                className='wine-content-wrapper editorial-evidence editorial-evidence--map-led',
                 children=[
                     # Map section
                     html.Div(
-                        className='wine-map',
+                        className='wine-map editorial-map',
                         children=[
                             dcc.Graph(id='wine-map-graph',
                                       config={'displayModeBar': False},
@@ -104,7 +104,7 @@ def get_wine_content():
                     ),
                     # LLM output section
                     html.Div(
-                        className='wine-llm-output',
+                        className='wine-llm-output editorial-info-panel',
                         children=[
                             html.Div(
                                 className='wine-llm-text',
@@ -121,6 +121,7 @@ def get_wine_content():
                                             # Disclaimer div
                                             html.Div(
                                                 id="disclaimer-container",  # ID for the disclaimer div
+                                                className="editorial-note",
                                                 children=[
                                                     # Wrapper to hold the logo and the disclaimer text side by side
                                                     html.Div(

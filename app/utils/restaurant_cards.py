@@ -2,12 +2,13 @@ from dash import html
 
 from app.components.shared import bib_gourmand, color_map, green_star, michelin_stars
 
-def get_restaurant_details(row):
+def get_restaurant_details(row, extra_class_name=''):
     """
     Generate an HTML Div containing detailed information about a restaurant.
 
     Parameters:
         row (pd.Series or dict): A pandas Series or dictionary containing restaurant information.
+        extra_class_name (str): Optional additive class name for page-scoped hooks.
 
     Returns:
         details_layout (dash_html_components.Div): A Dash HTML Div containing the restaurant's details.
@@ -48,6 +49,10 @@ def get_restaurant_details(row):
 
     star_component = html.Span(components, className='restaurant-stars')
 
+    card_class_name = 'restaurant-details'
+    if extra_class_name:
+        card_class_name = f'{card_class_name} {extra_class_name}'
+
     # Create HTML content to display this information, organized in divs
     details_layout = html.Div([
         html.Div([
@@ -74,6 +79,6 @@ def get_restaurant_details(row):
             html.A("Visit Website", href=website_url, target='_blank',
                    className='restaurant-website', style={'display': 'block', 'marginTop': '10px'})
         ], className='details-website')
-    ], className='restaurant-details', style={'borderColor': border_color})
+    ], className=card_class_name, style={'borderColor': border_color})
 
     return details_layout

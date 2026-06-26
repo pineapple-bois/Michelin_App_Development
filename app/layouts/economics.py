@@ -138,11 +138,11 @@ def get_demographics_content():
 
             # Main Content for demographics (Map + Bar Chart)
             html.Div(
-                className='demographics-content-wrapper',
+                className='demographics-content-wrapper editorial-evidence editorial-evidence--split',
                 children=[
                     # Map section
                     html.Div(
-                        className='demographics-map',
+                        className='demographics-map editorial-map',
                         children=[
                             dcc.Graph(
                                 id='demographics-map-graph',
@@ -155,7 +155,7 @@ def get_demographics_content():
                     ),
                     # Bar chart section
                     html.Div(
-                        className='demographics-chart-mean',
+                        className='demographics-chart-mean editorial-chart',
                         id='demographics-chart-math',
                         children=[
                             html.Div(
@@ -168,7 +168,7 @@ def get_demographics_content():
                                 ],
                             ),
                             html.Div(
-                                className='weighted-mean-explanation',
+                                className='weighted-mean-explanation editorial-note',
                                 id='weighted-mean',
                                 children=[
                                     dcc.Markdown(
