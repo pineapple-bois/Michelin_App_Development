@@ -1,0 +1,11 @@
+region,region_slug,status,overlap_clip_enabled,buffer_dist_m,simplify_m,preferred_run_id,visual_notes,decision_notes
+Bordeaux,bordeaux,candidate,true,500,250,overlap_close500,Gironde remains clearly visible,Promising benchmark; final invalid geometries must be resolved before acceptance
+Alsace,alsace,benchmarking,,,,,,
+Bourgogne,bourgogne,not_started,,,,,,
+Loire,loire,not_started,,,,,,
+Rhône,rhone,not_started,,,,,,
+Languedoc-Roussillon,languedoc_roussillon,not_started,,,,,,
+Sud-Ouest,sud_ouest,not_started,,,,,,
+Savoie,savoie,not_started,,,,,,
+Jura,jura,not_started,,,,,,
+Corse,corse,not_started,,,,,,
