@@ -30,6 +30,31 @@ def collect_component_ids(component):
     return ids
 
 
+def find_component_by_id(component, target_id):
+    stack = [component]
+
+    while stack:
+        item = stack.pop()
+
+        if item is None:
+            continue
+
+        if isinstance(item, (list, tuple)):
+            stack.extend(item)
+            continue
+
+        if getattr(item, "id", None) == target_id:
+            return item
+
+        children = getattr(item, "children", None)
+        if isinstance(children, (list, tuple)):
+            stack.extend(children)
+        elif children is not None:
+            stack.append(children)
+
+    return None
+
+
 def test_analysis_layout_contains_expected_component_ids():
     component_ids = collect_component_ids(get_analysis_layout())
 
@@ -60,7 +85,8 @@ def test_economics_layout_contains_expected_component_ids():
 
 
 def test_wine_layout_contains_expected_component_ids():
-    component_ids = collect_component_ids(get_wine_layout())
+    layout = get_wine_layout()
+    component_ids = collect_component_ids(layout)
 
     assert {
         "wine-content-top",
@@ -73,3 +99,9 @@ def test_wine_layout_contains_expected_component_ids():
         "disclaimer-container",
     }.issubset(component_ids)
     assert "wine-region-curve-numbers" not in component_ids
+
+    outline_dropdown = find_component_by_id(layout, "granularity-dropdown-wine")
+    restaurant_button = find_component_by_id(layout, "toggle-show-details-wine")
+
+    assert getattr(outline_dropdown, "disabled", False) is False
+    assert restaurant_button.disabled is True

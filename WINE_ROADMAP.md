@@ -26,8 +26,6 @@ functionality, but it does not yet change OpenAI prompts or cache keys.
 
 Temporarily disabled UI:
 
-* regional-outline controls are disabled until outlines are restored as
-  separate non-interactive map layers;
 * restaurant overlay controls are disabled until restaurant traces are restored
   as separate overlays;
 * `selected-stars-wine` and `map-view-store` remain in place for compatibility
@@ -113,20 +111,20 @@ Completed coverage:
 
 Measured outcome:
 
-| Measurement | Result |
-|---|---:|
-| AOC features currently loaded | 348 |
-| Polygon features | 178 |
-| MultiPolygon features | 170 |
-| Total geometry parts in source data | 7,309 |
-| Interior rings in source data | 606 |
-| Approximate vertices in source data | 60,115 |
-| Historical old Wine geography traces | 4,804 |
-| New Wine geography traces | 1 |
-| Old server-side construction time | approx. 1.29 s |
-| Current median construction time | approx. 0.385 s |
-| Current serialized figure size | approx. 2.52 MB |
-| Test suite | 56 passed |
+| Measurement                          |          Result |
+|--------------------------------------|----------------:|
+| AOC features currently loaded        |             348 |
+| Polygon features                     |             178 |
+| MultiPolygon features                |             170 |
+| Total geometry parts in source data  |           7,309 |
+| Interior rings in source data        |             606 |
+| Approximate vertices in source data  |          60,115 |
+| Historical old Wine geography traces |           4,804 |
+| New Wine geography traces            |               1 |
+| Old server-side construction time    |  approx. 1.29 s |
+| Current median construction time     | approx. 0.385 s |
+| Current serialized figure size       | approx. 2.52 MB |
+| Test suite                           |       56 passed |
 
 Browser smoke result:
 
@@ -177,6 +175,23 @@ real OpenAI service. Cache reuse was directly observed through the fake endpoint
 request counts and the server-side cache hit; external API availability and
 real-account authentication were not tested.
 
+### Phase B: regional outlines
+
+Completed in the application:
+
+* regional outlines are restored as a non-interactive `layout.map.layers` line
+  layer;
+* the outline layer uses existing regional geometry rather than rebuilding the
+  AOC choropleth;
+* the outline dropdown toggles only `layout.map.layers[0].visible` via Dash
+  `Patch`;
+* the Wine geography remains one `Choroplethmap` trace;
+* restaurant controls remain disabled for Phase C.
+
+Automated tests cover the outline layer contract, visibility patch, enabled
+outline control, and still-disabled restaurant control. Browser smoke confirmed
+selection and clearing work without browser console warnings or errors.
+
 ## Current data and callback contract
 
 ### Feature identity
@@ -226,17 +241,11 @@ lookup. Positional Plotly fields such as `curveNumber`, `pointNumber`,
 
 Non-AOC payloads fail closed and must not invoke OpenAI.
 
-## Next: restore regional outlines
+## Next: restore restaurant overlays
 
-The next active phase is Phase B: regional-outline restoration. Renderer
-selection and live region-level click-path verification are complete.
-
-### Phase B — restore regional outlines
-
-* Restore regional outlines as a non-interactive `layout.map.layers` line layer.
-* Toggle outline visibility without rebuilding or resending the AOC geography.
-* Preserve pan and zoom while toggling outlines.
-* Ensure outline layers do not obscure AOC hit testing.
+The next active phase is Phase C: restaurant overlay restoration. Renderer
+selection, live region-level click-path verification, and regional-outline
+restoration are complete.
 
 ### Phase C — restore restaurant overlays
 

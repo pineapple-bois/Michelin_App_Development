@@ -2,6 +2,8 @@ import json
 
 import plotly.graph_objects as go
 
+REGIONAL_OUTLINE_LAYER_INDEX = 0
+
 
 def _region_colour_contract(wine_df):
     region_colours = (
@@ -24,9 +26,38 @@ def _region_colour_contract(wine_df):
     return region_codes, colorscale
 
 
-def plot_wine_choropleth_plotly(wine_df, zoom_data=None):
+def _outline_geojson(outline_df):
+    outlines = (
+        outline_df[["region", "geometry"]]
+        .drop_duplicates(subset="region")
+        .copy()
+    )
+    outlines["geometry"] = outlines.geometry.boundary
+
+    return json.loads(outlines.to_json(drop_id=True))
+
+
+def _regional_outline_layer(outline_df, visible=False):
+    return {
+        "source": _outline_geojson(outline_df),
+        "type": "line",
+        "below": "traces",
+        "color": "#5f5148",
+        "line": {"width": 0.65},
+        "opacity": 0.45,
+        "visible": visible,
+    }
+
+
+def plot_wine_choropleth_plotly(
+    wine_df,
+    zoom_data=None,
+    regional_outline_df=None,
+    show_regional_outlines=False,
+):
     """Render the complete AOC FeatureCollection as one MapLibre trace."""
     zoom_data = zoom_data or {}
+    regional_outline_df = regional_outline_df if regional_outline_df is not None else wine_df
     region_codes, colorscale = _region_colour_contract(wine_df)
     feature_ids = wine_df["feature_id"].tolist()
 
@@ -70,6 +101,12 @@ def plot_wine_choropleth_plotly(wine_df, zoom_data=None):
             "zoom": zoom,
             "center": center,
             "uirevision": "wine-aoc-map-v1",
+            "layers": [
+                _regional_outline_layer(
+                    regional_outline_df,
+                    visible=show_regional_outlines,
+                )
+            ],
         },
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
         hovermode="closest",

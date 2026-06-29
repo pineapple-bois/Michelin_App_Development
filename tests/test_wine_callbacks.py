@@ -1,7 +1,12 @@
 import pytest
 from dash import dcc, html, no_update
 
-from app.callbacks.wine import build_wine_info_response, resolve_wine_feature
+from app.callbacks.wine import (
+    build_wine_info_response,
+    regional_outline_visibility_patch,
+    regional_outlines_visible,
+    resolve_wine_feature,
+)
 
 
 @pytest.fixture
@@ -48,6 +53,37 @@ def test_resolve_wine_feature_fails_closed_for_unknown_feature_id(feature_lookup
     click_data = {"points": [{"location": "aoc-unknown"}]}
 
     assert resolve_wine_feature(click_data, feature_lookup) is None
+
+
+@pytest.mark.parametrize(
+    ("selected_granularity", "expected"),
+    [
+        ("region", True),
+        (None, False),
+        ("department", False),
+    ],
+)
+def test_regional_outlines_visible_only_for_region_selection(selected_granularity, expected):
+    assert regional_outlines_visible(selected_granularity) is expected
+
+
+@pytest.mark.parametrize(
+    ("selected_granularity", "expected"),
+    [
+        ("region", True),
+        (None, False),
+    ],
+)
+def test_regional_outline_visibility_patch_updates_only_outline_layer(selected_granularity, expected):
+    patch = regional_outline_visibility_patch(selected_granularity).to_plotly_json()
+
+    assert patch["operations"] == [
+        {
+            "operation": "Assign",
+            "location": ["layout", "map", "layers", 0, "visible"],
+            "params": {"value": expected},
+        }
+    ]
 
 
 class FakeCache:

@@ -54,11 +54,9 @@ def get_wine_content():
                                         className='dropdown-granularity-wine editorial-select',
                                         multi=False,
                                         clearable=True,
-                                        disabled=True,
                                     )
                                 ],
                                 style={'width': '20%'},
-                                title='Regional outlines will return in the next Wine map phase.',
                             ),
                             # Toggle to show restaurant details
                             html.Div(

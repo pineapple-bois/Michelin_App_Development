@@ -1,11 +1,14 @@
 import dash
-from dash import dcc, html, no_update
+from dash import Patch, dcc, html, no_update
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask import session
 
 from app.utils.star_filters import update_button_active_state_helper
-from app.utils.wine_figures import plot_wine_choropleth_plotly
+from app.utils.wine_figures import (
+    REGIONAL_OUTLINE_LAYER_INDEX,
+    plot_wine_choropleth_plotly,
+)
 from app.utils.wine_prompts import generate_optimized_prompt
 
 
@@ -23,6 +26,18 @@ def resolve_wine_feature(click_data, feature_lookup):
         return None
 
     return feature_lookup.get(feature_id)
+
+
+def regional_outlines_visible(selected_granularity):
+    return selected_granularity == "region"
+
+
+def regional_outline_visibility_patch(selected_granularity):
+    patched_figure = Patch()
+    patched_figure["layout"]["map"]["layers"][REGIONAL_OUTLINE_LAYER_INDEX]["visible"] = (
+        regional_outlines_visible(selected_granularity)
+    )
+    return patched_figure
 
 
 def build_wine_info_response(
@@ -77,6 +92,7 @@ def build_wine_info_response(
 
 def register_wine_callbacks(app, data, config, cache, openai_client):
     wine_df = data.wine_df
+    region_df = data.region_df
     wine_feature_lookup = (
         wine_df.set_index("feature_id")[["region", "app", "colour"]]
         .to_dict("index")
@@ -108,7 +124,16 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         return plot_wine_choropleth_plotly(
             wine_df=wine_df,
             zoom_data=map_view_data,
+            regional_outline_df=region_df,
         )
+
+    @app.callback(
+        Output('wine-map-graph', 'figure', allow_duplicate=True),
+        Input('granularity-dropdown-wine', 'value'),
+        prevent_initial_call=True,
+    )
+    def update_wine_regional_outlines(selected_granularity):
+        return regional_outline_visibility_patch(selected_granularity)
 
     @app.callback(
         Output('map-view-store', 'data'),
