@@ -95,12 +95,13 @@ def build_wine_info_response(
         return no_update, no_update, no_update, no_update
 
     wine_region = wine_feature["region"]
+    appellation = wine_feature["app"]
 
-    cache_key = f"wine_info_{wine_region}"
+    cache_key = f"wine_info_{appellation}_{wine_region}"
     cached_content = cache.get(cache_key)
     if cached_content:
         region_name_content = html.H3(wine_region, style={'color': cached_content['color']})
-        print(f"Cached Information retrieved for {wine_region}")
+        print(f"Cached Information retrieved for {appellation}: {wine_region}")
         return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
 
     if is_request_limit_exceeded():
@@ -110,7 +111,7 @@ def build_wine_info_response(
 
     region_color = wine_feature["colour"]
 
-    prompt = prompt_builder(wine_region)
+    prompt = prompt_builder(wine_region, appellation)
     try:
         response = openai_client.chat.completions.create(
             model="gpt-4.1-mini",
