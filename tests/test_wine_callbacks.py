@@ -378,9 +378,9 @@ def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_bound
     assert isinstance(first_response[0], dcc.Markdown)
     assert isinstance(second_response[0], dcc.Markdown)
     assert isinstance(other_response[0], dcc.Markdown)
-    assert first_response[2].children == first_region
-    assert second_response[2].children == first_region
-    assert other_response[2].children == other_parent_region
+    assert first_response[2].children == f"{first_region}: {first_bourgogne['app']}"
+    assert second_response[2].children == f"{first_region}: {second_bourgogne['app']}"
+    assert other_response[2].children == f"{other_parent_region}: {other_region['app']}"
     assert first_response[0].children != second_response[0].children
     assert other_response[0].children != first_response[0].children
 
@@ -405,7 +405,7 @@ def test_wine_info_uses_cached_response_without_openai_or_request_limit(feature_
 
     assert isinstance(response[0], dcc.Markdown)
     assert response[0].children == "Cached regional Bourgogne content"
-    assert response[2].children == "Bourgogne"
+    assert response[2].children == "Bourgogne: Known appellation"
     assert response[2].style == {"color": "#abcdef"}
     assert openai_client.requests == []
     assert request_limit.calls == 0

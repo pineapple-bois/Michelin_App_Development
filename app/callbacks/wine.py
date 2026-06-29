@@ -156,7 +156,10 @@ def build_wine_info_response(
     cache_key = f"wine_info_{appellation}_{wine_region}"
     cached_content = cache.get(cache_key)
     if cached_content:
-        region_name_content = html.H3(wine_region, style={'color': cached_content['color']})
+        region_name_content = html.H3(
+            f"{wine_region}: {appellation}",
+            style={'color': cached_content['color']},
+        )
         print(f"Cached Information retrieved for {appellation}: {wine_region}")
         return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
 
@@ -178,7 +181,10 @@ def build_wine_info_response(
 
         cache.set(cache_key, {'content': content, 'color': region_color})
 
-        region_name_content = html.H3(wine_region, style={'color': region_color})
+        region_name_content = html.H3(
+            f"{wine_region}: {appellation}",
+            style={'color': region_color},
+        )
         return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
 
     except Exception as e:
