@@ -144,6 +144,33 @@ def generate_optimized_prompt(wine_region, appellation):
     encode a complete French wine classification system.
     """
 
+    common_signals = {
+        "sparkling": (
+            "Prioritise production method, principal grapes, sweetness level, and how "
+            "the sparkling style differs from still wines of the region."
+        ),
+        "muscat": (
+            "Clarify whether the appellation produces dry, sweet, or fortified Muscat, "
+            "and do not infer one style from the name alone."
+        ),
+        "vin_doux_naturel": (
+            "Explain the fortified sweet-wine style, principal grapes, and relevant "
+            "ageing approach."
+        ),
+        "vin_jaune": (
+            "Explain the oxidative Vin Jaune style, the role of Savagnin, and the "
+            "production method that distinguishes the appellation."
+        ),
+        "fortified": (
+            "Explain the fortified production method and distinguish the wine from "
+            "ordinary still or sparkling wines of the same region."
+        ),
+        "multi_style": (
+            "State clearly that the appellation permits several wine styles, and do "
+            "not describe one style as though it defines the whole appellation."
+        ),
+    }
+
     region_rules = {
         "Bordeaux": {
             "default_focus": (
@@ -198,8 +225,8 @@ def generate_optimized_prompt(wine_region, appellation):
         },
         "Loire": {
             "default_focus": (
-                "Identify the dominant wine colour, grape variety, and subregional context. "
-                "Distinguish still, sparkling, sweet, and dry styles where applicable."
+                "First determine whether the appellation is mainly still, sparkling, dry, "
+                "sweet, red, white, or rosé. Then identify the principal grape and subregion."
             ),
             "signals": {},
         },
@@ -212,8 +239,9 @@ def generate_optimized_prompt(wine_region, appellation):
         },
         "Jura": {
             "default_focus": (
-                "Clarify whether the appellation is associated with still wine, Vin Jaune, "
-                "Vin de Paille, or sparkling wine, and explain the relevant grape varieties."
+                "First determine whether the appellation is geographic or method-based. "
+                "Separate ordinary still wines from Vin Jaune, Vin de Paille, Macvin, "
+                "and Crémant."
             ),
             "signals": {},
         },
@@ -240,8 +268,9 @@ def generate_optimized_prompt(wine_region, appellation):
         },
         "Languedoc-Roussillon": {
             "default_focus": (
-                "Identify the appellation's subregional setting, principal grapes, wine colours, "
-                "and any distinctive production style."
+                "First identify whether the appellation is primarily dry still wine, "
+                "sparkling wine, Muscat, or vin doux naturel. Then explain its "
+                "subregional identity."
             ),
             "signals": {},
         },
@@ -272,6 +301,24 @@ def generate_optimized_prompt(wine_region, appellation):
         if appellation in {"Sauternes", "Barsac"}:
             semantic_signals.append("sweet_wine")
 
+    if "crémant" in appellation_key or "cremant" in appellation_key:
+        semantic_signals.append("sparkling")
+
+    if "muscat" in appellation_key:
+        semantic_signals.append("muscat")
+
+    if appellation in {"Banyuls", "Maury", "Rivesaltes", "Grand Roussillon"}:
+        semantic_signals.append("vin_doux_naturel")
+
+    if appellation == "Macvin du Jura":
+        semantic_signals.append("fortified")
+
+    if appellation == "Château-Chalon":
+        semantic_signals.append("vin_jaune")
+
+    if appellation in {"Vouvray", "Montlouis-sur-Loire", "Limoux"}:
+        semantic_signals.append("multi_style")
+
     if wine_region in {"Bourgogne", "Alsace"} and "grand cru" in appellation_key:
         semantic_signals.append("grand_cru")
 
@@ -296,11 +343,12 @@ def generate_optimized_prompt(wine_region, appellation):
         },
     )
 
-    signal_instructions = [
-        context["signals"][signal]
-        for signal in dict.fromkeys(semantic_signals)
-        if signal in context["signals"]
-    ]
+    signal_instructions = []
+    for signal in dict.fromkeys(semantic_signals):
+        if signal in context["signals"]:
+            signal_instructions.append(context["signals"][signal])
+        elif signal in common_signals:
+            signal_instructions.append(common_signals[signal])
 
     semantic_instruction = " ".join(signal_instructions)
     if not semantic_instruction:
@@ -318,17 +366,21 @@ Regional context:
 Appellation-specific direction:
 - {semantic_instruction}
 
-Select the three most informative aspects of this appellation rather than covering
-every category mechanically. Useful subjects may include appellation identity,
-classification, principal grapes, wine colour, production method, terroir, ageing,
-renowned vineyards or estates, and the distinction between appellation and producer.
+Open with the single fact that most clearly distinguishes this appellation. Do not
+begin with generic geography unless location is itself the defining feature.
+
+Choose the three most useful subjects for this appellation, in this order of priority:
+1. what legally or stylistically defines the appellation;
+2. principal grapes, wine colours, or production method;
+3. hierarchy, classification, terroir, ageing, named sites, or estates only where
+   genuinely distinctive.
 
 Style rules:
 - Focus on {appellation}; use {wine_region} only as context.
 - Write 3 short paragraphs with no bullet points in the final answer.
 - Avoid generic praise, tourist language, food-pairing filler, and Michelin references.
-- Mention renowned vineyards, estates, classifications, or special status only when
-  they materially explain the appellation.
+- Do not add producer, estate, classification, or prestige material unless it is
+  essential to understanding the appellation.
 - Do not invent classifications, permitted grapes, vineyard ownership, or production rules.
 - If a detail is uncertain, omit it.
 - Keep the total length around 120–170 words.
