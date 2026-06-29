@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import hashlib
 
 import geopandas as gpd
 import pandas as pd
@@ -92,7 +93,8 @@ PARIS_COLUMNS = (
     "locations",
     "geometry",
 )
-WINE_COLUMNS = ("region", "colour", "geometry")
+WINE_COLUMNS = ("region", "app", "colour", "geometry")
+WINE_GEOMETRY_TYPES = frozenset({"Polygon", "MultiPolygon"})
 
 
 @dataclass(frozen=True)
@@ -152,6 +154,65 @@ def _read_geojson(config: RuntimeConfig, filename, name, required_columns):
     return frame
 
 
+def wine_feature_id(region: str, app: str) -> str:
+    """Return an order-independent identifier for an AOC feature."""
+    identity = f"{region}\0{app}".encode("utf-8")
+    return f"aoc-{hashlib.sha256(identity).hexdigest()}"
+
+
+def _validate_wine_data(frame: gpd.GeoDataFrame):
+    if frame.crs is None:
+        raise RuntimeError("wine_df has no CRS")
+
+    if frame.crs.to_epsg() != 4326:
+        frame = frame.to_crs(epsg=4326)
+
+    if frame.geometry.isna().any() or frame.geometry.is_empty.any():
+        raise RuntimeError("wine_df contains missing or empty geometries")
+
+    required_values = ("region", "app", "colour")
+    missing_values = [
+        column
+        for column in required_values
+        if frame[column].isna().any()
+    ]
+    if missing_values:
+        raise RuntimeError(
+            f"wine_df contains missing values in: {', '.join(missing_values)}"
+        )
+
+    unsupported_geometry_types = sorted(
+        set(frame.geometry.geom_type) - WINE_GEOMETRY_TYPES
+    )
+    if unsupported_geometry_types:
+        raise RuntimeError(
+            "wine_df contains unsupported geometry types: "
+            f"{', '.join(unsupported_geometry_types)}"
+        )
+
+    if frame.duplicated(subset=["region", "app"]).any():
+        raise RuntimeError("wine_df contains duplicate (region, app) pairs")
+
+    inconsistent_colour_regions = sorted(
+        frame.groupby("region")["colour"].nunique().loc[lambda counts: counts != 1].index
+    )
+    if inconsistent_colour_regions:
+        raise RuntimeError(
+            "wine_df parent regions must each have exactly one colour: "
+            f"{', '.join(inconsistent_colour_regions)}"
+        )
+
+    frame = frame.copy()
+    frame["feature_id"] = [
+        wine_feature_id(region, app)
+        for region, app in frame[["region", "app"]].itertuples(index=False, name=None)
+    ]
+    if frame["feature_id"].duplicated().any():
+        raise RuntimeError("wine_df contains duplicate generated feature IDs")
+
+    return frame
+
+
 def load_michelin_data(config: RuntimeConfig = CONFIG):
     all_france = _read_restaurants(config, "all_restaurants(arrondissements).csv", "all_france")
     all_monaco = _read_restaurants(config, "monaco_restaurants.csv", "all_monaco")
@@ -161,7 +222,9 @@ def load_michelin_data(config: RuntimeConfig = CONFIG):
     arron_df = _read_geojson(config, "arrondissement_restaurants.geojson", "arron_df", ARRONDISSEMENT_COLUMNS)
     paris_df = _read_geojson(config, "paris_restaurants.geojson", "paris_df", PARIS_COLUMNS)
     monaco_df = _read_geojson(config, "monaco_restaurants.geojson", "monaco_df", DEPARTMENT_COLUMNS)
-    wine_df = _read_geojson(config, "wine_regions_cleaned.geojson", "wine_df", WINE_COLUMNS)
+
+    wine_df = _read_geojson(config, "wine_regions_aoc.geojson", "wine_df", WINE_COLUMNS)
+    wine_df = _validate_wine_data(wine_df)
 
     _require_non_numeric(department_df, "department_df", ("code",))
     _require_non_numeric(arron_df, "arron_df", ("code", "department_num"))

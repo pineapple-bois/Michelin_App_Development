@@ -9,11 +9,28 @@ from app.utils.wine_figures import plot_wine_choropleth_plotly
 from app.utils.wine_prompts import generate_optimized_prompt
 
 
+def resolve_wine_feature(click_data, feature_lookup):
+    """Resolve an AOC click by stable feature ID, or fail closed."""
+    if not isinstance(click_data, dict):
+        return None
+
+    points = click_data.get("points")
+    if not isinstance(points, list) or not points or not isinstance(points[0], dict):
+        return None
+
+    feature_id = points[0].get("location")
+    if not isinstance(feature_id, str):
+        return None
+
+    return feature_lookup.get(feature_id)
+
+
 def register_wine_callbacks(app, data, config, cache, openai_client):
-    all_france = data.all_france
-    region_df = data.region_df
-    department_df = data.department_df
     wine_df = data.wine_df
+    wine_feature_lookup = (
+        wine_df.set_index("feature_id")[["region", "app", "colour"]]
+        .to_dict("index")
+    )
 
     def is_request_limit_exceeded():
         # Request limit for OpenAi API calls
@@ -30,50 +47,18 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         return False
 
     @app.callback(
-        [Output('wine-map-graph', 'figure'),
-         Output('wine-region-curve-numbers', 'data'),
-         Output('star-filter-container-wine', 'style')],
-        [Input('granularity-dropdown-wine', 'value'),
-         Input('toggle-show-details-wine', 'n_clicks'),
-         Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')],
-         [State('map-view-store', 'data')]
+        Output('wine-map-graph', 'figure'),
+        Input('url', 'pathname'),
+        State('map-view-store', 'data'),
     )
-    def update_wine_map(outline_type, n_clicks_rest, n_clicks_stars, map_view_data):
-        # Ensure zoom_data is a dictionary
-        if map_view_data is None:
-            map_view_data = {}
+    def update_wine_map(pathname, map_view_data):
+        if pathname != '/wine':
+            raise PreventUpdate
 
-        # Determine if restaurants should be shown based on button press
-        show_restaurants = n_clicks_rest % 2 == 1  # Odd clicks mean show restaurants
-
-        # Determine visibility of star-filter-container based on the button press
-        filter_style = {'width': '30%', 'display': 'block'} if show_restaurants else {'width': '30%', 'display': 'none'}
-
-        # Star selection based on button clicks
-        stars = [1, 2, 3]
-        if n_clicks_stars:
-            selected_stars = [stars[i] for i, n in enumerate(n_clicks_stars) if n % 2 == 0]  # Only active stars
-        else:
-            selected_stars = stars
-
-        if outline_type == 'region':
-            df = region_df
-        elif outline_type == 'department':
-            df = department_df
-        else:
-            df = None  # No outlines if `outline_type` is None
-
-        fig, wine_region_curve_numbers = plot_wine_choropleth_plotly(
-            df=df,
+        return plot_wine_choropleth_plotly(
             wine_df=wine_df,
-            all_france=all_france,
-            outline_type=outline_type,
-            show_restaurants=show_restaurants,
-            selected_stars=selected_stars,
-            zoom_data=map_view_data
+            zoom_data=map_view_data,
         )
-
-        return fig, wine_region_curve_numbers, filter_style
 
     @app.callback(
         Output('map-view-store', 'data'),
@@ -124,23 +109,17 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
          Output('disclaimer-container', 'style'),
          Output('region-name-container', 'children'),
          Output('region-name-container', 'style')],
-        Input('wine-map-graph', 'clickData'),
-        State('wine-region-curve-numbers', 'data')
+        Input('wine-map-graph', 'clickData')
     )
-    @cache.memoize(timeout=3600)  # Cache this function's output for 1 hour
-    def update_wine_info(clickData, wine_region_curve_numbers):
+    def update_wine_info(clickData):
         if not clickData:
             return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
 
-        try:
-            curve_number = clickData['points'][0]['curveNumber']
-            if curve_number not in wine_region_curve_numbers:
-                return "Please click on a wine region, not a restaurant.", {"display": "none"}, no_update, {"display": "none"}
+        wine_feature = resolve_wine_feature(clickData, wine_feature_lookup)
+        if wine_feature is None:
+            return "Please click on a wine appellation.", {"display": "none"}, no_update, {"display": "none"}
 
-            wine_region = wine_df.iloc[wine_region_curve_numbers.index(curve_number)]["region"]
-
-        except (KeyError, IndexError):
-            return "Could not retrieve region information.", {"display": "none"}, no_update, {"display": "none"}
+        wine_region = wine_feature["region"]
 
         # Check if the response is already cached
         cache_key = f"wine_info_{wine_region}"
@@ -156,10 +135,7 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
             styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold", "text-align": "center"})
             return styled_error, {"display": "none"}, no_update, {"display": "none"}
 
-        try:
-            region_color = wine_df[wine_df['region'] == wine_region]['colour'].values[0]
-        except IndexError:
-            region_color = 'black'
+        region_color = wine_feature["colour"]
 
         prompt = generate_optimized_prompt(wine_region)
         try:

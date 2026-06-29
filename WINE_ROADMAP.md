@@ -1,324 +1,260 @@
-# Wine GeoJSON Integration Roadmap
+# Wine map integration roadmap
 
-## Objective
+This is the authoritative Wine integration document. `WINE_REPORT.md` was the
+temporary architecture investigation report; its durable findings have been
+folded into this roadmap.
 
-Replace assets/data/wine_regions_cleaned.geojson with assets/data/wine_regions_aoc.geojson as the Wine page’s source of truth.
+## Current state
 
-Preserve the current parent-region experience initially while retaining the new app appellation field for hover content and future interactions.
+The Wine page now renders `assets/data/wine_regions_aoc.geojson` as the
+production Wine geography. The AOC dataset loads successfully, each feature has
+a deterministic in-memory `feature_id`, and the map uses one feature-based
+Plotly trace rather than one trace per polygon part.
 
-The work should be staged so that data loading, runtime measurement, renderer changes, and callback changes can be assessed independently.
-
-⸻
-
-## Phase 1 — Load and validate the new asset
-
-### Scope
-
-Modify only the Wine data-loading path in `app_data.py`.
-
-### Changes
-
-1. Replace:
+The current implementation deliberately keeps generated Wine content
+region-level:
 
 ```text
-wine_regions_cleaned.geojson
+AOC click location -> server-side feature_id lookup -> parent region
+                  -> generate_optimized_prompt(parent region)
+                  -> wine_info_<parent region> cache
 ```
 
-with:
+The `app` appellation field is retained for hover, feature identity, and future
+functionality, but it does not yet change OpenAI prompts or cache keys.
+
+Temporarily disabled UI:
+
+* regional-outline controls are disabled until outlines are restored as
+  separate non-interactive map layers;
+* restaurant overlay controls are disabled until restaurant traces are restored
+  as separate overlays;
+* `selected-stars-wine` and `map-view-store` remain in place for compatibility
+  while overlay restoration and view-persistence behaviour are tested.
+
+Overlapping AOCs are now visible as a separate data and interaction-design
+issue. They are outside the immediate renderer-restoration phase and will be
+handled separately from the overlay work.
+
+## Completed
+
+### AOC loading and validation
+
+Completed in `app/app_data.py`:
+
+* load `assets/data/wine_regions_aoc.geojson`;
+* require `region`, `app`, `colour`, and `geometry`;
+* preserve CRS, required-value, missing-geometry, and empty-geometry checks;
+* support only `Polygon` and `MultiPolygon`;
+* validate `(region, app)` uniqueness;
+* generate deterministic `feature_id` values from `(region, app)`;
+* validate generated feature-ID uniqueness;
+* validate that each parent region has exactly one colour;
+* keep individual AOC features rather than dissolving by parent region.
+
+### Architecture investigation and renderer decision
+
+Completed by investigation and implementation:
+
+* inspected the installed stack: Dash `2.18.2`, Plotly.py `5.24.1`, and
+  Plotly.js `2.35.2`;
+* confirmed the current MapLibre-style `map` subplot and `carto-positron` style
+  are compatible with `go.Choroplethmap`;
+* measured and rejected the old geometry-part `Scattermap` renderer;
+* selected the single-trace `go.Choroplethmap` architecture;
+* determined that no new mapping dependency is justified.
+
+Historical renderer finding:
+
+* the old renderer expanded AOC geography into one trace per exterior geometry
+  part plus interior-ring traces;
+* it produced 4,804 Wine geography traces for the AOC asset;
+* the old `curveNumber -> trace-list position -> dataframe row` identity model
+  was unsafe and was removed;
+* old curve-number semantics were already broken for the AOC dataset because
+  geometry-part order diverged from dataframe row order.
+
+### Production vertical slice
+
+Completed in the application:
+
+* replaced the Wine geography with one `go.Choroplethmap`;
+* use the complete AOC FeatureCollection as the trace `geojson`;
+* use `featureidkey="properties.feature_id"`;
+* use generated feature IDs for `locations` and `ids`;
+* include `[region, app, feature_id]` in `customdata`;
+* show appellation and parent region in hover;
+* preserve existing parent-region colours through a categorical stepped
+  colorscale;
+* hide the colour bar;
+* preserve the `carto-positron` map style and initial France viewport;
+* set stable `layout.map.uirevision`;
+* resolve Wine clicks from `clickData["points"][0]["location"]`;
+* fail closed for missing, malformed, restaurant, or unknown feature IDs;
+* continue passing only the parent region to the existing prompt;
+* preserve the explicit `wine_info_<region>` cache;
+* remove callback-level memoization from the Wine information callback;
+* remove `wine-region-curve-numbers` and its layout store.
+
+### Tests and smoke validation
+
+Completed coverage:
+
+* loader tests for deterministic feature IDs, feature-ID uniqueness,
+  `(region, app)` uniqueness, supported geometry types, and one colour per
+  parent region;
+* figure tests for one Wine geography trace, 354 locations, stable feature IDs,
+  semantic hover customdata, hidden colour bar, and the expected `map` subplot;
+* callback resolution tests for valid, missing, non-AOC, and unknown feature IDs;
+* layout tests confirming the obsolete curve-number store is absent.
+
+Measured outcome:
+
+| Measurement | Result |
+|---|---:|
+| AOC features | 354 |
+| Polygon features | 192 |
+| MultiPolygon features | 162 |
+| Total geometry parts in source data | 3,628 |
+| Interior rings in source data | 1,176 |
+| Approximate vertices in source data | 58,817 |
+| Old Wine geography traces | 4,804 |
+| New Wine geography traces | 1 |
+| Old server-side construction time | approx. 1.29 s |
+| New median construction time | approx. 0.309 s |
+| New serialized figure size | approx. 2.46 MB |
+| Test suite | 36 passed |
+
+Browser smoke result:
+
+* the AOC map renders quickly;
+* hover shows appellation and parent region;
+* `clickData` registration was verified at the browser level;
+* no browser warnings or errors were observed.
+
+This smoke test does not claim complete live OpenAI click-through, mobile
+behaviour, or overlapping-AOC interaction behaviour.
+
+## Current data and callback contract
+
+### Feature identity
+
+The source asset is not modified. The loader generates:
 
 ```text
-wine_regions_aoc.geojson
+aoc-<sha256(region + NUL + app)>
 ```
 
-2. Update the required Wine columns from:
+The generated ID is stable across restarts and independent of dataframe order,
+feature order, trace order, geometry-part order, or coordinate changes.
+
+### Figure trace contract
+
+The Wine geography trace is:
 
 ```text
-("region", "colour", "geometry")
+type: choroplethmap
+subplot: map
+featureidkey: properties.feature_id
+locations: [feature_id, ...]
+ids: [feature_id, ...]
+z: numeric parent-region colour code
+customdata: [[region, app, feature_id], ...]
+showscale: false
 ```
 
-to:
+Hover displays:
 
 ```text
-("region", "app", "colour", "geometry")
+Appellation: <app>
+Parent region: <region>
 ```
 
-3. Add lightweight Wine-specific validation:
+### Click contract
 
-* CRS exists;
-* geometry is converted to EPSG:4326 when necessary;
-* no null geometries;
-* no empty geometries;
-* region, app, and colour contain no null values;
-* geometry types are supported by the current renderer;
-* all AOCs under the same parent region use a consistent colour.
-
-4. Do not:
-
-* dissolve by region;
-* explode geometries unless required by the loader;
-* simplify geometry;
-* reorder features intentionally;
-* modify Wine rendering;
-* modify callbacks;
-* modify OpenAI prompt behaviour.
-
-Tests
-
-Add or update tests covering:
-
-* the new filename;
-* the required app property;
-* missing required columns;
-* null or empty geometry rejection;
-* CRS conversion or rejection;
-* inconsistent parent-region colours.
-
-### Commit boundary
-
-Commit this phase separately.
-
-Suggested commit message:
-```text
-Load and validate AOC wine GeoJSON
-```
-
-⸻
-
-## Phase 2 — Run the existing architecture unchanged
-
-After committing Phase 1, run the application without attempting to fix the renderer pre-emptively.
-
-Record the following
-
-Dataset measurements
-
-* GeoJSON file size;
-* feature count;
-* unique region count;
-* unique app count;
-* Polygon count;
-* MultiPolygon count;
-* total polygon-part count;
-* number of interior rings;
-* invalid or empty geometry count.
-
-Server-side measurements
-
-* application startup time;
-* memory use after loading;
-* Wine figure construction time;
-* figure serialisation time;
-* callback response size;
-* number of generated Plotly traces.
-
-Browser behaviour
-
-* initial Wine page load time;
-* time until the map becomes interactive;
-* pan and zoom responsiveness;
-* hover responsiveness;
-* click responsiveness;
-* behaviour when regional outlines are toggled;
-* behaviour when restaurants are enabled;
-* behaviour when star filters change;
-* browser console warnings or errors.
-
-Functional behaviour
-
-Test clicks on:
-
-* a simple Polygon AOC;
-* several AOCs within the same parent region;
-* each part of a MultiPolygon feature;
-* an area containing an interior ring;
-* a Wine feature after outlines are toggled;
-* a Wine feature after restaurant traces are added.
-
-Expected risks
-
-The current implementation may show:
-
-* excessive trace count;
-* large Dash callback payloads;
-* slow browser rendering;
-* repeated geometry rebuilding;
-* incorrect curveNumber resolution;
-* clicks resolving to the wrong parent region;
-* rejected clicks on interior traces;
-* poor responsiveness after controls change.
-
-Document actual behaviour before choosing the replacement architecture.
-
-Commit boundary
-
-Do not commit runtime experiments unless instrumentation or tests are deliberately added.
-
-⸻
-
-## Phase 3 — Define the renderer rewrite
-
-Use the measurements from Phase 2 to decide whether the existing Plotly trace architecture is viable.
-
-Required architectural outcomes
-
-The replacement must:
-
-* stop deriving Wine identity from curveNumber;
-* attach region and app directly to rendered features;
-* preserve parent-region click behaviour;
-* make app available for hover content;
-* distinguish Wine geometry from restaurant and outline traces semantically;
-* avoid rebuilding static Wine geometry for unrelated filter changes;
-* avoid coupling callback behaviour to trace ordering;
-* handle Polygon and MultiPolygon data correctly.
-
-Likely rewrite areas
-
-### `wine_figures.py`
-
-Separate static Wine geometry construction from dynamic overlays.
-
-Potential structure:
+The Wine callback consumes only:
 
 ```text
-build_wine_base_figure(...)
-build_wine_geometry_traces(...)
-add_region_outlines(...)
-add_restaurant_traces(...)
-apply_wine_layout(...)
+clickData.points[0].location
 ```
 
-The exact representation should be selected after measuring trace count and payload size.
+It resolves that value through the server-side `feature_id -> region/app/colour`
+lookup. Positional Plotly fields such as `curveNumber`, `pointNumber`,
+`pointIndex`, dataframe row position, and trace order are not trusted.
 
-Possible options include:
+Non-AOC payloads fail closed and must not invoke OpenAI.
 
-1. retain `Scattermap` but combine compatible geometry;
-2. cache prebuilt Wine traces or a base figure;
-3. use a feature-oriented map layer instead of one trace per geometry part;
-4. pre-process a browser-oriented GeoJSON asset;
-5. separate hover/click geometry from visual boundary rendering.
+## Next: restore overlays incrementally
 
-Do not select an option solely from source GeoJSON size.
+The next active phase is overlay restoration, not renderer selection.
 
-### `wine_callbacks.py`
+### Phase A — verify live region-level click path
 
-Replace:
+* Manually verify one complete live AOC click through:
+  `location -> server lookup -> parent region -> regional cache/OpenAI output`.
+* Verify repeated AOCs in the same parent region reuse region-level prompt and
+  cache behaviour.
+* Confirm request-limit behaviour still applies only when an OpenAI request is
+  actually needed.
 
-```text
-curveNumber -> stored curve-number list -> wine_df.iloc(...)
-```
+### Phase B — restore regional outlines
 
-with semantic trace data:
-```text
-clicked feature -> customdata/meta -> parent region and appellation
-```
-Parent-region behaviour should remain:
-```text
-clicked AOC -> parent region -> existing regional OpenAI response
-```
+* Restore regional outlines as a non-interactive `layout.map.layers` line layer.
+* Toggle outline visibility without rebuilding or resending the AOC geography.
+* Preserve pan and zoom while toggling outlines.
+* Ensure outline layers do not obscure AOC hit testing.
 
-### `wine_layout.py`
+### Phase C — restore restaurant overlays
 
-Only change layout components if required by the new callback or figure contract.
+* Restore the three fixed restaurant `Scattermap` traces.
+* Use Dash `Patch` or an equivalent visibility-only update so restaurant filter
+  changes do not reconstruct the static AOC geography.
+* Ensure restaurant clicks cannot invoke the Wine OpenAI callback.
+* Re-enable restaurant controls only when the restored interaction is covered.
 
-Avoid visual redesign during this phase.
+### Phase D — cleanup and responsive verification
 
-### `wine_prompts.py`
+* Remove temporary disabled-control scaffolding and compatibility comments.
+* Review whether `map-view-store` remains necessary after route remount and
+  `uirevision` testing.
+* Review whether `selected-stars-wine` remains necessary after restaurant
+  overlay restoration.
+* Complete responsive and mobile testing.
 
-Keep prompts region-level initially.
+## Future work
 
-Do not pass app into the prompt until appellation-level output is explicitly designed.
+Keep these separate from the immediate renderer and overlay phases:
 
-⸻
+* overlapping AOC organisation and hit-testing;
+* appellation-specific OpenAI content;
+* AOC search or selection state;
+* multi-resolution geometry;
+* visual redesign and broader Wine content modernisation;
+* migration to a new mapping library, unless the current Plotly stack is later
+  shown to be unsuitable.
 
-## Phase 4 — Implement semantic Wine interactions
+## Risks and watch points
 
-Each rendered Wine feature should carry, at minimum:
+* A single trace still sends a multi-megabyte GeoJSON-backed figure; monitor
+  browser responsiveness on slower devices.
+* Overlapping polygons may make only the topmost AOC selectable at shared
+  coordinates.
+* Regional layer ordering must not interfere with AOC hover or click targets.
+* Restaurant traces must be semantically rejected by the Wine information
+  callback.
+* Dash `Patch` behaviour should be tested across Dash Page unmount/remount.
+* Region-level OpenAI cache reuse must be manually verified with live clicks
+  before treating the full click-to-content path as complete.
 
-```text
-region
-app
-feature identity or stable key
-trace type
-```
+## Obsolete architecture removed from active work
 
-Hover behaviour
+Do not reintroduce:
 
-Recommended initial hover hierarchy:
-
-```text
-Appellation
-Parent wine region
-```
-
-For example:
-
-```text
-Chablis
-Burgundy
-```
-
-### Click behaviour
-
-Clicking any AOC should resolve directly to its parent region.
-
-The OpenAI panel should continue to display the existing region-level content.
-
-### Cache behaviour
-
-Keep the application-level OpenAI cache keyed by parent region while output remains region-level.
-
-For example:
-```text
-wine_info:Burgundy
-```
-Do not introduce appellation into the cache key until responses differ by appellation.
-
-Review whether callback-level memoization remains useful once trace-index arguments are removed.
-
-⸻
-
-## Phase 5 — Performance validation
-
-Repeat the Phase 2 measurements after the rewrite.
-
-Acceptance criteria
-
-The Wine page should:
-
-* load without errors;
-* preserve all existing region-level behaviour;
-* resolve every tested AOC to the correct parent region;
-* remain correct after outline and restaurant controls change;
-* expose app in hover data;
-* avoid dependence on feature order or curve numbers;
-* avoid rebuilding static Wine geometry for restaurant-only changes where practical;
-* have acceptable browser interaction performance;
-* have an understood and documented callback payload size.
-
-Performance acceptance should be based on measured behaviour rather than the source asset’s file size.
-
-⸻
-
-## Phase 6 — Cleanup and future work
-
-After the new renderer is stable:
-
-* remove the old Wine asset if it is no longer required;
-* remove obsolete curve-number stores and callback state;
-* remove superseded helper functions;
-* update tests and documentation;
-* document the Wine figure data contract;
-* record future appellation-level functionality separately.
-
-Potential future work:
-
-* appellation-specific OpenAI responses;
-* appellation selection state;
-* richer AOC labels;
-* region/AOC search;
-* pre-generated appellation summaries;
-* geometry simplification at multiple zoom levels;
-* client-side map rendering.
-
-These are explicitly outside the initial integration scope.
+* one trace per polygon or geometry part;
+* Wine interior-ring traces used solely by the old renderer;
+* `wine-region-curve-numbers`;
+* curve-number membership checks;
+* dataframe-row lookup through trace-list position;
+* callback-level memoization keyed by raw click payloads;
+* renderer optimisation work aimed at salvaging the old `Scattermap` trace
+  architecture.

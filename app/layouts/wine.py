@@ -53,10 +53,12 @@ def get_wine_content():
                                         value=None,  # Default selection
                                         className='dropdown-granularity-wine editorial-select',
                                         multi=False,
-                                        clearable=True
+                                        clearable=True,
+                                        disabled=True,
                                     )
                                 ],
-                                style={'width': '20%'}
+                                style={'width': '20%'},
+                                title='Regional outlines will return in the next Wine map phase.',
                             ),
                             # Toggle to show restaurant details
                             html.Div(
@@ -66,9 +68,11 @@ def get_wine_content():
                                         "Overlay Starred Restaurants",
                                         id='toggle-show-details-wine',
                                         n_clicks=0,
-                                        className='button-show-details editorial-action-button'
+                                        className='button-show-details editorial-action-button',
+                                        disabled=True,
                                     )
                                 ],
+                                title='Restaurant overlays will return in the next Wine map phase.',
                             ),
                             # Star filter specific to wine page
                             html.Div(
@@ -97,7 +101,6 @@ def get_wine_content():
                                       config={'displayModeBar': False},
                                        style={'height': '700px'}
                                       ),
-                            dcc.Store(id='wine-region-curve-numbers'),  # Store for wine region curve numbers
                             dcc.Store(id='map-view-store', data={}),    # Store to hold map view parameters
                         ],
                         style={'width': '50%', 'display': 'inline-block'}

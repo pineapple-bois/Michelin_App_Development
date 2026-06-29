@@ -68,8 +68,8 @@ def test_wine_layout_contains_expected_component_ids():
         "toggle-show-details-wine",
         "selected-stars-wine",
         "wine-map-graph",
-        "wine-region-curve-numbers",
         "region-name-container",
         "llm-output-container",
         "disclaimer-container",
     }.issubset(component_ids)
+    assert "wine-region-curve-numbers" not in component_ids

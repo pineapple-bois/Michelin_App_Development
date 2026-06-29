@@ -1,5 +1,9 @@
 import geopandas as gpd
 import pandas as pd
+import pytest
+from shapely.geometry import Point, Polygon
+
+from app.app_data import _validate_wine_data, wine_feature_id
 
 
 def _assert_string_like_values(frame, column):
@@ -53,3 +57,68 @@ def test_derived_data_collections_are_available(data_boundary):
     geo_with_monaco = data_boundary.get_geo_df(include_monaco=True)
     assert not geo_with_monaco.empty
     assert len(geo_with_monaco) >= len(data_boundary.geo_df)
+
+
+def _wine_frame(rows, geometries):
+    return gpd.GeoDataFrame(rows, geometry=geometries, crs="EPSG:4326")
+
+
+def test_wine_feature_ids_are_deterministic_and_unique(data_boundary):
+    wine_df = data_boundary.wine_df
+    expected = [
+        wine_feature_id(region, app)
+        for region, app in wine_df[["region", "app"]].itertuples(index=False, name=None)
+    ]
+
+    assert wine_df["feature_id"].tolist() == expected
+    assert wine_df["feature_id"].is_unique
+
+    reversed_frame = _validate_wine_data(
+        wine_df.drop(columns="feature_id").iloc[::-1].reset_index(drop=True)
+    )
+    assert reversed_frame.set_index(["region", "app"])["feature_id"].to_dict() == (
+        wine_df.set_index(["region", "app"])["feature_id"].to_dict()
+    )
+
+
+def test_wine_region_app_pairs_must_be_unique():
+    frame = _wine_frame(
+        [
+            {"region": "Test", "app": "Repeated", "colour": "#123456"},
+            {"region": "Test", "app": "Repeated", "colour": "#123456"},
+        ],
+        [
+            Polygon([(0, 0), (1, 0), (1, 1), (0, 0)]),
+            Polygon([(2, 2), (3, 2), (3, 3), (2, 2)]),
+        ],
+    )
+
+    with pytest.raises(RuntimeError, match=r"duplicate \(region, app\) pairs"):
+        _validate_wine_data(frame)
+
+
+def test_wine_geometry_types_are_limited_to_polygon_and_multipolygon(data_boundary):
+    assert set(data_boundary.wine_df.geometry.geom_type) == {"Polygon", "MultiPolygon"}
+
+    frame = _wine_frame(
+        [{"region": "Test", "app": "Point AOC", "colour": "#123456"}],
+        [Point(0, 0)],
+    )
+    with pytest.raises(RuntimeError, match="unsupported geometry types: Point"):
+        _validate_wine_data(frame)
+
+
+def test_wine_parent_region_must_have_one_colour():
+    frame = _wine_frame(
+        [
+            {"region": "Test", "app": "First", "colour": "#123456"},
+            {"region": "Test", "app": "Second", "colour": "#654321"},
+        ],
+        [
+            Polygon([(0, 0), (1, 0), (1, 1), (0, 0)]),
+            Polygon([(2, 2), (3, 2), (3, 3), (2, 2)]),
+        ],
+    )
+
+    with pytest.raises(RuntimeError, match="exactly one colour: Test"):
+        _validate_wine_data(frame)
