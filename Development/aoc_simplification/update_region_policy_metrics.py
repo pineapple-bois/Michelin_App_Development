@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Any
 
 
+EXPERIMENT_ROOT = Path(__file__).resolve().parent
+
 IDENTITY_COLUMNS = [
     "region",
     "region_slug",
@@ -99,7 +101,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--policy",
         type=Path,
-        default=Path("Development/aoc_simplification/region_policy.csv"),
+        default=EXPERIMENT_ROOT / "region_policy.csv",
     )
     return parser.parse_args()
 
@@ -278,8 +280,7 @@ def read_metrics(path: Path) -> tuple[dict[str, Any] | None, str | None]:
 def main() -> int:
     args = parse_args()
     policy_path = args.policy.resolve()
-    experiment_root = Path(__file__).resolve().parent
-    output_root = experiment_root / "outputs"
+    output_root = EXPERIMENT_ROOT / "outputs"
     metric_paths = sorted(output_root.glob(f"*/{args.run_id}/metrics.json"))
     policies = read_policy(policy_path)
     updated_slugs: set[str] = set()
