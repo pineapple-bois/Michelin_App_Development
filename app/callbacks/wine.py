@@ -25,6 +25,56 @@ def resolve_wine_feature(click_data, feature_lookup):
     return feature_lookup.get(feature_id)
 
 
+def build_wine_info_response(
+    click_data,
+    feature_lookup,
+    cache,
+    openai_client,
+    is_request_limit_exceeded,
+    prompt_builder=generate_optimized_prompt,
+):
+    """Build the Wine information panel from semantic AOC click data."""
+    if not click_data:
+        return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
+
+    wine_feature = resolve_wine_feature(click_data, feature_lookup)
+    if wine_feature is None:
+        return "Please click on a wine appellation.", {"display": "none"}, no_update, {"display": "none"}
+
+    wine_region = wine_feature["region"]
+
+    cache_key = f"wine_info_{wine_region}"
+    cached_content = cache.get(cache_key)
+    if cached_content:
+        region_name_content = html.H3(wine_region, style={'color': cached_content['color']})
+        print(f"Cached Information retrieved for {wine_region}")
+        return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
+
+    if is_request_limit_exceeded():
+        error_message = "You have reached the maximum number of requests."
+        styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold", "text-align": "center"})
+        return styled_error, {"display": "none"}, no_update, {"display": "none"}
+
+    region_color = wine_feature["colour"]
+
+    prompt = prompt_builder(wine_region)
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=400
+        )
+        content = response.choices[0].message.content.strip()
+
+        cache.set(cache_key, {'content': content, 'color': region_color})
+
+        region_name_content = html.H3(wine_region, style={'color': region_color})
+        return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
+
+    except Exception as e:
+        return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
+
+
 def register_wine_callbacks(app, data, config, cache, openai_client):
     wine_df = data.wine_df
     wine_feature_lookup = (
@@ -112,45 +162,10 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         Input('wine-map-graph', 'clickData')
     )
     def update_wine_info(clickData):
-        if not clickData:
-            return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
-
-        wine_feature = resolve_wine_feature(clickData, wine_feature_lookup)
-        if wine_feature is None:
-            return "Please click on a wine appellation.", {"display": "none"}, no_update, {"display": "none"}
-
-        wine_region = wine_feature["region"]
-
-        # Check if the response is already cached
-        cache_key = f"wine_info_{wine_region}"
-        cached_content = cache.get(cache_key)
-        if cached_content:
-            region_name_content = html.H3(wine_region, style={'color': cached_content['color']})
-            print(f"Cached Information retrieved for {wine_region}")
-            return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
-
-        # Check if the user has exceeded their request limit
-        if is_request_limit_exceeded():
-            error_message = "You have reached the maximum number of requests."
-            styled_error = html.Div(error_message, style={"color": "red", "font-weight": "bold", "text-align": "center"})
-            return styled_error, {"display": "none"}, no_update, {"display": "none"}
-
-        region_color = wine_feature["colour"]
-
-        prompt = generate_optimized_prompt(wine_region)
-        try:
-            response = openai_client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=[{"role": "user","content": prompt}],
-                max_tokens=400
-            )
-            content = response.choices[0].message.content.strip()
-
-            # Cache the response for future requests
-            cache.set(cache_key, {'content': content, 'color': region_color})
-
-            region_name_content = html.H3(wine_region, style={'color': region_color})
-            return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
-
-        except Exception as e:
-            return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}
+        return build_wine_info_response(
+            click_data=clickData,
+            feature_lookup=wine_feature_lookup,
+            cache=cache,
+            openai_client=openai_client,
+            is_request_limit_exceeded=is_request_limit_exceeded,
+        )

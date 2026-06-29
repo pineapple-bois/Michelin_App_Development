@@ -9,7 +9,8 @@ folded into this roadmap.
 The Wine page now renders `assets/data/wine_regions_aoc.geojson` as the
 production Wine geography. The AOC dataset loads successfully, each feature has
 a deterministic in-memory `feature_id`, and the map uses one feature-based
-Plotly trace rather than one trace per polygon part.
+Plotly trace rather than one trace per polygon part. The current checked-out
+asset loads 348 AOC features.
 
 The current implementation deliberately keeps generated Wine content
 region-level:
@@ -68,7 +69,8 @@ Historical renderer finding:
 
 * the old renderer expanded AOC geography into one trace per exterior geometry
   part plus interior-ring traces;
-* it produced 4,804 Wine geography traces for the AOC asset;
+* it produced 4,804 Wine geography traces in the architecture-report
+  measurement;
 * the old `curveNumber -> trace-list position -> dataframe row` identity model
   was unsafe and was removed;
 * old curve-number semantics were already broken for the AOC dataset because
@@ -103,8 +105,9 @@ Completed coverage:
 * loader tests for deterministic feature IDs, feature-ID uniqueness,
   `(region, app)` uniqueness, supported geometry types, and one colour per
   parent region;
-* figure tests for one Wine geography trace, 354 locations, stable feature IDs,
-  semantic hover customdata, hidden colour bar, and the expected `map` subplot;
+* figure tests for one Wine geography trace, one location per loaded AOC,
+  stable feature IDs, semantic hover customdata, hidden colour bar, and the
+  expected `map` subplot;
 * callback resolution tests for valid, missing, non-AOC, and unknown feature IDs;
 * layout tests confirming the obsolete curve-number store is absent.
 
@@ -112,18 +115,18 @@ Measured outcome:
 
 | Measurement | Result |
 |---|---:|
-| AOC features | 354 |
-| Polygon features | 192 |
-| MultiPolygon features | 162 |
-| Total geometry parts in source data | 3,628 |
-| Interior rings in source data | 1,176 |
-| Approximate vertices in source data | 58,817 |
-| Old Wine geography traces | 4,804 |
+| AOC features currently loaded | 348 |
+| Polygon features | 178 |
+| MultiPolygon features | 170 |
+| Total geometry parts in source data | 7,309 |
+| Interior rings in source data | 606 |
+| Approximate vertices in source data | 60,115 |
+| Historical old Wine geography traces | 4,804 |
 | New Wine geography traces | 1 |
 | Old server-side construction time | approx. 1.29 s |
-| New median construction time | approx. 0.309 s |
-| New serialized figure size | approx. 2.46 MB |
-| Test suite | 36 passed |
+| Current median construction time | approx. 0.385 s |
+| Current serialized figure size | approx. 2.52 MB |
+| Test suite | 56 passed |
 
 Browser smoke result:
 
@@ -132,8 +135,47 @@ Browser smoke result:
 * `clickData` registration was verified at the browser level;
 * no browser warnings or errors were observed.
 
-This smoke test does not claim complete live OpenAI click-through, mobile
+This smoke test did not claim complete live OpenAI click-through, mobile
 behaviour, or overlapping-AOC interaction behaviour.
+
+### Phase A: live region-level click path
+
+Completed with automated callback tests and manual browser verification against
+a local fake OpenAI-compatible endpoint.
+
+Automated tests now verify:
+
+* a valid AOC feature ID resolves through `location` to the expected parent
+  region;
+* two different Bourgogne AOCs resolve to the same parent region;
+* the second Bourgogne AOC reuses the same explicit `wine_info_Bourgogne` cache
+  entry;
+* an AOC in another parent region uses a different cache key;
+* missing, malformed, unknown, restaurant-style, and other non-AOC payloads fail
+  closed;
+* failed payloads do not invoke OpenAI or request-limit accounting;
+* cached responses do not invoke OpenAI or request-limit accounting;
+* request-limit accounting occurs only for a valid, uncached AOC click.
+
+Manual browser verification used real map clicks on:
+
+* Beaujolais -> parent region `Bourgogne`;
+* Bourgogne -> parent region `Bourgogne`;
+* Crémant d’Alsace -> parent region `Alsace`.
+
+Observed result:
+
+* the displayed parent-region heading was correct for Bourgogne and Alsace;
+* generated content remained parent-region level;
+* the second Bourgogne AOC reused the existing regional response;
+* switching to Alsace produced a separate regional response;
+* no browser console warnings, browser console errors, or Dash callback errors
+  were observed.
+
+Caveat: the browser run used a local fake OpenAI-compatible endpoint, not the
+real OpenAI service. Cache reuse was directly observed through the fake endpoint
+request counts and the server-side cache hit; external API availability and
+real-account authentication were not tested.
 
 ## Current data and callback contract
 
@@ -184,18 +226,10 @@ lookup. Positional Plotly fields such as `curveNumber`, `pointNumber`,
 
 Non-AOC payloads fail closed and must not invoke OpenAI.
 
-## Next: restore overlays incrementally
+## Next: restore regional outlines
 
-The next active phase is overlay restoration, not renderer selection.
-
-### Phase A — verify live region-level click path
-
-* Manually verify one complete live AOC click through:
-  `location -> server lookup -> parent region -> regional cache/OpenAI output`.
-* Verify repeated AOCs in the same parent region reuse region-level prompt and
-  cache behaviour.
-* Confirm request-limit behaviour still applies only when an OpenAI request is
-  actually needed.
+The next active phase is Phase B: regional-outline restoration. Renderer
+selection and live region-level click-path verification are complete.
 
 ### Phase B — restore regional outlines
 
@@ -243,8 +277,9 @@ Keep these separate from the immediate renderer and overlay phases:
 * Restaurant traces must be semantically rejected by the Wine information
   callback.
 * Dash `Patch` behaviour should be tested across Dash Page unmount/remount.
-* Region-level OpenAI cache reuse must be manually verified with live clicks
-  before treating the full click-to-content path as complete.
+* Real OpenAI service availability and authentication still need a production or
+  credentialed environment check; Phase A intentionally used a fake local
+  endpoint.
 
 ## Obsolete architecture removed from active work
 

@@ -1,6 +1,7 @@
 import pytest
+from dash import dcc, html, no_update
 
-from app.callbacks.wine import resolve_wine_feature
+from app.callbacks.wine import build_wine_info_response, resolve_wine_feature
 
 
 @pytest.fixture
@@ -47,3 +48,212 @@ def test_resolve_wine_feature_fails_closed_for_unknown_feature_id(feature_lookup
     click_data = {"points": [{"location": "aoc-unknown"}]}
 
     assert resolve_wine_feature(click_data, feature_lookup) is None
+
+
+class FakeCache:
+    def __init__(self):
+        self.values = {}
+        self.get_calls = []
+        self.set_calls = []
+
+    def get(self, key):
+        self.get_calls.append(key)
+        return self.values.get(key)
+
+    def set(self, key, value):
+        self.set_calls.append((key, value))
+        self.values[key] = value
+
+
+class FakeRequestLimit:
+    def __init__(self, exceeded=False):
+        self.exceeded = exceeded
+        self.calls = 0
+
+    def __call__(self):
+        self.calls += 1
+        return self.exceeded
+
+
+class FakeOpenAIClient:
+    def __init__(self):
+        self.requests = []
+        self.chat = self
+        self.completions = self
+
+    def create(self, **kwargs):
+        self.requests.append(kwargs)
+        region = kwargs["messages"][0]["content"].removeprefix("prompt:")
+        content = f"Generated regional content for {region}"
+        message = type("Message", (), {"content": content})()
+        choice = type("Choice", (), {"message": message})()
+        return type("Response", (), {"choices": [choice]})()
+
+
+def _click(feature_id):
+    return {"points": [{"location": feature_id}]}
+
+
+def _feature_lookup_for_regions(data_boundary):
+    grouped = data_boundary.wine_df.groupby("region")
+    same_region = grouped.get_group("Bourgogne")
+    other_region = next(
+        group
+        for region, group in grouped
+        if region != same_region.iloc[0]["region"]
+    )
+
+    rows = [same_region.iloc[0], same_region.iloc[1], other_region.iloc[0]]
+    lookup = {
+        row["feature_id"]: {
+            "region": row["region"],
+            "app": row["app"],
+            "colour": row["colour"],
+        }
+        for row in rows
+    }
+    return rows, lookup
+
+
+def _prompt_builder(region):
+    return f"prompt:{region}"
+
+
+def test_wine_info_reuses_explicit_region_cache_for_different_aocs(data_boundary):
+    rows, lookup = _feature_lookup_for_regions(data_boundary)
+    first_bourgogne, second_bourgogne, other_region = rows
+    assert first_bourgogne["region"] == second_bourgogne["region"]
+    assert first_bourgogne["feature_id"] != second_bourgogne["feature_id"]
+    assert first_bourgogne["region"] != other_region["region"]
+
+    cache = FakeCache()
+    request_limit = FakeRequestLimit()
+    openai_client = FakeOpenAIClient()
+
+    first_response = build_wine_info_response(
+        _click(first_bourgogne["feature_id"]),
+        lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+    second_response = build_wine_info_response(
+        _click(second_bourgogne["feature_id"]),
+        lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+    other_response = build_wine_info_response(
+        _click(other_region["feature_id"]),
+        lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+
+    first_region = first_bourgogne["region"]
+    other_parent_region = other_region["region"]
+
+    assert cache.get_calls == [
+        f"wine_info_{first_region}",
+        f"wine_info_{first_region}",
+        f"wine_info_{other_parent_region}",
+    ]
+    assert [key for key, _ in cache.set_calls] == [
+        f"wine_info_{first_region}",
+        f"wine_info_{other_parent_region}",
+    ]
+    assert len(openai_client.requests) == 2
+    assert request_limit.calls == 2
+
+    assert isinstance(first_response[0], dcc.Markdown)
+    assert isinstance(second_response[0], dcc.Markdown)
+    assert isinstance(other_response[0], dcc.Markdown)
+    assert first_response[2].children == first_region
+    assert second_response[2].children == first_region
+    assert other_response[2].children == other_parent_region
+    assert first_response[0].children == second_response[0].children
+    assert other_response[0].children != first_response[0].children
+
+
+def test_wine_info_uses_cached_response_without_openai_or_request_limit(feature_lookup):
+    cache = FakeCache()
+    cache.values["wine_info_Bourgogne"] = {
+        "content": "Cached regional Bourgogne content",
+        "color": "#abcdef",
+    }
+    request_limit = FakeRequestLimit()
+    openai_client = FakeOpenAIClient()
+
+    response = build_wine_info_response(
+        _click("aoc-known"),
+        feature_lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+
+    assert isinstance(response[0], dcc.Markdown)
+    assert response[0].children == "Cached regional Bourgogne content"
+    assert response[2].children == "Bourgogne"
+    assert response[2].style == {"color": "#abcdef"}
+    assert openai_client.requests == []
+    assert request_limit.calls == 0
+
+
+@pytest.mark.parametrize(
+    "click_data",
+    [
+        None,
+        {},
+        {"points": []},
+        {"points": [{}]},
+        {"points": [{"customdata": ["Restaurant"]}]},
+        {"points": [{"location": None}]},
+        {"points": [{"location": "aoc-unknown"}]},
+    ],
+)
+def test_wine_info_failed_payloads_do_not_invoke_openai_or_request_limit(click_data, feature_lookup):
+    cache = FakeCache()
+    request_limit = FakeRequestLimit()
+    openai_client = FakeOpenAIClient()
+
+    response = build_wine_info_response(
+        click_data,
+        feature_lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+
+    assert openai_client.requests == []
+    assert request_limit.calls == 0
+    assert response[2] is no_update
+
+
+def test_wine_info_request_limit_checked_only_after_uncached_valid_aoc(feature_lookup):
+    cache = FakeCache()
+    request_limit = FakeRequestLimit(exceeded=True)
+    openai_client = FakeOpenAIClient()
+
+    response = build_wine_info_response(
+        _click("aoc-known"),
+        feature_lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+
+    assert isinstance(response[0], html.Div)
+    assert response[0].children == "You have reached the maximum number of requests."
+    assert response[2] is no_update
+    assert openai_client.requests == []
+    assert request_limit.calls == 1
+    assert cache.set_calls == []
