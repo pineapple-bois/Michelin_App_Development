@@ -24,12 +24,10 @@ AOC click location -> server-side feature_id lookup -> parent region
 The `app` appellation field is retained for hover, feature identity, and future
 functionality, but it does not yet change OpenAI prompts or cache keys.
 
-Temporarily disabled UI:
+Remaining compatibility state:
 
-* restaurant overlay controls are disabled until restaurant traces are restored
-  as separate overlays;
 * `selected-stars-wine` and `map-view-store` remain in place for compatibility
-  while overlay restoration and view-persistence behaviour are tested.
+  while cleanup and view-persistence behaviour are tested.
 
 Overlapping AOCs are now visible as a separate data and interaction-design
 issue. They are outside the immediate renderer-restoration phase and will be
@@ -121,10 +119,11 @@ Measured outcome:
 | Approximate vertices in source data  |          60,115 |
 | Historical old Wine geography traces |           4,804 |
 | New Wine geography traces            |               1 |
+| Current total Wine map traces         |               4 |
 | Old server-side construction time    |  approx. 1.29 s |
-| Current median construction time     | approx. 0.385 s |
-| Current serialized figure size       | approx. 2.52 MB |
-| Test suite                           |       56 passed |
+| Current median construction time     | approx. 0.376 s |
+| Current serialized figure size       | approx. 2.78 MB |
+| Test suite                           |       74 passed |
 
 Browser smoke result:
 
@@ -186,11 +185,50 @@ Completed in the application:
 * the outline dropdown toggles only `layout.map.layers[0].visible` via Dash
   `Patch`;
 * the Wine geography remains one `Choroplethmap` trace;
-* restaurant controls remain disabled for Phase C.
+* restaurant controls remained disabled until Phase C.
 
 Automated tests cover the outline layer contract, visibility patch, enabled
 outline control, and still-disabled restaurant control. Browser smoke confirmed
 selection and clearing work without browser console warnings or errors.
+
+### Phase C: restaurant overlays
+
+Completed in the application:
+
+* restored three fixed `go.Scattermap` restaurant traces in the base Wine
+  figure;
+* preserved the previous one-, two-, and three-star marker colours and
+  restaurant hover content;
+* gave each restaurant trace explicit metadata:
+  `{"kind": "restaurant", "stars": <1|2|3>}`;
+* re-enabled the Wine restaurant overlay button;
+* kept the star filter hidden until restaurants are shown;
+* toggled restaurant visibility with Dash `Patch` assignments to trace
+  `visible` values only;
+* preserved the AOC click contract and region-level OpenAI/cache behaviour;
+* made restaurant-style click payloads fail closed without invoking OpenAI,
+  incrementing request-limit accounting, or replacing existing Wine-region
+  content.
+
+Final trace order:
+
+```text
+0: Choroplethmap — Wine appellations
+1: Scattermap — one-star restaurants
+2: Scattermap — two-star restaurants
+3: Scattermap — three-star restaurants
+```
+
+Initial restaurant visibility is `False` for all three restaurant traces.
+
+Automated tests cover the fixed trace structure, stable restaurant identities,
+initial visibility, visibility-only patches, restaurant click fail-closed
+behaviour, AOC click preservation, and regional-outline patch behaviour.
+
+Browser verification for star-filter combinations, map-view preservation while
+toggling, AOC clicks while restaurants are visible, restaurant clicks,
+coexistence with regional outlines, and browser/Dash console output is left for
+manual user verification.
 
 ## Current data and callback contract
 
@@ -241,19 +279,11 @@ lookup. Positional Plotly fields such as `curveNumber`, `pointNumber`,
 
 Non-AOC payloads fail closed and must not invoke OpenAI.
 
-## Next: restore restaurant overlays
+## Next: cleanup and responsive verification
 
-The next active phase is Phase C: restaurant overlay restoration. Renderer
-selection, live region-level click-path verification, and regional-outline
+The next active phase is Phase D. Renderer selection, live region-level
+click-path verification, regional-outline restoration, and restaurant-overlay
 restoration are complete.
-
-### Phase C — restore restaurant overlays
-
-* Restore the three fixed restaurant `Scattermap` traces.
-* Use Dash `Patch` or an equivalent visibility-only update so restaurant filter
-  changes do not reconstruct the static AOC geography.
-* Ensure restaurant clicks cannot invoke the Wine OpenAI callback.
-* Re-enable restaurant controls only when the restored interaction is covered.
 
 ### Phase D — cleanup and responsive verification
 

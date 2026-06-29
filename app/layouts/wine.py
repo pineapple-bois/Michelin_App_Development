@@ -67,10 +67,8 @@ def get_wine_content():
                                         id='toggle-show-details-wine',
                                         n_clicks=0,
                                         className='button-show-details editorial-action-button',
-                                        disabled=True,
                                     )
                                 ],
-                                title='Restaurant overlays will return in the next Wine map phase.',
                             ),
                             # Star filter specific to wine page
                             html.Div(

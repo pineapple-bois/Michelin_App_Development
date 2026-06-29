@@ -3,6 +3,17 @@ import json
 import plotly.graph_objects as go
 
 REGIONAL_OUTLINE_LAYER_INDEX = 0
+WINE_AOC_TRACE_INDEX = 0
+RESTAURANT_STAR_ORDER = (1, 2, 3)
+RESTAURANT_TRACE_INDICES = {
+    star: index
+    for index, star in enumerate(RESTAURANT_STAR_ORDER, start=1)
+}
+RESTAURANT_STAR_COLORS = {
+    1: "#FFB84D",
+    2: "#FE6F64",
+    3: "#C2282D",
+}
 
 
 def _region_colour_contract(wine_df):
@@ -49,10 +60,38 @@ def _regional_outline_layer(outline_df, visible=False):
     }
 
 
+def _restaurant_trace(restaurants_df, star):
+    star_data = restaurants_df[restaurants_df["stars"] == star]
+    return go.Scattermap(
+        lon=star_data["longitude"].tolist(),
+        lat=star_data["latitude"].tolist(),
+        mode="markers",
+        below="",
+        marker=go.scattermap.Marker(
+            size=8,
+            color=RESTAURANT_STAR_COLORS[star],
+        ),
+        hovertemplate=(
+            "<b>Restaurant Name:</b> %{customdata[0]}<br>"
+            "<b>Location:</b> %{customdata[1]}<br>"
+            "<extra></extra>"
+        ),
+        customdata=star_data[["name", "location"]].values,
+        showlegend=False,
+        visible=False,
+        name=f"{'★' * star}",
+        meta={
+            "kind": "restaurant",
+            "stars": star,
+        },
+    )
+
+
 def plot_wine_choropleth_plotly(
     wine_df,
     zoom_data=None,
     regional_outline_df=None,
+    restaurants_df=None,
     show_regional_outlines=False,
 ):
     """Render the complete AOC FeatureCollection as one MapLibre trace."""
@@ -88,6 +127,9 @@ def plot_wine_choropleth_plotly(
             name="Wine appellations",
         )
     )
+    if restaurants_df is not None:
+        for star in RESTAURANT_STAR_ORDER:
+            fig.add_trace(_restaurant_trace(restaurants_df, star))
 
     zoom = zoom_data.get("zoom", 5)
     center = zoom_data.get("center") or {

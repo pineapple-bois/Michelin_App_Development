@@ -102,6 +102,8 @@ def test_wine_layout_contains_expected_component_ids():
 
     outline_dropdown = find_component_by_id(layout, "granularity-dropdown-wine")
     restaurant_button = find_component_by_id(layout, "toggle-show-details-wine")
+    star_filter_container = find_component_by_id(layout, "star-filter-container-wine")
 
     assert getattr(outline_dropdown, "disabled", False) is False
-    assert restaurant_button.disabled is True
+    assert getattr(restaurant_button, "disabled", False) is False
+    assert star_filter_container.style == {'width': '30%', 'display': 'none'}

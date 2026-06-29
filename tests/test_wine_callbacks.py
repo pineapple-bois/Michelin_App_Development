@@ -3,6 +3,9 @@ from dash import dcc, html, no_update
 
 from app.callbacks.wine import (
     build_wine_info_response,
+    restaurant_filter_style,
+    restaurant_overlay_visible,
+    restaurant_visibility_patch,
     regional_outline_visibility_patch,
     regional_outlines_visible,
     resolve_wine_feature,
@@ -83,6 +86,68 @@ def test_regional_outline_visibility_patch_updates_only_outline_layer(selected_g
             "location": ["layout", "map", "layers", 0, "visible"],
             "params": {"value": expected},
         }
+    ]
+
+
+@pytest.mark.parametrize(
+    ("n_clicks_rest", "expected"),
+    [
+        (None, False),
+        (0, False),
+        (1, True),
+        (2, False),
+    ],
+)
+def test_restaurant_overlay_visible_only_for_odd_toggle_clicks(n_clicks_rest, expected):
+    assert restaurant_overlay_visible(n_clicks_rest) is expected
+
+
+def test_restaurant_filter_style_tracks_overlay_visibility():
+    assert restaurant_filter_style(True) == {'width': '30%', 'display': 'block'}
+    assert restaurant_filter_style(False) == {'width': '30%', 'display': 'none'}
+
+
+@pytest.mark.parametrize(
+    ("n_clicks_rest", "n_clicks_stars", "expected_visibility"),
+    [
+        (0, [0, 0, 0], [False, False, False]),
+        (1, [0, 0, 0], [True, True, True]),
+        (1, [0, 1, 0], [True, False, True]),
+        (2, [0, 0, 0], [False, False, False]),
+    ],
+)
+def test_restaurant_visibility_patch_updates_only_restaurant_traces(
+    n_clicks_rest,
+    n_clicks_stars,
+    expected_visibility,
+):
+    ids = [
+        {"type": "filter-button-wine", "index": 1},
+        {"type": "filter-button-wine", "index": 2},
+        {"type": "filter-button-wine", "index": 3},
+    ]
+    patch = restaurant_visibility_patch(
+        n_clicks_rest,
+        n_clicks_stars,
+        ids,
+    ).to_plotly_json()
+
+    assert patch["operations"] == [
+        {
+            "operation": "Assign",
+            "location": ["data", 1, "visible"],
+            "params": {"value": expected_visibility[0]},
+        },
+        {
+            "operation": "Assign",
+            "location": ["data", 2, "visible"],
+            "params": {"value": expected_visibility[1]},
+        },
+        {
+            "operation": "Assign",
+            "location": ["data", 3, "visible"],
+            "params": {"value": expected_visibility[2]},
+        },
     ]
 
 
@@ -271,6 +336,37 @@ def test_wine_info_failed_payloads_do_not_invoke_openai_or_request_limit(click_d
     assert openai_client.requests == []
     assert request_limit.calls == 0
     assert response[2] is no_update
+
+
+def test_wine_info_restaurant_click_payload_fails_closed_without_replacing_content(feature_lookup):
+    cache = FakeCache()
+    request_limit = FakeRequestLimit()
+    openai_client = FakeOpenAIClient()
+    click_data = {
+        "points": [
+            {
+                "curveNumber": 1,
+                "pointNumber": 0,
+                "customdata": ["Restaurant", "Paris"],
+                "lon": 2.35,
+                "lat": 48.85,
+            }
+        ]
+    }
+
+    response = build_wine_info_response(
+        click_data,
+        feature_lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+
+    assert response == (no_update, no_update, no_update, no_update)
+    assert cache.get_calls == []
+    assert openai_client.requests == []
+    assert request_limit.calls == 0
 
 
 def test_wine_info_request_limit_checked_only_after_uncached_valid_aoc(feature_lookup):

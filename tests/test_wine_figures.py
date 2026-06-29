@@ -1,14 +1,19 @@
-from app.utils.wine_figures import plot_wine_choropleth_plotly
+from app.utils.wine_figures import (
+    RESTAURANT_STAR_ORDER,
+    RESTAURANT_TRACE_INDICES,
+    plot_wine_choropleth_plotly,
+)
 
 
 def test_wine_figure_uses_one_feature_based_geography_trace(data_boundary):
     fig = plot_wine_choropleth_plotly(
         data_boundary.wine_df,
         regional_outline_df=data_boundary.region_df,
+        restaurants_df=data_boundary.all_france,
     )
     expected_count = len(data_boundary.wine_df)
 
-    assert len(fig.data) == 1
+    assert len(fig.data) == 4
     trace = fig.data[0]
     assert trace.type == "choroplethmap"
     assert trace.subplot == "map"
@@ -26,6 +31,7 @@ def test_wine_figure_exposes_semantic_hover_data(data_boundary):
     fig = plot_wine_choropleth_plotly(
         data_boundary.wine_df,
         regional_outline_df=data_boundary.region_df,
+        restaurants_df=data_boundary.all_france,
     )
     trace = fig.data[0]
     expected_count = len(data_boundary.wine_df)
@@ -51,6 +57,7 @@ def test_wine_figure_preserves_map_contract(data_boundary):
     fig = plot_wine_choropleth_plotly(
         data_boundary.wine_df,
         regional_outline_df=data_boundary.region_df,
+        restaurants_df=data_boundary.all_france,
     )
 
     assert fig.layout.map.style == "carto-positron"
@@ -64,6 +71,7 @@ def test_wine_figure_contains_non_interactive_regional_outline_layer(data_bounda
     fig = plot_wine_choropleth_plotly(
         data_boundary.wine_df,
         regional_outline_df=data_boundary.region_df,
+        restaurants_df=data_boundary.all_france,
     )
     layer = fig.layout.map.layers[0]
     source = layer.source
@@ -85,8 +93,38 @@ def test_wine_regional_outline_layer_can_be_enabled_in_base_figure(data_boundary
     fig = plot_wine_choropleth_plotly(
         data_boundary.wine_df,
         regional_outline_df=data_boundary.region_df,
+        restaurants_df=data_boundary.all_france,
         show_regional_outlines=True,
     )
 
-    assert len(fig.data) == 1
+    assert len(fig.data) == 4
     assert fig.layout.map.layers[0].visible is True
+
+
+def test_wine_figure_contains_fixed_restaurant_traces(data_boundary):
+    fig = plot_wine_choropleth_plotly(
+        data_boundary.wine_df,
+        regional_outline_df=data_boundary.region_df,
+        restaurants_df=data_boundary.all_france,
+    )
+
+    assert [trace.type for trace in fig.data] == [
+        "choroplethmap",
+        "scattermap",
+        "scattermap",
+        "scattermap",
+    ]
+    assert list(RESTAURANT_TRACE_INDICES.values()) == [1, 2, 3]
+
+    for star in RESTAURANT_STAR_ORDER:
+        trace = fig.data[RESTAURANT_TRACE_INDICES[star]]
+        expected_count = len(data_boundary.all_france[data_boundary.all_france["stars"] == star])
+
+        assert trace.name == "★" * star
+        assert trace.meta == {"kind": "restaurant", "stars": star}
+        assert trace.below == ""
+        assert trace.visible is False
+        assert len(trace.lon) == expected_count
+        assert len(trace.lat) == expected_count
+        assert "Restaurant Name:" in trace.hovertemplate
+        assert "Location:" in trace.hovertemplate
