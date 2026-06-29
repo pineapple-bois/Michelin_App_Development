@@ -86,5 +86,23 @@ coordinates, polygon parts, and approximate payload. Record a preferred run in
 `region_policy.csv` only after the visual and metric checks agree; keep status
 and notes provisional until a candidate is genuinely accepted.
 
+## Region Decision Table
+
+`region_policy.csv` is the central old-versus-raw-versus-candidate decision
+table. Refresh its metrics from completed experiment folders with:
+
+```bash
+.venv/bin/python Development/aoc_simplification/update_region_policy_metrics.py
+```
+
+The old app geometry is a payload and detail benchmark, not necessarily a
+fidelity benchmark; some old regions are intentionally or grossly simplified.
+Raw-to-candidate ratios show the simplification and area change introduced by
+an experiment. Old-to-candidate ratios show how much heavier or more detailed
+the candidate is than the current app layer. These values are evidence rather
+than automatic pass/fail thresholds: size, area, part count, and coordinate
+count each require interpretation. Complete the human assessment and notes
+fields only after viewing the experiment's comparison plots.
+
 The entire `outputs/` tree is intentionally untracked. No command in this
 directory promotes or copies a candidate into `assets/data`.
