@@ -36,3 +36,5 @@ __pycache__/
 # Candidate wine datasets
 /Development/aoc_simplification/outputs/
 /Development/aoc_simplification/datasets/
+/Development/aoc_simplification/backup_scripts/
+/Development/aoc_simplification/_invalid_diagnostics/
