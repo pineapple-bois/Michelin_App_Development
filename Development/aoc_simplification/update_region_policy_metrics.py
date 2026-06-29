@@ -17,6 +17,7 @@ IDENTITY_COLUMNS = [
     "region_slug",
     "status",
     "preferred_run_id",
+    "overlap_strategy",
     "overlap_clip_enabled",
     "buffer_dist_m",
     "simplify_m",
@@ -38,6 +39,16 @@ AREA_COLUMNS = [
     "candidate_area_to_raw",
     "closed_area_to_raw",
     "candidate_area_change_pct_from_raw",
+    "candidate_area_to_pre_partition_union",
+]
+OVERLAP_COLUMNS = [
+    "fully_covered_app_count",
+    "partially_reduced_app_count",
+    "maximum_removed_percent",
+    "overlap_area_before_m2",
+    "overlap_area_after_m2",
+    "residual_overlap_ratio",
+    "residual_overlap_within_tolerance",
 ]
 FRAGMENTATION_COLUMNS = [
     "old_part_count",
@@ -80,6 +91,7 @@ FIELDNAMES = (
     IDENTITY_COLUMNS
     + SIZE_COLUMNS
     + AREA_COLUMNS
+    + OVERLAP_COLUMNS
     + FRAGMENTATION_COLUMNS
     + COORDINATE_COLUMNS
     + FEATURE_COLUMNS
@@ -91,7 +103,6 @@ REQUIRED_STAGES = {
     "old_app_geometry",
     "raw_selected_aoc_geometry",
     "morphologically_closed",
-    "simplified_final_candidate",
 }
 
 
@@ -155,12 +166,31 @@ def region_name(metrics: dict[str, Any], slug: str) -> str:
     return slug.replace("_", " ").title()
 
 
-def count_dropped_apps(clipping: dict[str, Any]) -> str:
-    dropped_names = clipping.get("dropped_app_names")
+def boolean_text(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, str) and value.lower() in {"true", "false"}:
+        return value.lower()
+    return ""
+
+
+def fully_covered_app_count(operation_report: dict[str, Any]) -> str:
+    count = operation_report.get("fully_covered_app_count")
+    if count is not None:
+        return whole_number(count)
+    names = operation_report.get("fully_covered_app_names")
+    return str(len(names)) if isinstance(names, list) else ""
+
+
+def count_dropped_apps(operation_report: dict[str, Any]) -> str:
+    fully_covered_count = fully_covered_app_count(operation_report)
+    if fully_covered_count:
+        return fully_covered_count
+    dropped_names = operation_report.get("dropped_app_names")
     if isinstance(dropped_names, list):
         return str(len(dropped_names))
-    source = as_number(clipping.get("source_app_count"))
-    retained = as_number(clipping.get("retained_app_count"))
+    source = as_number(operation_report.get("source_app_count"))
+    retained = as_number(operation_report.get("retained_app_count"))
     if source is None or retained is None:
         return ""
     return str(round(source - retained))
@@ -171,8 +201,10 @@ def extract_metrics(metrics: dict[str, Any]) -> dict[str, str]:
     old = stages["old_app_geometry"]
     raw = stages["raw_selected_aoc_geometry"]
     closed = stages["morphologically_closed"]
-    candidate = stages["simplified_final_candidate"]
-    clipping = metrics.get("clipping") or {}
+    candidate = stages.get("final_candidate")
+    if not isinstance(candidate, dict):
+        candidate = stages["simplified_final_candidate"]
+    operation_report = metrics.get("partition") or metrics.get("clipping") or {}
 
     old_size = old.get("approx_geojson_size_mb")
     raw_size = raw.get("approx_geojson_size_mb")
@@ -185,6 +217,26 @@ def extract_metrics(metrics: dict[str, Any]) -> dict[str, str]:
     raw_area = raw.get("area_m2_epsg_2154")
     closed_area = closed.get("area_m2_epsg_2154")
     candidate_area = candidate.get("area_m2_epsg_2154")
+    overlap_area_before = operation_report.get("overlap_area_before_m2")
+    if overlap_area_before is None:
+        overlap_area_before = nested(
+            metrics, "overlap", "before_partition", "overlap_area_m2"
+        )
+    overlap_area_after = operation_report.get("overlap_area_after_m2")
+    if overlap_area_after is None:
+        overlap_area_after = nested(
+            metrics, "overlap", "after_partition", "overlap_area_m2"
+        )
+    pre_partition_union_area = nested(
+        metrics, "overlap", "before_partition", "union_area_m2"
+    )
+    residual_within_tolerance = nested(
+        metrics, "overlap", "residual_overlap_within_tolerance"
+    )
+    if residual_within_tolerance is None:
+        residual_within_tolerance = nested(
+            metrics, "final_validation", "residual_overlap_within_tolerance"
+        )
 
     old_parts = old.get("polygon_part_count")
     raw_parts = raw.get("polygon_part_count")
@@ -217,6 +269,27 @@ def extract_metrics(metrics: dict[str, Any]) -> dict[str, str]:
         "candidate_area_to_raw": ratio(candidate_area, raw_area),
         "closed_area_to_raw": ratio(closed_area, raw_area),
         "candidate_area_change_pct_from_raw": formatted(area_change, 2),
+        "candidate_area_to_pre_partition_union": ratio(
+            candidate_area, pre_partition_union_area
+        ),
+        "overlap_strategy": str(
+            metrics.get("overlap_strategy") or operation_report.get("strategy") or ""
+        ),
+        "fully_covered_app_count": fully_covered_app_count(operation_report),
+        "partially_reduced_app_count": whole_number(
+            operation_report.get("partially_reduced_app_count")
+        ),
+        "maximum_removed_percent": formatted(
+            operation_report.get("maximum_removed_percent"), 2
+        ),
+        "overlap_area_before_m2": whole_number(overlap_area_before),
+        "overlap_area_after_m2": formatted(overlap_area_after, 4),
+        "residual_overlap_ratio": ratio(
+            overlap_area_after, overlap_area_before, places=12
+        ),
+        "residual_overlap_within_tolerance": boolean_text(
+            residual_within_tolerance
+        ),
         "old_part_count": whole_number(old_parts),
         "raw_part_count": whole_number(raw_parts),
         "closed_part_count": whole_number(closed_parts),
@@ -232,9 +305,11 @@ def extract_metrics(metrics: dict[str, Any]) -> dict[str, str]:
         "old_feature_count": whole_number(old.get("feature_count")),
         "raw_feature_count": whole_number(raw.get("feature_count")),
         "candidate_feature_count": whole_number(candidate.get("feature_count")),
-        "source_app_count": whole_number(clipping.get("source_app_count")),
-        "retained_app_count": whole_number(clipping.get("retained_app_count")),
-        "dropped_app_count": count_dropped_apps(clipping),
+        "source_app_count": whole_number(operation_report.get("source_app_count")),
+        "retained_app_count": whole_number(
+            operation_report.get("retained_app_count")
+        ),
+        "dropped_app_count": count_dropped_apps(operation_report),
         "raw_invalid_geometry_count": whole_number(raw.get("invalid_geometry_count")),
         "candidate_invalid_geometry_count": whole_number(
             candidate.get("invalid_geometry_count")
@@ -274,6 +349,11 @@ def read_metrics(path: Path) -> tuple[dict[str, Any] | None, str | None]:
         return None, f"{path}: missing stages: {', '.join(missing_stages)}"
     if any(not isinstance(stages[name], dict) for name in REQUIRED_STAGES):
         return None, f"{path}: one or more required stages are not objects"
+    candidate = stages.get("final_candidate") or stages.get(
+        "simplified_final_candidate"
+    )
+    if not isinstance(candidate, dict):
+        return None, f"{path}: missing final candidate stage"
     return data, None
 
 
@@ -301,11 +381,17 @@ def main() -> int:
         row["region_slug"] = slug
         row["status"] = row["status"] or "benchmarking"
         row["preferred_run_id"] = row["preferred_run_id"] or args.run_id
-        if args.run_id == "close500":
-            row["overlap_clip_enabled"] = row["overlap_clip_enabled"] or "false"
-            row["buffer_dist_m"] = row["buffer_dist_m"] or "500"
-            row["simplify_m"] = row["simplify_m"] or "250"
         row.update(extract_metrics(metrics))
+        if args.run_id == "close500_smallest_wins":
+            row["preferred_run_id"] = "close500_smallest_wins"
+            row["overlap_strategy"] = "smallest-wins"
+            row["buffer_dist_m"] = "500"
+            row["simplify_m"] = "250"
+        elif args.run_id == "close500":
+            row["overlap_strategy"] = "none"
+            row["overlap_clip_enabled"] = row["overlap_clip_enabled"] or "false"
+            row["buffer_dist_m"] = "500"
+            row["simplify_m"] = "250"
         updated_slugs.add(slug)
 
     policy_path.parent.mkdir(parents=True, exist_ok=True)

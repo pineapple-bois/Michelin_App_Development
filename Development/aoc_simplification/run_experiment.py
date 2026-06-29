@@ -34,7 +34,7 @@ except ImportError:  # Direct execution from this directory.
     )
 
 
-SCRIPT_VERSION = "1"
+SCRIPT_VERSION = "2"
 REQUIRED_AOC_COLUMNS = set(OUTPUT_COLUMNS)
 OLD_REGION_COLUMNS = ("region", "Region", "REGION", "name", "Name", "nom", "Nom")
 
@@ -89,7 +89,13 @@ def _git_commit(project_root: Path) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
-def _plot_frame(ax, frame: gpd.GeoDataFrame, *, absent_message: str | None = None) -> None:
+def _plot_frame(
+    ax,
+    frame: gpd.GeoDataFrame,
+    *,
+    absent_message: str | None = None,
+    fill_color: str | None = None,
+) -> None:
     ax.set_facecolor("white")
     if frame.empty:
         ax.text(
@@ -107,7 +113,9 @@ def _plot_frame(ax, frame: gpd.GeoDataFrame, *, absent_message: str | None = Non
             "edgecolor": "#303030",
             "linewidth": 0.3,
         }
-        if "colour" in plot_frame.columns:
+        if fill_color is not None:
+            plot_kwargs["color"] = fill_color
+        elif "colour" in plot_frame.columns:
             plot_kwargs["color"] = plot_frame["colour"].fillna("#8a6f96")
         else:
             plot_kwargs["color"] = "#8a6f96"
@@ -139,11 +147,15 @@ def write_plots(
     candidate: gpd.GeoDataFrame,
     raw: gpd.GeoDataFrame,
     old_region: gpd.GeoDataFrame,
+    simplified: gpd.GeoDataFrame,
+    partitioned: gpd.GeoDataFrame,
+    removed_overlap: gpd.GeoDataFrame,
     *,
     region: str,
     run_id: str,
     preview_path: Path,
     comparison_path: Path,
+    overlap_comparison_path: Path,
 ) -> None:
     import matplotlib
 
@@ -186,6 +198,35 @@ def write_plots(
     figure.savefig(comparison_path, bbox_inches="tight")
     plt.close(figure)
 
+    figure, axes = plt.subplots(1, 3, figsize=(24, 8))
+    figure.patch.set_facecolor("white")
+    overlap_panels = (
+        (simplified, "Simplified before partition", None, None),
+        (partitioned, "Smallest-wins partition", None, None),
+        (
+            removed_overlap,
+            "Overlap removed from broader AOCs",
+            "No overlap removed",
+            "#b64b4b",
+        ),
+    )
+    overlap_bounds = _shared_bounds([simplified, partitioned, removed_overlap])
+    for axis, (frame, title, absent_message, fill_color) in zip(axes, overlap_panels):
+        _plot_frame(
+            axis,
+            frame,
+            absent_message=absent_message,
+            fill_color=fill_color,
+        )
+        axis.set_title(title)
+        if overlap_bounds is not None:
+            axis.set_xlim(overlap_bounds[0], overlap_bounds[2])
+            axis.set_ylim(overlap_bounds[1], overlap_bounds[3])
+    figure.suptitle(f"{region}: {run_id} overlap partition")
+    figure.tight_layout()
+    figure.savefig(overlap_comparison_path, bbox_inches="tight")
+    plt.close(figure)
+
 
 def _write_json(path: Path, payload: dict) -> None:
     with path.open("w", encoding="utf-8") as handle:
@@ -225,14 +266,28 @@ def run_experiment(args: argparse.Namespace) -> Path:
     selected = source.loc[source["region"].astype(str) == args.region, OUTPUT_COLUMNS].copy()
     del source
 
-    print(f"Processing {args.region}: overlap_clip={args.overlap_clip}, "
-          f"buffer={args.buffer} m, simplify={args.simplify} m")
+    print(
+        f"Processing {args.region}: overlap_strategy={args.overlap_strategy}, "
+        f"buffer={args.buffer} m, simplify={args.simplify} m"
+    )
     stages = process_region(
         selected,
-        overlap_clip=args.overlap_clip,
+        overlap_strategy=args.overlap_strategy,
         buffer_dist_m=args.buffer,
         simplify_m=args.simplify,
     )
+    partition = stages.partition_report.as_dict() if stages.partition_report else None
+    fully_covered_app_names = (
+        stages.partition_report.fully_covered_app_names
+        if stages.partition_report
+        else []
+    )
+    if fully_covered_app_names:
+        print(
+            "WARNING: fully covered appellations removed from candidate: "
+            + ", ".join(fully_covered_app_names),
+            file=sys.stderr,
+        )
 
     print(f"Reading old app comparison geometry from {old_path}")
     old = gpd.read_file(old_path, engine="pyogrio")
@@ -248,17 +303,51 @@ def run_experiment(args: argparse.Namespace) -> Path:
     stage_metrics = {
         "old_app_geometry": old_metrics,
         "raw_selected_aoc_geometry": raw_metrics,
+        "repaired_source_geometry": metrics_for_frame(stages.repaired),
         "dissolved_by_app": metrics_for_frame(stages.dissolved),
         "morphologically_closed": metrics_for_frame(stages.closed),
+        "simplified_pre_partition": metrics_for_frame(stages.simplified),
+        "partitioned": metrics_for_frame(stages.partitioned),
+        "removed_overlap": metrics_for_frame(stages.removed_overlap),
+        "final_candidate": candidate_metrics,
         "simplified_final_candidate": candidate_metrics,
     }
-    if stages.overlap_clipped is not None:
-        stage_metrics["overlap_clipped"] = metrics_for_frame(stages.overlap_clipped)
-
-    clipping = stages.clipping_report.as_dict()
+    overlap_within_tolerance = (
+        stages.overlap_after.overlap_area_m2 <= stages.overlap_tolerance_m2
+    )
+    final_validation = {
+        "required_columns_present": set(OUTPUT_COLUMNS).issubset(stages.final.columns),
+        "invalid_geometry_count": candidate_metrics["invalid_geometry_count"],
+        "empty_geometry_count": candidate_metrics["empty_geometry_count"],
+        "polygonal_geometry_only": set(stages.final.geom_type).issubset(
+            {"Polygon", "MultiPolygon"}
+        ),
+        "residual_overlap_check_required": args.overlap_strategy == "smallest-wins",
+        "residual_overlap_within_tolerance": overlap_within_tolerance,
+    }
+    final_validation["passed"] = bool(
+        final_validation["required_columns_present"]
+        and final_validation["invalid_geometry_count"] == 0
+        and final_validation["empty_geometry_count"] == 0
+        and final_validation["polygonal_geometry_only"]
+        and (
+            args.overlap_strategy != "smallest-wins"
+            or final_validation["residual_overlap_within_tolerance"]
+        )
+    )
     metrics = {
+        "overlap_strategy": args.overlap_strategy,
         "old_region_present": not old_region.empty,
         "stages": stage_metrics,
+        "overlap": {
+            "before_partition": stages.overlap_before.as_dict(),
+            "after_partition": stages.overlap_after.as_dict(),
+            "overlap_tolerance_m2": stages.overlap_tolerance_m2,
+            "residual_overlap_within_tolerance": overlap_within_tolerance,
+        },
+        "partition": partition,
+        "fully_covered_app_warnings": fully_covered_app_names,
+        "final_validation": final_validation,
         "ratios": {
             "candidate_size_to_old_size": _ratio(
                 candidate_metrics["approx_geojson_size_mb"],
@@ -276,9 +365,7 @@ def run_experiment(args: argparse.Namespace) -> Path:
         },
         "source_app_names": sorted(stages.raw["app"].dropna().astype(str).unique()),
         "retained_app_names": sorted(stages.final["app"].dropna().astype(str).unique()),
-        "dropped_app_names": clipping["dropped_app_names"],
-        "empty_after_clipping_app_names": clipping["empty_after_clipping_app_names"],
-        "clipping": clipping,
+        "fully_covered_app_names": fully_covered_app_names,
     }
 
     generated_at = datetime.now(timezone.utc).isoformat()
@@ -286,7 +373,9 @@ def run_experiment(args: argparse.Namespace) -> Path:
         "region": args.region,
         "region_slug": region_slug,
         "run_id": run_id,
-        "overlap_clip_enabled": args.overlap_clip,
+        "overlap_strategy": args.overlap_strategy,
+        "overlap_tolerance_m2": stages.overlap_tolerance_m2,
+        "partition_priority": "complete_appellation_area_ascending",
         "buffer_dist_m": args.buffer,
         "simplify_m": args.simplify,
         "aoc_source_path": str(source_path),
@@ -303,6 +392,7 @@ def run_experiment(args: argparse.Namespace) -> Path:
     candidate_path = run_dir / "candidate.geojson"
     preview_path = run_dir / "preview.png"
     comparison_path = run_dir / "comparison.png"
+    overlap_comparison_path = run_dir / "overlap_comparison.png"
     metrics_path = run_dir / "metrics.json"
     params_path = run_dir / "params.json"
 
@@ -317,10 +407,14 @@ def run_experiment(args: argparse.Namespace) -> Path:
         stages.final,
         stages.raw,
         old_region,
+        stages.simplified,
+        stages.partitioned,
+        stages.removed_overlap,
         region=args.region,
         run_id=run_id,
         preview_path=preview_path,
         comparison_path=comparison_path,
+        overlap_comparison_path=overlap_comparison_path,
     )
     _write_json(metrics_path, metrics)
     _write_json(params_path, params)
@@ -346,20 +440,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=250.0,
         help="Simplification tolerance in metres.",
     )
-    overlap = parser.add_mutually_exclusive_group()
-    overlap.add_argument(
-        "--overlap-clip",
-        dest="overlap_clip",
-        action="store_true",
-        help="Clip smaller overlapping AOCs.",
+    parser.add_argument(
+        "--overlap-strategy",
+        choices=("none", "smallest-wins"),
+        default="none",
+        help="How to assign overlapping processed appellation area.",
     )
-    overlap.add_argument(
-        "--no-overlap-clip",
-        dest="overlap_clip",
-        action="store_false",
-        help="Keep source AOC overlaps.",
-    )
-    parser.set_defaults(overlap_clip=False)
     parser.add_argument(
         "--overwrite",
         action="store_true",

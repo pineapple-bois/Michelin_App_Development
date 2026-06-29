@@ -9,12 +9,19 @@ Generated candidates are inspection artefacts, not production data.
 The current geometry pipeline is:
 
 1. repair AOC geometry;
-2. optionally clip overlaps, with larger AOCs taking priority;
-3. dissolve by `region`, `app`, and `colour`;
-4. apply morphological closing with an outward and inward metric buffer;
-5. simplify with topology preservation;
-6. repair again; and
-7. compare the result with the deployed app geometry.
+2. dissolve by `region`, `app`, and `colour`;
+3. apply morphological closing with an outward and inward metric buffer;
+4. simplify with topology preservation;
+5. repair again;
+6. optionally partition overlaps, with smaller complete appellations taking
+   priority;
+7. perform final polygon-only repair and validation;
+8. reproject to EPSG:4326; and
+9. compare the result with the deployed app geometry.
+
+Smallest-wins partitioning is the final geometry-changing operation: the
+result is not buffered or simplified again. This prevents later processing
+from recreating overlap.
 
 There are deliberately no minimum-area, maximum-part, or largest-polygon
 controls. Earlier experiments showed that those controls can destroy local
@@ -40,6 +47,7 @@ Development/aoc_simplification/outputs/<region_slug>/<run_id>/
 ├── candidate.geojson
 ├── preview.png
 ├── comparison.png
+├── overlap_comparison.png
 ├── metrics.json
 └── params.json
 ```
@@ -56,10 +64,10 @@ From the repository root:
 ```bash
 .venv/bin/python Development/aoc_simplification/run_experiment.py \
   --region "Bordeaux" \
-  --run-id overlap_close500 \
-  --overlap-clip \
+  --run-id close500_smallest_wins \
   --buffer 500 \
-  --simplify 250
+  --simplify 250 \
+  --overlap-strategy smallest-wins
 ```
 
 Runs do not overwrite one another. Pass `--overwrite` only when deliberately
@@ -69,19 +77,60 @@ replacing the same region/run ID.
 
 Use this as a small starting ladder, one region at a time:
 
-| Run ID | Overlap clip | Buffer (m) | Simplify (m) |
+| Run ID | Overlap strategy | Buffer (m) | Simplify (m) |
 | --- | --- | ---: | ---: |
-| `raw_simplified` | off | 0 | 250 |
-| `close250` | off | 250 | 250 |
-| `close500` | off | 500 | 250 |
-| `close500_simple500` | off | 500 | 500 |
-| `overlap_close500` | on | 500 | 250 |
+| `raw_simplified` | `none` | 0 | 250 |
+| `close250` | `none` | 250 | 250 |
+| `close500` | `none` | 500 | 250 |
+| `close500_simple500` | `none` | 500 | 500 |
+| `close500_smallest_wins` | `smallest-wins` | 500 | 250 |
 
-Overlap clipping is a region-specific decision. It must not be assumed to help
-every region merely because it is promising for Bordeaux.
+## Smallest-Appellation-Wins Partitioning
 
-Inspect `preview.png` for the candidate alone and `comparison.png` for aligned
-old/source/candidate panels. Use `metrics.json` to compare validity, area,
+The `smallest-wins` strategy creates mutually exclusive app-facing AOC
+geometry. Priority is calculated from the area of each complete processed
+`region + app` geometry after dissolve, closing, simplification, and repair.
+The smallest complete appellation keeps its geometry; progressively broader
+appellations lose area already claimed by smaller ones. This removes overlap
+from the data itself instead of relying on map trace or rendering order.
+Residual overlap is accepted only within floating-point tolerance:
+`max(1e-6 m², union area × 1e-10)`. The exact tolerance and measured residual
+are recorded in `metrics.json` and `params.json`.
+
+Area is only a practical proxy for appellation specificity, not a formal legal
+hierarchy. The strategy is therefore a regional candidate for manual review,
+not a final policy for every wine region. Run Bordeaux with:
+
+```bash
+.venv/bin/python Development/aoc_simplification/run_experiment.py \
+  --region "Bordeaux" \
+  --run-id close500_smallest_wins \
+  --buffer 500 \
+  --simplify 250 \
+  --overlap-strategy smallest-wins
+```
+
+After reviewing Bordeaux, a separate Bourgogne run is:
+
+```bash
+.venv/bin/python Development/aoc_simplification/run_experiment.py \
+  --region "Bourgogne" \
+  --run-id close500_smallest_wins \
+  --buffer 500 \
+  --simplify 250 \
+  --overlap-strategy smallest-wins
+```
+
+`overlap_comparison.png` aligns the simplified pre-partition geometry, the
+partitioned result, and the area removed from broader appellations. Review it
+with `preview.png`, `comparison.png`, and the per-app removed-area diagnostics
+in `metrics.json`. Fully covered appellations are reported as warnings rather
+than disappearing silently. Accept or reject one regional result before
+moving to the next region.
+
+Inspect `preview.png` for the candidate alone, `comparison.png` for aligned
+old/source/candidate panels, and `overlap_comparison.png` for the partition
+effect. Use `metrics.json` to compare validity, overlap, per-app removed area,
 coordinates, polygon parts, and approximate payload. Record a preferred run in
 `region_policy.csv` only after the visual and metric checks agree; keep status
 and notes provisional until a candidate is genuinely accepted.
