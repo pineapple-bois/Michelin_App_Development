@@ -104,5 +104,33 @@ than automatic pass/fail thresholds: size, area, part count, and coordinate
 count each require interpretation. Complete the human assessment and notes
 fields only after viewing the experiment's comparison plots.
 
+## Merged Development Dataset
+
+`datasets/aoc_regions_close500.geojson` combines the completed regional
+`outputs/*/close500/candidate.geojson` files into one development test asset.
+The merge utility validates every candidate and concatenates the rows in
+deterministic region-slug order. It preserves AOC-level features rather than
+dissolving by region or app.
+
+The merge performs no repair, simplification, buffering, clipping, pruning, or
+other geometry processing. It only normalises CRS to EPSG:4326 when necessary,
+then refuses to write invalid, empty, malformed, or duplicate features. Run it
+from the repository root with:
+
+```bash
+.venv/bin/python Development/aoc_simplification/merge_candidates.py
+```
+
+The utility protects an existing merged dataset by default. To regenerate it
+deliberately after candidate changes, use:
+
+```bash
+.venv/bin/python Development/aoc_simplification/merge_candidates.py --overwrite
+```
+
+The merged GeoJSON and its adjacent metrics JSON are tracked development
+artifacts. They are not production assets, are not read by the app, and will be
+wired into the Wine page only in a separate future change.
+
 The entire `outputs/` tree is intentionally untracked. No command in this
 directory promotes or copies a candidate into `assets/data`.

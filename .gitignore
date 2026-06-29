@@ -31,5 +31,8 @@ __pycache__/
 /Development/WineData/
 /Development/WineData/generated/
 /Development/_experiments/
-/Development/aoc_simplification/outputs/
 /Development/.matplotlib-cache/
+
+# Candidate wine datasets
+/Development/aoc_simplification/outputs/
+/Development/aoc_simplification/datasets/
