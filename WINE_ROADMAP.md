@@ -24,10 +24,11 @@ AOC click location -> server-side feature_id lookup -> parent region
 The `app` appellation field is retained for hover, feature identity, and future
 functionality, but it does not yet change OpenAI prompts or cache keys.
 
-Remaining compatibility state:
+Retained Wine page state:
 
-* `selected-stars-wine` and `map-view-store` remain in place for compatibility
-  while cleanup and view-persistence behaviour are tested.
+* `map-view-store` remains in place because Wine `relayoutData` still writes
+  pan/zoom state and the base Wine figure callback still reads it when the page
+  is rebuilt.
 
 Overlapping AOCs are now visible as a separate data and interaction-design
 issue. They are outside the immediate renderer-restoration phase and will be
@@ -184,12 +185,11 @@ Completed in the application:
   AOC choropleth;
 * the outline dropdown toggles only `layout.map.layers[0].visible` via Dash
   `Patch`;
-* the Wine geography remains one `Choroplethmap` trace;
-* restaurant controls remained disabled until Phase C.
+* the Wine geography remains one `Choroplethmap` trace.
 
 Automated tests cover the outline layer contract, visibility patch, enabled
-outline control, and still-disabled restaurant control. Browser smoke confirmed
-selection and clearing work without browser console warnings or errors.
+outline control, and restaurant control state. Browser smoke confirmed selection
+and clearing work without browser console warnings or errors.
 
 ### Phase C: restaurant overlays
 
@@ -229,6 +229,24 @@ Browser verification for star-filter combinations, map-view preservation while
 toggling, AOC clicks while restaurants are visible, restaurant clicks,
 coexistence with regional outlines, and browser/Dash console output is left for
 manual user verification.
+
+### Phase D: code cleanup
+
+Completed in the application:
+
+* removed the obsolete `selected-stars-wine` layout store;
+* retained `map-view-store` because it still has an active runtime purpose:
+  `store_map_view` writes map pan/zoom from `relayoutData`, and the base Wine
+  figure callback reads it when constructing the figure;
+* removed active roadmap language that treated restored outline or restaurant
+  controls as temporary disabled scaffolding.
+
+`selected-stars-wine` was removed because no callback read or wrote the store;
+restaurant visibility derives from the current overlay button state and star
+filter button click state.
+
+Responsive and mobile verification remains manual user work; it is not covered
+by the current automated tests.
 
 ## Current data and callback contract
 
@@ -279,20 +297,11 @@ lookup. Positional Plotly fields such as `curveNumber`, `pointNumber`,
 
 Non-AOC payloads fail closed and must not invoke OpenAI.
 
-## Next: cleanup and responsive verification
+## Next: manual responsive and mobile verification
 
-The next active phase is Phase D. Renderer selection, live region-level
-click-path verification, regional-outline restoration, and restaurant-overlay
-restoration are complete.
-
-### Phase D — cleanup and responsive verification
-
-* Remove temporary disabled-control scaffolding and compatibility comments.
-* Review whether `map-view-store` remains necessary after route remount and
-  `uirevision` testing.
-* Review whether `selected-stars-wine` remains necessary after restaurant
-  overlay restoration.
-* Complete responsive and mobile testing.
+Renderer selection, live region-level click-path verification, regional-outline
+restoration, restaurant-overlay restoration, and code cleanup are complete.
+Responsive and mobile testing remains a manual verification task.
 
 ## Future work
 

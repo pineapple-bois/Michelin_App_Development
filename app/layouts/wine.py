@@ -75,7 +75,6 @@ def get_wine_content():
                                 className='star-filter-container editorial-control-group',
                                 id='star-filter-container-wine',
                                 children=[
-                                    dcc.Store(id='selected-stars-wine', data=[]),
                                     star_filter_section(star_placeholder, filter_type="wine", exclude_stars=[0.5]),
                                 ],
                                 style={'width': '30%', 'display': 'none'}  # Hidden by default

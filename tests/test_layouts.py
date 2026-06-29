@@ -92,12 +92,12 @@ def test_wine_layout_contains_expected_component_ids():
         "wine-content-top",
         "granularity-dropdown-wine",
         "toggle-show-details-wine",
-        "selected-stars-wine",
         "wine-map-graph",
         "region-name-container",
         "llm-output-container",
         "disclaimer-container",
     }.issubset(component_ids)
+    assert "selected-stars-wine" not in component_ids
     assert "wine-region-curve-numbers" not in component_ids
 
     outline_dropdown = find_component_by_id(layout, "granularity-dropdown-wine")
