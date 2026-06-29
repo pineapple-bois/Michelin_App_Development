@@ -40,6 +40,36 @@ def get_wine_content():
                         className='wine-restaurants-controls editorial-control-row',
                         # Flexbox for side-by-side layout
                         children=[
+                            html.Div(
+                                className='wine-region-selector-container editorial-control-group',
+                                children=[
+                                    html.H6("Wine Region", className='editorial-control-label'),
+                                    dcc.Dropdown(
+                                        id='wine-region-selector',
+                                        options=[],
+                                        value=None,
+                                        className='dropdown-region-wine editorial-select',
+                                        searchable=True,
+                                        clearable=True,
+                                        placeholder="Select region...",
+                                    )
+                                ],
+                            ),
+                            html.Div(
+                                className='wine-appellation-search-container editorial-control-group',
+                                children=[
+                                    html.H6("Search Appellation", className='editorial-control-label'),
+                                    dcc.Dropdown(
+                                        id='wine-appellation-search',
+                                        options=[],
+                                        value=None,
+                                        className='dropdown-appellation-wine editorial-select',
+                                        searchable=True,
+                                        clearable=True,
+                                        placeholder="Search by appellation...",
+                                    )
+                                ],
+                            ),
                             # Region dropdown
                             html.Div(
                                 className='wine-map-outlines editorial-control-group',

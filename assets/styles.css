@@ -2068,6 +2068,18 @@ body {
     margin-bottom: 16px;
 }
 
+.wine-region-selector-container {
+    flex: 1 1 280px;
+    margin-bottom: 0;
+    min-width: 240px;
+}
+
+.wine-appellation-search-container {
+    flex: 1 1 280px;
+    margin-bottom: 0;
+    min-width: 240px;
+}
+
 .wine-map-outlines {
     /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
     flex: 0 1 220px;
@@ -2076,6 +2088,8 @@ body {
     width: 220px !important;
 }
 
+.wine-region-selector-container h6,
+.wine-appellation-search-container h6,
 .wine-map-outlines h6,
 .wine-container .star-select-title-wine {
     color: var(--color-text-muted);
@@ -2108,6 +2122,8 @@ body {
     box-shadow: none;
 }
 
+.wine-container .dropdown-region-wine .Select-control,
+.wine-container .dropdown-appellation-wine .Select-control,
 .wine-container .dropdown-granularity-wine .Select-control {
     border-color: var(--color-border-control) !important;
     background-color: var(--color-surface) !important;
@@ -2117,11 +2133,22 @@ body {
     min-height: 34px;
 }
 
+.wine-container .dropdown-region-wine .Select-placeholder,
+.wine-container .dropdown-region-wine .Select-value,
+.wine-container .dropdown-region-wine .Select-input,
+.wine-container .dropdown-appellation-wine .Select-placeholder,
+.wine-container .dropdown-appellation-wine .Select-value,
+.wine-container .dropdown-appellation-wine .Select-input,
 .wine-container .dropdown-granularity-wine .Select-placeholder,
 .wine-container .dropdown-granularity-wine .Select-value,
 .wine-container .dropdown-granularity-wine .Select-input {
     height: 32px;
     line-height: 32px;
+}
+
+.wine-container .dropdown-region-wine .Select-menu-outer,
+.wine-container .dropdown-appellation-wine .Select-menu-outer {
+    border-radius: 0;
 }
 
 #star-filter-container-wine {
@@ -2334,8 +2361,11 @@ body {
         flex-direction: column;
     }
 
+    .wine-region-selector-container,
+    .wine-appellation-search-container,
     .wine-map-outlines,
     #star-filter-container-wine {
+        min-width: 0;
         width: 100% !important;
     }
 

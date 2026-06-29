@@ -90,6 +90,8 @@ def test_wine_layout_contains_expected_component_ids():
 
     assert {
         "wine-content-top",
+        "wine-region-selector",
+        "wine-appellation-search",
         "granularity-dropdown-wine",
         "toggle-show-details-wine",
         "wine-map-graph",
@@ -100,10 +102,18 @@ def test_wine_layout_contains_expected_component_ids():
     assert "selected-stars-wine" not in component_ids
     assert "wine-region-curve-numbers" not in component_ids
 
+    region_selector = find_component_by_id(layout, "wine-region-selector")
+    appellation_search = find_component_by_id(layout, "wine-appellation-search")
     outline_dropdown = find_component_by_id(layout, "granularity-dropdown-wine")
     restaurant_button = find_component_by_id(layout, "toggle-show-details-wine")
     star_filter_container = find_component_by_id(layout, "star-filter-container-wine")
 
+    assert getattr(region_selector, "searchable", False) is True
+    assert getattr(region_selector, "clearable", False) is True
+    assert region_selector.placeholder == "Select region..."
+    assert getattr(appellation_search, "searchable", False) is True
+    assert getattr(appellation_search, "clearable", False) is True
+    assert appellation_search.placeholder == "Search by appellation..."
     assert getattr(outline_dropdown, "disabled", False) is False
     assert getattr(restaurant_button, "disabled", False) is False
     assert star_filter_container.style == {'width': '30%', 'display': 'none'}

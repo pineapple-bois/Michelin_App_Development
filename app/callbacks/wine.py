@@ -12,6 +12,15 @@ from app.utils.wine_figures import (
     plot_wine_choropleth_plotly,
 )
 from app.utils.wine_prompts import generate_optimized_prompt
+from app.utils.wine_search import (
+    build_wine_search_index,
+    map_view_for_feature,
+    map_view_for_region,
+    wine_records_for_region,
+    wine_region_options,
+    wine_search_lookup,
+    wine_search_options,
+)
 
 
 def resolve_wine_feature(click_data, feature_lookup):
@@ -78,6 +87,53 @@ def restaurant_visibility_patch(n_clicks_rest, n_clicks_stars=None, ids=None):
     return patched_figure
 
 
+def map_view_patch(map_view):
+    patched_figure = Patch()
+    patched_figure["layout"]["map"]["center"] = map_view["center"]
+    patched_figure["layout"]["map"]["zoom"] = map_view["zoom"]
+    return patched_figure
+
+
+def search_navigation_response(selected_feature_id, search_lookup, existing_data=None):
+    map_view = map_view_for_feature(selected_feature_id, search_lookup)
+    if map_view is None:
+        return None
+
+    stored_view = dict(existing_data or {})
+    stored_view.update(map_view)
+    return map_view_patch(map_view), stored_view
+
+
+def region_navigation_response(selected_region, records, existing_data=None):
+    map_view = map_view_for_region(selected_region, records)
+    if map_view is None:
+        return None
+
+    stored_view = dict(existing_data or {})
+    stored_view.update(map_view)
+    return map_view_patch(map_view), stored_view, None
+
+
+def map_view_from_relayout(relayout_data, existing_data=None):
+    existing_data = dict(existing_data or {})
+
+    if not relayout_data:
+        return None
+
+    user_interaction_keys = {'map.zoom', 'map.center'}
+    if not user_interaction_keys.intersection(relayout_data.keys()):
+        return None
+
+    zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
+    center = relayout_data.get('map.center', existing_data.get('center'))
+    if zoom is None or center is None:
+        return None
+
+    existing_data['zoom'] = zoom
+    existing_data['center'] = center
+    return existing_data
+
+
 def build_wine_info_response(
     click_data,
     feature_lookup,
@@ -137,6 +193,8 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         wine_df.set_index("feature_id")[["region", "app", "colour"]]
         .to_dict("index")
     )
+    wine_search_records = build_wine_search_index(wine_df)
+    wine_feature_search_lookup = wine_search_lookup(wine_search_records)
 
     def is_request_limit_exceeded():
         # Request limit for OpenAi API calls
@@ -192,36 +250,72 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         )
 
     @app.callback(
+        Output('wine-region-selector', 'options'),
+        Input('url', 'pathname'),
+    )
+    def update_wine_region_options(pathname):
+        if pathname != '/wine':
+            raise PreventUpdate
+        return wine_region_options(wine_search_records)
+
+    @app.callback(
+        Output('wine-appellation-search', 'options'),
+        [Input('wine-appellation-search', 'search_value'),
+         Input('wine-region-selector', 'value')],
+        State('wine-appellation-search', 'value'),
+    )
+    def update_wine_appellation_options(search_value, selected_region, selected_feature_id):
+        available_records = wine_records_for_region(wine_search_records, selected_region)
+        return wine_search_options(
+            available_records,
+            search_value=search_value,
+            selected_feature_id=selected_feature_id,
+        )
+
+    @app.callback(
+        [Output('wine-map-graph', 'figure', allow_duplicate=True),
+         Output('map-view-store', 'data', allow_duplicate=True),
+         Output('wine-appellation-search', 'value')],
+        Input('wine-region-selector', 'value'),
+        State('map-view-store', 'data'),
+        prevent_initial_call=True,
+    )
+    def navigate_to_wine_region(selected_region, existing_map_view):
+        response = region_navigation_response(
+            selected_region,
+            wine_search_records,
+            existing_map_view,
+        )
+        if response is None:
+            raise PreventUpdate
+        return response
+
+    @app.callback(
+        [Output('wine-map-graph', 'figure', allow_duplicate=True),
+         Output('map-view-store', 'data', allow_duplicate=True)],
+        Input('wine-appellation-search', 'value'),
+        State('map-view-store', 'data'),
+        prevent_initial_call=True,
+    )
+    def navigate_to_wine_appellation(selected_feature_id, existing_map_view):
+        response = search_navigation_response(
+            selected_feature_id,
+            wine_feature_search_lookup,
+            existing_map_view,
+        )
+        if response is None:
+            raise PreventUpdate
+        return response
+
+    @app.callback(
         Output('map-view-store', 'data'),
         [Input('wine-map-graph', 'relayoutData')],
         [State('map-view-store', 'data')]
     )
     def store_map_view(relayout_data, existing_data):
-        # Initialize existing_data if it's None
-        if existing_data is None:
-            existing_data = {}
-
-        # If relayoutData is None or empty, do not update the store
-        if not relayout_data:
-            raise dash.exceptions.PreventUpdate
-
-        # Define the keys that indicate a user interaction
-        user_interaction_keys = {'map.zoom', 'map.center'}
-
-        # Check if relayoutData contains any of the user interaction keys
-        if user_interaction_keys.intersection(relayout_data.keys()):
-            # Extract zoom and center from relayoutData
-            zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
-            center = relayout_data.get('map.center', existing_data.get('center'))
-
-            if zoom is not None and center is not None:
-                # Update the existing_data with new zoom and center
-                existing_data['zoom'] = zoom
-                existing_data['center'] = center
-
-                return existing_data
-
-        # If no user interaction keys are present, prevent updating the store
+        map_view = map_view_from_relayout(relayout_data, existing_data)
+        if map_view is not None:
+            return map_view
         raise dash.exceptions.PreventUpdate
 
     @app.callback(
