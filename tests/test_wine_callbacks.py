@@ -14,6 +14,7 @@ from app.callbacks.wine import (
     resolve_wine_feature,
     search_navigation_response,
 )
+from app.utils.wine_figures import RESTAURANT_TRACE_BELOW
 from app.utils.wine_search import build_wine_search_index, wine_search_lookup
 
 
@@ -140,13 +141,28 @@ def test_restaurant_visibility_patch_updates_only_restaurant_traces(
     assert patch["operations"] == [
         {
             "operation": "Assign",
+            "location": ["data", 1, "below"],
+            "params": {"value": RESTAURANT_TRACE_BELOW},
+        },
+        {
+            "operation": "Assign",
             "location": ["data", 1, "visible"],
             "params": {"value": expected_visibility[0]},
         },
         {
             "operation": "Assign",
+            "location": ["data", 2, "below"],
+            "params": {"value": RESTAURANT_TRACE_BELOW},
+        },
+        {
+            "operation": "Assign",
             "location": ["data", 2, "visible"],
             "params": {"value": expected_visibility[1]},
+        },
+        {
+            "operation": "Assign",
+            "location": ["data", 3, "below"],
+            "params": {"value": RESTAURANT_TRACE_BELOW},
         },
         {
             "operation": "Assign",

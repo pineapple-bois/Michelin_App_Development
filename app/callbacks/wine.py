@@ -7,6 +7,7 @@ from flask import session
 from app.utils.star_filters import update_button_active_state_helper
 from app.utils.wine_figures import (
     RESTAURANT_STAR_ORDER,
+    RESTAURANT_TRACE_BELOW,
     RESTAURANT_TRACE_INDICES,
     REGIONAL_OUTLINE_LAYER_INDEX,
     plot_wine_choropleth_plotly,
@@ -81,6 +82,7 @@ def restaurant_visibility_patch(n_clicks_rest, n_clicks_stars=None, ids=None):
     patched_figure = Patch()
     for star in RESTAURANT_STAR_ORDER:
         trace_index = RESTAURANT_TRACE_INDICES[star]
+        patched_figure["data"][trace_index]["below"] = RESTAURANT_TRACE_BELOW
         patched_figure["data"][trace_index]["visible"] = (
             show_restaurants and star in active_stars
         )

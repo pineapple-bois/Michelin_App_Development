@@ -9,6 +9,7 @@ RESTAURANT_TRACE_INDICES = {
     star: index
     for index, star in enumerate(RESTAURANT_STAR_ORDER, start=1)
 }
+RESTAURANT_TRACE_BELOW = ""
 RESTAURANT_STAR_COLORS = {
     1: "#FFB84D",
     2: "#FE6F64",
@@ -66,7 +67,7 @@ def _restaurant_trace(restaurants_df, star):
         lon=star_data["longitude"].tolist(),
         lat=star_data["latitude"].tolist(),
         mode="markers",
-        below="",
+        below=RESTAURANT_TRACE_BELOW,
         marker=go.scattermap.Marker(
             size=8,
             color=RESTAURANT_STAR_COLORS[star],

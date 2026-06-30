@@ -1,5 +1,6 @@
 from app.utils.wine_figures import (
     RESTAURANT_STAR_ORDER,
+    RESTAURANT_TRACE_BELOW,
     RESTAURANT_TRACE_INDICES,
     plot_wine_choropleth_plotly,
 )
@@ -122,7 +123,7 @@ def test_wine_figure_contains_fixed_restaurant_traces(data_boundary):
 
         assert trace.name == "★" * star
         assert trace.meta == {"kind": "restaurant", "stars": star}
-        assert trace.below == ""
+        assert trace.below == RESTAURANT_TRACE_BELOW
         assert trace.visible is False
         assert len(trace.lon) == expected_count
         assert len(trace.lat) == expected_count
