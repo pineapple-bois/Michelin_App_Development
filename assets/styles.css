@@ -2080,17 +2080,16 @@ body {
     min-width: 240px;
 }
 
-.wine-map-outlines {
-    /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
-    flex: 0 1 220px;
+.wine-map-outlines,
+.toggle-details-container-wine {
+    flex: 0 0 170px;
     margin-bottom: 0;
     min-width: 0;
-    width: 220px !important;
+    width: 170px !important;
 }
 
 .wine-region-selector-container h6,
 .wine-appellation-search-container h6,
-.wine-map-outlines h6,
 .wine-container .star-select-title-wine {
     color: var(--color-text-muted);
     font-size: 12px;
@@ -2111,6 +2110,7 @@ body {
     line-height: 1;
     min-height: 34px;
     padding: 0 12px;
+    width: 100%;
 }
 
 .wine-container .button-show-details:hover,
@@ -2122,9 +2122,17 @@ body {
     box-shadow: none;
 }
 
+.wine-container .button-show-details.active,
+.wine-container .button-show-details.active:hover,
+.wine-container .button-show-details.active:focus-visible {
+    background-color: transparent !important;
+    border-color: var(--color-brand-red) !important;
+    border-bottom: 2px solid var(--color-brand-red) !important;
+    color: var(--color-brand-red) !important;
+}
+
 .wine-container .dropdown-region-wine .Select-control,
-.wine-container .dropdown-appellation-wine .Select-control,
-.wine-container .dropdown-granularity-wine .Select-control {
+.wine-container .dropdown-appellation-wine .Select-control {
     border-color: var(--color-border-control) !important;
     background-color: var(--color-surface) !important;
     border-radius: 0 !important;
@@ -2138,10 +2146,7 @@ body {
 .wine-container .dropdown-region-wine .Select-input,
 .wine-container .dropdown-appellation-wine .Select-placeholder,
 .wine-container .dropdown-appellation-wine .Select-value,
-.wine-container .dropdown-appellation-wine .Select-input,
-.wine-container .dropdown-granularity-wine .Select-placeholder,
-.wine-container .dropdown-granularity-wine .Select-value,
-.wine-container .dropdown-granularity-wine .Select-input {
+.wine-container .dropdown-appellation-wine .Select-input {
     height: 32px;
     line-height: 32px;
 }
@@ -2397,6 +2402,7 @@ body {
     .wine-region-selector-container,
     .wine-appellation-search-container,
     .wine-map-outlines,
+    .toggle-details-container-wine,
     #star-filter-container-wine {
         min-width: 0;
         width: 100% !important;

@@ -177,26 +177,29 @@ def test_wine_hover_highlight_clears_for_non_aoc_hover(hover_data, feature_looku
 
 
 @pytest.mark.parametrize(
-    ("selected_granularity", "expected"),
+    ("n_clicks", "expected"),
     [
-        ("region", True),
         (None, False),
-        ("department", False),
+        (0, False),
+        (1, True),
+        (2, False),
     ],
 )
-def test_regional_outlines_visible_only_for_region_selection(selected_granularity, expected):
-    assert regional_outlines_visible(selected_granularity) is expected
+def test_regional_outlines_visible_tracks_toggle_clicks(n_clicks, expected):
+    assert regional_outlines_visible(n_clicks) is expected
 
 
 @pytest.mark.parametrize(
-    ("selected_granularity", "expected"),
+    ("n_clicks", "expected"),
     [
-        ("region", True),
         (None, False),
+        (0, False),
+        (1, True),
+        (2, False),
     ],
 )
-def test_regional_outline_visibility_patch_updates_only_outline_layer(selected_granularity, expected):
-    patch = regional_outline_visibility_patch(selected_granularity).to_plotly_json()
+def test_regional_outline_visibility_patch_updates_only_outline_layer(n_clicks, expected):
+    patch = regional_outline_visibility_patch(n_clicks).to_plotly_json()
 
     assert patch["operations"] == [
         {
@@ -588,6 +591,19 @@ def test_wine_hover_callback_is_isolated_from_openai_info_callback(app_module):
         {"id": "wine-map-graph", "property": "hoverData"}
     ]
     assert "llm-output-container" not in str(hover_callbacks[0]["output"])
+
+
+def test_regional_outline_callback_uses_boolean_toggle(app_module):
+    outline_callbacks = [
+        metadata
+        for metadata in app_module.app.callback_map.values()
+        if metadata["inputs"] == [
+            {"id": "toggle-regional-outlines-wine", "property": "n_clicks"}
+        ]
+    ]
+
+    assert len(outline_callbacks) == 1
+    assert "wine-map-graph.figure" in str(outline_callbacks[0]["output"])
 
 
 @pytest.mark.parametrize(

@@ -70,32 +70,27 @@ def get_wine_content():
                                     )
                                 ],
                             ),
-                            # Region dropdown
                             html.Div(
                                 className='wine-map-outlines editorial-control-group',
                                 children=[
-                                    html.H6("Show Regional Outlines", className='editorial-control-label'),
-                                    dcc.Dropdown(
-                                        id='granularity-dropdown-wine',
-                                        options=[
-                                            {'label': 'Regional Outlines', 'value': 'region'},
-                                        ],
-                                        value=None,  # Default selection
-                                        className='dropdown-granularity-wine editorial-select',
-                                        multi=False,
-                                        clearable=True,
-                                    )
+                                    dbc.Button(
+                                        "Regional outlines",
+                                        id='toggle-regional-outlines-wine',
+                                        n_clicks=0,
+                                        active=False,
+                                        className='button-show-details editorial-action-button',
+                                    ),
                                 ],
                                 style={'width': '20%'},
                             ),
-                            # Toggle to show restaurant details
                             html.Div(
                                 className='toggle-details-container-wine editorial-control-group',
                                 children=[
                                     dbc.Button(
-                                        "Overlay Starred Restaurants",
+                                        "Starred restaurants",
                                         id='toggle-show-details-wine',
                                         n_clicks=0,
+                                        active=False,
                                         className='button-show-details editorial-action-button',
                                     )
                                 ],

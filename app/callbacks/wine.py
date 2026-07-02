@@ -102,20 +102,24 @@ def wine_hover_highlight_patch(hover_data, feature_lookup, feature_indices):
     return patched_figure
 
 
-def regional_outlines_visible(selected_granularity):
-    return selected_granularity == "region"
+def toggle_active(n_clicks):
+    return bool(n_clicks and n_clicks % 2 == 1)
 
 
-def regional_outline_visibility_patch(selected_granularity):
+def regional_outlines_visible(n_clicks):
+    return toggle_active(n_clicks)
+
+
+def regional_outline_visibility_patch(n_clicks):
     patched_figure = Patch()
     patched_figure["layout"]["map"]["layers"][REGIONAL_OUTLINE_LAYER_INDEX]["visible"] = (
-        regional_outlines_visible(selected_granularity)
+        regional_outlines_visible(n_clicks)
     )
     return patched_figure
 
 
 def restaurant_overlay_visible(n_clicks_rest):
-    return bool(n_clicks_rest and n_clicks_rest % 2 == 1)
+    return toggle_active(n_clicks_rest)
 
 
 def selected_restaurant_stars(n_clicks_stars, ids):
@@ -301,16 +305,18 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         )
 
     @app.callback(
-        Output('wine-map-graph', 'figure', allow_duplicate=True),
-        Input('granularity-dropdown-wine', 'value'),
+        [Output('wine-map-graph', 'figure', allow_duplicate=True),
+         Output('toggle-regional-outlines-wine', 'active')],
+        Input('toggle-regional-outlines-wine', 'n_clicks'),
         prevent_initial_call=True,
     )
-    def update_wine_regional_outlines(selected_granularity):
-        return regional_outline_visibility_patch(selected_granularity)
+    def update_wine_regional_outlines(n_clicks):
+        return regional_outline_visibility_patch(n_clicks), toggle_active(n_clicks)
 
     @app.callback(
         [Output('wine-map-graph', 'figure', allow_duplicate=True),
-         Output('star-filter-container-wine', 'style')],
+         Output('star-filter-container-wine', 'style'),
+         Output('toggle-show-details-wine', 'active')],
         [Input('toggle-show-details-wine', 'n_clicks'),
          Input({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks')],
         [State({'type': 'filter-button-wine', 'index': ALL}, 'id')],
@@ -321,6 +327,7 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         return (
             restaurant_visibility_patch(n_clicks_rest, n_clicks_stars, ids),
             restaurant_filter_style(show_restaurants),
+            toggle_active(n_clicks_rest),
         )
 
     @app.callback(
