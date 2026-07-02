@@ -11,6 +11,10 @@ from app.utils.economics_figures import (
 from app.utils.star_filters import update_button_active_state_helper
 
 
+def restaurant_overlay_active(n_clicks):
+    return bool(n_clicks and n_clicks % 2 == 1)
+
+
 def register_economics_callbacks(app, data):
     all_france = data.all_france
     region_df = data.region_df
@@ -62,7 +66,7 @@ def register_economics_callbacks(app, data):
                 filtered_restaurants = all_france.copy()
 
         # Show or hide the star filter based on button press
-        if n_clicks_rest % 2 == 1:
+        if restaurant_overlay_active(n_clicks_rest):
             star_filter_style = {'display': 'block'}
             show_restaurants = True
         else:
@@ -138,6 +142,13 @@ def register_economics_callbacks(app, data):
 
         return (selected_regions, fig_map, fig_bar, region_selector_style,
                 {'display': 'block'}, weighted_mean_style, star_filter_style)
+
+    @app.callback(
+        Output('toggle-show-details-demographics', 'active'),
+        Input('toggle-show-details-demographics', 'n_clicks'),
+    )
+    def update_restaurant_overlay_active_state(n_clicks):
+        return restaurant_overlay_active(n_clicks)
 
     @app.callback(
         Output('map-view-store-demo', 'data'),

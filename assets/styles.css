@@ -1887,30 +1887,6 @@ body {
     height: calc(11px * 1.2 + 5px);
 }
 
-#demographics-content-top .button-show-details {
-    background-color: transparent;
-    border: 1px solid var(--color-border-control);
-    border-bottom-color: var(--color-border-editorial);
-    border-radius: 0;
-    box-shadow: none;
-    color: var(--color-text-primary);
-    font-size: 12px;
-    font-weight: 500;
-    height: 34px;
-    line-height: 1;
-    min-height: 34px;
-    padding: 0 12px;
-}
-
-#demographics-content-top .button-show-details:hover,
-#demographics-content-top .button-show-details:focus-visible {
-    background-color: var(--color-surface-control) !important;
-    border-color: var(--color-border-editorial);
-    border-bottom-color: var(--color-brand-red);
-    box-shadow: none;
-    color: var(--color-text-primary) !important;
-}
-
 #demographics-content-top .star-filter-container {
     min-width: 240px;
     width: auto !important;
@@ -2097,7 +2073,7 @@ body {
     margin: 0 0 6px;
 }
 
-.wine-container .button-show-details {
+.editorial-toggle-button.button-show-details {
     background-color: transparent;
     border: 1px solid var(--color-border-control);
     border-bottom-color: var(--color-border-editorial);
@@ -2110,11 +2086,11 @@ body {
     line-height: 1;
     min-height: 34px;
     padding: 0 12px;
-    width: 100%;
+    min-width: 170px;
 }
 
-.wine-container .button-show-details:hover,
-.wine-container .button-show-details:focus-visible {
+.editorial-toggle-button.button-show-details:hover,
+.editorial-toggle-button.button-show-details:focus-visible {
     background-color: var(--color-surface-control) !important;
     border-color: var(--color-border-editorial);
     border-bottom-color: var(--color-brand-red);
@@ -2122,13 +2098,18 @@ body {
     box-shadow: none;
 }
 
-.wine-container .button-show-details.active,
-.wine-container .button-show-details.active:hover,
-.wine-container .button-show-details.active:focus-visible {
+.editorial-toggle-button.button-show-details.active,
+.editorial-toggle-button.button-show-details.active:hover,
+.editorial-toggle-button.button-show-details.active:focus-visible {
     background-color: transparent !important;
     border-color: var(--color-brand-red) !important;
     border-bottom: 2px solid var(--color-brand-red) !important;
     color: var(--color-brand-red) !important;
+}
+
+.wine-map-outlines .editorial-toggle-button,
+.toggle-details-container-wine .editorial-toggle-button {
+    width: 100%;
 }
 
 .wine-container .dropdown-region-wine .Select-control,

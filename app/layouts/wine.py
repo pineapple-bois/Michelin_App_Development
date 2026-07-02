@@ -78,7 +78,7 @@ def get_wine_content():
                                         id='toggle-regional-outlines-wine',
                                         n_clicks=0,
                                         active=False,
-                                        className='button-show-details editorial-action-button',
+                                        className='button-show-details editorial-action-button editorial-toggle-button',
                                     ),
                                 ],
                                 style={'width': '20%'},
@@ -91,7 +91,7 @@ def get_wine_content():
                                         id='toggle-show-details-wine',
                                         n_clicks=0,
                                         active=False,
-                                        className='button-show-details editorial-action-button',
+                                        className='button-show-details editorial-action-button editorial-toggle-button',
                                     )
                                 ],
                             ),

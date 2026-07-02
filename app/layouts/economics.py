@@ -115,10 +115,11 @@ def get_demographics_content():
                                 className='toggle-details-container-demographics editorial-control-group',
                                 children=[
                                     dbc.Button(
-                                        "Overlay Starred Restaurants",
+                                        "Starred restaurants",
                                         id='toggle-show-details-demographics',
                                         n_clicks=0,
-                                        className='button-show-details editorial-action-button'
+                                        active=False,
+                                        className='button-show-details editorial-action-button editorial-toggle-button'
                                     )
                                 ],
                             ),

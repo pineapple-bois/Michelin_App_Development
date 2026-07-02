@@ -71,7 +71,8 @@ def test_analysis_layout_contains_expected_component_ids():
 
 
 def test_economics_layout_contains_expected_component_ids():
-    component_ids = collect_component_ids(get_economics_layout())
+    layout = get_economics_layout()
+    component_ids = collect_component_ids(layout)
 
     assert {
         "demographics-content-top",
@@ -81,7 +82,17 @@ def test_economics_layout_contains_expected_component_ids():
         "demographics-map-graph",
         "demographics-bar-chart-graph",
         "weighted-mean",
+        "toggle-show-details-demographics",
     }.issubset(component_ids)
+
+    restaurant_toggle = find_component_by_id(
+        layout,
+        "toggle-show-details-demographics",
+    )
+    assert restaurant_toggle.children == "Starred restaurants"
+    assert restaurant_toggle.n_clicks == 0
+    assert restaurant_toggle.active is False
+    assert "editorial-toggle-button" in restaurant_toggle.className
 
 
 def test_wine_layout_contains_expected_component_ids():
@@ -122,9 +133,11 @@ def test_wine_layout_contains_expected_component_ids():
     assert outline_toggle.children == "Regional outlines"
     assert outline_toggle.n_clicks == 0
     assert outline_toggle.active is False
+    assert "editorial-toggle-button" in outline_toggle.className
     assert restaurant_button.children == "Starred restaurants"
     assert restaurant_button.n_clicks == 0
     assert restaurant_button.active is False
+    assert "editorial-toggle-button" in restaurant_button.className
     assert getattr(restaurant_button, "disabled", False) is False
     assert star_filter_container.style == {'width': '30%', 'display': 'none'}
     assert wine_map.clear_on_unhover is True
