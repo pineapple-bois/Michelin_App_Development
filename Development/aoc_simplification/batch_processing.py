@@ -1,4 +1,3 @@
-# .venv/bin/python - <<'PY'     # TODO: REMOVE COMMENT (and this)
 from __future__ import annotations
 
 import subprocess
@@ -13,7 +12,7 @@ SOURCE = PROJECT_ROOT / "Development" / "WineData" / "aoc_regions.gpkg"
 RUNNER = EXPERIMENT_DIR / "run_experiment.py"
 OUTPUTS = EXPERIMENT_DIR / "outputs"
 
-RUN_ID = "close500_smallest_wins"
+RUN_ID = "close500_simplify150"
 
 sys.path.insert(0, str(EXPERIMENT_DIR))
 from simplification import slugify_region  # noqa: E402
@@ -58,7 +57,7 @@ for region in regions:
             "--buffer",
             "500",
             "--simplify",
-            "250",
+            "150",
             "--overlap-strategy",
             "smallest-wins",
         ],
@@ -92,4 +91,3 @@ if failed:
     for region in failed:
         print(f"  - {region}")
     raise SystemExit(1)
-# PY   # TODO: REMOVE COMMENT (and this)

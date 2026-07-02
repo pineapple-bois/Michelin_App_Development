@@ -19,7 +19,8 @@ except ImportError:  # pragma: no cover - compatibility with older Shapely
 
 WORKING_CRS = "EPSG:2154"
 OUTPUT_CRS = "EPSG:4326"
-OUTPUT_COLUMNS = ["region", "app", "colour", "geometry"]
+SOURCE_COLUMNS = ["region", "app", "colour", "geometry"]
+OUTPUT_COLUMNS = ["region", "app", "colour", "source_area_m2", "geometry"]
 OVERLAP_ABSOLUTE_TOLERANCE_M2 = 1e-6
 OVERLAP_RELATIVE_TOLERANCE = 1e-9
 
@@ -200,13 +201,38 @@ def _app_names(gdf: gpd.GeoDataFrame) -> list[str]:
     return sorted(gdf["app"].dropna().astype(str).unique().tolist())
 
 
+def validate_source_area(gdf: gpd.GeoDataFrame, *, context: str) -> None:
+    if "source_area_m2" not in gdf.columns:
+        raise ValueError(f"{context} is missing source_area_m2.")
+    invalid_apps = []
+    for _, row in gdf.iterrows():
+        value = row["source_area_m2"]
+        if isinstance(value, (bool, str)):
+            invalid_apps.append(str(row.get("app", "")))
+            continue
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            invalid_apps.append(str(row.get("app", "")))
+            continue
+        if not isfinite(number) or number < 0:
+            invalid_apps.append(str(row.get("app", "")))
+    if invalid_apps:
+        raise ValueError(
+            f"{context} contains invalid source_area_m2 for: "
+            + ", ".join(sorted(invalid_apps))
+        )
+
+
 def dissolve_by_app(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    dissolved = gdf[OUTPUT_COLUMNS].dissolve(
+    dissolved = gdf[SOURCE_COLUMNS].dissolve(
         by=["region", "app", "colour"],
         as_index=False,
         sort=True,
     )
-    return repair_frame(dissolved[OUTPUT_COLUMNS])
+    dissolved = repair_frame(dissolved[SOURCE_COLUMNS])
+    dissolved["source_area_m2"] = dissolved.geometry.area.astype(float)
+    return dissolved[OUTPUT_COLUMNS]
 
 
 def calculate_overlap_metrics(gdf: gpd.GeoDataFrame) -> OverlapMetrics:
@@ -275,6 +301,7 @@ def _validate_partition_input(gdf: gpd.GeoDataFrame) -> str:
         )
     if not gdf.geometry.is_valid.all():
         raise ValueError("Partition input contains invalid geometry.")
+    validate_source_area(gdf, context="Partition input")
     return unique_regions[0]
 
 
@@ -334,6 +361,7 @@ def partition_appellations_smallest_first(
                     "region": row["region"],
                     "app": row["app"],
                     "colour": row["colour"],
+                    "source_area_m2": row["source_area_m2"],
                     "geometry": accepted_geometry,
                 }
             )
@@ -407,6 +435,7 @@ def removed_overlap_frame(
                 "region": row["region"],
                 "app": row["app"],
                 "colour": row["colour"],
+                "source_area_m2": row["source_area_m2"],
                 "geometry": removed,
             }
         )
@@ -496,7 +525,7 @@ def process_region(
     if overlap_strategy not in {"none", "smallest-wins"}:
         raise ValueError(f"Unknown overlap strategy: {overlap_strategy!r}.")
 
-    raw = source_region[OUTPUT_COLUMNS].copy().reset_index(drop=True)
+    raw = source_region[SOURCE_COLUMNS].copy().reset_index(drop=True)
     repaired = repair_frame(project_for_operations(raw))
     if repaired.empty:
         raise ValueError("No polygon geometry remained before dissolve.")
@@ -548,6 +577,7 @@ def process_region(
         raise ValueError("Final candidate contains invalid geometry.")
     if not set(final_working.geom_type).issubset({"Polygon", "MultiPolygon"}):
         raise ValueError("Final candidate contains non-polygon geometry.")
+    validate_source_area(final_working, context="Final candidate")
     final_overlap = calculate_overlap_metrics(final_working)
     if (
         overlap_strategy == "smallest-wins"
@@ -558,6 +588,7 @@ def process_region(
     final = reproject_for_output(final_working)[OUTPUT_COLUMNS]
     if final.empty:
         raise ValueError("No polygon geometry remained after final repair.")
+    validate_source_area(final, context="Reprojected final candidate")
 
     return RegionStages(
         raw=raw,

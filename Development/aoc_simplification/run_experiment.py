@@ -18,6 +18,7 @@ try:
     from .simplification import (
         OUTPUT_COLUMNS,
         OUTPUT_CRS,
+        SOURCE_COLUMNS,
         WORKING_CRS,
         metrics_for_frame,
         process_region,
@@ -27,6 +28,7 @@ except ImportError:  # Direct execution from this directory.
     from simplification import (
         OUTPUT_COLUMNS,
         OUTPUT_CRS,
+        SOURCE_COLUMNS,
         WORKING_CRS,
         metrics_for_frame,
         process_region,
@@ -34,8 +36,8 @@ except ImportError:  # Direct execution from this directory.
     )
 
 
-SCRIPT_VERSION = "2"
-REQUIRED_AOC_COLUMNS = set(OUTPUT_COLUMNS)
+SCRIPT_VERSION = "3"
+REQUIRED_AOC_COLUMNS = set(SOURCE_COLUMNS)
 OLD_REGION_COLUMNS = ("region", "Region", "REGION", "name", "Name", "nom", "Nom")
 
 
@@ -263,7 +265,10 @@ def run_experiment(args: argparse.Namespace) -> Path:
         raise ValueError(
             f"Unknown region {args.region!r}. Available regions: {', '.join(available_regions)}"
         )
-    selected = source.loc[source["region"].astype(str) == args.region, OUTPUT_COLUMNS].copy()
+    selected = source.loc[
+        source["region"].astype(str) == args.region,
+        SOURCE_COLUMNS,
+    ].copy()
     del source
 
     print(

@@ -1,4 +1,5 @@
 from pathlib import Path
+from types import SimpleNamespace
 
 import geopandas as gpd
 import pytest
@@ -8,11 +9,16 @@ from Development.aoc_simplification.run_experiment import (
     normalise_run_id,
     prepare_output_directory,
 )
+from Development.aoc_simplification.merge_candidates import concatenate_candidates
 from Development.aoc_simplification.simplification import (
+    OUTPUT_COLUMNS,
+    SOURCE_COLUMNS,
     calculate_overlap_metrics,
     count_coordinates,
     count_polygon_parts,
+    dissolve_by_app,
     partition_appellations_smallest_first,
+    process_region,
     repair_geometry,
     slugify_region,
 )
@@ -21,7 +27,13 @@ from Development.aoc_simplification.simplification import (
 def _partition_frame(rows, *, region="Test Region"):
     return gpd.GeoDataFrame(
         [
-            {"region": region, "app": app, "colour": colour, "geometry": geometry}
+            {
+                "region": region,
+                "app": app,
+                "colour": colour,
+                "source_area_m2": float(geometry.area),
+                "geometry": geometry,
+            }
             for app, geometry, colour in rows
         ],
         geometry="geometry",
@@ -89,6 +101,77 @@ def test_repair_geometry_returns_valid_polygonal_output():
     assert repaired is not None
     assert repaired.is_valid
     assert repaired.geom_type in {"Polygon", "MultiPolygon"}
+
+
+def test_source_area_is_calculated_from_dissolved_working_geometry():
+    first = box(0, 0, 2, 2)
+    second = box(1, 0, 3, 2)
+    source = gpd.GeoDataFrame(
+        [
+            {"region": "Test", "app": "A", "colour": "#111111", "geometry": first},
+            {"region": "Test", "app": "A", "colour": "#111111", "geometry": second},
+        ],
+        columns=SOURCE_COLUMNS,
+        geometry="geometry",
+        crs="EPSG:2154",
+    )
+
+    dissolved = dissolve_by_app(source)
+
+    assert list(dissolved.columns) == OUTPUT_COLUMNS
+    assert len(dissolved) == 1
+    assert dissolved.iloc[0]["source_area_m2"] == pytest.approx(
+        dissolved.geometry.iloc[0].area
+    )
+    assert dissolved.iloc[0]["source_area_m2"] == pytest.approx(
+        first.union(second).area
+    )
+
+
+def test_source_area_survives_partitioning_unchanged():
+    small = box(0, 0, 2, 2)
+    large = box(1, 0, 5, 2)
+    source = _partition_frame(
+        [("Small", small, "#111111"), ("Large", large, "#222222")]
+    )
+
+    partitioned, _ = partition_appellations_smallest_first(source)
+    by_app = partitioned.set_index("app")
+
+    assert by_app.loc["Small", "source_area_m2"] == pytest.approx(small.area)
+    assert by_app.loc["Large", "source_area_m2"] == pytest.approx(large.area)
+    assert by_app.loc["Large", "geometry"].area < by_app.loc["Large", "source_area_m2"]
+
+
+def test_final_candidate_and_merged_output_preserve_source_area():
+    source = gpd.GeoDataFrame(
+        [
+            {
+                "region": "Test",
+                "app": "A",
+                "colour": "#111111",
+                "geometry": box(1.0, 45.0, 1.1, 45.1),
+            }
+        ],
+        columns=SOURCE_COLUMNS,
+        geometry="geometry",
+        crs="EPSG:4326",
+    )
+
+    stages = process_region(
+        source,
+        overlap_strategy="none",
+        buffer_dist_m=0,
+        simplify_m=0,
+    )
+
+    expected_area = stages.dissolved.geometry.iloc[0].area
+    assert list(stages.final.columns) == OUTPUT_COLUMNS
+    assert stages.final.iloc[0]["source_area_m2"] == pytest.approx(expected_area)
+
+    merged = concatenate_candidates([SimpleNamespace(frame=stages.final)])
+    assert "source_area_m2" in merged.columns
+    assert merged.iloc[0]["source_area_m2"] == pytest.approx(expected_area)
 
 
 def test_smallest_wins_for_contained_polygon():
@@ -247,8 +330,20 @@ def test_partition_rejects_wrong_input_contract():
 
     multiple_regions = gpd.GeoDataFrame(
         [
-            {"region": "One", "app": "A", "colour": "#111111", "geometry": box(0, 0, 1, 1)},
-            {"region": "Two", "app": "B", "colour": "#222222", "geometry": box(2, 0, 3, 1)},
+            {
+                "region": "One",
+                "app": "A",
+                "colour": "#111111",
+                "source_area_m2": 1.0,
+                "geometry": box(0, 0, 1, 1),
+            },
+            {
+                "region": "Two",
+                "app": "B",
+                "colour": "#222222",
+                "source_area_m2": 1.0,
+                "geometry": box(2, 0, 3, 1),
+            },
         ],
         geometry="geometry",
         crs="EPSG:2154",
@@ -266,6 +361,11 @@ def test_partition_rejects_wrong_input_contract():
 
     with pytest.raises(ValueError, match="missing required columns"):
         partition_appellations_smallest_first(valid.drop(columns="colour"))
+
+    invalid_source_area = valid.copy()
+    invalid_source_area["source_area_m2"] = float("nan")
+    with pytest.raises(ValueError, match="invalid source_area_m2"):
+        partition_appellations_smallest_first(invalid_source_area)
 
 
 def test_residual_overlap_is_within_reported_tolerance():

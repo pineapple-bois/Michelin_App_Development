@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from collections import Counter
 from dataclasses import dataclass
@@ -15,14 +16,24 @@ import geopandas as gpd
 import pandas as pd
 
 try:
-    from .simplification import count_coordinates, count_polygon_parts, slugify_region
+    from .simplification import (
+        OUTPUT_COLUMNS,
+        count_coordinates,
+        count_polygon_parts,
+        slugify_region,
+    )
 except ImportError:  # Direct script execution.
-    from simplification import count_coordinates, count_polygon_parts, slugify_region
+    from simplification import (
+        OUTPUT_COLUMNS,
+        count_coordinates,
+        count_polygon_parts,
+        slugify_region,
+    )
 
 
 OUTPUT_CRS = "EPSG:4326"
 AREA_CRS = "EPSG:2154"
-REQUIRED_COLUMNS = ["region", "app", "colour", "geometry"]
+REQUIRED_COLUMNS = OUTPUT_COLUMNS
 POLYGON_TYPES = {"Polygon", "MultiPolygon"}
 
 
@@ -147,6 +158,7 @@ def duplicate_feature_count(frame: gpd.GeoDataFrame) -> int:
             str(row["region"]),
             str(row["app"]),
             str(row["colour"]),
+            row["source_area_m2"],
             row.geometry.normalize().wkb_hex if row.geometry is not None else None,
         ),
         axis=1,
@@ -157,6 +169,22 @@ def duplicate_feature_count(frame: gpd.GeoDataFrame) -> int:
 def _missing_or_blank_count(frame: gpd.GeoDataFrame, column: str) -> int:
     values = frame[column].fillna("").astype(str).str.strip()
     return int(values.eq("").sum())
+
+
+def _invalid_source_area_count(frame: gpd.GeoDataFrame) -> int:
+    invalid = 0
+    for value in frame["source_area_m2"]:
+        if isinstance(value, (bool, str)):
+            invalid += 1
+            continue
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            invalid += 1
+            continue
+        if not math.isfinite(number) or number < 0:
+            invalid += 1
+    return invalid
 
 
 def inspect_candidate(
@@ -189,6 +217,12 @@ def inspect_candidate(
         missing_count = _missing_or_blank_count(frame, column)
         if missing_count:
             errors.append(f"{column} has {missing_count} missing or blank values")
+    invalid_source_areas = _invalid_source_area_count(frame)
+    if invalid_source_areas:
+        errors.append(
+            f"source_area_m2 has {invalid_source_areas} non-numeric, non-finite, "
+            "or negative values"
+        )
 
     region_names = sorted(frame["region"].dropna().astype(str).str.strip().unique())
     if len(region_names) != 1:
