@@ -95,6 +95,9 @@ def test_wine_layout_contains_expected_component_ids():
         "granularity-dropdown-wine",
         "toggle-show-details-wine",
         "wine-map-graph",
+        "wine-map-hover-overlay",
+        "wine-map-hover-appellation",
+        "wine-map-hover-region",
         "region-name-container",
         "llm-output-container",
         "disclaimer-container",
@@ -107,6 +110,8 @@ def test_wine_layout_contains_expected_component_ids():
     outline_dropdown = find_component_by_id(layout, "granularity-dropdown-wine")
     restaurant_button = find_component_by_id(layout, "toggle-show-details-wine")
     star_filter_container = find_component_by_id(layout, "star-filter-container-wine")
+    wine_map = find_component_by_id(layout, "wine-map-graph")
+    hover_overlay = find_component_by_id(layout, "wine-map-hover-overlay")
 
     assert getattr(region_selector, "searchable", False) is True
     assert getattr(region_selector, "clearable", False) is True
@@ -117,3 +122,5 @@ def test_wine_layout_contains_expected_component_ids():
     assert getattr(outline_dropdown, "disabled", False) is False
     assert getattr(restaurant_button, "disabled", False) is False
     assert star_filter_container.style == {'width': '30%', 'display': 'none'}
+    assert wine_map.clear_on_unhover is True
+    assert hover_overlay.hidden is True

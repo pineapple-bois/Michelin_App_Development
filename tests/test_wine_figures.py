@@ -28,7 +28,7 @@ def test_wine_figure_uses_one_feature_based_geography_trace(data_boundary):
     assert fig.layout.map.layers[0].visible is False
 
 
-def test_wine_figure_exposes_semantic_hover_data(data_boundary):
+def test_wine_figure_exposes_semantic_hover_data_without_native_label(data_boundary):
     fig = plot_wine_choropleth_plotly(
         data_boundary.wine_df,
         regional_outline_df=data_boundary.region_df,
@@ -41,10 +41,11 @@ def test_wine_figure_exposes_semantic_hover_data(data_boundary):
     assert list(trace.customdata[0]) == data_boundary.wine_df.iloc[0][
         ["region", "app", "feature_id"]
     ].tolist()
-    assert "Appellation:" in trace.hovertemplate
-    assert "%{customdata[1]}" in trace.hovertemplate
-    assert "Parent region:" in trace.hovertemplate
-    assert "%{customdata[0]}" in trace.hovertemplate
+    assert trace.hoverinfo == "none"
+    assert trace.hovertemplate is None
+    assert trace.selected.marker.opacity == 0.58
+    assert trace.unselected.marker.opacity == 1.0
+    assert tuple(trace.selectedpoints) == ()
 
     features = trace.geojson["features"]
     assert len(features) == expected_count

@@ -13,6 +13,8 @@ from app.callbacks.wine import (
     regional_outlines_visible,
     resolve_wine_feature,
     search_navigation_response,
+    wine_hover_highlight_patch,
+    wine_hover_overlay_response,
 )
 from app.utils.wine_figures import RESTAURANT_TRACE_BELOW
 from app.utils.wine_search import build_wine_search_index, wine_search_lookup
@@ -62,6 +64,116 @@ def test_resolve_wine_feature_fails_closed_for_unknown_feature_id(feature_lookup
     click_data = {"points": [{"location": "aoc-unknown"}]}
 
     assert resolve_wine_feature(click_data, feature_lookup) is None
+
+
+def _hover_point(curve_number=0, customdata=None, location="aoc-known"):
+    return {
+        "points": [
+            {
+                "curveNumber": curve_number,
+                "customdata": customdata
+                or ["Bourgogne", "Known appellation", "aoc-known"],
+                "location": location,
+            }
+        ]
+    }
+
+
+def test_wine_hover_overlay_hides_without_hover_data(feature_lookup):
+    assert wine_hover_overlay_response(None, feature_lookup) == ("", "", True)
+
+
+def test_wine_hover_overlay_shows_semantic_aoc_content(feature_lookup):
+    assert wine_hover_overlay_response(_hover_point(), feature_lookup) == (
+        "Known appellation",
+        "Bourgogne",
+        False,
+    )
+
+
+def test_wine_hover_overlay_hides_for_restaurant_hover(feature_lookup):
+    restaurant_hover = _hover_point(
+        curve_number=1,
+        customdata=["Restaurant", "Paris"],
+        location=None,
+    )
+
+    assert wine_hover_overlay_response(restaurant_hover, feature_lookup) == (
+        "",
+        "",
+        True,
+    )
+
+
+@pytest.mark.parametrize(
+    "hover_data",
+    [
+        {},
+        {"points": []},
+        {"points": [{}]},
+        _hover_point(customdata=["Bourgogne"]),
+        _hover_point(customdata=["Bourgogne", "Known appellation", None]),
+        _hover_point(customdata=["Bourgogne", "Known appellation", "aoc-other"]),
+    ],
+)
+def test_wine_hover_overlay_hides_for_malformed_payloads(hover_data, feature_lookup):
+    assert wine_hover_overlay_response(hover_data, feature_lookup) == ("", "", True)
+
+
+def test_wine_hover_overlay_hides_for_unknown_aoc(feature_lookup):
+    unknown_hover = _hover_point(
+        customdata=["Bourgogne", "Unknown appellation", "aoc-unknown"],
+        location="aoc-unknown",
+    )
+
+    assert wine_hover_overlay_response(unknown_hover, feature_lookup) == ("", "", True)
+
+
+def test_wine_hover_overlay_hides_for_unknown_trace(feature_lookup):
+    assert wine_hover_overlay_response(
+        _hover_point(curve_number=99),
+        feature_lookup,
+    ) == ("", "", True)
+
+
+def test_wine_hover_highlight_selects_valid_aoc(feature_lookup):
+    patch = wine_hover_highlight_patch(
+        _hover_point(),
+        feature_lookup,
+        {"aoc-known": 7},
+    ).to_plotly_json()
+
+    assert patch["operations"] == [
+        {
+            "operation": "Assign",
+            "location": ["data", 0, "selectedpoints"],
+            "params": {"value": [7]},
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    "hover_data",
+    [
+        None,
+        _hover_point(curve_number=1, customdata=["Restaurant", "Paris"]),
+        _hover_point(location="aoc-unknown"),
+    ],
+)
+def test_wine_hover_highlight_clears_for_non_aoc_hover(hover_data, feature_lookup):
+    patch = wine_hover_highlight_patch(
+        hover_data,
+        feature_lookup,
+        {"aoc-known": 7},
+    ).to_plotly_json()
+
+    assert patch["operations"] == [
+        {
+            "operation": "Assign",
+            "location": ["data", 0, "selectedpoints"],
+            "params": {"value": []},
+        }
+    ]
 
 
 @pytest.mark.parametrize(
@@ -462,6 +574,20 @@ def test_wine_search_callback_is_isolated_from_info_callback(app_module):
     assert "llm-output-container" not in str(navigation_callbacks[0]["output"])
     assert len(region_navigation_callbacks) == 1
     assert "llm-output-container" not in str(region_navigation_callbacks[0]["output"])
+
+
+def test_wine_hover_callback_is_isolated_from_openai_info_callback(app_module):
+    hover_callbacks = [
+        metadata
+        for output, metadata in app_module.app.callback_map.items()
+        if "wine-map-hover-overlay.hidden" in output
+    ]
+
+    assert len(hover_callbacks) == 1
+    assert hover_callbacks[0]["inputs"] == [
+        {"id": "wine-map-graph", "property": "hoverData"}
+    ]
+    assert "llm-output-container" not in str(hover_callbacks[0]["output"])
 
 
 @pytest.mark.parametrize(

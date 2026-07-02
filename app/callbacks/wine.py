@@ -10,6 +10,7 @@ from app.utils.wine_figures import (
     RESTAURANT_TRACE_BELOW,
     RESTAURANT_TRACE_INDICES,
     REGIONAL_OUTLINE_LAYER_INDEX,
+    WINE_AOC_TRACE_INDEX,
     plot_wine_choropleth_plotly,
 )
 from app.utils.wine_prompts import generate_optimized_prompt
@@ -38,6 +39,67 @@ def resolve_wine_feature(click_data, feature_lookup):
         return None
 
     return feature_lookup.get(feature_id)
+
+
+def resolve_wine_hover(hover_data, feature_lookup):
+    """Resolve a semantic AOC hover payload, or fail closed."""
+    if not isinstance(hover_data, dict):
+        return None
+
+    points = hover_data.get("points")
+    if not isinstance(points, list) or not points or not isinstance(points[0], dict):
+        return None
+
+    point = points[0]
+    if point.get("curveNumber") != WINE_AOC_TRACE_INDEX:
+        return None
+
+    customdata = point.get("customdata")
+    if not isinstance(customdata, (list, tuple)) or len(customdata) != 3:
+        return None
+
+    region, appellation, custom_feature_id = customdata
+    location = point.get("location")
+    if not all(
+        isinstance(value, str) and value
+        for value in (region, appellation, custom_feature_id, location)
+    ):
+        return None
+    if location != custom_feature_id:
+        return None
+
+    feature = feature_lookup.get(location)
+    if feature is None:
+        return None
+    if feature.get("region") != region or feature.get("app") != appellation:
+        return None
+
+    return point, feature
+
+
+def wine_hover_overlay_response(hover_data, feature_lookup):
+    """Return fixed-overlay content for a validated AOC hover payload."""
+    resolved_hover = resolve_wine_hover(hover_data, feature_lookup)
+    if resolved_hover is None:
+        return "", "", True
+
+    _, feature = resolved_hover
+    return feature["app"], feature["region"], False
+
+
+def wine_hover_highlight_patch(hover_data, feature_lookup, feature_indices):
+    """Select only the hovered AOC so Plotly applies its lighter fill."""
+    selectedpoints = []
+    resolved_hover = resolve_wine_hover(hover_data, feature_lookup)
+    if resolved_hover is not None:
+        point, _ = resolved_hover
+        feature_index = feature_indices.get(point["location"])
+        if feature_index is not None:
+            selectedpoints = [feature_index]
+
+    patched_figure = Patch()
+    patched_figure["data"][WINE_AOC_TRACE_INDEX]["selectedpoints"] = selectedpoints
+    return patched_figure
 
 
 def regional_outlines_visible(selected_granularity):
@@ -201,6 +263,10 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         wine_df.set_index("feature_id")[["region", "app", "colour"]]
         .to_dict("index")
     )
+    wine_feature_indices = {
+        feature_id: index
+        for index, feature_id in enumerate(wine_df["feature_id"])
+    }
     wine_search_records = build_wine_search_index(wine_df)
     wine_feature_search_lookup = wine_search_lookup(wine_search_records)
 
@@ -325,6 +391,24 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         if map_view is not None:
             return map_view
         raise dash.exceptions.PreventUpdate
+
+    @app.callback(
+        [Output('wine-map-hover-appellation', 'children'),
+         Output('wine-map-hover-region', 'children'),
+         Output('wine-map-hover-overlay', 'hidden'),
+         Output('wine-map-graph', 'figure', allow_duplicate=True)],
+        Input('wine-map-graph', 'hoverData'),
+        prevent_initial_call=True,
+    )
+    def update_wine_hover_overlay(hover_data):
+        return (
+            *wine_hover_overlay_response(hover_data, wine_feature_lookup),
+            wine_hover_highlight_patch(
+                hover_data,
+                wine_feature_lookup,
+                wine_feature_indices,
+            ),
+        )
 
     @app.callback(
         [Output({'type': 'filter-button-wine', 'index': ALL}, 'className'),

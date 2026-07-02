@@ -118,11 +118,10 @@ def plot_wine_choropleth_plotly(
             colorscale=colorscale,
             showscale=False,
             customdata=wine_df[["region", "app", "feature_id"]].to_numpy(),
-            hovertemplate=(
-                "<b>Appellation:</b> %{customdata[1]}<br>"
-                "<b>Parent region:</b> %{customdata[0]}"
-                "<extra></extra>"
-            ),
+            hoverinfo="none",
+            selected={"marker": {"opacity": 0.58}},
+            unselected={"marker": {"opacity": 1.0}},
+            selectedpoints=[],
             marker_line_width=0.5,
             marker_line_color="darkgray",
             name="Wine appellations",

@@ -122,10 +122,27 @@ def get_wine_content():
                     html.Div(
                         className='wine-map editorial-map',
                         children=[
-                            dcc.Graph(id='wine-map-graph',
-                                      config={'displayModeBar': False},
-                                       style={'height': '700px'}
-                                      ),
+                            dcc.Graph(
+                                id='wine-map-graph',
+                                clear_on_unhover=True,
+                                config={'displayModeBar': False},
+                                style={'height': '700px'},
+                            ),
+                            html.Div(
+                                id='wine-map-hover-overlay',
+                                className='wine-map-hover-overlay',
+                                hidden=True,
+                                children=[
+                                    html.Div(
+                                        id='wine-map-hover-appellation',
+                                        className='wine-map-hover-appellation',
+                                    ),
+                                    html.Div(
+                                        id='wine-map-hover-region',
+                                        className='wine-map-hover-region',
+                                    ),
+                                ],
+                            ),
                             dcc.Store(id='map-view-store', data={}),    # Store to hold map view parameters
                         ],
                         style={'width': '50%', 'display': 'inline-block'}
