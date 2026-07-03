@@ -1990,6 +1990,17 @@ body {
     max-width: 72ch;
 }
 
+.wine-text-paragraph a {
+    color: var(--color-brand-red);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.wine-text-paragraph a:hover,
+.wine-text-paragraph a:focus-visible {
+    text-decoration: underline;
+}
+
 .wine-tagline-paragraph {
     font-size: 16px;
     font-style: italic;
@@ -2159,6 +2170,10 @@ body {
 }
 
 /* Wine content wrapper */
+.analysis-container:has(#wine-content-top) {
+    padding-bottom: 34px;
+}
+
 .wine-content-wrapper {
     display: flex;
     align-items: stretch;
@@ -2166,7 +2181,7 @@ body {
     justify-content: flex-start;
     width: 100%;
     height: auto;
-    margin-bottom: 34px;
+    margin-bottom: 0;
     /*background-color: #d9edf7; !* Light pastel blue for the wrapper *!*/
 }
 
@@ -2275,6 +2290,101 @@ body {
     margin-bottom: 10px;
 }
 
+.LLM-output .wine-info-content {
+    color: var(--color-text-primary);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.LLM-output .wine-info-summary {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 16px;
+}
+
+.LLM-output .wine-info-section {
+    margin: 0 0 14px;
+}
+
+.LLM-output .wine-info-section-heading {
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 7px;
+}
+
+.LLM-output .wine-info-pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.LLM-output .wine-info-pill {
+    border: 1px solid var(--color-border-control);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 12px;
+    line-height: 1.25;
+    padding: 4px 8px;
+}
+
+.LLM-output .wine-info-pill--principal-grape {
+    background: #eef5ec;
+    border-color: #5f7f58;
+    color: #274d2b;
+    font-weight: 600;
+}
+
+.LLM-output .wine-info-pill--supporting-grape {
+    background: #fbfcfa;
+    border-color: #a8bda4;
+    color: #35543a;
+    font-weight: 400;
+}
+
+.LLM-output .wine-info-pill--style {
+    background: var(--color-surface-control);
+    border-color: var(--color-border-subtle);
+    color: var(--color-text-primary);
+}
+
+.LLM-output .wine-info-pill--pairing {
+    background: transparent;
+    border-color: var(--color-border-control);
+    color: var(--color-text-primary);
+}
+
+.LLM-output .wine-info-key-fact {
+    margin: 0 0 6px;
+}
+
+.LLM-output .wine-info-key-fact:last-child {
+    margin-bottom: 0;
+}
+
+.LLM-output .wine-info-key-fact strong {
+    font-weight: 600;
+}
+
+.LLM-output .wine-info-estates {
+    line-height: 1.4;
+    margin: 0;
+    padding-left: 18px;
+}
+
+.LLM-output .wine-info-estates li {
+    margin: 0 0 2px;
+}
+
+.LLM-output .wine-info-estates li:last-child {
+    margin-bottom: 0;
+}
+
+.LLM-output .wine-info-editorial-note {
+    margin: 16px 0 0;
+}
+
 /* Disclaimer container layout */
 #disclaimer-container {
     border-top: 1px solid var(--color-border-control);
@@ -2347,7 +2457,7 @@ body {
 @media screen and (max-width: 600px) {
     .analysis-container:has(#wine-content-top) {
         margin-top: clamp(148px, calc(268px - 20vw), 190px);
-        padding: 24px var(--analysis-sheet-padding) 32px;
+        padding: 24px var(--analysis-sheet-padding);
     }
 
     .wine-restaurants-controls {
@@ -2703,6 +2813,10 @@ body {
         padding-bottom: 40px;
     }
 
+    .analysis-container:has(#wine-content-top) {
+        padding-bottom: 30px;
+    }
+
     .editorial-page-description,
     .editorial-section-description {
         max-width: 68ch;
@@ -2745,6 +2859,10 @@ body {
     .editorial-sheet {
         padding-top: 28px;
         padding-bottom: 36px;
+    }
+
+    .analysis-container:has(#wine-content-top) {
+        padding-bottom: 28px;
     }
 
     .editorial-control-row {
@@ -2831,6 +2949,10 @@ body {
     .editorial-page-frame .editorial-section-description {
         font-size: 15px;
         line-height: 1.45;
+    }
+
+    .analysis-container:has(#wine-content-top) {
+        padding-bottom: 24px;
     }
 
     .editorial-action-button {

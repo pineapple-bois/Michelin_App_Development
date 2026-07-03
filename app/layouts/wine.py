@@ -24,11 +24,18 @@ def get_wine_content():
                     ),
                     html.Div(
                         [
-                            "Explore France’s wine regions on the map. Click a region to learn about its wines, grapes, and food traditions. ",
-                            "Overlay Michelin-starred restaurants to see which restaurants sit within or near each region."
+                            "Explore France’s ",
+                            html.A(
+                                "Appellations d’Origine Contrôlée (AOC)",
+                                href="https://www.inao.gouv.fr/en/aop-appellation-origine-protegee",
+                                target="_blank",
+                                rel="noopener noreferrer",
+                            ),
+                            " on the map. Overlay Michelin-starred restaurants to see which restaurants "
+                            "sit within or near each appellation.",
                         ],
-                        className='wine-text-paragraph editorial-page-description'
-                    ),
+                        className="wine-text-paragraph editorial-page-description",
+                    )
                 ],
             ),
             # Restaurant selection div
@@ -149,7 +156,13 @@ def get_wine_content():
                             html.Div(
                                 className='wine-llm-text',
                                 children=[
-                                    html.H5("Wine Region Information", className='wine-title'),
+                                    html.H5(
+                                        [
+                                            html.I("Appellation d'origine contrôlée"),
+                                            " (AOC)",
+                                        ],
+                                        className='wine-title',
+                                    ),
                                     dcc.Loading(
                                         id="loading-llm",
                                         type="circle",

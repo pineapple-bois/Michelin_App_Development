@@ -1,7 +1,8 @@
+import json
 import math
 
 import dash
-from dash import Patch, dcc, html, no_update
+from dash import Patch, html, no_update
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask import session
@@ -231,6 +232,145 @@ def build_wine_region_heading(wine_feature, colour):
     )
 
 
+def render_wine_info(content, region_colour):
+    """Render a parsed Wine information response as semantic Dash components."""
+    def text_value(field):
+        value = content.get(field, "")
+        return value.strip() if isinstance(value, str) else ""
+
+    def string_items(field):
+        values = content.get(field, [])
+        if not isinstance(values, list):
+            return []
+        return [
+            value.strip()
+            for value in values
+            if isinstance(value, str) and value.strip()
+        ]
+
+    def pill_section(heading, values, modifier):
+        if not values:
+            return None
+        return html.Section(
+            className="wine-info-section",
+            children=[
+                html.H4(heading, className="wine-info-section-heading"),
+                html.Div(
+                    [
+                        html.Span(
+                            value,
+                            className=f"wine-info-pill wine-info-pill--{modifier}",
+                        )
+                        for value in values
+                    ],
+                    className="wine-info-pill-list",
+                ),
+            ],
+        )
+
+    children = [html.P(text_value("summary"), className="wine-info-summary")]
+
+    principal_grapes = string_items("principal_grapes")
+    supporting_grapes = string_items("supporting_grapes")
+    if principal_grapes or supporting_grapes:
+        grape_pills = [
+            html.Span(
+                grape,
+                className="wine-info-pill wine-info-pill--principal-grape",
+            )
+            for grape in principal_grapes
+        ]
+        grape_pills.extend(
+            html.Span(
+                grape,
+                className="wine-info-pill wine-info-pill--supporting-grape",
+            )
+            for grape in supporting_grapes
+        )
+        children.append(
+            html.Section(
+                className="wine-info-section",
+                children=[
+                    html.H4(
+                        "Grape varieties / Cépages",
+                        className="wine-info-section-heading",
+                    ),
+                    html.Div(grape_pills, className="wine-info-pill-list"),
+                ],
+            )
+        )
+
+    styles_section = pill_section("Styles", string_items("wine_styles"), "style")
+    if styles_section:
+        children.append(styles_section)
+
+    pairings_section = pill_section(
+        "Classic pairings",
+        string_items("food_pairings"),
+        "pairing",
+    )
+    if pairings_section:
+        children.append(pairings_section)
+
+    estates = string_items("renowned_estates")
+    if estates:
+        children.append(
+            html.Section(
+                className="wine-info-section",
+                children=[
+                    html.H4(
+                        "Renowned estates",
+                        className="wine-info-section-heading",
+                    ),
+                    html.Ul(
+                        [html.Li(estate) for estate in estates],
+                        className="wine-info-estates",
+                    ),
+                ],
+            )
+        )
+
+    key_facts = content.get("key_facts", [])
+    fact_items = []
+    if isinstance(key_facts, list):
+        for fact in key_facts:
+            if not isinstance(fact, dict):
+                continue
+            label = fact.get("label")
+            text = fact.get("text")
+            if (
+                isinstance(label, str)
+                and label.strip()
+                and isinstance(text, str)
+                and text.strip()
+            ):
+                fact_items.append(
+                    html.Div(
+                        [html.Strong(f"{label.strip()}:"), f" {text.strip()}"],
+                        className="wine-info-key-fact",
+                    )
+                )
+    if fact_items:
+        children.append(
+            html.Section(
+                className="wine-info-section",
+                children=[
+                    html.H4("Key facts", className="wine-info-section-heading"),
+                    html.Div(fact_items),
+                ],
+            )
+        )
+
+    children.append(
+        html.P(text_value("editorial_note"), className="wine-info-editorial-note")
+    )
+    return html.Div(
+        children,
+        className="wine-info-content",
+        style={"--wine-region-accent": region_colour},
+    )
+
+
 def build_wine_info_response(
     click_data,
     feature_lookup,
@@ -241,7 +381,12 @@ def build_wine_info_response(
 ):
     """Build the Wine information panel from semantic AOC click data."""
     if not click_data:
-        return "Click on a wine region to get more information.", {"display": "none"}, no_update, {"display": "none"}
+        return (
+            "Click on an appellation to get more information",
+            {"display": "none"},
+            no_update,
+            {"display": "none"},
+        )
 
     wine_feature = resolve_wine_feature(click_data, feature_lookup)
     if wine_feature is None:
@@ -250,15 +395,25 @@ def build_wine_info_response(
     wine_region = wine_feature["region"]
     appellation = wine_feature["app"]
 
-    cache_key = f"wine_info_{appellation}_{wine_region}"
+    cache_key = f"wine_info_v2_{appellation}_{wine_region}"
     cached_content = cache.get(cache_key)
-    if cached_content:
+    if isinstance(cached_content, dict) and isinstance(
+        cached_content.get("content"), dict
+    ):
         region_name_content = build_wine_region_heading(
             wine_feature,
-            cached_content["color"],
+            cached_content.get("color", wine_feature["colour"]),
         )
         print(f"Cached Information retrieved for {appellation}: {wine_region}")
-        return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
+        return (
+            render_wine_info(
+                cached_content["content"],
+                cached_content.get("color", wine_feature["colour"]),
+            ),
+            {"display": "block"},
+            region_name_content,
+            {"display": "block"},
+        )
 
     if is_request_limit_exceeded():
         error_message = "You have reached the maximum number of requests."
@@ -274,15 +429,37 @@ def build_wine_info_response(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=400
         )
-        content = response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        try:
+            parsed_content = json.loads(content)
+        except (json.JSONDecodeError, TypeError):
+            return (
+                "We couldn't load the wine information. Please try again.",
+                {"display": "none"},
+                no_update,
+                {"display": "none"},
+            )
 
-        cache.set(cache_key, {'content': content, 'color': region_color})
+        if not isinstance(parsed_content, dict):
+            return (
+                "We couldn't load the wine information. Please try again.",
+                {"display": "none"},
+                no_update,
+                {"display": "none"},
+            )
+
+        cache.set(cache_key, {'content': parsed_content, 'color': region_color})
 
         region_name_content = build_wine_region_heading(
             wine_feature,
             region_color,
         )
-        return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
+        return (
+            render_wine_info(parsed_content, region_color),
+            {"display": "block"},
+            region_name_content,
+            {"display": "block"},
+        )
 
     except Exception as e:
         return f"Error fetching region details: {str(e)}", {"display": "none"}, no_update, {"display": "none"}

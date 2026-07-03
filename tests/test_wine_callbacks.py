@@ -1,5 +1,7 @@
+import json
+
 import pytest
-from dash import dcc, html, no_update
+from dash import html, no_update
 
 from app.callbacks.wine import (
     build_wine_region_heading,
@@ -11,6 +13,7 @@ from app.callbacks.wine import (
     restaurant_filter_style,
     restaurant_overlay_visible,
     restaurant_visibility_patch,
+    render_wine_info,
     regional_outline_visibility_patch,
     regional_outlines_visible,
     resolve_wine_feature,
@@ -441,15 +444,26 @@ class FakeRequestLimit:
 
 
 class FakeOpenAIClient:
-    def __init__(self):
+    def __init__(self, content=None):
         self.requests = []
         self.chat = self
         self.completions = self
+        self.content = content
 
     def create(self, **kwargs):
         self.requests.append(kwargs)
         region = kwargs["messages"][0]["content"].removeprefix("prompt:")
-        content = f"Generated regional content for {region}"
+        content = self.content or json.dumps(
+            {
+                "summary": f"Generated regional content for {region}",
+                "principal_grapes": ["Pinot Noir"],
+                "supporting_grapes": [],
+                "wine_styles": ["Red"],
+                "key_facts": [],
+                "renowned_estates": [],
+                "editorial_note": f"Editorial note for {region}",
+            }
+        )
         message = type("Message", (), {"content": content})()
         choice = type("Choice", (), {"message": message})()
         return type("Response", (), {"choices": [choice]})()
@@ -525,31 +539,35 @@ def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_bound
     other_parent_region = other_region["region"]
 
     assert cache.get_calls == [
-        f"wine_info_{first_bourgogne['app']}_{first_region}",
-        f"wine_info_{second_bourgogne['app']}_{first_region}",
-        f"wine_info_{other_region['app']}_{other_parent_region}",
+        f"wine_info_v2_{first_bourgogne['app']}_{first_region}",
+        f"wine_info_v2_{second_bourgogne['app']}_{first_region}",
+        f"wine_info_v2_{other_region['app']}_{other_parent_region}",
     ]
     assert [key for key, _ in cache.set_calls] == cache.get_calls
+    assert all(isinstance(value["content"], dict) for _, value in cache.set_calls)
     assert len(openai_client.requests) == 3
     assert request_limit.calls == 3
 
-    assert isinstance(first_response[0], dcc.Markdown)
-    assert isinstance(second_response[0], dcc.Markdown)
-    assert isinstance(other_response[0], dcc.Markdown)
+    assert isinstance(first_response[0], html.Div)
+    assert isinstance(second_response[0], html.Div)
+    assert isinstance(other_response[0], html.Div)
     assert first_response[2].children[0].children == first_region
     assert first_response[2].children[1].children.startswith(first_bourgogne["app"])
     assert second_response[2].children[0].children == first_region
     assert second_response[2].children[1].children.startswith(second_bourgogne["app"])
     assert other_response[2].children[0].children == other_parent_region
     assert other_response[2].children[1].children.startswith(other_region["app"])
-    assert first_response[0].children != second_response[0].children
-    assert other_response[0].children != first_response[0].children
+    assert first_response[0].children[0].children != second_response[0].children[0].children
+    assert other_response[0].children[0].children != first_response[0].children[0].children
 
 
 def test_wine_info_uses_cached_response_without_openai_or_request_limit(feature_lookup):
     cache = FakeCache()
-    cache.values["wine_info_Known appellation_Bourgogne"] = {
-        "content": "Cached regional Bourgogne content",
+    cache.values["wine_info_v2_Known appellation_Bourgogne"] = {
+        "content": {
+            "summary": "Cached regional Bourgogne content",
+            "editorial_note": "Cached editorial note",
+        },
         "color": "#abcdef",
     }
     request_limit = FakeRequestLimit()
@@ -564,13 +582,168 @@ def test_wine_info_uses_cached_response_without_openai_or_request_limit(feature_
         prompt_builder=_prompt_builder,
     )
 
-    assert isinstance(response[0], dcc.Markdown)
-    assert response[0].children == "Cached regional Bourgogne content"
+    assert isinstance(response[0], html.Div)
+    assert response[0].style == {"--wine-region-accent": "#abcdef"}
+    assert response[0].children[0].children == "Cached regional Bourgogne content"
+    assert response[0].children[-1].children == "Cached editorial note"
     assert response[2].children[0].children == "Bourgogne"
     assert response[2].children[0].style == {"color": "#abcdef"}
     assert response[2].children[1].children == "Known appellation · 1800 hectares"
     assert openai_client.requests == []
     assert request_limit.calls == 0
+
+
+def _wine_info_sections(rendered):
+    return {
+        child.children[0].children: child
+        for child in rendered.children
+        if isinstance(child, html.Section)
+    }
+
+
+def test_render_wine_info_styles_complete_sauternes_content():
+    rendered = render_wine_info(
+        {
+            "summary": "Botrytised sweetness balanced by vivid acidity and long ageing potential.",
+            "principal_grapes": ["Sémillon"],
+            "supporting_grapes": ["Sauvignon Blanc", "Muscadelle"],
+            "wine_styles": ["Sweet white"],
+            "food_pairings": ["Foie gras", "Roquefort", "Tarte Tatin"],
+            "key_facts": [
+                {"label": "Climate", "text": "Autumn mists encourage noble rot."},
+                {"label": "Harvest", "text": "Grapes are selected through successive passes."},
+                {"label": "Incomplete"},
+                "invalid",
+            ],
+            "renowned_estates": [
+                "Château d’Yquem",
+                "Château Rieussec",
+                "Château Suduiraut",
+                {"name": "Old response shape"},
+            ],
+            "editorial_note": "The best examples retain freshness across decades.",
+        },
+        "maroon",
+    )
+
+    assert isinstance(rendered, html.Div)
+    assert rendered.className == "wine-info-content"
+    assert rendered.style == {"--wine-region-accent": "maroon"}
+    assert rendered.children[0].className == "wine-info-summary"
+    sections = _wine_info_sections(rendered)
+    assert list(sections) == [
+        "Grape varieties / Cépages",
+        "Styles",
+        "Classic pairings",
+        "Renowned estates",
+        "Key facts",
+    ]
+    assert all(
+        section.children[0].className == "wine-info-section-heading"
+        for section in sections.values()
+    )
+
+    grape_pills = sections["Grape varieties / Cépages"].children[1].children
+    assert [pill.children for pill in grape_pills] == [
+        "Sémillon",
+        "Sauvignon Blanc",
+        "Muscadelle",
+    ]
+    assert grape_pills[0].className.endswith("--principal-grape")
+    assert all(
+        pill.className.endswith("--supporting-grape") for pill in grape_pills[1:]
+    )
+
+    style_pills = sections["Styles"].children[1].children
+    assert style_pills[0].className.endswith("--style")
+    pairing_pills = sections["Classic pairings"].children[1].children
+    assert [pill.children for pill in pairing_pills] == [
+        "Foie gras",
+        "Roquefort",
+        "Tarte Tatin",
+    ]
+    assert all(pill.className.endswith("--pairing") for pill in pairing_pills)
+
+    fact_items = sections["Key facts"].children[1].children
+    assert len(fact_items) == 2
+    assert fact_items[0].className == "wine-info-key-fact"
+    assert fact_items[0].children[0].children == "Climate:"
+    assert fact_items[0].children[1] == " Autumn mists encourage noble rot."
+
+    estate_list = sections["Renowned estates"].children[1]
+    assert isinstance(estate_list, html.Ul)
+    assert estate_list.className == "wine-info-estates"
+    assert [item.children for item in estate_list.children] == [
+        "Château d’Yquem",
+        "Château Rieussec",
+        "Château Suduiraut",
+    ]
+    assert rendered.children[-1].className == "wine-info-editorial-note"
+
+
+def test_render_wine_info_hides_absent_chablis_sections():
+    rendered = render_wine_info(
+        {
+            "summary": "A mineral, high-acid expression of Chardonnay.",
+            "principal_grapes": ["Chardonnay"],
+            "supporting_grapes": [],
+            "wine_styles": ["Dry white"],
+            "food_pairings": ["Oysters", "Grilled fish"],
+            "key_facts": [],
+            "renowned_estates": [],
+            "editorial_note": "Site and vintage shape its expression.",
+        },
+        "#8b1e3f",
+    )
+
+    sections = _wine_info_sections(rendered)
+    assert list(sections) == [
+        "Grape varieties / Cépages",
+        "Styles",
+        "Classic pairings",
+    ]
+    grape_pills = sections["Grape varieties / Cépages"].children[1].children
+    assert len(grape_pills) == 1
+    assert grape_pills[0].className.endswith("--principal-grape")
+
+
+def test_render_wine_info_omits_empty_optional_arrays():
+    rendered = render_wine_info(
+        {
+            "summary": "Summary only.",
+            "principal_grapes": [],
+            "supporting_grapes": None,
+            "wine_styles": [],
+            "food_pairings": [],
+            "key_facts": [],
+            "renowned_estates": [],
+            "editorial_note": "Final note.",
+        },
+        "maroon",
+    )
+
+    assert len(rendered.children) == 2
+    assert all(isinstance(child, html.P) for child in rendered.children)
+
+
+@pytest.mark.parametrize("model_content", ["not valid JSON", "[]"])
+def test_wine_info_invalid_json_response_is_not_cached(feature_lookup, model_content):
+    cache = FakeCache()
+    request_limit = FakeRequestLimit()
+    openai_client = FakeOpenAIClient(content=model_content)
+
+    response = build_wine_info_response(
+        _click("aoc-known"),
+        feature_lookup,
+        cache,
+        openai_client,
+        request_limit,
+        prompt_builder=_prompt_builder,
+    )
+
+    assert response[0] == "We couldn't load the wine information. Please try again."
+    assert response[2] is no_update
+    assert cache.set_calls == []
 
 
 def test_wine_search_callback_is_isolated_from_info_callback(app_module):

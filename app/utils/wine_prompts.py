@@ -39,26 +39,33 @@ def generate_optimized_prompt(wine_region, appellation):
             "default_focus": (
                 "Explain whether the appellation is associated mainly with the Left Bank, "
                 "Right Bank, dry white Bordeaux, or sweet wine production. Distinguish "
-                "appellation identity from château classifications. Name two or three "
-                "representative châteaux when established estates are important to "
-                "understanding the appellation."
+                "appellation identity from château classifications. Populate renowned_estates "
+                "only when the estates are unquestionably associated with the exact appellation; "
+                "otherwise return an empty array."
             ),
             "signals": {
                 "1855_rules": (
                     "Explain that the 1855 classification applies to named estates rather "
-                    "than to the appellation itself. Prioritise two or three renowned "
-                    "classified châteaux that clearly represent the appellation."
+                    "than to the appellation itself. Populate renowned_estates only with "
+                    "widely recognised classified châteaux unambiguously tied to the exact appellation."
                 ),
                 "right_bank": (
                     "Emphasise Merlot and Cabernet Franc where appropriate, together with "
-                    "the role of clay, limestone, or gravel in shaping style. Mention one "
-                    "or two renowned estates when estate identity is central to the "
-                    "appellation's reputation."
+                    "the role of clay, limestone, or gravel in shaping style. Populate "
+                    "renowned_estates only when the association with the exact appellation "
+                    "is unquestionable."
+                ),
+                "estate_required": (
+                    "Renowned estate identity is central to understanding this appellation. "
+                    "Return 2 or 3 unquestionably established estates directly associated with "
+                    "the exact appellation. Do not return an empty renowned_estates array unless "
+                    "no such estates can be stated with high confidence."
                 ),
                 "sweet_wine": (
                     "Focus on sweet white wine production, botrytis where applicable, "
-                    "principal grapes, acidity, texture, and ageing potential. Mention one "
-                    "or two benchmark estates where they materially illustrate the style."
+                    "principal grapes, acidity, texture, and ageing potential. Populate "
+                    "renowned_estates only with benchmark estates unquestionably associated "
+                    "with the exact appellation."
                 ),
             },
         },
@@ -66,7 +73,7 @@ def generate_optimized_prompt(wine_region, appellation):
             "default_focus": (
                 "Explain the appellation's place within Burgundy's regional, village, "
                 "Premier Cru, and Grand Cru hierarchy where this is relevant. Keep vineyard, "
-                "appellation, climat, and producer identities distinct."
+                "appellation, and climat identities distinct."
             ),
             "signals": {
                 "grand_cru": (
@@ -165,9 +172,9 @@ def generate_optimized_prompt(wine_region, appellation):
         if appellation in {"Margaux", "Pauillac", "Saint-Julien", "Saint-Estèphe"}:
             semantic_signals.append("1855_rules")
         if appellation in {"Pomerol", "Saint-Émilion", "Saint-Emilion"}:
-            semantic_signals.append("right_bank")
+            semantic_signals.extend(["right_bank", "estate_required"])
         if appellation in {"Sauternes", "Barsac"}:
-            semantic_signals.append("sweet_wine")
+            semantic_signals.extend(["sweet_wine", "estate_required"])
 
     if "crémant" in appellation_key or "cremant" in appellation_key:
         semantic_signals.append("sparkling")
@@ -224,32 +231,90 @@ def generate_optimized_prompt(wine_region, appellation):
             "Do not force a classification or prestige narrative if it is not clearly relevant."
         )
 
+    estate_regions = {"Bordeaux", "Rhône", "Alsace"}
+
+    if wine_region not in estate_regions:
+        estates_instruction = (
+            f"Return an empty renowned_estates array for {wine_region}. "
+            "Estate recommendations are not enabled for this region."
+        )
+    elif "estate_required" in semantic_signals:
+        estates_instruction = (
+            "Return 2 or 3 widely recognised estates unambiguously associated with "
+            "this exact appellation. Estate identity is important here, so do not "
+            "leave renowned_estates empty when high-confidence examples exist. "
+            "Do not infer names from nearby appellations or naming conventions."
+        )
+    else:
+        estates_instruction = (
+            "You may return up to 3 renowned estates only when each estate is widely "
+            "recognised and unambiguously associated with this exact appellation. "
+            "Prefer an empty array over a plausible, obscure, disputed, or uncertain name. "
+            "Do not infer estates from naming conventions, nearby appellations, or the wider region."
+        )
+
     return f"""
-Write a concise, factual overview of the {appellation} appellation within the
-{wine_region} wine region.
+Create compact factual content for this French wine appellation.
 
-Regional context:
+Appellation: {appellation}
+Region: {wine_region}
+
+Focus:
 - {context["default_focus"]}
-
-Appellation-specific direction:
 - {semantic_instruction}
 
-Open with the single fact that most clearly distinguishes this appellation. Do not
-begin with generic geography unless location is itself the defining feature.
+Estate policy:
+- {estates_instruction}
 
-Choose the three most useful subjects for this appellation, in this order of priority:
-1. what legally or stylistically defines the appellation;
-2. principal grapes, wine colours, or production method;
-3. hierarchy, classification, terroir, ageing, named sites, or estates only where
-   genuinely distinctive.
+Return valid JSON only, matching this exact shape:
+{{
+  "summary": "",
+  "principal_grapes": [],
+  "supporting_grapes": [],
+  "wine_styles": [],
+  "food_pairings": [],
+  "renowned_estates": [],
+  "key_facts": [
+    {{"label": "", "text": ""}},
+    {{"label": "", "text": ""}},
+    {{"label": "", "text": ""}}
+  ],
+  "editorial_note": ""
+}}
 
-Style rules:
-- Focus on {appellation}; use {wine_region} only as context.
-- Write 3 short paragraphs with no bullet points in the final answer.
-- Avoid generic praise, tourist language, food-pairing filler, and Michelin references.
-- Do not add producer, estate, classification, or prestige material unless it is
-  essential to understanding the appellation.
-- Do not invent classifications, permitted grapes, vineyard ownership, or production rules.
-- If a detail is uncertain, omit it.
-- Keep the total length around 120–170 words.
+Field limits:
+- summary: Maximum 20 words. Follow naturally after the appellation heading and
+  state its most distinctive non-redundant feature. Do not repeat the appellation,
+  region, mapped area, grape names, food pairings, or simple wine-style labels.
+- principal_grapes: Maximum 3 grapes central to the appellation's recognised wines.
+- supporting_grapes: Maximum 3 commonly relevant supporting grapes. Exclude
+  marginal or merely permitted varieties.
+- wine_styles: Maximum 3 concise labels such as "Dry red", "Sweet white", or
+  "Traditional-method sparkling".
+- food_pairings: Maximum 3 pairings with a strong, widely recognised connection
+  to the appellation's principal wine styles. Do not infer pairings from the
+  broader region or nearby local cuisine. Prefer familiar dish categories over
+  obscure named regional specialities. Return [] when no pairing is clearly
+  established.
+- key_facts: Return 2 or 3 appellation-specific facts. Use a third fact only when
+  it adds distinct, useful information. Use a short label and no more than 24
+  words of text for each. Do not repeat the summary.
+- renowned_estates: Maximum 3 names only. Follow the Estate policy exactly.
+- editorial_note: Maximum 24 words. Distinguish the appellation from a commonly
+  confused neighbouring appellation or broader wine category. Return "" when no
+  useful distinction is important.
+
+Rules:
+- Include every top-level key.
+- Use [] or "" when information is uncertain or not relevant.
+- Never state, estimate, compare, interpret, or infer mapped area.
+- Use only high-confidence, appellation-specific facts.
+- Do not repeat facts between summary, key_facts, and editorial_note.
+- Grape names belong only in principal_grapes and supporting_grapes.
+- Food belongs only in food_pairings.
+- Producer or estate names belong only in renowned_estates.
+- Do not invent classifications, permitted grapes, production rules, vineyard
+  ownership, or estates.
+- Avoid generic praise, tourist language, and Michelin references.
+- Output JSON only, with no Markdown or surrounding text.
 """.strip()
