@@ -80,9 +80,9 @@ def get_demographics_content():
                     # Add or Remove Regions
                     html.Div(
                         className='filter-container editorial-control-group',
+                        id='demographics-add-remove',
                         children=[
                             html.Div(
-                                id='demographics-add-remove',
                                 children=[
                                     html.H5("Add or Remove Regions of France", className='region-filter-title editorial-control-label'),
                                     dcc.Dropdown(
@@ -158,6 +158,7 @@ def get_demographics_content():
                     html.Div(
                         className='demographics-chart-mean editorial-chart',
                         id='demographics-chart-math',
+                        hidden=True,
                         children=[
                             html.Div(
                                 className='demographics-bar-chart',

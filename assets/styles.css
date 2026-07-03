@@ -1693,7 +1693,7 @@ body {
 .demographics-text-container {
     /*background-color: #f5f5f5; !* Light grey for neutrality *!*/
     border-top: 0;
-    padding-bottom: 16px;
+    padding-bottom: 12px;
     width: 100%;
 }
 
@@ -1730,7 +1730,7 @@ body {
     justify-content: flex-start;
     width: 100%;
     gap: 10px 14px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 /* Dropdown containers for demographics section */
@@ -1838,8 +1838,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 10px 14px;
-    margin-bottom: 12px;
-    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-top: 0;
     padding: 0 !important;
 }
 
@@ -1910,7 +1910,7 @@ body {
     justify-content: space-between;
     width: 100%;
     height: auto;
-    margin-top: 8px;
+    margin-top: 0;
 }
 
 /* Demographics map styling */
@@ -1931,6 +1931,10 @@ body {
     width: 50%;
     display: inline-block;
     min-width: 0;
+}
+
+#demographics-chart-math[hidden] {
+    display: none !important;
 }
 
 /* Demographics bar chart styling */
@@ -2987,7 +2991,7 @@ body {
 @media screen and (max-width: 1200px) {
     .analysis-container:has(#demographics-content-top) {
         padding-top: 30px;
-        padding-bottom: 40px;
+        padding-bottom: 30px;
     }
 
     .demographics-container {
@@ -3007,7 +3011,7 @@ body {
 
     .analysis-container:has(#demographics-content-top) {
         padding-top: 28px;
-        padding-bottom: 36px;
+        padding-bottom: 28px;
     }
 
     .demographics-text-paragraph {
@@ -3043,7 +3047,7 @@ body {
     .analysis-container:has(#demographics-content-top) {
         margin-top: clamp(148px, calc(268px - 20vw), 190px);
         padding-top: 24px;
-        padding-bottom: 32px;
+        padding-bottom: 24px;
     }
 
     .demographics-header {

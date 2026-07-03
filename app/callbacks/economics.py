@@ -15,6 +15,25 @@ def restaurant_overlay_active(n_clicks):
     return bool(n_clicks and n_clicks % 2 == 1)
 
 
+def demographics_chart_hidden(selected_metric):
+    return not bool(selected_metric)
+
+
+def demographics_region_selector_style(selected_region):
+    return (
+        {'display': 'block'}
+        if selected_region == 'All France'
+        else {'display': 'none'}
+    )
+
+
+def reset_demographics_star_clicks(n_clicks_rest, ids):
+    """Reset star-filter parity when the restaurant overlay closes."""
+    if restaurant_overlay_active(n_clicks_rest) or not ids:
+        return None
+    return [0] * len(ids)
+
+
 def register_economics_callbacks(app, data):
     all_france = data.all_france
     region_df = data.region_df
@@ -26,7 +45,7 @@ def register_economics_callbacks(app, data):
          Output('demographics-map-graph', 'figure'),
          Output('demographics-bar-chart-graph', 'figure'),
          Output('demographics-add-remove', 'style'),
-         Output('demographics-chart-math', 'style'),
+         Output('demographics-chart-math', 'hidden'),
          Output('weighted-mean', 'style'),
          Output('star-filter-demographics', 'style')],
         [Input('category-dropdown-demographics', 'value'),
@@ -49,10 +68,9 @@ def register_economics_callbacks(app, data):
         # Set granularity based on whether a region is selected in the dropdown
         if selected_dropdown != 'All France':
             selected_granularity = 'department'  # If a region is selected, use department granularity
-            region_selector_style = {'visibility': 'hidden'}  # Hide the region selector
         else:
             selected_granularity = 'region'  # Default granularity is region
-            region_selector_style = {'visibility': 'visible'}  # Show the region selector
+        region_selector_style = demographics_region_selector_style(selected_dropdown)
 
         if selected_granularity == 'region':
             df = region_df.sort_values('region').copy()  # Use region-level data
@@ -103,7 +121,7 @@ def register_economics_callbacks(app, data):
             )
             empty_fig = go.Figure()  # Return empty figure for bar chart
             return (selected_regions, fig_map, empty_fig, region_selector_style,
-                    {'display': 'none'}, {'display': 'none'}, star_filter_style)
+                    demographics_chart_hidden(selected_metric), {'display': 'none'}, star_filter_style)
 
         if selected_granularity == 'region':
             dataframe = region_df
@@ -141,7 +159,7 @@ def register_economics_callbacks(app, data):
         )
 
         return (selected_regions, fig_map, fig_bar, region_selector_style,
-                {'display': 'block'}, weighted_mean_style, star_filter_style)
+                demographics_chart_hidden(selected_metric), weighted_mean_style, star_filter_style)
 
     @app.callback(
         Output('toggle-show-details-demographics', 'active'),
@@ -149,6 +167,18 @@ def register_economics_callbacks(app, data):
     )
     def update_restaurant_overlay_active_state(n_clicks):
         return restaurant_overlay_active(n_clicks)
+
+    @app.callback(
+        Output({'type': 'filter-button-demographics', 'index': ALL}, 'n_clicks'),
+        Input('toggle-show-details-demographics', 'n_clicks'),
+        State({'type': 'filter-button-demographics', 'index': ALL}, 'id'),
+        prevent_initial_call=True,
+    )
+    def reset_demographics_restaurant_star_filters(n_clicks_rest, ids):
+        reset_clicks = reset_demographics_star_clicks(n_clicks_rest, ids)
+        if reset_clicks is None:
+            raise PreventUpdate
+        return reset_clicks
 
     @app.callback(
         Output('map-view-store-demo', 'data'),

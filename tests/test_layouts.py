@@ -110,10 +110,14 @@ def test_economics_layout_contains_expected_component_ids():
         layout,
         "toggle-show-details-demographics",
     )
+    demographics_chart = find_component_by_id(layout, "demographics-chart-math")
+    region_filter = find_component_by_id(layout, "demographics-add-remove")
     assert restaurant_toggle.children == "Starred restaurants"
     assert restaurant_toggle.n_clicks == 0
     assert restaurant_toggle.active is False
     assert "editorial-toggle-button" in restaurant_toggle.className
+    assert demographics_chart.hidden is True
+    assert "filter-container" in region_filter.className
 
 
 def test_wine_layout_contains_expected_component_ids():
