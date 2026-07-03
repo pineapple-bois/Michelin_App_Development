@@ -108,7 +108,7 @@ REQUIRED_STAGES = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--run-id", default="close500")
+    parser.add_argument("--run-id", default="close500_simplify150")
     parser.add_argument(
         "--policy",
         type=Path,

@@ -298,7 +298,11 @@ def collect_inventory(
     run_id: str,
 ) -> tuple[list[CandidateInventory], list[str]]:
     output_root = project_root / "Development" / "aoc_simplification" / "outputs"
-    region_directories = sorted(path for path in output_root.glob("*") if path.is_dir())
+    region_directories = sorted(
+        path
+        for path in output_root.glob("*")
+        if path.is_dir() and not path.name.startswith("_")
+    )
     candidate_paths = sorted(
         output_root.glob(f"*/{run_id}/candidate.geojson"),
         key=lambda path: path.parent.parent.name,

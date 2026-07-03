@@ -84,6 +84,7 @@ Use this as a small starting ladder, one region at a time:
 | `close500` | `none` | 500 | 250 |
 | `close500_simple500` | `none` | 500 | 500 |
 | `close500_smallest_wins` | `smallest-wins` | 500 | 250 |
+| `close500_simplify150` | `smallest-wins` | 500 | 150 |
 
 ## Smallest-Appellation-Wins Partitioning
 
@@ -94,7 +95,7 @@ The smallest complete appellation keeps its geometry; progressively broader
 appellations lose area already claimed by smaller ones. This removes overlap
 from the data itself instead of relying on map trace or rendering order.
 Residual overlap is accepted only within floating-point tolerance:
-`max(1e-6 m², union area × 1e-10)`. The exact tolerance and measured residual
+`max(1e-6 m², union area × 1e-9)`. The exact tolerance and measured residual
 are recorded in `metrics.json` and `params.json`.
 
 Area is only a practical proxy for appellation specificity, not a formal legal
@@ -128,6 +129,62 @@ in `metrics.json`. Fully covered appellations are reported as warnings rather
 than disappearing silently. Accept or reject one regional result before
 moving to the next region.
 
+### `close500_simplify150` removal investigation
+
+The newest complete batch is `close500_simplify150`. Its saved metrics show
+that all 354 appellations survive source repair, dissolve, closing, and
+simplification. Loss happens only during smallest-wins partitioning:
+
+- 347 appellations retain geometry;
+- 7 become exactly empty and are omitted from the candidate;
+- 148 retained appellations lose some overlap area; and
+- 21 retained appellations lose at least 99% of their processed area, leaving
+  only a small or sometimes microscopic sliver.
+
+The exactly covered appellations are:
+
+| Region | Fully covered appellation | Earlier equal-area priority row(s) |
+| --- | --- | --- |
+| Bordeaux | Saint-Emilion grand cru | Saint-Emilion |
+| Dordogne | Haut-Montravel | Côtes de Montravel |
+| Languedoc-Roussillon | Banyuls grand cru | Banyuls |
+| Languedoc-Roussillon | Collioure | Banyuls / Banyuls grand cru |
+| Languedoc-Roussillon | Limoux | Crémant de Limoux |
+| Languedoc-Roussillon | Muscat de Rivesaltes | Grand Roussillon |
+| Rhône | Crémant de Die | Coteaux de Die |
+
+In each case, the saved pre-partition priority area is exactly equal to an
+earlier appellation's area. The partition sort uses processed area ascending,
+then app label ascending. Coextensive appellations therefore make alphabetical
+order an ownership rule: the first label claims the complete footprint and a
+later label receives nothing. Near-coextensive cases produce tiny residual
+slivers instead of exact empties.
+
+Comparing the earlier 250 m run with the 150 m batch shows essentially the same
+near-total-removal set. Lower simplification changes a few empty-versus-sliver
+outcomes, but does not resolve coextensive source appellations. All 12 current
+`close500_simplify150` candidates reload as valid EPSG:4326 geometry with no
+empty features, so invalid export geometry is not the cause of these losses.
+
+Ways to avoid unintended disappearance require an explicit product decision:
+
+- detect coextensive or near-coextensive appellations before partitioning and
+  represent them as aliases or a multi-label footprint;
+- use a reviewed appellation-priority table instead of area-plus-alphabetical
+  tie-breaking;
+- preserve fully covered appellations in a separate metadata/catalogue layer
+  even when they have no unique app-facing polygon;
+- allow selected coextensive appellations to overlap, accepting that strict
+  mutual exclusivity no longer holds; or
+- add a report-only review gate for fully covered and near-total-removal cases
+  before a regional result is accepted.
+
+`source_area_m2` can make priority comparisons more stable and expose source
+footprint equivalence, but using it as the priority key would not by itself
+solve genuinely identical footprints. Reducing closing or simplification may
+alter boundary slivers, but the batch comparison shows it is not the primary
+fix for the coextensive cases.
+
 Inspect `preview.png` for the candidate alone, `comparison.png` for aligned
 old/source/candidate panels, and `overlap_comparison.png` for the partition
 effect. Use `metrics.json` to compare validity, overlap, per-app removed area,
@@ -152,6 +209,78 @@ the candidate is than the current app layer. These values are evidence rather
 than automatic pass/fail thresholds: size, area, part count, and coordinate
 count each require interpretation. Complete the human assessment and notes
 fields only after viewing the experiment's comparison plots.
+
+## Batch-to-Merge Workflow
+
+The scripts form a staged workflow. Do not treat a successful batch run as an
+automatic acceptance decision.
+
+### 1. Configure and run the regional batch
+
+`batch_processing.py` is currently configuration-by-code rather than a CLI.
+Before running it, verify that its `RUN_ID` and the runner arguments agree. The
+newest completed regime used:
+
+```text
+RUN_ID = "close500_simplify150"
+--buffer 500
+--simplify 150
+--overlap-strategy smallest-wins
+```
+
+Then run from the repository root:
+
+```bash
+.venv/bin/python Development/aoc_simplification/batch_processing.py
+```
+
+The batch skips regions whose candidate already exists and exits non-zero if
+any region fails. It writes only under ignored `outputs/<region_slug>/<run_id>/`
+directories.
+
+### 2. Review removal and validity evidence
+
+Refresh the tracked policy table from the selected run:
+
+```bash
+.venv/bin/python Development/aoc_simplification/update_region_policy_metrics.py \
+  --run-id close500_simplify150
+```
+
+Review `partition.fully_covered_app_names` and `partition.per_app` in each
+`metrics.json`. A retained feature with a removal percentage near 100% may be
+functionally absent even though its geometry is technically non-empty.
+
+If a candidate is invalid, run the diagnostic utility for that region without
+`--repair-in-place` first:
+
+```bash
+.venv/bin/python Development/aoc_simplification/diagnose_invalid_candidates.py \
+  --region "Bourgogne" \
+  --run-id close500_simplify150
+```
+
+Diagnostic reports and plots are written beneath
+`outputs/_invalid_diagnostics/<region_slug>/<run_id>/`. The normal diagnostic
+command is read-only with respect to candidates. `--repair-in-place` is a
+separate, deliberately mutating action that creates a timestamped backup; use
+it only after reviewing the local repair evidence and area change.
+
+### 3. Merge only a complete, valid run
+
+The merge utility validates schema, CRS, geometry validity, emptiness,
+duplicates, region coverage, and numeric `source_area_m2`. It concatenates AOC
+features without dissolving or changing geometry:
+
+```bash
+.venv/bin/python Development/aoc_simplification/merge_candidates.py \
+  --run-id close500_simplify150 \
+  --output Development/aoc_simplification/datasets/aoc_regions_close500_simplify150.geojson
+```
+
+If that tracked development dataset already exists and replacement is
+intentional, add `--overwrite`. App wiring and promotion into `assets/data`
+remain separate decisions after regional visual and metric review.
 
 ## Merged Development Dataset
 
