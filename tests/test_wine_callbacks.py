@@ -12,6 +12,7 @@ from app.callbacks.wine import (
     region_navigation_response,
     restaurant_filter_style,
     restaurant_overlay_visible,
+    reset_restaurant_star_clicks,
     restaurant_visibility_patch,
     render_wine_info,
     regional_outline_visibility_patch,
@@ -257,6 +258,18 @@ def test_restaurant_filter_style_tracks_overlay_visibility():
     assert restaurant_filter_style(False) == {'width': '30%', 'display': 'none'}
 
 
+def test_restaurant_star_clicks_reset_only_when_overlay_closes():
+    ids = [
+        {"type": "filter-button-wine", "index": 1},
+        {"type": "filter-button-wine", "index": 2},
+        {"type": "filter-button-wine", "index": 3},
+    ]
+
+    assert reset_restaurant_star_clicks(1, ids) is None
+    assert reset_restaurant_star_clicks(2, ids) == [0, 0, 0]
+    assert reset_restaurant_star_clicks(2, []) is None
+
+
 @pytest.mark.parametrize(
     ("n_clicks_rest", "n_clicks_stars", "expected_visibility"),
     [
@@ -285,17 +298,12 @@ def test_restaurant_visibility_patch_updates_only_restaurant_traces(
     assert patch["operations"] == [
         {
             "operation": "Assign",
-            "location": ["data", 1, "below"],
-            "params": {"value": RESTAURANT_TRACE_BELOW},
-        },
-        {
-            "operation": "Assign",
             "location": ["data", 1, "visible"],
             "params": {"value": expected_visibility[0]},
         },
         {
             "operation": "Assign",
-            "location": ["data", 2, "below"],
+            "location": ["data", 1, "below"],
             "params": {"value": RESTAURANT_TRACE_BELOW},
         },
         {
@@ -305,13 +313,18 @@ def test_restaurant_visibility_patch_updates_only_restaurant_traces(
         },
         {
             "operation": "Assign",
-            "location": ["data", 3, "below"],
+            "location": ["data", 2, "below"],
             "params": {"value": RESTAURANT_TRACE_BELOW},
         },
         {
             "operation": "Assign",
             "location": ["data", 3, "visible"],
             "params": {"value": expected_visibility[2]},
+        },
+        {
+            "operation": "Assign",
+            "location": ["data", 3, "below"],
+            "params": {"value": RESTAURANT_TRACE_BELOW},
         },
     ]
 
@@ -795,6 +808,19 @@ def test_wine_hover_callback_is_isolated_from_openai_info_callback(app_module):
         {"id": "wine-map-graph", "property": "hoverData"}
     ]
     assert "llm-output-container" not in str(hover_callbacks[0]["output"])
+
+
+def test_restaurant_star_reset_callback_is_driven_by_overlay_toggle(app_module):
+    reset_callbacks = [
+        metadata
+        for output, metadata in app_module.app.callback_map.items()
+        if "filter-button-wine" in output and output.endswith(".n_clicks")
+    ]
+
+    assert len(reset_callbacks) == 1
+    assert reset_callbacks[0]["inputs"] == [
+        {"id": "toggle-show-details-wine", "property": "n_clicks"}
+    ]
 
 
 def test_regional_outline_callback_uses_boolean_toggle(app_module):

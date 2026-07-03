@@ -144,6 +144,13 @@ def restaurant_filter_style(show_restaurants):
     )
 
 
+def reset_restaurant_star_clicks(n_clicks_rest, ids):
+    """Reset the star-filter parity when the restaurant overlay closes."""
+    if restaurant_overlay_visible(n_clicks_rest) or not ids:
+        return None
+    return [0] * len(ids)
+
+
 def restaurant_visibility_patch(n_clicks_rest, n_clicks_stars=None, ids=None):
     show_restaurants = restaurant_overlay_visible(n_clicks_rest)
     active_stars = selected_restaurant_stars(n_clicks_stars, ids)
@@ -151,10 +158,10 @@ def restaurant_visibility_patch(n_clicks_rest, n_clicks_stars=None, ids=None):
     patched_figure = Patch()
     for star in RESTAURANT_STAR_ORDER:
         trace_index = RESTAURANT_TRACE_INDICES[star]
-        patched_figure["data"][trace_index]["below"] = RESTAURANT_TRACE_BELOW
         patched_figure["data"][trace_index]["visible"] = (
             show_restaurants and star in active_stars
         )
+        patched_figure["data"][trace_index]["below"] = RESTAURANT_TRACE_BELOW
     return patched_figure
 
 
@@ -535,6 +542,18 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
             restaurant_filter_style(show_restaurants),
             toggle_active(n_clicks_rest),
         )
+
+    @app.callback(
+        Output({'type': 'filter-button-wine', 'index': ALL}, 'n_clicks'),
+        Input('toggle-show-details-wine', 'n_clicks'),
+        State({'type': 'filter-button-wine', 'index': ALL}, 'id'),
+        prevent_initial_call=True,
+    )
+    def reset_wine_restaurant_star_filters(n_clicks_rest, ids):
+        reset_clicks = reset_restaurant_star_clicks(n_clicks_rest, ids)
+        if reset_clicks is None:
+            raise PreventUpdate
+        return reset_clicks
 
     @app.callback(
         Output('wine-region-selector', 'options'),
