@@ -1,3 +1,4 @@
+from app.components.shared import get_footer
 from app.layouts.analysis import get_analysis_layout
 from app.layouts.economics import get_economics_layout
 from app.layouts.wine import get_wine_layout
@@ -53,6 +54,26 @@ def find_component_by_id(component, target_id):
             stack.append(children)
 
     return None
+
+
+def test_shared_footer_contains_only_credit_and_linked_github_image():
+    footer = get_footer()
+    content = footer.children
+    credit, github_link = content.children
+    github_image = github_link.children
+
+    assert footer.className == "footer-main"
+    assert content.className == "footer-content"
+    assert credit.children == "pineapple-bois 2026"
+    assert github_link.href == (
+        "https://github.com/pineapple-bois/Michelin_Rated_Restaurants"
+    )
+    assert github_link.target == "_blank"
+    assert github_link.rel == "noopener noreferrer"
+    assert github_link.title == "Open GitHub repository"
+    assert github_link.className == "footer-github-link"
+    assert github_image.src == "/assets/images/github-mark.png"
+    assert github_image.className == "footer-github-image"
 
 
 def test_analysis_layout_contains_expected_component_ids():

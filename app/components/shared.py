@@ -1,4 +1,4 @@
-from dash import dcc, html
+from dash import html
 
 
 MICHELIN_RATING_COLORS = {
@@ -153,50 +153,30 @@ def get_header_with_buttons():
 
 
 def get_footer():
-    return html.Div(
-        children=[
-            html.Div(
-                children=[
-                    html.Img(src="assets/images/github-mark.png", className="info-image"),
-                    html.Div(
-                        children=[
-                            html.Div(
-                                children=[
-                                    html.Span(
-                                        "The Michelin Guide to France was built from this ",
-                                        className="info-text",
-                                    ),
-                                    dcc.Link(
-                                        "GitHub Repository",
-                                        href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
-                                        target="_blank",
-                                        className="info-link",
-                                    ),
-                                ],
-                                className="info-line",
-                            ),
-                            html.Div(
-                                children=[
-                                    html.Span("© pineapple-bois 2024", className="info-footer"),
-                                    html.Span(
-                                        " | This website is an independent project and is not affiliated with or endorsed by ",
-                                        className="disclaimer-text",
-                                    ),
-                                    dcc.Link(
-                                        "the official Michelin Guide",
-                                        href="https://guide.michelin.com/en/fr/restaurants",
-                                        target="_blank",
-                                        className="disclaimer-link",
-                                    ),
-                                ],
-                                className="footer-inline",
-                            ),
-                        ],
-                        className="text-container",
+    return html.Footer(
+        html.Div(
+            children=[
+                html.Span("pineapple-bois 2026", className="footer-credit"),
+                html.A(
+                    html.Img(
+                        src="/assets/images/github-mark.png",
+                        alt="",
+                        className="footer-github-image",
                     ),
-                ],
-                className="info-container",
-            )
-        ],
+                    href="https://github.com/pineapple-bois/Michelin_Rated_Restaurants",
+                    target="_blank",
+                    rel="noopener noreferrer",
+                    title="Open GitHub repository",
+                    className="footer-github-link",
+                    **{
+                        "aria-label": (
+                            "Open Michelin Rated Restaurants on GitHub "
+                            "in a new tab"
+                        )
+                    },
+                ),
+            ],
+            className="footer-content",
+        ),
         className="footer-main",
     )
