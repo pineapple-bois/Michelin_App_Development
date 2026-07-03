@@ -224,12 +224,6 @@ body {
 }
 
 .info-toggle-button {
-    background-color: var(--color-surface-control);  /* Light grey background */
-    color: var(--color-text-muted);  /* Muted text color */
-    border: 1px solid var(--color-border-control);  /* Light border */
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 14px;
     cursor: pointer;
     position: relative;
 }
@@ -253,44 +247,9 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
 }
 
-.info-toggle-button:hover {
-    background-color: var(--color-surface-control-hover);  /* Darken on hover for subtle effect */
-}
-
 /* Add margin around the button */
 .info-tab-container {
     text-align: left;
-}
-
-.city-input-field {
-    color: var(--color-text-muted);  /* Text color */
-    border: 1px solid var(--color-border-subtle);  /* Light border matching the buttons */
-    border-radius: 5px;  /* Rounded corners matching buttons */
-    padding: 5px 10px;  /* Ensure similar padding to buttons */
-    font-size: 14px;  /* Matching the font size */
-    height: 30px;  /* Ensure consistent height with buttons */
-    box-sizing: border-box;  /* Ensure the padding and border are included in the input size */
-}
-
-/* Adjust spacing inside the search section */
-.city-input-container-mainpage {
-}
-
-.submit-city-button-mainpage,
-.clear-city-button-mainpage {
-    background-color: var(--color-surface-control);  /* Light grey background */
-    color: var(--color-text-muted);  /* Muted text color */
-    border: 1px solid var(--color-border-control);  /* Light border */
-    border-radius: 5px;
-    padding: 3px 10px;
-    font-size: 14px;
-    margin-left: 10px;
-    cursor: pointer;
-}
-
-.submit-city-button-mainpage:hover,
-.clear-city-button-mainpage:hover {
-    background-color: var(--color-surface-control-hover);  /* Darken on hover */
 }
 
 /* -------------------------
@@ -363,13 +322,6 @@ body {
 
 .custom-text {
     font-size: 24px; /* Adjust font size as needed */
-}
-
-/* -------------------------
-   Dropdown Styles
-   ------------------------- */
-.dropdown-style {
-    margin-bottom: 5px;
 }
 
 /* -------------------------
@@ -460,10 +412,7 @@ body {
 }
 
 .guide-page-sheet .guide-control-label {
-    color: var(--color-text-muted);
     font-size: 12px;
-    font-weight: 600;
-    line-height: 1.2;
     margin: 0 0 6px;
 }
 
@@ -473,8 +422,6 @@ body {
 }
 
 .guide-page-sheet .guide-select .Select-control {
-    background-color: var(--color-surface) !important;
-    border-color: var(--color-border-control) !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     font-size: 13px;
@@ -536,31 +483,7 @@ body {
 
 .guide-page-sheet .guide-search-toggle,
 .guide-page-sheet .guide-search-action {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border-control);
-    border-bottom-color: var(--color-border-editorial);
-    border-radius: 0;
-    box-shadow: none;
-    color: var(--color-text-primary);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 500;
-    height: 34px;
-    line-height: 1;
-    min-height: 34px;
     padding: 0 10px;
-}
-
-.guide-page-sheet .guide-search-toggle:hover,
-.guide-page-sheet .guide-search-toggle:focus-visible,
-.guide-page-sheet .guide-search-action:hover,
-.guide-page-sheet .guide-search-action:focus-visible {
-    background-color: var(--color-surface-control);
-    border-color: var(--color-border-editorial);
-    border-bottom-color: var(--color-brand-red);
-    box-shadow: none;
-    color: var(--color-text-primary);
-    outline: none;
 }
 
 .guide-page-sheet .guide-search-toggle:focus-visible,
@@ -827,7 +750,7 @@ body {
     margin: 0;
 }
 
-.star-ratings-container-main {
+.guide-rating-legend {
     display: flex;
     width: 70%;
     margin-top: 10px;
@@ -835,7 +758,7 @@ body {
     justify-content: space-between; /* Ensures equal spacing */
 }
 
-.star-ratings-container-main > div {
+.guide-rating-legend-item {
     flex: 1;               /* Makes all 5 items equal width */
     text-align: left;      /* Aligns content to the left inside each block */
     padding-right: 10px;   /* Optional: small gap between columns */
@@ -899,15 +822,6 @@ body {
     font-weight: 300;
 }
 
-.dropdown-title {
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.dropdown-style {
-    margin-bottom: 15px; /* Add some space between dropdowns */
-}
-
 .dropdown-container {
     margin-bottom: 0;
 }
@@ -927,11 +841,6 @@ body {
 /* -------------------------
    Star selection Styles
    ------------------------- */
-
-.star-select-title {
-    font-size: 16px;
-    font-weight: 700;
-}
 
 .star-button {
     /*width: 40px;*/
@@ -1145,6 +1054,47 @@ body {
     margin-right: auto;
 }
 
+/* Shared editorial control foundations. Page-specific selectors keep ownership
+   of widths, spacing, semantic accents, and exceptional interaction states. */
+.editorial-control-label {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.editorial-select .Select-control {
+    background-color: var(--color-surface) !important;
+    border-color: var(--color-border-control) !important;
+    box-sizing: border-box;
+}
+
+.editorial-action-button,
+.editorial-action-button.button-show-details {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-control);
+    border-bottom-color: var(--color-border-editorial);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    height: 34px;
+    line-height: 1;
+    min-height: 34px;
+}
+
+.editorial-action-button:hover,
+.editorial-action-button:focus-visible {
+    background-color: var(--color-surface-control);
+    border-color: var(--color-border-editorial);
+    border-bottom-color: var(--color-brand-red);
+    box-shadow: none;
+    color: var(--color-text-primary);
+    outline: none;
+}
+
 .editorial-page-frame .editorial-page-title {
     font-size: 25px;
     line-height: 1.22;
@@ -1164,11 +1114,6 @@ body {
     padding-top: 20px;
     padding-bottom: 20px;
     font-size: 20px;
-}
-
-.three-child, .two-child, .one-child, .bib-child, .green-child {
-    width: 20%;
-    box-sizing: border-box; /* Ensure padding is included in the width calculation */
 }
 
 /* Analysis pilot: editorial data-report rhythm */
@@ -1246,20 +1191,8 @@ body {
 #analysis-content-top .star-select-title-analysis,
 #analysis-content-top .star-select-title-department,
 #analysis-content-top .star-select-title-arrondissement {
-    color: var(--color-text-muted);
     font-size: 12px;
-    font-weight: 600;
     margin-bottom: 6px;
-}
-
-#analysis-content-top .dropdown-region-analysis .Select-control,
-#analysis-content-top .dropdown-department-analysis .Select-control,
-#analysis-content-top .dropdown-arrondissement-analysis .Select-control,
-#analysis-content-top .dropdown-granularity .Select-control,
-#analysis-content-top .dropdown-ranking .Select-control,
-#analysis-content-top .dropdown-star-ranking .Select-control {
-    border-color: var(--color-border-control) !important;
-    background-color: var(--color-surface) !important;
 }
 
 #analysis-content-top .dropdown-region-analysis,
@@ -1441,16 +1374,6 @@ body {
 
 #analysis-content-top .button-show-details {
     background-color: transparent;
-    border: 1px solid var(--color-border-control);
-    border-bottom-color: var(--color-border-editorial);
-    border-radius: 0;
-    box-shadow: none;
-    color: var(--color-text-primary);
-    font-size: 12px;
-    font-weight: 500;
-    height: 34px;
-    line-height: 1;
-    min-height: 34px;
     padding: 0 12px;
 }
 
@@ -2138,18 +2061,13 @@ body {
 .demographics-dropdown-container h6,
 #demographics-add-remove .region-filter-title,
 .star-select-title-demographics {
-    color: var(--color-text-muted);
     font-size: 11px;
-    font-weight: 600;
-    line-height: 1.2;
     margin: 0 0 5px;
 }
 
 #demographics-content-top .dropdown-category-demographics-selector .Select-control,
 #demographics-content-top .dropdown-granularity-demographics .Select-control,
 #demographics-content-top .dropdown-category-demographics .Select-control {
-    background-color: var(--color-surface) !important;
-    border-color: var(--color-border-control) !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     font-size: 13px;
@@ -2435,24 +2353,12 @@ body {
 .wine-region-selector-container h6,
 .wine-appellation-search-container h6,
 .wine-container .star-select-title-wine {
-    color: var(--color-text-muted);
     font-size: 12px;
-    font-weight: 600;
     margin: 0 0 6px;
 }
 
 .editorial-toggle-button.button-show-details {
     background-color: transparent;
-    border: 1px solid var(--color-border-control);
-    border-bottom-color: var(--color-border-editorial);
-    border-radius: 0;
-    box-shadow: none;
-    color: var(--color-text-primary);
-    font-size: 12px;
-    font-weight: 500;
-    height: 34px;
-    line-height: 1;
-    min-height: 34px;
     padding: 0 12px;
     min-width: 170px;
 }
@@ -2482,8 +2388,6 @@ body {
 
 .wine-container .dropdown-region-wine .Select-control,
 .wine-container .dropdown-appellation-wine .Select-control {
-    border-color: var(--color-border-control) !important;
-    background-color: var(--color-surface) !important;
     border-radius: 0 !important;
     font-size: 13px;
     height: 34px;
