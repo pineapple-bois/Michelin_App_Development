@@ -230,7 +230,10 @@ def register_guide_callbacks(app, data):
 
             if index not in available_stars:
                 # Still return something so Dash output lengths match
-                class_names.append("me-1 star-button inactive")
+                class_names.append(
+                    "me-1 star-button editorial-rating-button "
+                    "guide-rating-button inactive"
+                )
                 styles.append({
                     "display": "inline-block",
                     "width": "100%",
@@ -254,7 +257,10 @@ def register_guide_callbacks(app, data):
                     f"{int(color_map[index][5:7], 16)},0.6)"
                 )
 
-            class_name = "me-1 star-button" + (" active" if is_active else "")
+            class_name = (
+                "me-1 star-button editorial-rating-button guide-rating-button"
+                + (" active" if is_active else " inactive")
+            )
             color_style = {
                 "display": "inline-block",
                 "width": "100%",
@@ -270,7 +276,11 @@ def register_guide_callbacks(app, data):
         elif not selected_active and 0.25 in new_stars:
             new_stars.remove(0.25)
 
-        selected_class = "selected-toggle-button" + (" active" if selected_active else " inactive")
+        selected_class = (
+            "selected-toggle-button editorial-rating-button guide-rating-button "
+            "guide-rating-selected"
+            + (" active" if selected_active else " inactive")
+        )
         # Compute display: show the toggle button only if 0.25 is an available star rating
         toggle_display = "block" if 0.25 in available_stars else "none"
         selected_style = {
@@ -349,10 +359,16 @@ def register_guide_callbacks(app, data):
             arrondissement_options = [{'label': arr, 'value': arr} for arr in arrondissement_list]
             # Add 'All Arrondissements' option at the top
             arrondissement_options.insert(0, {'label': 'All Arrondissements', 'value': 'all'})
-            return 'visible-paris-section', arrondissement_options, 'all'
+            return (
+                'dropdown-block editorial-control-group guide-control-group '
+                'visible-paris-section'
+            ), arrondissement_options, 'all'
         else:
             # Hide the arrondissement section by setting class to 'hidden-section'
-            return 'hidden-paris-section', [], None
+            return (
+                'dropdown-block editorial-control-group guide-control-group '
+                'hidden-paris-section'
+            ), [], None
 
     @app.callback(
         Output('map-display', 'figure'),

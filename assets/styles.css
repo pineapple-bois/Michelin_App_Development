@@ -453,6 +453,333 @@ body {
     margin-top: 2px;
 }
 
+/* Phase 2 Guide alignment: editorial controls and restaurant information. */
+.guide-page-sheet .guide-control-group {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.guide-page-sheet .guide-control-label {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 6px;
+}
+
+.guide-page-sheet .guide-select {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.guide-page-sheet .guide-select .Select-control {
+    background-color: var(--color-surface) !important;
+    border-color: var(--color-border-control) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    font-size: 13px;
+    height: 34px;
+    min-height: 34px;
+}
+
+.guide-page-sheet .guide-select .Select-placeholder,
+.guide-page-sheet .guide-select .Select-value,
+.guide-page-sheet .guide-select .Select-input {
+    height: 32px;
+    line-height: 32px;
+}
+
+.guide-page-sheet .guide-select .Select-value-label {
+    color: var(--color-text-primary) !important;
+    font-size: 13px;
+}
+
+.guide-page-sheet .guide-select .Select-arrow-zone,
+.guide-page-sheet .guide-select .Select-clear-zone {
+    color: var(--color-text-muted);
+}
+
+.guide-page-sheet .guide-select .Select-control:focus-within,
+.guide-page-sheet .guide-select .Select-control:has(:focus-visible) {
+    border-color: var(--color-brand-red) !important;
+    box-shadow: 0 0 0 1px var(--color-control-focus-ring) !important;
+}
+
+.guide-page-sheet .guide-select .Select-menu-outer {
+    border-color: var(--color-border-control);
+    border-radius: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.10);
+    font-size: 13px;
+    z-index: 2001;
+}
+
+.guide-page-sheet .guide-select .Select-option:hover,
+.guide-page-sheet .guide-select .Select-option.is-focused,
+.guide-page-sheet .guide-select .VirtualizedSelectFocusedOption {
+    background-color: var(--color-control-selected-bg) !important;
+    color: var(--color-brand-red-hover) !important;
+}
+
+.guide-page-sheet .guide-select .Select-option.is-selected,
+.guide-page-sheet .guide-select .VirtualizedSelectSelectedOption {
+    background-color: var(--color-control-selected-bg-strong) !important;
+    color: var(--color-brand-red) !important;
+}
+
+.guide-page-sheet .guide-select.Select.is-disabled .Select-control,
+.guide-page-sheet .guide-select .Select-control[aria-disabled="true"] {
+    background-color: var(--analysis-page-gutter-bg) !important;
+    color: var(--color-text-muted) !important;
+    cursor: not-allowed;
+    opacity: 0.72;
+}
+
+.guide-page-sheet .guide-search-toggle,
+.guide-page-sheet .guide-search-action {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-control);
+    border-bottom-color: var(--color-border-editorial);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    height: 34px;
+    line-height: 1;
+    min-height: 34px;
+    padding: 0 10px;
+}
+
+.guide-page-sheet .guide-search-toggle:hover,
+.guide-page-sheet .guide-search-toggle:focus-visible,
+.guide-page-sheet .guide-search-action:hover,
+.guide-page-sheet .guide-search-action:focus-visible {
+    background-color: var(--color-surface-control);
+    border-color: var(--color-border-editorial);
+    border-bottom-color: var(--color-brand-red);
+    box-shadow: none;
+    color: var(--color-text-primary);
+    outline: none;
+}
+
+.guide-page-sheet .guide-search-toggle:focus-visible,
+.guide-page-sheet .guide-search-action:focus-visible,
+.guide-page-sheet .guide-search-input:focus-visible {
+    box-shadow: 0 0 0 1px var(--color-control-focus-ring);
+}
+
+.guide-page-sheet .city-input-container-mainpage {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    margin-top: 8px;
+}
+
+.guide-page-sheet .guide-search-input {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-control);
+    border-radius: 0;
+    box-sizing: border-box;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    height: 34px;
+    min-width: 0;
+    padding: 0 9px;
+    width: 100%;
+}
+
+.guide-page-sheet .guide-search-input:focus,
+.guide-page-sheet .guide-search-input:focus-visible {
+    border-color: var(--color-brand-red);
+    outline: none;
+}
+
+.guide-page-sheet .guide-search-action {
+    margin-left: 0;
+}
+
+.guide-page-sheet .guide-search-action:disabled,
+.guide-page-sheet .guide-search-toggle:disabled {
+    background-color: var(--analysis-page-gutter-bg);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    opacity: 0.64;
+}
+
+.guide-page-sheet .guide-rating-filters {
+    margin-bottom: 0;
+}
+
+.guide-page-sheet .guide-rating-filter-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.guide-page-sheet .guide-rating-button {
+    --guide-rating-accent: var(--rating-three-stars);
+    --guide-rating-icon-filter: var(--rating-three-stars-filter);
+    border-color: var(--guide-rating-accent) !important;
+    border-bottom-color: var(--color-border-editorial) !important;
+    color: var(--color-text-primary) !important;
+}
+
+.guide-page-sheet .guide-rating-button:has(.bib-image-invert) {
+    --guide-rating-accent: var(--rating-bib-gourmand);
+    --guide-rating-icon-filter: var(--rating-bib-gourmand-filter);
+}
+
+.guide-page-sheet .guide-rating-button:has(.michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert)) {
+    --guide-rating-accent: var(--rating-one-star);
+    --guide-rating-icon-filter: var(--rating-one-star-filter);
+}
+
+.guide-page-sheet .guide-rating-button:has(.michelin-star-invert + .michelin-star-invert):not(:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert)) {
+    --guide-rating-accent: var(--rating-two-stars);
+    --guide-rating-icon-filter: var(--rating-two-stars-filter);
+}
+
+.guide-page-sheet .guide-rating-button:has(.michelin-star-invert + .michelin-star-invert + .michelin-star-invert) {
+    --guide-rating-accent: var(--rating-three-stars);
+    --guide-rating-icon-filter: var(--rating-three-stars-filter);
+}
+
+.guide-page-sheet .guide-rating-button .michelin-star-invert,
+.guide-page-sheet .guide-rating-button .bib-image-invert {
+    filter: var(--guide-rating-icon-filter) !important;
+}
+
+.guide-page-sheet .guide-rating-button.active {
+    background-color: transparent !important;
+    border-color: var(--guide-rating-accent) !important;
+    border-bottom: 2px solid var(--guide-rating-accent) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+.guide-page-sheet .guide-rating-button.inactive {
+    background-color: transparent !important;
+    opacity: 0.52 !important;
+}
+
+.guide-page-sheet .guide-rating-button:hover,
+.guide-page-sheet .guide-rating-button:focus-visible {
+    background-color: var(--color-surface-control) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+.guide-page-sheet .guide-rating-button:focus-visible {
+    outline: 1px solid var(--color-control-focus-ring);
+    outline-offset: 2px;
+}
+
+.guide-page-sheet .guide-rating-button:disabled,
+.guide-page-sheet .guide-rating-button.disabled {
+    cursor: not-allowed;
+    opacity: 0.38 !important;
+}
+
+.guide-page-sheet .guide-rating-selected {
+    --guide-rating-accent: #808080;
+    color: var(--color-text-primary) !important;
+    font-size: 12px;
+}
+
+.guide-page-sheet .guide-restaurant-panel {
+    align-items: stretch;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border-subtle);
+    box-sizing: border-box;
+    display: flex;
+    margin-top: 12px;
+    min-height: 166px;
+    padding-top: 12px;
+    width: 100%;
+}
+
+.guide-page-sheet .guide-restaurant-panel > * {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.guide-page-sheet .guide-restaurant-panel .placeholder-text {
+    align-items: center;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 2px;
+    color: var(--color-text-muted) !important;
+    display: flex;
+    font-size: 13px;
+    justify-content: center;
+    line-height: 1.4;
+    min-height: 142px;
+    padding: 14px;
+    text-align: center;
+}
+
+.guide-page-sheet .guide-restaurant-panel .restaurant-details {
+    background-color: var(--color-surface);
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px 1px 1px 3px;
+    box-shadow: none;
+    box-sizing: border-box;
+    color: var(--color-text-primary);
+    padding: 12px 14px 14px;
+}
+
+.guide-page-sheet .guide-restaurant-panel .details-header {
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.guide-page-sheet .guide-restaurant-panel .restaurant-name {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-right: 0;
+}
+
+.guide-page-sheet .guide-restaurant-panel .restaurant-stars {
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0.78;
+}
+
+.guide-page-sheet .guide-restaurant-panel .restaurant-stars img {
+    height: 16px !important;
+    width: auto !important;
+}
+
+.guide-page-sheet .guide-restaurant-panel .details-cuisine,
+.guide-page-sheet .guide-restaurant-panel .details-price,
+.guide-page-sheet .guide-restaurant-panel .address-info {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.guide-page-sheet .guide-restaurant-panel .restaurant-info,
+.guide-page-sheet .guide-restaurant-panel .address-info {
+    margin-bottom: 8px;
+}
+
+.guide-page-sheet .guide-restaurant-panel .restaurant-website {
+    color: var(--color-brand-red);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.guide-page-sheet .guide-restaurant-panel .restaurant-website:hover,
+.guide-page-sheet .guide-restaurant-panel .restaurant-website:focus-visible {
+    color: var(--color-brand-red-hover);
+    text-decoration: underline;
+}
+
 .map-sidebar-container {
     display: flex;
     flex-grow: 1;  /* Take up available space */
@@ -3348,5 +3675,60 @@ body {
     #analysis-content-top .ranking-header {
         font-size: 20px;
         line-height: 1.22;
+    }
+}
+
+/* Guide desktop viewport: retain the fixed application composition on larger
+   screens while tablet and mobile continue to use the existing scroll layout. */
+@media screen and (min-width: 1251px) {
+    .main-layout:has(.guide-page-frame) {
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+    }
+
+    .body.guide-page-frame {
+        box-sizing: border-box;
+        flex: 0 0 calc(100vh - 60px);
+        height: calc(100vh - 60px);
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .guide-page-sheet {
+        box-sizing: border-box;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+        padding-bottom: 8px;
+        padding-top: 8px;
+    }
+
+    .guide-page-sheet .main-content,
+    .guide-page-sheet .map-sidebar-container,
+    .guide-page-sheet .map-section,
+    .guide-page-sheet .sidebar-container {
+        min-height: 0;
+    }
+
+    .guide-page-sheet .main-content {
+        height: 100%;
+    }
+
+    .main-layout:has(.guide-page-frame) .footer-main {
+        flex: 0 0 60px;
+        min-height: 60px;
+    }
+}
+
+@media screen and (min-width: 1251px) and (max-width: 1400px) {
+    .body.guide-page-frame {
+        padding-top: 72px;
+    }
+}
+
+@media screen and (min-width: 1401px) {
+    .body.guide-page-frame {
+        padding-top: 82px;
     }
 }

@@ -37,7 +37,14 @@ def get_city_match_section():
             # Info tab to unfold the search bar
             html.Div(
                 children=[
-                    html.Button("Search Locations", id="info-toggle-button", className='info-toggle-button')
+                    html.Button(
+                        "Search Locations",
+                        id="info-toggle-button",
+                        className=(
+                            'info-toggle-button editorial-action-button '
+                            'guide-search-toggle'
+                        )
+                    )
                 ],
                 className='info-tab-container'
             ),
@@ -57,14 +64,20 @@ def get_city_match_section():
                                         type='text',
                                         placeholder='Enter a location in France',
                                         debounce=True,
-                                        className='city-input-field'
+                                        className='city-input-field guide-search-input'
                                     ),
                                     # Submit button
                                     html.Button('Submit', id='submit-city-button-mainpage', n_clicks=0,
-                                                className='submit-city-button-mainpage'),
+                                                className=(
+                                                    'submit-city-button-mainpage editorial-action-button '
+                                                    'guide-search-action guide-search-submit'
+                                                )),
                                     # Clear button
                                     html.Button('Clear', id='clear-city-button-mainpage', n_clicks=0,
-                                                className='clear-city-button-mainpage')
+                                                className=(
+                                                    'clear-city-button-mainpage editorial-action-button '
+                                                    'guide-search-action guide-search-clear'
+                                                ))
                                 ]
                             ),
                         ],
@@ -85,7 +98,9 @@ def create_star_button(value, label, type_name='filter-button-mainpage'):
             'type': type_name,
             'index': value,
         },
-        className=f"me-1 star-button",
+        className=(
+            "me-1 star-button editorial-rating-button guide-rating-button"
+        ),
         outline=True,
         style={
             'display': 'inline-block',
@@ -114,23 +129,46 @@ def star_filter_section(available_stars=star_placeholder):
         "Selected",
         id="toggle-selected-btn",
         n_clicks=0,
-        className="selected-toggle-button",
+        className=(
+            "selected-toggle-button editorial-rating-button "
+            "guide-rating-button guide-rating-selected"
+        ),
         style={'display': 'block'}
     )
 
     def hidden_toggle_button():
-        return html.Button("", id="toggle-selected-btn", n_clicks=1, style={"display": "none"})
+        return html.Button(
+            "",
+            id="toggle-selected-btn",
+            n_clicks=1,
+            className=(
+                "selected-toggle-button editorial-rating-button "
+                "guide-rating-button guide-rating-selected"
+            ),
+            style={"display": "none"}
+        )
 
     # Shared layout title
-    title = html.H6("Filter by Michelin Rating", className='star-select-title')
+    title = html.H6(
+        "Filter by Michelin Rating",
+        className='star-select-title editorial-control-label guide-control-label'
+    )
 
     # Case 1: inline (fits in same row)
     if has_selected and 1 <= len(standard_stars) <= 3:
         star_buttons.append(toggle_button)
         return html.Div([
             title,
-            html.Div(star_buttons, className='star-filter-buttons')
-        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+            html.Div(
+                star_buttons,
+                className=(
+                    'star-filter-buttons editorial-rating-filter-row '
+                    'guide-rating-filter-row'
+                )
+            )
+        ], className=(
+            'star-filter-section editorial-rating-filters guide-rating-filters'
+        ), id='star-filter', style={'display': 'none'})
 
     # Case 2: only 0.25 available → show selected on its own row, 50% width
     elif has_selected and not standard_stars:
@@ -143,7 +181,9 @@ def star_filter_section(available_stars=star_placeholder):
                 ],
                 className='selected-toggle-wrapper'
             )
-        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+        ], className=(
+            'star-filter-section editorial-rating-filters guide-rating-filters'
+        ), id='star-filter', style={'display': 'none'})
 
     # Case 3: single available bib → show on its own row, 50% width
     elif not has_selected and standard_stars == [0.5]:
@@ -157,13 +197,21 @@ def star_filter_section(available_stars=star_placeholder):
                 className='selected-toggle-wrapper'
             ),
             hidden_toggle_button()
-        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+        ], className=(
+            'star-filter-section editorial-rating-filters guide-rating-filters'
+        ), id='star-filter', style={'display': 'none'})
 
     # Case 4: selected on a new row, wrapped in its own aligned container
     elif has_selected:
         return html.Div([
             title,
-            html.Div(star_buttons, className='star-filter-buttons'),
+            html.Div(
+                star_buttons,
+                className=(
+                    'star-filter-buttons editorial-rating-filter-row '
+                    'guide-rating-filter-row'
+                )
+            ),
             html.Div(
                 [
                     html.Div(toggle_button, className='selected-toggle-inner'),
@@ -173,15 +221,25 @@ def star_filter_section(available_stars=star_placeholder):
                 ],
                 className='selected-toggle-wrapper'
             )
-        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+        ], className=(
+            'star-filter-section editorial-rating-filters guide-rating-filters'
+        ), id='star-filter', style={'display': 'none'})
 
     # Case 5: no toggle at all (fallback)
     else:
         return html.Div([
             title,
-            html.Div(star_buttons, className='star-filter-buttons'),
+            html.Div(
+                star_buttons,
+                className=(
+                    'star-filter-buttons editorial-rating-filter-row '
+                    'guide-rating-filter-row'
+                )
+            ),
             hidden_toggle_button()
-        ], className='star-filter-section', id='star-filter', style={'display': 'none'})
+        ], className=(
+            'star-filter-section editorial-rating-filters guide-rating-filters'
+        ), id='star-filter', style={'display': 'none'})
 
 
 def get_main_content_with_city_match(unique_regions):
@@ -195,32 +253,44 @@ def get_main_content_with_city_match(unique_regions):
         # Dropdown blocks wrapped in a flex container
         html.Div([
             html.Div([
-                html.H6("Select a Region", className='dropdown-title'),
+                html.H6(
+                    "Select a Region",
+                    className='dropdown-title editorial-control-label guide-control-label'
+                ),
                 dcc.Dropdown(
                     id='region-dropdown',
                     options=[{'label': region, 'value': region} for region in unique_regions],
                     value=unique_regions[0],
-                    className='dropdown-style',
+                    className='dropdown-style editorial-select guide-select',
                     clearable=False
                 )
-            ], className='dropdown-block'),
+            ], className='dropdown-block editorial-control-group guide-control-group'),
 
             html.Div([
-                html.H6("Select a Department", className='dropdown-title'),
+                html.H6(
+                    "Select a Department",
+                    className='dropdown-title editorial-control-label guide-control-label'
+                ),
                 dcc.Dropdown(
                     id='department-dropdown',
-                    className='dropdown-style'
+                    className='dropdown-style editorial-select guide-select'
                 )
-            ], className='dropdown-block'),
+            ], className='dropdown-block editorial-control-group guide-control-group'),
 
             html.Div(
                 id='arrondissement-dropdown-container',
-                className='dropdown-block hidden-paris-section',  # Initially hidden
+                className=(
+                    'dropdown-block editorial-control-group guide-control-group '
+                    'hidden-paris-section'
+                ),  # Initially hidden
                 children=[
-                    html.H6("Select an Arrondissement", className='dropdown-title'),
+                    html.H6(
+                        "Select an Arrondissement",
+                        className='dropdown-title editorial-control-label guide-control-label'
+                    ),
                     dcc.Dropdown(
                         id='arrondissement-dropdown',
-                        className='dropdown-style',
+                        className='dropdown-style editorial-select guide-select',
                         clearable=False
                     )
                 ],
@@ -230,7 +300,14 @@ def get_main_content_with_city_match(unique_regions):
         # Buttons and restaurant details
         html.Div([
             star_filter_section(star_placeholder),
-            html.Div(id='restaurant-details', children=[], className='restaurant-details-container')
+            html.Div(
+                id='restaurant-details',
+                children=[],
+                className=(
+                    'restaurant-details-container editorial-info-panel '
+                    'guide-restaurant-panel'
+                )
+            )
         ], className='star-ratings-and-details-container')
 
     ], className='sidebar-container')

@@ -102,6 +102,15 @@ def test_guide_layout_uses_editorial_shell_without_changing_component_ids():
     map_section, sidebar = map_sidebar.children
     _, match_overlay, _ = map_section.children
     search_section, _, _ = sidebar.children
+    search_toggle = find_component_by_id(layout, "info-toggle-button")
+    search_input = find_component_by_id(layout, "city-input-mainpage")
+    region_select = find_component_by_id(layout, "region-dropdown")
+    department_select = find_component_by_id(layout, "department-dropdown")
+    arrondissement_select = find_component_by_id(layout, "arrondissement-dropdown")
+    star_filter = find_component_by_id(layout, "star-filter")
+    restaurant_panel = find_component_by_id(layout, "restaurant-details")
+    rating_row = star_filter.children[1]
+    rating_button = rating_row.children[0]
 
     assert {
         "info-toggle-button",
@@ -128,6 +137,16 @@ def test_guide_layout_uses_editorial_shell_without_changing_component_ids():
     assert "guide-sidebar-search" in search_section.className
     assert "guide-map-match-overlay" in match_overlay.className
     assert match_overlay.children[0].id == "matched-city-output-mainpage"
+    assert "editorial-action-button" in search_toggle.className
+    assert "guide-search-input" in search_input.className
+    for select in (region_select, department_select, arrondissement_select):
+        assert "editorial-select" in select.className
+        assert "guide-select" in select.className
+    assert "editorial-rating-filters" in star_filter.className
+    assert "editorial-rating-button" in rating_button.className
+    assert "guide-rating-button" in rating_button.className
+    assert "editorial-info-panel" in restaurant_panel.className
+    assert "guide-restaurant-panel" in restaurant_panel.className
 
 
 def test_economics_layout_contains_expected_component_ids():
