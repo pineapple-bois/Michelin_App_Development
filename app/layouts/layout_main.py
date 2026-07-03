@@ -32,7 +32,7 @@ unique_regions = ['Auvergne-Rhône-Alpes',
 
 def get_city_match_section():
     return html.Div(
-        className='city-match-content-wrapper-mainpage clearfix',
+        className='city-match-content-wrapper-mainpage guide-sidebar-search clearfix',
         children=[
             # Info tab to unfold the search bar
             html.Div(
@@ -70,18 +70,6 @@ def get_city_match_section():
                         ],
                     ),
                 ]
-            ),
-
-            # Main content for matched results - 70% width
-            html.Div(
-                className='city-match-main-content-mainpage',
-                children=[
-                    # Placeholder for the matched city content
-                    html.Div(
-                        id='matched-city-output-mainpage',
-                        className='city-match-output-container-mainpage'
-                    )
-                ],
             )
         ]
     )
@@ -202,15 +190,7 @@ def get_main_content_with_city_match(unique_regions):
 
     # Sidebar content (existing sidebar)
     sidebar_content = html.Div([
-        html.Div([
-                html.H5("Explore the finest culinary destinations in France, as reviewed by Michelin.", className='site-description')
-            ], className='description-container'
-        ),
-
-        html.Div([
-                html.P("France is divided administratively into regions and departments. Select a region to see the Michelin-rated restaurants by department.", className='instructions')
-            ], className='instructions-container'
-        ),
+        city_match_section,
 
         # Dropdown blocks wrapped in a flex container
         html.Div([
@@ -270,6 +250,15 @@ def get_main_content_with_city_match(unique_regions):
                 'modeBarButtonsToAdd': ['zoom2d', 'resetScale2d']
             }
         ),
+        html.Div(
+            className='city-match-main-content-mainpage guide-map-match-overlay',
+            children=[
+                html.Div(
+                    id='matched-city-output-mainpage',
+                    className='city-match-output-container-mainpage'
+                )
+            ],
+        ),
         dcc.Store(id='map-view-store-mainpage', data={}),
     ], className='map-section')
 
@@ -317,7 +306,6 @@ def get_main_content_with_city_match(unique_regions):
 
     # Combine all sections into the main content layout
     return html.Div([
-        city_match_section,
         html.Div([
             map_section,
             sidebar_content,
@@ -337,9 +325,14 @@ def get_main_layout():
 
     body = html.Div(
         children=[
-            get_main_content_with_city_match(unique_regions)
+            html.Div(
+                className='guide-page-sheet editorial-sheet',
+                children=[
+                    get_main_content_with_city_match(unique_regions)
+                ]
+            )
         ],
-        className='body'
+        className='body guide-page-frame editorial-page-frame'
     )
 
     footer = get_footer()

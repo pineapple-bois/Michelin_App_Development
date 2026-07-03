@@ -1,6 +1,7 @@
 from app.components.shared import get_footer
 from app.layouts.analysis import get_analysis_layout
 from app.layouts.economics import get_economics_layout
+from app.layouts.layout_main import get_main_layout
 from app.layouts.wine import get_wine_layout
 
 
@@ -89,6 +90,44 @@ def test_analysis_layout_contains_expected_component_ids():
         "arrondissement-map",
         "ranking-output",
     }.issubset(component_ids)
+
+
+def test_guide_layout_uses_editorial_shell_without_changing_component_ids():
+    layout = get_main_layout()
+    component_ids = collect_component_ids(layout)
+    _, body, _ = layout.children
+    guide_sheet = body.children[0]
+    main_content = guide_sheet.children[0]
+    map_sidebar, _ = main_content.children
+    map_section, sidebar = map_sidebar.children
+    _, match_overlay, _ = map_section.children
+    search_section, _, _ = sidebar.children
+
+    assert {
+        "info-toggle-button",
+        "info-collapse",
+        "city-input-mainpage",
+        "submit-city-button-mainpage",
+        "clear-city-button-mainpage",
+        "matched-city-output-mainpage",
+        "region-dropdown",
+        "department-dropdown",
+        "arrondissement-dropdown-container",
+        "arrondissement-dropdown",
+        "star-filter",
+        "toggle-selected-btn",
+        "restaurant-details",
+        "map-display",
+        "map-view-store-mainpage",
+    }.issubset(component_ids)
+    assert "guide-page-frame" in body.className
+    assert "editorial-page-frame" in body.className
+    assert "guide-page-sheet" in guide_sheet.className
+    assert "editorial-sheet" in guide_sheet.className
+    assert main_content.className == "main-content"
+    assert "guide-sidebar-search" in search_section.className
+    assert "guide-map-match-overlay" in match_overlay.className
+    assert match_overlay.children[0].id == "matched-city-output-mainpage"
 
 
 def test_economics_layout_contains_expected_component_ids():

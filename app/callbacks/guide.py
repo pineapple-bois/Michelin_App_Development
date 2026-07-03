@@ -102,16 +102,18 @@ def register_guide_callbacks(app, data):
             result = matcher.find_region_department(city_input)
             if isinstance(result, dict):
                 # Valid result, update outputs
+                matched_location = result.get('Matched Location', 'Unknown')
+                matched_region = result.get('Region', 'Unknown')
+                matched_department = result.get('Department', 'Unknown')
                 city_details = [
+                    html.P(matched_location, className='match-details match-location-line'),
                     html.P(
-                        f"Match:  {result.get('Matched Location', 'Unknown')},  "
-                        f"Region:  {result.get('Region', 'Unknown')},  "
-                        f"Department:  {result.get('Department', 'Unknown')}",
-                        className='match-details'
-                    ),
+                        f"{matched_region} · {matched_department}",
+                        className='match-details match-area-line'
+                    )
                 ]
                 return dash.no_update, dash.no_update, html.Div(city_details, className='city-match-container'), \
-                    'city-match-output-container-mainpage visible', result.get('Region'), result.get('Department')
+                    'city-match-output-container-mainpage visible', matched_region, matched_department
             else:
                 # No match found
                 return dash.no_update, dash.no_update, html.Div([
