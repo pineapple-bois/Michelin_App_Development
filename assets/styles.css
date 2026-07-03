@@ -3732,3 +3732,186 @@ body {
         padding-top: 82px;
     }
 }
+
+/* Guide Phase 3: content-driven tablet/mobile composition. These overrides
+   supersede the legacy 1250px Guide stacking rules without changing desktop. */
+@media screen and (max-width: 1250px) {
+    .body.guide-page-frame {
+        padding-top: 72px;
+    }
+
+    .guide-page-sheet {
+        height: auto;
+        overflow: visible;
+        padding-bottom: 20px;
+        padding-top: 16px;
+    }
+
+    .guide-page-sheet .main-content {
+        height: auto;
+        margin-left: 0;
+        margin-right: 0;
+        min-height: 0;
+    }
+
+    .guide-page-sheet .guide-responsive-layout {
+        display: grid;
+        gap: 12px;
+        grid-template-areas:
+            "search"
+            "geography"
+            "ratings"
+            "map"
+            "details";
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+        overflow: visible;
+    }
+
+    .guide-page-sheet .guide-sidebar,
+    .guide-page-sheet .guide-sidebar-results {
+        display: contents;
+    }
+
+    .guide-page-sheet .guide-sidebar-search {
+        grid-area: search;
+        margin-bottom: 0;
+    }
+
+    .guide-page-sheet .dropdowns-container-main {
+        display: grid;
+        gap: 10px 12px;
+        grid-area: geography;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        overflow: visible;
+        position: relative;
+        z-index: 2;
+    }
+
+    .guide-page-sheet .guide-control-group,
+    .guide-page-sheet .dropdown-block,
+    .guide-page-sheet .visible-paris-section {
+        margin-bottom: 0;
+        max-width: none;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .guide-page-sheet .hidden-paris-section {
+        display: none;
+    }
+
+    .guide-page-sheet .visible-paris-section {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+
+    .guide-page-sheet .guide-rating-filters {
+        grid-area: ratings;
+        margin-bottom: 0;
+        max-width: none;
+        width: 100%;
+    }
+
+    .guide-page-sheet .guide-rating-filter-row,
+    .guide-page-sheet .selected-toggle-wrapper {
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+
+    .guide-page-sheet .guide-map-panel {
+        grid-area: map;
+        height: clamp(460px, 58vh, 640px);
+        min-height: 460px;
+        order: initial;
+        padding-right: 0;
+        width: 100%;
+    }
+
+    .guide-page-sheet .guide-restaurant-panel {
+        grid-area: details;
+        margin-bottom: 0;
+        margin-top: 0;
+        max-width: none;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .guide-page-sheet .guide-rating-legend {
+        border-top: 1px solid var(--color-border-subtle);
+        display: grid;
+        gap: 12px 18px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        margin: 14px 0 0;
+        padding-top: 12px;
+        width: 100%;
+    }
+
+    .guide-page-sheet .guide-rating-legend-item {
+        min-width: 0;
+        padding-right: 0;
+        width: auto;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .body.guide-page-frame {
+        padding-top: 72px;
+    }
+
+    .guide-page-sheet {
+        padding-bottom: 18px;
+        padding-top: 14px;
+    }
+
+    .guide-page-sheet .guide-responsive-layout {
+        gap: 10px;
+    }
+
+    .guide-page-sheet .dropdowns-container-main {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .guide-page-sheet .guide-map-panel {
+        height: clamp(420px, 65vh, 560px);
+        min-height: 420px;
+    }
+
+    .guide-page-sheet .guide-rating-legend {
+        gap: 14px 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .guide-page-sheet .guide-search-toggle {
+        width: 100%;
+    }
+
+    .guide-page-sheet .city-input-container-mainpage {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .guide-page-sheet .guide-search-input {
+        grid-column: 1 / -1;
+    }
+
+    .guide-page-sheet .guide-search-action {
+        width: 100%;
+    }
+
+    .guide-page-sheet .guide-rating-filter-row {
+        align-items: stretch;
+    }
+
+    .guide-page-sheet .guide-rating-button {
+        min-width: 68px;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .guide-page-sheet .guide-rating-legend {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

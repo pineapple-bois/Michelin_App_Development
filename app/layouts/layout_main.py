@@ -308,9 +308,9 @@ def get_main_content_with_city_match(unique_regions):
                     'guide-restaurant-panel'
                 )
             )
-        ], className='star-ratings-and-details-container')
+        ], className='star-ratings-and-details-container guide-sidebar-results')
 
-    ], className='sidebar-container')
+    ], className='sidebar-container guide-sidebar')
 
     # Map section (existing map)
     map_section = html.Div([
@@ -337,46 +337,48 @@ def get_main_content_with_city_match(unique_regions):
             ],
         ),
         dcc.Store(id='map-view-store-mainpage', data={}),
-    ], className='map-section')
+    ], className='map-section guide-map-panel')
 
     # Star Ratings Section (below map and sidebar)
     star_ratings_section = html.Div(
-        className='star-ratings-container-main',  # Class for the parent container
+        className=(
+            'star-ratings-container-main editorial-note guide-rating-legend'
+        ),
         children=[
             html.Div(
                 children=[
                     html.P(michelin_stars(3), className='star-description-title'),
                     html.P('Exceptional cuisine', className='star-description-title'),
                     html.P('Worth a special journey', className='star-description-text'),
-                ], className='three-child'
+                ], className='three-child guide-rating-legend-item'
             ),
             html.Div(
                 children=[
                     html.P(michelin_stars(2), className='star-description-title'),
                     html.P('Excellent cooking', className='star-description-title'),
                     html.P('Worth a detour', className='star-description-text'),
-                ], className='two-child'
+                ], className='two-child guide-rating-legend-item'
             ),
             html.Div(
                 children=[
                     html.P(michelin_stars(1), className='star-description-title'),
                     html.P('High-quality cooking', className='star-description-title'),
                     html.P('Worth a stop', className='star-description-text'),
-                ], className='one-child'
+                ], className='one-child guide-rating-legend-item'
             ),
             html.Div(
                 children=[
                     html.P([bib_gourmand()], className='star-description-title'),
                     html.P('Bib Gourmand', className='star-description-title'),
                     html.P('Good food at moderate prices', className='star-description-text'),
-                ], className='bib-child'
+                ], className='bib-child guide-rating-legend-item'
             ),
             html.Div(
                 children=[
                     html.P([green_star()], className='star-description-title'),
                     html.P('Green Star', className='star-description-title'),
                     html.P('High sustainability standards', className='star-description-text'),
-                ], className='green-child'
+                ], className='green-child guide-rating-legend-item'
             ),
         ],
     )
@@ -386,7 +388,7 @@ def get_main_content_with_city_match(unique_regions):
         html.Div([
             map_section,
             sidebar_content,
-        ], className='map-sidebar-container'),
+        ], className='map-sidebar-container guide-responsive-layout'),
         star_ratings_section
     ], className='main-content')
 

@@ -137,6 +137,9 @@ def test_guide_layout_uses_editorial_shell_without_changing_component_ids():
     assert "guide-sidebar-search" in search_section.className
     assert "guide-map-match-overlay" in match_overlay.className
     assert match_overlay.children[0].id == "matched-city-output-mainpage"
+    assert "guide-responsive-layout" in map_sidebar.className
+    assert "guide-map-panel" in map_section.className
+    assert "guide-sidebar" in sidebar.className
     assert "editorial-action-button" in search_toggle.className
     assert "guide-search-input" in search_input.className
     for select in (region_select, department_select, arrondissement_select):
@@ -147,6 +150,7 @@ def test_guide_layout_uses_editorial_shell_without_changing_component_ids():
     assert "guide-rating-button" in rating_button.className
     assert "editorial-info-panel" in restaurant_panel.className
     assert "guide-restaurant-panel" in restaurant_panel.className
+    assert "guide-rating-legend" in main_content.children[1].className
 
 
 def test_economics_layout_contains_expected_component_ids():
