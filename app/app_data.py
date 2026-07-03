@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import hashlib
+import math
 
 import geopandas as gpd
 import pandas as pd
@@ -93,7 +94,7 @@ PARIS_COLUMNS = (
     "locations",
     "geometry",
 )
-WINE_COLUMNS = ("region", "app", "colour", "geometry")
+WINE_COLUMNS = ("region", "app", "colour", "source_area_m2", "geometry")
 WINE_GEOMETRY_TYPES = frozenset({"Polygon", "MultiPolygon"})
 
 
@@ -161,6 +162,8 @@ def wine_feature_id(region: str, app: str) -> str:
 
 
 def _validate_wine_data(frame: gpd.GeoDataFrame):
+    _require_columns(frame, "wine_df", WINE_COLUMNS)
+
     if frame.crs is None:
         raise RuntimeError("wine_df has no CRS")
 
@@ -179,6 +182,17 @@ def _validate_wine_data(frame: gpd.GeoDataFrame):
     if missing_values:
         raise RuntimeError(
             f"wine_df contains missing values in: {', '.join(missing_values)}"
+        )
+
+    source_areas = frame["source_area_m2"]
+    if (
+        not is_numeric_dtype(source_areas)
+        or source_areas.isna().any()
+        or not source_areas.map(math.isfinite).all()
+        or (source_areas <= 0).any()
+    ):
+        raise RuntimeError(
+            "wine_df source_area_m2 values must be numeric, finite, and positive"
         )
 
     unsupported_geometry_types = sorted(
@@ -223,7 +237,7 @@ def load_michelin_data(config: RuntimeConfig = CONFIG):
     paris_df = _read_geojson(config, "paris_restaurants.geojson", "paris_df", PARIS_COLUMNS)
     monaco_df = _read_geojson(config, "monaco_restaurants.geojson", "monaco_df", DEPARTMENT_COLUMNS)
 
-    wine_df = _read_geojson(config, "wine_regions_aoc.geojson", "wine_df", WINE_COLUMNS)
+    wine_df = _read_geojson(config, "wine_regions_aoc_area.geojson", "wine_df", WINE_COLUMNS)
     wine_df = _validate_wine_data(wine_df)
 
     _require_non_numeric(department_df, "department_df", ("code",))

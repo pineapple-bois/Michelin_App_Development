@@ -1,3 +1,5 @@
+import math
+
 import geopandas as gpd
 import pandas as pd
 import pytest
@@ -60,7 +62,30 @@ def test_derived_data_collections_are_available(data_boundary):
 
 
 def _wine_frame(rows, geometries):
-    return gpd.GeoDataFrame(rows, geometry=geometries, crs="EPSG:4326")
+    rows_with_area = [
+        {"source_area_m2": 1.0, **row}
+        for row in rows
+    ]
+    return gpd.GeoDataFrame(rows_with_area, geometry=geometries, crs="EPSG:4326")
+
+
+def test_wine_source_areas_are_finite_and_positive(data_boundary):
+    source_areas = data_boundary.wine_df["source_area_m2"]
+
+    assert source_areas.map(math.isfinite).all()
+    assert (source_areas > 0).all()
+
+
+@pytest.mark.parametrize("invalid_area", [None, float("nan"), float("inf"), 0, -1])
+def test_wine_source_areas_must_be_valid(invalid_area):
+    frame = _wine_frame(
+        [{"region": "Test", "app": "Area", "colour": "#123456"}],
+        [Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])],
+    )
+    frame["source_area_m2"] = invalid_area
+
+    with pytest.raises(RuntimeError, match="numeric, finite, and positive"):
+        _validate_wine_data(frame)
 
 
 def test_wine_feature_ids_are_deterministic_and_unique(data_boundary):

@@ -2281,9 +2281,17 @@ body {
     font-size: 18px;
 }
 
-.region-name-placeholder h3 {
+.wine-region-heading h3 {
     font-size: 22px;
     line-height: 1.25;
+    margin: 0 0 4px;
+}
+
+.wine-appellation-area {
+    color: var(--color-text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
     margin: 0 0 12px;
 }
 

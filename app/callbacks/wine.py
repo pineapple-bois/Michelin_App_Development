@@ -1,3 +1,5 @@
+import math
+
 import dash
 from dash import Patch, dcc, html, no_update
 from dash.dependencies import ALL, Input, Output, State
@@ -202,6 +204,33 @@ def map_view_from_relayout(relayout_data, existing_data=None):
     return existing_data
 
 
+def format_hectares(source_area_m2):
+    """Format square metres as hectares rounded to two significant figures."""
+    hectares = float(source_area_m2) / 10_000
+    decimal_places = 1 - math.floor(math.log10(hectares))
+    rounded = round(hectares, decimal_places)
+    if decimal_places > 0:
+        return f"{rounded:.{decimal_places}f}".rstrip("0").rstrip(".")
+    return f"{rounded:.0f}"
+
+
+def build_wine_region_heading(wine_feature, colour):
+    area = format_hectares(wine_feature["source_area_m2"])
+    return html.Div(
+        className="wine-region-heading",
+        children=[
+            html.H3(
+                wine_feature["region"],
+                style={"color": colour},
+            ),
+            html.P(
+                f"{wine_feature['app']} · {area} hectares",
+                className="wine-appellation-area",
+            ),
+        ],
+    )
+
+
 def build_wine_info_response(
     click_data,
     feature_lookup,
@@ -224,9 +253,9 @@ def build_wine_info_response(
     cache_key = f"wine_info_{appellation}_{wine_region}"
     cached_content = cache.get(cache_key)
     if cached_content:
-        region_name_content = html.H3(
-            f"{wine_region}: {appellation}",
-            style={'color': cached_content['color']},
+        region_name_content = build_wine_region_heading(
+            wine_feature,
+            cached_content["color"],
         )
         print(f"Cached Information retrieved for {appellation}: {wine_region}")
         return dcc.Markdown(cached_content['content']), {"display": "block"}, region_name_content, {"display": "block"}
@@ -249,9 +278,9 @@ def build_wine_info_response(
 
         cache.set(cache_key, {'content': content, 'color': region_color})
 
-        region_name_content = html.H3(
-            f"{wine_region}: {appellation}",
-            style={'color': region_color},
+        region_name_content = build_wine_region_heading(
+            wine_feature,
+            region_color,
         )
         return dcc.Markdown(content), {"display": "block"}, region_name_content, {"display": "block"}
 
@@ -264,7 +293,7 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
     wine_df = data.wine_df
     region_df = data.region_df
     wine_feature_lookup = (
-        wine_df.set_index("feature_id")[["region", "app", "colour"]]
+        wine_df.set_index("feature_id")[["region", "app", "colour", "source_area_m2"]]
         .to_dict("index")
     )
     wine_feature_indices = {

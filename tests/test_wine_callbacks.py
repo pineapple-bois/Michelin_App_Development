@@ -2,7 +2,9 @@ import pytest
 from dash import dcc, html, no_update
 
 from app.callbacks.wine import (
+    build_wine_region_heading,
     build_wine_info_response,
+    format_hectares,
     map_view_from_relayout,
     map_view_patch,
     region_navigation_response,
@@ -27,6 +29,7 @@ def feature_lookup():
             "region": "Bourgogne",
             "app": "Known appellation",
             "colour": "#123456",
+            "source_area_m2": 18_000_000,
         }
     }
 
@@ -64,6 +67,29 @@ def test_resolve_wine_feature_fails_closed_for_unknown_feature_id(feature_lookup
     click_data = {"points": [{"location": "aoc-unknown"}]}
 
     assert resolve_wine_feature(click_data, feature_lookup) is None
+
+
+@pytest.mark.parametrize(
+    ("source_area_m2", "expected"),
+    [
+        (18_000, "1.8"),
+        (1_800_000, "180"),
+        (18_000_000, "1800"),
+    ],
+)
+def test_format_hectares_uses_two_significant_figures(source_area_m2, expected):
+    assert format_hectares(source_area_m2) == expected
+
+
+def test_wine_region_heading_separates_region_appellation_and_area(feature_lookup):
+    heading = build_wine_region_heading(feature_lookup["aoc-known"], "#abcdef")
+
+    assert isinstance(heading, html.Div)
+    assert heading.className == "wine-region-heading"
+    assert heading.children[0].children == "Bourgogne"
+    assert heading.children[0].style == {"color": "#abcdef"}
+    assert heading.children[1].children == "Known appellation · 1800 hectares"
+    assert heading.children[1].className == "wine-appellation-area"
 
 
 def _hover_point(curve_number=0, customdata=None, location="aoc-known"):
@@ -448,6 +474,7 @@ def _feature_lookup_for_regions(data_boundary):
             "region": row["region"],
             "app": row["app"],
             "colour": row["colour"],
+            "source_area_m2": row["source_area_m2"],
         }
         for row in rows
     }
@@ -509,9 +536,12 @@ def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_bound
     assert isinstance(first_response[0], dcc.Markdown)
     assert isinstance(second_response[0], dcc.Markdown)
     assert isinstance(other_response[0], dcc.Markdown)
-    assert first_response[2].children == f"{first_region}: {first_bourgogne['app']}"
-    assert second_response[2].children == f"{first_region}: {second_bourgogne['app']}"
-    assert other_response[2].children == f"{other_parent_region}: {other_region['app']}"
+    assert first_response[2].children[0].children == first_region
+    assert first_response[2].children[1].children.startswith(first_bourgogne["app"])
+    assert second_response[2].children[0].children == first_region
+    assert second_response[2].children[1].children.startswith(second_bourgogne["app"])
+    assert other_response[2].children[0].children == other_parent_region
+    assert other_response[2].children[1].children.startswith(other_region["app"])
     assert first_response[0].children != second_response[0].children
     assert other_response[0].children != first_response[0].children
 
@@ -536,8 +566,9 @@ def test_wine_info_uses_cached_response_without_openai_or_request_limit(feature_
 
     assert isinstance(response[0], dcc.Markdown)
     assert response[0].children == "Cached regional Bourgogne content"
-    assert response[2].children == "Bourgogne: Known appellation"
-    assert response[2].style == {"color": "#abcdef"}
+    assert response[2].children[0].children == "Bourgogne"
+    assert response[2].children[0].style == {"color": "#abcdef"}
+    assert response[2].children[1].children == "Known appellation · 1800 hectares"
     assert openai_client.requests == []
     assert request_limit.calls == 0
 
