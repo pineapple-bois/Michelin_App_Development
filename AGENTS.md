@@ -2,245 +2,248 @@
 
 ## Purpose
 
-This file orients future agents working on the Michelin Dash app. The multipage refactor is complete; treat the current architecture as the baseline. The known next focus is styling, responsive cleanup, and visual/content modernisation for the Analysis, Economics, and Wine pages.
+This file is the orientation and safety guide for work on the Michelin Dash application. The architecture currently present in the repository is the baseline. This document is not a roadmap, backlog, or substitute for inspecting the code.
+
+Begin every task by checking the working tree and reading the implementation that owns the requested behaviour. Preserve unrelated changes, verify assumptions against the current checkout, and keep changes within the authority granted by the task.
 
 ## Runtime and Deployment
 
-- Heroku entrypoint: `Procfile` runs `gunicorn michelin_app:server`.
-- Python marker: `.python-version` contains `3.12`.
-- README local setup should stay aligned with Python `3.12` unless the runtime marker changes deliberately.
-- Native GIS packages are declared in `Aptfile`: `gdal-bin` and `libgdal-dev`.
-- Python dependencies are pinned in `requirements.txt`.
-- Development test dependencies are in `requirements_dev.txt`.
-- GeoPandas reads local GeoJSON through Pyogrio. Fiona is intentionally not a direct dependency.
-- Main environment variables:
-  - `OPENAI_API_KEY`: used by the Wine page summary callback.
-  - `FLASK_SECRET_KEY`: used for Flask sessions. It is required in production and optional in local development.
-  - `OPENAI_REQUEST_LIMIT`: optional per-session generated-summary limit, default `10`.
-  - `CACHE_TYPE` and `CACHE_DEFAULT_TIMEOUT`: optional Flask-Caching configuration.
-- Local development runs with `python michelin_app.py`.
-- HTTPS redirection is config-driven and disabled by default outside production/Heroku.
+- `Procfile` exposes the Flask server with `gunicorn michelin_app:server`.
+- `.python-version` specifies Python `3.12`.
+- `Aptfile` installs the deployment GIS packages `gdal-bin` and `libgdal-dev`.
+- Production dependencies are pinned or constrained in `requirements.txt`; `requirements_dev.txt` currently adds pytest only.
+- GeoPandas reads repository GeoJSON through Pyogrio. Fiona is not a direct dependency.
+- Local development runs with `.venv/bin/python michelin_app.py` or `python michelin_app.py` in an activated environment.
+- `app/app_config.py` loads a root `.env` file when present and exposes a frozen `RuntimeConfig` through `CONFIG`.
+
+Current environment variables:
+
+- `OPENAI_API_KEY`: passed to the OpenAI client used by the Wine information callback.
+- `OPENAI_REQUEST_LIMIT`: per-session generated-summary limit; default `10`.
+- `FLASK_SECRET_KEY`: required in production. Local development generates a temporary key when it is absent, so sessions reset when the process restarts.
+- `CACHE_TYPE`: Flask-Caching backend; `simple` is normalised to the full `SimpleCache` backend path.
+- `CACHE_DEFAULT_TIMEOUT`: cache timeout in seconds; default `3600`.
+- `FORCE_HTTPS`: explicit HTTPS redirect switch. It defaults to the detected production state.
+- `DASH_DEBUG`: controls the local Dash debug flag; default false.
+- `DYNO`, or production values in `APP_ENV`, `FLASK_ENV`, or `DASH_ENV`: mark the process as production.
+
+`michelin_app.py` wraps Flask with `ProxyFix(x_proto=1, x_host=1)`, so HTTPS checks use trusted proxy headers. The HTTPS `before_request` hook runs before session initialisation. Each session receives a UUID `user_id` and a `request_count`. The default `SimpleCache` is process-local and is not shared between Gunicorn workers or dynos.
+
+The OpenAI client, Flask server, Dash app, cache, and central data object are constructed during module import. OpenAI configuration can therefore affect application import, while request-time API and response errors are handled by the Wine information callback.
 
 ## Current Architecture
 
-### Entrypoint
+### Entrypoint and service wiring
 
-`michelin_app.py` is the root deployment entrypoint and service-wiring module:
+`michelin_app.py` is the deployment entrypoint and composition root. It:
 
-- creates the Flask `server`
-- wraps the server with `ProxyFix`
-- creates the Dash `app`
-- imports runtime/path configuration from `app/app_config.py`
-- points Dash Pages at `CONFIG.pages_dir`, currently `app/pages/`
-- creates the OpenAI client
-- configures Flask session handling
-- configures `Flask-Caching`
-- defines root `dcc.Store` components
-- mounts `dash.page_container` for Dash Pages routing
-- registers callbacks from `app/callbacks/*`
-- exposes `server` for Gunicorn
+- creates and exports the Flask `server`;
+- applies `ProxyFix`, session hooks, and optional HTTPS redirection;
+- creates the Dash app with Dash Pages and `suppress_callback_exceptions=True`;
+- points `pages_folder` at `CONFIG.pages_dir` (`app/pages/`);
+- loads `assets/custom_header.html` as the Dash index template;
+- mounts root stores, `dcc.Location(id="url")`, and `dash.page_container`;
+- creates Flask-Caching and the OpenAI client;
+- injects `DATA`, `CONFIG`, cache, and the OpenAI client into callback registration functions.
 
-Preserve the `server` export unless deployment is intentionally changed.
+Preserve the `server` export unless deployment is intentionally changed. Runtime modules belong under `app/`; root `assets/` and `assets/data/` are configured runtime paths.
 
-Runtime application modules live under the `app/` package. Keep root `assets/` and `assets/data/` in place unless a dedicated data-path change is requested.
+### Routing
 
-### Routing and Pages
+Dash Pages owns routing. Page modules are deliberately thin:
 
-Dash Pages owns the routing shell. Page modules are thin wrappers around layout functions:
+| Route | Page module | Layout owner |
+| --- | --- | --- |
+| `/` | `app/pages/guide.py` | `app/layouts/layout_main.py` |
+| `/home` | `app/pages/home.py` | Guide compatibility alias using the same layout |
+| `/analysis` | `app/pages/analysis.py` | `app/layouts/analysis.py` |
+| `/economics` | `app/pages/economics.py` | `app/layouts/economics.py` |
+| `/wine` | `app/pages/wine.py` | `app/layouts/wine.py` |
+| `/404` and unmatched routes | `app/pages/not_found_404.py` | `app/layouts/layout_404.py` |
 
-- `app/pages/guide.py`: `/`, Guide layout.
-- `app/pages/home.py`: `/home`, Guide compatibility alias.
-- `app/pages/analysis.py`: `/analysis`, core Michelin analysis sections and rankings.
-- `app/pages/economics.py`: `/economics`, socioeconomic and demographics section.
-- `app/pages/wine.py`: `/wine`, wine-region map and generated summary section.
-- `app/pages/not_found_404.py`: Dash Pages 404 fallback.
+Do not recreate root-level `pages/`, `callbacks/`, `layouts/`, `components/`, or `utils/` packages. Runtime imports use `app.*` paths, and page/callback modules must not import `michelin_app.py`.
 
-Dash discovers these modules through `pages_folder=str(CONFIG.pages_dir)` in `michelin_app.py`. Do not recreate a root-level `pages/` package.
+### Shared components, configuration, and data
 
-### Callback Modules
+`app/components/shared.py` owns the visible navigation contract, shared header/footer builders, Michelin rating colours, and icon helpers. `app/callbacks/navigation.py` owns the hamburger state and active navigation classes; `/home` is treated as an active Guide path.
 
-`app/callbacks/navigation.py`
+`app/app_config.py` owns repository-relative paths, environment parsing, production detection, HTTPS/debug flags, secret-key handling, cache configuration, and OpenAI request limits.
 
-- Exposes `register_navigation_callbacks(app)`.
-- Owns hamburger open/close state and active visible nav link classes.
-- Uses `NAV_LINKS` and `nav_link_class(...)` from `app/components/shared.py`.
-- Visible navigation includes Guide, Analysis, Economics, and Wine. `/home` remains an active-path alias for Guide.
+`app/app_data.py` is the runtime data boundary. It loads and validates restaurant CSVs and deployed GeoJSON, preserves string-like department codes, normalises Wine geometry to EPSG:4326, creates stable Wine feature IDs, and builds shared derived collections. `MichelinData` provides the France/Monaco combination helpers used by Guide callbacks.
 
-`app/callbacks/guide.py`
+## Page Architecture
 
-- Exposes `register_guide_callbacks(app, data)`.
-- Owns Guide/Home callbacks: search collapse and city matching, department/star filters, restaurant detail sidebar, Paris arrondissement visibility, Guide map updates, centroid stores, and Guide map-view store.
-- Receives `DATA` from `michelin_app.py`.
-- Preserves Monaco behavior for the Guide page when the selected region is `Provence-Alpes-Côte d'Azur`.
+### Guide
 
-`app/callbacks/analysis.py`
+- Pages: `app/pages/guide.py` and the `/home` alias.
+- Layout: `app/layouts/layout_main.py`.
+- Callbacks: `app/callbacks/guide.py` via `register_guide_callbacks(app, data)`.
+- Figures: `app/utils/guide_figures.py`.
+- Map: Plotly `Scattermap` traces on `layout.map` (MapLibre), with metropolitan-France bounds from `app/utils/map_constraints.py`.
+- State: root rating/centroid stores plus page-level `map-view-store-mainpage`.
 
-- Exposes `register_analysis_callbacks(app, data)`.
-- Owns core Analysis callbacks: region, department, arrondissement, star-button active state, department-to-arrondissement options, and top restaurant rankings.
-- Receives `DATA` from `michelin_app.py`.
+Guide owns location-search disclosure and matching, geographic selectors, rating filters, selected-restaurant details, Paris arrondissement visibility, full map reconstruction, and viewport persistence. Geographic changes reset to the selected geography; non-geographic changes preserve a valid manually stored view. Monaco is included only when the selected region is `Provence-Alpes-Côte d'Azur`.
 
-`app/callbacks/economics.py`
+The Guide graph enables scroll zoom, responsive rendering, and a customised modebar. The location-match result is an HTML overlay attached to the map container, not Plotly annotation content.
 
-- Exposes `register_economics_callbacks(app, data)`.
-- Owns Economics/Demographics callbacks: demographic metric map and bar chart, weighted-mean visibility, starred-restaurant overlay controls, map-view persistence, and demographics star-button active state.
-- Receives `DATA` from `michelin_app.py`.
+### Analysis
 
-`app/callbacks/wine.py`
+- Page: `app/pages/analysis.py`.
+- Layout: `app/layouts/analysis.py`, wrapped by `app/layouts/analysis_shared.py`.
+- Callbacks: `app/callbacks/analysis.py`.
+- Figures and ranking components: `app/utils/analysis_figures.py`.
+- Map: `Choroplethmap` and `Scattermap` on MapLibre with split-layout France bounds.
+- State: page-level rating stores and `departments-store`; there is no persisted map viewport store.
 
-- Exposes `register_wine_callbacks(app, data, config, cache, openai_client)`.
-- Owns Wine/OpenAI callbacks: wine map, regional-outline selector behavior, starred-restaurant overlay controls, wine map-view persistence, wine star-button active state, wine map click handling, generated summary output, generated-content disclaimer visibility, request-limit handling, and cache reads/writes.
-- Receives `DATA`, `CONFIG`, the configured `Flask-Caching` instance, and the initialized OpenAI client from `michelin_app.py`.
-- Keeps the existing curve-number-to-wine-region lookup unchanged, even though it remains fragile for future multi-trace changes.
+Analysis owns regional, departmental, and arrondissement distributions, rating-button state, dependent department/arrondissement options, and restaurant rankings. Its callbacks return complete chart and map figures. Analysis graphs hide the Plotly modebar.
 
-### Shared Components and Config
+`plot_single_choropleth_plotly(...)` writes `total_restaurants` into its input frame. Callers currently pass copies where required; preserve that boundary when adding call sites.
 
-`app/components/shared.py`
+### Economics
 
-- Shared Michelin rating colours, exposed as `color_map`.
-- Michelin icon helpers used by Guide, Analysis, plotting helpers, and card helpers.
-- Shared header and footer builders.
-- `NAV_LINKS` and `nav_link_class(...)` for visible navigation.
+- Page: `app/pages/economics.py`.
+- Layout: `app/layouts/economics.py`, wrapped by `app/layouts/analysis_shared.py`.
+- Callbacks: `app/callbacks/economics.py`.
+- Figures: `app/utils/economics_figures.py`.
+- Map: `Choroplethmap`/`Scattermap` on MapLibre, using `assets/basicTileMap.json`.
+- State: `selected-stars-demographics`, `map-view-store-demo`, and the currently unconsumed `map-view-demo-updated` layout store.
 
-`app/app_config.py`
+Economics owns metric and geography selection, the demographic map and bar chart, weighted-mean display, restaurant overlays, rating-button state, and map-view persistence. Its main callback returns complete figures. Manual `map.center` and `map.zoom` are stored in `map-view-store-demo`; changing the granularity selector clears that stored viewport. Overview and split map layouts use different bounds and default zooms from `app/utils/map_constraints.py` and `app/utils/economics_figures.py`.
 
-- Runtime configuration, repo-relative paths, cache settings, debug/HTTPS flags, Flask secret handling, and OpenAI request limits.
-- `CONFIG.base_dir` is the repository root.
-- `CONFIG.package_dir` points to `app/`.
-- `CONFIG.assets_dir` and `CONFIG.data_dir` point to root `assets/` and `assets/data/`.
-- `CONFIG.pages_dir` points to `app/pages/`.
+### Wine
 
-`app/app_data.py`
+- Page: `app/pages/wine.py`.
+- Layout: `app/layouts/wine.py`, wrapped by `app/layouts/analysis_shared.py`.
+- Callbacks: `app/callbacks/wine.py` via injected data, config, cache, and OpenAI client.
+- Figures: `app/utils/wine_figures.py`.
+- Search and viewport calculations: `app/utils/wine_search.py`.
+- Map: one feature-based `Choroplethmap` AOC trace plus fixed `Scattermap` restaurant traces on MapLibre.
+- State: page-level `map-view-store` and `wine-map-ready`.
 
-- Loads the two restaurant CSVs and deployed GeoJSON files from `CONFIG.data_path(...)`.
-- Uses `geopandas.read_file(..., engine="pyogrio")` for GeoJSON I/O.
-- Keeps `department_num` string-like so values such as `06`, `2A`, `2B`, and `75` match callback logic.
-- Checks required columns for restaurants, aggregate geography, demographics, Paris, Monaco, and wine data at import time.
-- Builds derived values used by callbacks: `geo_df`, `unique_regions`, `initial_options`, `dept_to_code`, and `region_to_name`.
-- Provides `get_combined_restaurant_data(...)` and `get_geo_df(...)` for current France/Monaco behavior.
+The region selector scopes the available appellation search records. Region and appellation selections both calculate a canonical view from existing WGS84 bounds. The navigation callback returns a Dash `Patch` containing geography-specific `uirevision`, then `map.zoom`, then `map.center`. The same selection state updates `map-view-store` with a geography ownership key; manual relayout is accepted only for the currently owned geography.
+
+The initial `/wine` load returns the complete figure. Separate patch callbacks own selector navigation, regional-outline visibility, restaurant trace visibility, and AOC hover highlighting. Hover content is rendered in a fixed HTML overlay. Click handling resolves the stable `feature_id` from Plotly `location`; it does not use curve-number-to-region lookup.
+
+The Wine map uses page-specific bounds whose rendered desktop extent produces an effective minimum zoom of approximately `4.7`. Centre and zoom remain separate Plotly patch operations. At the minimum zoom, the browser renderer can transiently constrain a requested centre using the preceding zoom before displaying the requested zoom. This is a rendering sensitivity of the current patch path, not evidence of incorrect geometry, lookup, centroid, persistence, or bounds data. Interactive browser validation is required for changes to this path.
+
+Regional outlines are a MapLibre line layer. Restaurant overlays use fixed trace indices for one-, two-, and three-star traces. AOC clicks request a structured summary from `gpt-4.1-mini`, after checking the appellation-specific cache and the per-session request limit. The disclaimer and generated-content panel are controlled by the same information callback.
+
+## Callback and State Ownership
+
+### Registration boundaries
+
+| Module | Primary ownership |
+| --- | --- |
+| `app/callbacks/navigation.py` | hamburger menu and active route links |
+| `app/callbacks/guide.py` | Guide search, filters, details, full map figures, centroids, and viewport store |
+| `app/callbacks/analysis.py` | Analysis distributions, dependent options, rating state, and rankings |
+| `app/callbacks/economics.py` | Economics figures, overlays, rating state, and viewport store |
+| `app/callbacks/wine.py` | Wine figure initialisation, selector navigation, hover, overlays, viewport store, and generated content |
+
+Root stores in `michelin_app.py` are `selected-stars`, `available-stars`, `department-centroid-store`, `paris-arrondissement-centroid`, and `region-demographics-centroid`. The first four participate in Guide behaviour; `region-demographics-centroid` is present but currently has no callback consumer.
+
+Page-level stores are:
+
+- Guide: `map-view-store-mainpage`.
+- Analysis: `departments-store`, `selected-stars-analysis`, `selected-stars-department`, and `selected-stars-arrondissement`.
+- Economics: `selected-stars-demographics`, `map-view-store-demo`, and `map-view-demo-updated`.
+- Wine: `map-view-store` and `wine-map-ready`.
+
+Guide, Analysis, and Economics map-producing callbacks return complete Plotly figures. Wine returns one complete figure on route initialisation and uses Dash `Patch` for navigation, hover selection, outline visibility, and restaurant trace visibility. Those Wine patch callbacks deliberately use `allow_duplicate=True` on `wine-map-graph.figure`; each must remain restricted to its owned fields.
+
+Selector state, hover state, overlay state, viewport persistence, and generated-content state are separate interaction paths. A callback that writes a full figure can supersede a patch, and two callbacks writing the same layout field can become competing authorities. Do not introduce a second authority for an interaction without explicit design justification and behaviour-level coverage.
 
 ## Layout Modules
 
-`app/layouts/layout_main.py`
+- `app/layouts/layout_main.py`: Guide sheet, sidebar search/filters/details, map panel, and rating legend.
+- `app/layouts/analysis.py`: regional, departmental, arrondissement, and ranking sections.
+- `app/layouts/economics.py`: metric controls, demographic evidence area, restaurant controls, and weighted-mean explanation.
+- `app/layouts/wine.py`: region/appellation controls, outline and restaurant controls, map/hover overlay, and generated-information panel.
+- `app/layouts/analysis_shared.py`: shared Analysis/Economics/Wine page shell and editorial rating-filter builders.
+- `app/layouts/layout_404.py`: shared-shell 404 layout.
 
-- Guide page layout.
-- Main Guide star-filter layout.
-- Imports shared header/footer/icon helpers from `app/components/shared.py`.
-
-`app/layouts/analysis.py`
-
-- Analysis page layout for `/analysis`.
-- Section builders:
-  - `build_analysis_intro_section()`
-  - `build_region_distribution_section()`
-  - `build_department_distribution_section()`
-  - `build_arrondissement_distribution_section()`
-  - `build_restaurant_distribution_section()`
-  - `build_rankings_section()`
-  - `build_analysis_sections()`
-- Contains Michelin intro, region distribution, department distribution, arrondissement distribution, and ranking sections.
-
-`app/layouts/economics.py`
-
-- Economics page layout for `/economics`.
-- Owns `build_economics_section()`:
-  - demographic metric selector
-  - demographic map
-  - demographic bar chart
-  - weighted mean explanation
-  - optional starred restaurant overlay controls
-
-`app/layouts/wine.py`
-
-- Wine page layout for `/wine`.
-- Owns `build_wine_section()`:
-  - wine map
-  - restaurant overlay controls
-  - generated summary panel
-  - generated-content disclaimer
-
-`app/layouts/analysis_shared.py`
-
-- Shared Analysis/Economics/Wine page shell.
-- Shared analysis-style star filter helpers.
-- Local `unique_regions` list used by those layouts.
-
-`app/layouts/layout_404.py`
-
-- Small 404 page using shared header/footer.
+The Guide has its own rating-filter helper and ID conventions. `analysis_shared.py` provides a related helper for Analysis, Economics, and Wine. Do not merge them merely because their names or visual primitives overlap.
 
 ## Utility Modules
 
-- `app/utils/guide_figures.py`: Guide/Home map figure builders and geographic outline helpers.
-- `app/utils/analysis_figures.py`: core Analysis bar/choropleth figure builders and top restaurant ranking component helper.
-- `app/utils/economics_figures.py`: Economics/Demographics choropleth, bar chart, and weighted-mean helpers.
-- `app/utils/wine_figures.py`: Wine-region map figure builder.
-- `app/utils/restaurant_cards.py`: restaurant detail/sidebar/card rendering helper.
-- `app/utils/star_filters.py`: shared star-filter active-state helper.
-- `app/utils/wine_prompts.py`: Wine/OpenAI prompt construction helper.
-- `app/utils/locationMatcher.py`: fuzzy location lookup using `fuzzywuzzy`, `python-Levenshtein`, and `unidecode`.
+- `app/utils/guide_figures.py`: Guide map builders, geographic outlines, restaurant traces, and Guide bounds application.
+- `app/utils/analysis_figures.py`: Analysis bar charts, MapLibre choropleths, and ranking components.
+- `app/utils/economics_figures.py`: Economics maps, bars, and weighted means.
+- `app/utils/wine_figures.py`: complete Wine AOC figure, outline layer, and fixed restaurant traces.
+- `app/utils/wine_search.py`: stable AOC search records, fuzzy options, bounds-based region/appellation centres, and zoom calculations.
+- `app/utils/map_constraints.py`: page-specific declarative MapLibre bounds.
+- `app/utils/restaurant_cards.py`: Guide restaurant detail cards.
+- `app/utils/star_filters.py`: shared rating-button active-state calculation.
+- `app/utils/wine_prompts.py`: structured Wine summary prompt.
+- `app/utils/locationMatcher.py`: fuzzy Guide location matching.
 
-Use `app.*` imports for runtime modules. Do not add new root-level `callbacks/`, `components/`, `layouts/`, `pages/`, or `utils/` packages.
+## Mapping Architecture
+
+| Page | Plotly map traces | Bounds | Viewport persistence | Interaction configuration |
+| --- | --- | --- | --- | --- |
+| Guide | `Scattermap` | `METROPOLITAN_FRANCE_MAP_BOUNDS` | `map-view-store-mainpage`, geography-owned | scroll zoom, responsive graph, customised modebar |
+| Analysis | `Choroplethmap`, optional `Scattermap` labels | `FRANCE_SPLIT_MAP_BOUNDS` | none | modebar hidden; full figures follow selectors |
+| Economics | `Choroplethmap`, optional restaurant/label `Scattermap` | overview or split France bounds | `map-view-store-demo` | modebar hidden; full figures preserve manual view until granularity changes |
+| Wine | one AOC `Choroplethmap`, restaurant `Scattermap` traces, outline layer | `WINE_MAP_BOUNDS` | geography-owned `map-view-store` | modebar hidden; full initial figure plus narrowly scoped patches |
+
+All current application maps use Plotly's `layout.map` MapLibre path. Bounds are applied by `app/utils/map_constraints.py`; they are not callback-owned. The effective minimum zoom produced by MapLibre bounds depends on rendered canvas dimensions, so responsive validation matters even when the declarative bounds are unchanged.
 
 ## Assets and Styling
 
-`assets/styles.css`
+`assets/styles.css` is the single primary stylesheet. It contains global chrome, shared editorial primitives, Guide-specific styles, Analysis/Economics/Wine styles, and responsive rules. Shared additive classes include the editorial sheet/page frame, page titles and descriptions, control rows/groups, selects, action/rating controls, evidence layouts, maps, charts, notes, cards, and information panels. Page-specific classes remain part of the rendered layout contract.
 
-- Primary styling file.
-- Contains global, header/nav, Guide, Analysis, Economics, Wine, and responsive styles.
-- Contains a large commented Wine work-in-progress block at the bottom; do not rely on it as active styling.
-- Current next focus is CSS organisation, responsive cleanup, and a more mature visual system for Analysis, Economics, and Wine.
-- Keep component IDs and class names stable unless a styling task explicitly includes covered class-name renaming.
+Keep component IDs and class names stable unless a task explicitly covers their migration and tests or browser checks cover the affected behaviour. Responsive rules include shared editorial breakpoints plus page-specific refinements; inspect the complete cascade before changing a selector rather than treating one media-query block in isolation.
 
-`assets/scroll-script.js`
+Other runtime assets:
 
-- Uses event delegation for Analysis, Economics, and Wine nav clicks.
-- Scrolls to `analysis-content-top`, `demographics-content-top`, or `wine-content-top` when that anchor exists.
-- Retries once after Dash swaps page content for route changes.
+- `assets/scroll-script.js`: delegated Analysis, Economics, and Wine navigation scrolling; it retries once after Dash swaps routed content.
+- `assets/custom_header.html`: Dash index template and metadata/placeholders.
+- `assets/basicTileMap.json`: MapLibre tile style used by Economics. It contains deployment-sensitive external tile-service URLs and an embedded key; do not treat it as incidental styling.
+- `assets/images/`: Michelin icons, OpenAI lockup, GitHub mark, and supporting images.
 
-`assets/custom_header.html`
+## Data and Generated Assets
 
-- Custom Dash index template with meta tags and app placeholders.
+### Runtime-loaded data
 
-`assets/basicTileMap.json`
+`app/app_data.py` loads:
 
-- Custom tile style.
-- Contains an embedded tile service key. Treat it as a deployment/config decision, not incidental styling.
+- `assets/data/all_restaurants(arrondissements).csv`;
+- `assets/data/monaco_restaurants.csv`;
+- `assets/data/region_restaurants.geojson`;
+- `assets/data/department_restaurants.geojson`;
+- `assets/data/arrondissement_restaurants.geojson`;
+- `assets/data/paris_restaurants.geojson`;
+- `assets/data/monaco_restaurants.geojson`;
+- `assets/data/wine_regions_aoc_area.geojson`.
 
-`assets/data`
+`assets/data/wine_regions_cleaned.geojson` is tracked as an older comparison baseline for development tooling but is not loaded by the application. `assets/data/wine_regions.geojson` is ignored as a local master/source file and is not a runtime path.
 
-- `all_restaurants(arrondissements).csv`: main France restaurant data.
-- `monaco_restaurants.csv`: Monaco restaurant rows.
-- `region_restaurants.geojson`: regional geometry and aggregate metrics.
-- `department_restaurants.geojson`: department geometry and aggregate metrics.
-- `arrondissement_restaurants.geojson`: arrondissement geometry and aggregate metrics.
-- `paris_restaurants.geojson`: Paris arrondissement geometry.
-- `monaco_restaurants.geojson`: Monaco geometry.
-- `wine_regions_cleaned.geojson`: deployed wine region data.
-- `wine_regions_simplified.geojson`: currently untracked local data.
+`Development/aoc_simplification/` contains tracked, tested geometry experiment and diagnostics code. Its generated candidates, datasets, invalid diagnostics, and several source/inspection directories are ignored by `.gitignore`; they must not be promoted to `assets/data/` without an explicit data-path decision. Other `Development/` material is a mixture of tracked documentation/scripts and ignored local source or experiment artifacts, not runtime code.
 
-## Data Contracts
+### Data contracts
 
-The main restaurant CSV is expected to provide:
+Restaurant CSVs require:
 
 ```text
 name, address, location, arrondissement, department_num, department, capital,
 region, price, cuisine, url, award, stars, greenstar, longitude, latitude
 ```
 
-Important value conventions:
+Rating conventions:
 
-- `stars == 0.25`: Michelin selected restaurant.
+- `stars == 0.25`: Michelin selected.
 - `stars == 0.5`: Bib Gourmand.
-- `stars in {1, 2, 3}`: one-, two-, or three-star restaurant.
-- `greenstar == 1`: separate green-star marker.
+- `stars in {1, 2, 3}`: starred restaurants.
+- `greenstar == 1`: separate Green Star marker.
 
-Aggregate GeoJSON files are expected to provide geometry plus count columns such as:
+Aggregate geography files include their identity/geometry columns and count fields such as:
 
 ```text
-bib_gourmand, 1_star, 2_star, 3_star, selected
+selected, bib_gourmand, 1_star, 2_star, 3_star,
+total_stars, starred_restaurants, green_stars
 ```
 
-Demographic/economic maps expect columns such as:
+Economics uses the exact source column names:
 
 ```text
 GDP_millions(€)
@@ -250,117 +253,76 @@ average_annual_unemployment_rate(%)
 average_net_hourly_wage(€)
 municipal_population
 population_density(inhabitants/sq_km)
+area(sq_km)
 ```
 
-If renaming these columns for ASCII safety later, do it as a coordinated data-loader normalization step rather than changing callback strings piecemeal.
+Wine runtime rows require `region`, `app`, `colour`, `source_area_m2`, and polygonal `geometry`. The loader requires non-empty EPSG:4326-compatible Polygon/MultiPolygon geometry, positive finite source area, unique `(region, app)` pairs, and one colour per parent region. It derives deterministic `feature_id` values from `region` and `app`; selectors, hover validation, and click handling use those IDs.
 
-Wine GeoJSON rows are expected to provide:
-
-```text
-region, colour, geometry
-```
+Department and arrondissement identifiers must remain string-like. Do not normalise away leading zeroes or Corsican `2A`/`2B` codes.
 
 ## Current Routing and State
 
-Root layout contains:
+- `dcc.Location(id="url", refresh=False)` and `dash.page_container` form the root routing shell.
+- Navigation links are defined once in `NAV_LINKS`; route-active classes are callback-owned.
+- Root stores persist while Dash swaps page content. Page-level stores exist only with their page layouts.
+- Guide and Wine viewport stores include geography ownership checks so stale relayout data cannot automatically claim a newly selected geography.
+- Economics persists manual viewport state but clears it when its granularity selector changes.
+- Analysis does not persist viewport state.
 
-- `dcc.Location(id="url")`
-- `dash.page_container`
-- root stores:
-  - `selected-stars`
-  - `available-stars`
-  - `department-centroid-store`
-  - `paris-arrondissement-centroid`
-  - `region-demographics-centroid`
-
-Page-level stores inside layouts:
-
-- `map-view-store-mainpage`
-- `departments-store`
-- `selected-stars-analysis`
-- `selected-stars-department`
-- `selected-stars-arrondissement`
-- `selected-stars-demographics`
-- `map-view-store-demo`
-- `map-view-demo-updated`
-- `selected-stars-wine`
-- `wine-region-curve-numbers`
-- `map-view-store`
-
-Current routes:
-
-- `/` -> Guide
-- `/home` -> Guide compatibility page
-- `/analysis` -> core Michelin analysis sections and rankings
-- `/economics` -> socioeconomic and demographics section
-- `/wine` -> wine-region map and generated summary section
-- anything else -> Dash Pages 404 fallback using `app/pages/not_found_404.py`
+Do not rename component IDs, move stores between root and page layouts, or change persistence semantics without tracing every callback input/output and direct-route layout construction.
 
 ## Gotchas
 
-- Dash Pages owns routing. Do not import `michelin_app.py` from page modules or callback modules.
-- `suppress_callback_exceptions=True` remains enabled because callbacks are registered separately from page layout mounting.
-- Flask `before_request` hooks are split between `enforce_https_redirect` and `ensure_session`. Keep the HTTPS hook before session work.
-- HTTPS redirect is environment-aware and proxy-aware through `app/app_config.py` and `ProxyFix`.
-- Session request counts limit OpenAI calls to 10 per session by default.
-- Local-only generated `FLASK_SECRET_KEY` fallback resets sessions on restart.
-- `Flask-Caching` uses the in-process `SimpleCache` backend via the full backend class path. It is not shared across Gunicorn workers or Heroku dynos.
-- The Wine callback uses both `@cache.memoize` and manual `cache.get/cache.set`.
-- The OpenAI client is created at import time. Missing or invalid `OPENAI_API_KEY` should be handled gracefully by the Wine page.
-- Fiona is not installed directly. If it reappears transitively, verify why before accepting the dependency.
-- `Aptfile` may eventually be removable, but only after dedicated Heroku build/deployment verification.
-- `department_num` is read as string-like for both France and Monaco. Do not normalize department codes without checking leading-zero and Corsican `2A`/`2B` behavior.
-- The Guide page includes Monaco only when the selected region is `Provence-Alpes-Côte d'Azur`.
-- Analysis, Economics, and Wine currently use France data only unless explicitly changed.
-- `app/layouts/layout_main.py` and `app/layouts/analysis_shared.py` both define star-filter helpers with overlapping names but different ID conventions.
-- Analysis, Economics, and Wine share CSS conventions and star-filter classes. Keep IDs/classes stable until behaviour is covered by targeted tests.
-- Some callbacks assume dropdown values are lists and can fail if a multi-select is cleared to `None`.
-- `plot_single_choropleth_plotly` mutates its input frame by writing `total_restaurants`. Pass copies or make the helper copy internally.
-- Plotly map usage mixes `Scattermap`, `Choroplethmap`, `Choropleth`, and an older `mapbox_style` property in one fallback figure. Be careful when upgrading Plotly.
-- Wine-region click handling maps Plotly curve numbers back through list positions. Multi-polygon regions can make this fragile. Prefer storing the wine region name in trace `customdata` or `meta` in a behaviour-covered change.
-- `Development/` is ignored scratch/reference material, not deployed code.
-- Do not commit `__pycache__/` artifacts.
-- `assets/data/wine_regions_simplified.geojson` is currently untracked and unrelated to the deployed `wine_regions_cleaned.geojson` path.
-
-## Next Focus
-
-The next planned work is styling and content modernisation:
-
-- organise `assets/styles.css`
-- audit class usage and unused/obsolete selectors
-- consolidate media queries and responsive behaviour
-- make Analysis feel like a polished data/editorial page
-- make Economics feel credible and clear
-- make Wine feel refined without gimmicks
-- reduce excessive colour and playful/pastel styling
-- preserve Guide behaviour and appearance unless a shared styling issue affects it
-
-Use `ROADMAP.md` for the phase plan and `STYLE_AUDIT.md` for current CSS findings.
+- Dash Pages owns routing, and separately registered callbacks depend on `suppress_callback_exceptions=True` because page layouts are mounted dynamically.
+- Keep the HTTPS hook before session work and preserve `ProxyFix` assumptions when changing deployment handling.
+- A generated local `FLASK_SECRET_KEY` invalidates sessions on process restart.
+- The default cache is in-process. Cached Wine summaries and session request counts are not shared application-wide across workers or dynos.
+- Wine checks its appellation-specific cache before consuming a request-limit count. Invalid clicks and restaurant clicks fail closed without invoking OpenAI.
+- The Guide includes Monaco only for Provence-Alpes-Côte d'Azur; Analysis, Economics, and Wine otherwise use France-only datasets.
+- `department_num` and geography codes are identifiers, not numbers.
+- Economics checks `'all' in selected_regions` before its later empty-selection fallback; preserve list-valued dropdown contracts unless that callback is explicitly hardened.
+- `plot_single_choropleth_plotly(...)` mutates its frame by adding `total_restaurants`.
+- Wine patch helpers depend on `WINE_AOC_TRACE_INDEX == 0`, fixed one-/two-/three-star trace indices, and regional outline layer index `0`. Changing trace/layer construction requires coordinated callback and test changes.
+- Wine `wine-map-ready=True` is returned with the full server figure; it means the server produced the figure, not that the browser has emitted a Plotly completion event.
+- Wine selector navigation and manual persistence are separate callbacks writing related viewport state. Preserve their geography-ownership checks and validate first-visible browser behaviour after changes.
+- Bounds-derived minimum zoom is canvas-dependent. Unit tests can verify bounds presence and stored targets but cannot prove rendered camera order.
+- `assets/basicTileMap.json` contains an external service key and URLs.
+- Shared editorial CSS and page-specific classes overlap deliberately. Inspect selector scope, especially `:has(...)` rules and media-query overrides, before consolidating declarations.
+- Do not commit `__pycache__/`, test caches, `.env`, ignored Wine source data, or generated experiment outputs.
 
 ## Quick Local Checks
 
-After changing Python architecture, callbacks, layouts, or routes, run at least:
+Use the repository environment when available.
+
+Compile runtime Python after architecture, callback, layout, or utility changes:
 
 ```bash
-python -m py_compile michelin_app.py app/callbacks/navigation.py app/callbacks/guide.py app/callbacks/analysis.py app/callbacks/economics.py app/callbacks/wine.py app/layouts/layout_main.py app/layouts/analysis.py app/layouts/economics.py app/layouts/wine.py app/layouts/analysis_shared.py app/layouts/layout_404.py app/utils/guide_figures.py app/utils/analysis_figures.py app/utils/economics_figures.py app/utils/wine_figures.py app/utils/restaurant_cards.py app/utils/star_filters.py app/utils/wine_prompts.py app/utils/locationMatcher.py
+.venv/bin/python -m compileall -q michelin_app.py app
 ```
 
-For the supported smoke-test harness:
+Representative focused tests:
 
 ```bash
-pip install -r requirements_dev.txt
-python -m pytest
+.venv/bin/python -m pytest tests/test_guide_callbacks.py tests/test_guide_figures.py
+.venv/bin/python -m pytest tests/test_economics_callbacks.py tests/test_map_constraints.py
+.venv/bin/python -m pytest tests/test_wine_callbacks.py tests/test_wine_figures.py tests/test_wine_search.py tests/test_map_constraints.py
 ```
 
-`pytest.ini` limits test discovery to `tests/`. The current suite imports the app, checks route shells, verifies central data objects load, and constructs the Analysis/Economics/Wine layouts without OpenAI credentials, browser automation, or visual regression checks.
-
-If dependencies are installed:
+Run the complete suite with:
 
 ```bash
-python michelin_app.py
+.venv/bin/python -m pytest
 ```
 
-Then verify direct route loads in a browser:
+`pytest.ini` limits discovery to `tests/` and treats Flask-Caching deprecations as errors. The suite covers imports, routes, data contracts, layouts, callback helpers/registration, map constraints, Wine search/figure behaviour, and tracked AOC simplification helpers. It does not provide browser automation or visual regression coverage.
+
+For interactive checks:
+
+```bash
+.venv/bin/python michelin_app.py
+```
+
+Then load:
 
 ```text
 http://127.0.0.1:8050/
@@ -371,10 +333,18 @@ http://127.0.0.1:8050/wine
 http://127.0.0.1:8050/missing
 ```
 
-## Commit Hygiene
+Passing unit tests does not prove interactive map behaviour. Browser-check map pan/zoom, selector-driven first view, persistence, hover, overlays, direct route loads, and relevant responsive breakpoints whenever those paths change.
 
-- Keep documentation, styling, layout, callback, data loading, and deployment changes separate where possible.
-- Avoid broad CSS rewrites unless the task is explicitly a styling-system cleanup.
-- Leave unrelated local changes alone.
-- Do not stage untracked bytecode.
-- Treat `assets/data/wine_regions_simplified.geojson` as local/untracked unless the user explicitly asks to add it.
+## Change Discipline
+
+- Inspect the working tree and the owning implementation before editing.
+- Preserve unrelated tracked and untracked changes.
+- Keep work tightly scoped and separate fact-finding from implementation in fragile areas.
+- Prefer the smallest local correction that satisfies the approved behaviour.
+- Do not create stores, callbacks, abstractions, dependencies, navigation authorities, or frameworks without demonstrated need and explicit scope.
+- Do not modify unrelated pages to solve a page-specific defect.
+- Keep documentation, styling, layout, callback, data, dependency, and deployment changes separate where practical.
+- Preserve component IDs, callback contracts, routes, map state, and persistence unless the task explicitly authorises changing them.
+- Stop and report when the requested result cannot be achieved within the approved scope; do not broaden the design to force a result.
+- Run validation proportionate to the changed behaviour and report browser gaps honestly.
+- Do not stage or commit automatically unless explicitly requested.
