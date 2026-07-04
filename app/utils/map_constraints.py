@@ -11,6 +11,17 @@ METROPOLITAN_FRANCE_MAP_BOUNDS = {
     "north": 52.0,
 }
 
+# Plotly exposes no separate MapLibre minZoom layout property: the effective
+# minimum is derived from maxBounds and the rendered canvas. This Wine-only
+# envelope yields a measured minimum of 4.7 on the 811 x 760 desktop map while
+# leaving the Guide and the other editorial maps unchanged.
+WINE_MAP_BOUNDS = {
+    "west": -8.719389,
+    "east": 13.219389,
+    "south": 39.024491,
+    "north": 53.166278,
+}
+
 # Wide padding for a full-width editorial map. Its landscape canvas needs a
 # broad east-west envelope before MapLibre will honour the intended zoom.
 FRANCE_OVERVIEW_MAP_BOUNDS = {
@@ -33,6 +44,12 @@ FRANCE_SPLIT_MAP_BOUNDS = {
 def apply_metropolitan_france_bounds(fig):
     """Apply the shared native MapLibre France viewport constraint."""
     fig.update_layout(map_bounds=METROPOLITAN_FRANCE_MAP_BOUNDS)
+    return fig
+
+
+def apply_wine_bounds(fig):
+    """Apply the Wine-only native viewport constraint."""
+    fig.update_layout(map_bounds=WINE_MAP_BOUNDS)
     return fig
 
 

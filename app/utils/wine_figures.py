@@ -2,7 +2,7 @@ import json
 
 import plotly.graph_objects as go
 
-from app.utils.map_constraints import apply_metropolitan_france_bounds
+from app.utils.map_constraints import apply_wine_bounds
 
 REGIONAL_OUTLINE_LAYER_INDEX = 0
 WINE_AOC_TRACE_INDEX = 0
@@ -157,4 +157,4 @@ def plot_wine_choropleth_plotly(
         hovermode="closest",
     )
 
-    return apply_metropolitan_france_bounds(fig)
+    return apply_wine_bounds(fig)

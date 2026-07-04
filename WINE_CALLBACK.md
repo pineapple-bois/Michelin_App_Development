@@ -334,3 +334,163 @@ At the same time, replace the appellation bounding-box midpoint with a projected
 - imprecise spatial anchoring.
 
 It does so with one general contract for all regions and appellations, including Alsace and Corse.
+
+
+
+----
+
+# Possible fix
+
+
+This diagnosis is decisive. You now have a specific rendering defect rather than a vague “fragile callback” problem.
+
+The server is correct. The geometry is correct. The bounds are correct. The failure occurs because Plotly applies center while MapLibre is still using the previous zoom, clamps it, and only then applies the new zoom.
+
+So the next move should be a very narrow clientside viewport executor prototype.
+
+Do not combine it with the earlier Option A changes yet. First prove that appellation navigation can be applied correctly and atomically.
+
+Recommended sequence
+
+Keep the current committed behaviour intact and make one isolated architectural change:
+
+* The existing Python navigation callback stops patching figure.layout.map.center and figure.layout.map.zoom.
+* It instead writes a small viewport command to a dcc.Store.
+* A clientside callback receives that command.
+* It obtains the underlying MapLibre map and applies the target with a single MapLibre camera operation such as jumpTo.
+* It records the processed command ID so an older command cannot subsequently execute.
+* Existing Python persistence updates should continue receiving the canonical target.
+* Hover, outlines, restaurants and other figure patches remain untouched.
+
+Use jumpTo, not easeTo, for the first prototype. Animation would introduce another variable while you are proving correctness.
+
+I would also retain the existing map bounds. The diagnosis shows they are exposing an ordering problem, not causing an invalid constraint.
+
+Here is the next Codex task:
+
+Read WINE_CALLBACK.md and the completed browser diagnosis. Implement a minimal prototype that moves only Wine selector-driven viewport execution from Plotly figure patches to a clientside MapLibre command executor.
+
+The diagnosed failure is:
+
+* The Python callback calculates the correct appellation centre and zoom.
+* The existing figure patch assigns center before zoom.
+* MapLibre constrains the centre using the previous zoom level.
+* The target zoom is then applied, leaving the visible viewport displaced.
+* A later unrelated figure patch can cause the retained centre to be reapplied correctly.
+* Geometry, lookup, bounds, persistence and stale server callbacks are not the cause.
+
+Implement the smallest coherent correction.
+
+Required architecture:
+
+1. Add a dedicated dcc.Store for Wine viewport commands if an appropriate store does not already exist.
+2. Have the server-side navigation callback emit a small serialisable command containing at least:
+    * a monotonically increasing command ID;
+    * geography or navigation type;
+    * selected region where relevant;
+    * selected appellation where relevant;
+    * target latitude;
+    * target longitude;
+    * target zoom.
+3. Stop using the navigation callback to patch figure.layout.map.center and figure.layout.map.zoom.
+4. Add one clientside callback that receives the viewport command and applies the centre and zoom together through the underlying MapLibre map.
+5. Use a non-animated atomic camera operation such as jumpTo for this prototype.
+6. Reject a command whose ID is not newer than the most recently processed command.
+7. Do not apply a command if its selected geography no longer matches the current selector state.
+8. Preserve the existing map bounds and allow MapLibre to enforce them using the target zoom.
+9. Keep the canonical viewport persistence store synchronized with the requested target without relying on the displaced intermediate relayoutData.
+10. Leave all hover, unhover, regional-outline, restaurant and non-navigation figure patches unchanged.
+
+Do not:
+
+* reintroduce the unsuccessful Option A behavioural changes;
+* remove regional navigation in this task;
+* change appellation geometry, lookup, centre calculations or zoom calculations;
+* add region-specific fixes;
+* reorder fields within the existing Plotly patch as the final solution;
+* add delays, retries or polling;
+* animate the navigation;
+* broadly consolidate Wine callbacks;
+* alter unrelated pages.
+
+Before implementation, inspect how the Plotly graph exposes its underlying MapLibre instance in the currently installed Plotly/Dash versions. Do not depend on an undocumented guessed DOM path without verifying it against the rendered graph and the installed library implementation.
+
+Keep the clientside implementation small and defensive:
+
+* return without error if the graph or MapLibre instance is not ready;
+* do not mark a command as processed unless it was actually applied;
+* avoid registering duplicate MapLibre event listeners;
+* do not create an interval or permanent polling loop;
+* log no routine browser output after the prototype is complete.
+
+Testing:
+
+Add or update focused tests proving that:
+
+1. Brand produces the correct viewport command.
+2. Muscat du Cap Corse produces approximately:
+    * latitude 42.824131;
+    * longitude 9.395234;
+    * zoom 7.87.
+3. The navigation callback no longer writes map centre or zoom into a figure patch.
+4. Command IDs increase monotonically.
+5. A stale cross-region appellation does not produce a valid appellation command.
+6. The persistence store receives the canonical requested target.
+7. Existing hover, outline, restaurant and viewport-persistence tests remain passing.
+8. Callback registration contains only one clientside viewport executor.
+
+Run a real-browser validation for:
+
+* fresh Wine route → Alsace → Brand;
+* fresh Wine route → Corse → Muscat du Cap Corse;
+* Patrimonio;
+* Chablis;
+* mainland appellation → Corse appellation;
+* rapid appellation A → B → C;
+* navigation while outlines are toggled;
+* navigation while restaurants are toggled;
+* navigation after manual pan and zoom.
+
+For each relevant case, verify that the first visible viewport after the command has the requested centre and zoom. It must not require an unrelated hover, outline or restaurant patch to correct itself.
+
+Also verify that an old command cannot move the map after a newer selection has been made.
+
+Report:
+
+* files changed;
+* how the MapLibre instance is obtained;
+* the viewport command schema;
+* how command freshness is enforced;
+* how selector-state freshness is enforced;
+* how browser readiness is handled;
+* how persistence is synchronized;
+* exact automated test results;
+* exact browser validation results;
+* any reliance on private Plotly internals.
+
+Do not commit automatically.
+
+There is one design point worth watching closely: browser readiness. The executor should not silently discard the first command if the MapLibre instance is unavailable. But it also should not introduce a timer-based retry mechanism.
+
+A clean pattern would be for the clientside callback to depend on both:
+
+* the viewport command;
+* a genuine browser-side graph-ready signal.
+
+That signal could be set from plotly_afterplot or from detection that the MapLibre instance exists. The premature server-side wine-map-ready=True should not be repurposed as though it meant the browser had rendered.
+
+However, I would let Codex first inspect the exact Plotly object structure. The correct readiness mechanism depends on how the current Plotly version exposes the map.
+
+What success should look like
+
+For Muscat du Cap Corse, the first visible state after selection should be approximately:
+
+centre: 42.824131, 9.395234
+zoom:   7.87
+
+It should not first show longitude 7.436011, and it should not require an outline toggle or hover event to correct itself.
+
+Once this works reliably, commit it separately. Only then revisit Option A—removing region-driven navigation and clearing appellations—as a distinct UX simplification. The two changes solve different problems:
+
+* clientside atomic execution fixes the rendering defect;
+* Option A simplifies navigation ownership and user behaviour.

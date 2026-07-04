@@ -13,6 +13,7 @@ from app.utils.map_constraints import (
     FRANCE_OVERVIEW_MAP_BOUNDS,
     FRANCE_SPLIT_MAP_BOUNDS,
     METROPOLITAN_FRANCE_MAP_BOUNDS,
+    WINE_MAP_BOUNDS,
 )
 from app.utils.wine_figures import plot_wine_choropleth_plotly
 
@@ -96,7 +97,7 @@ def test_economics_metric_view_uses_split_layout_framing(data_boundary):
     assert fig.layout.map.zoom == ECONOMICS_SPLIT_MAP_ZOOM
 
 
-def test_wine_map_uses_shared_france_bounds_and_preserves_view(data_boundary):
+def test_wine_map_uses_wine_bounds_and_preserves_view(data_boundary):
     persisted_view = {
         "center": {"lat": 44.9, "lon": 4.8},
         "zoom": 7.5,
@@ -109,7 +110,7 @@ def test_wine_map_uses_shared_france_bounds_and_preserves_view(data_boundary):
         restaurants_df=data_boundary.all_france,
     )
 
-    _assert_france_bounds(fig)
+    _assert_france_bounds(fig, WINE_MAP_BOUNDS)
     assert fig.layout.map.center.lat == persisted_view["center"]["lat"]
     assert fig.layout.map.center.lon == persisted_view["center"]["lon"]
     assert fig.layout.map.zoom == persisted_view["zoom"]
