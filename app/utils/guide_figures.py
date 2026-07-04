@@ -1,6 +1,19 @@
 import plotly.graph_objects as go
 
 from app.components.shared import color_map
+from app.utils.map_constraints import (
+    METROPOLITAN_FRANCE_MAP_BOUNDS,
+    apply_metropolitan_france_bounds,
+)
+
+# Backwards-compatible Guide name retained for its existing figure contract.
+GUIDE_FRANCE_MAP_BOUNDS = METROPOLITAN_FRANCE_MAP_BOUNDS
+
+
+def apply_guide_map_bounds(fig):
+    """Apply the Guide's declarative MapLibre viewport constraint."""
+    return apply_metropolitan_france_bounds(fig)
+
 
 # Hover-tip text
 text_color_map = {
@@ -86,7 +99,7 @@ def plot_regional_outlines(region_df, region):
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )
-    return fig
+    return apply_guide_map_bounds(fig)
 
 def plot_department_outlines(geo_df, department_code, zoom_data=None):
     """
@@ -125,7 +138,7 @@ def plot_department_outlines(geo_df, department_code, zoom_data=None):
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )
-    return fig
+    return apply_guide_map_bounds(fig)
 
 def plot_arrondissement_outlines(paris_df, arrondissement, zoom_data=None):
     """
@@ -171,7 +184,7 @@ def plot_arrondissement_outlines(paris_df, arrondissement, zoom_data=None):
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )
-    return fig
+    return apply_guide_map_bounds(fig)
 
 def generate_hover_text(row):
     """
@@ -375,7 +388,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         map_center_lon=map_center_lon,
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
     )
-    return fig
+    return apply_guide_map_bounds(fig)
 
 def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars, zoom_data=None):
     """
@@ -487,7 +500,7 @@ def plot_paris_arrondissement(data_df, paris_df, arrondissement, selected_stars,
         ),
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
     )
-    return fig
+    return apply_guide_map_bounds(fig)
 
 def default_map_figure():
     """
@@ -496,7 +509,7 @@ def default_map_figure():
     Returns:
         - fig (plotly.graph_objs.Figure): A Plotly Figure object with default map settings.
     """
-    return go.Figure(go.Scattermap()).update_layout(
+    fig = go.Figure(go.Scattermap()).update_layout(
             font=dict(
                 family="Courier New, monospace",
                 size=18,
@@ -510,6 +523,7 @@ def default_map_figure():
             map_center_lon=1.888334,
             margin={"r": 0, "t": 0, "l": 0, "b": 0},
         )
+    return apply_guide_map_bounds(fig)
 
 
 # -------------------> Analysis Functions

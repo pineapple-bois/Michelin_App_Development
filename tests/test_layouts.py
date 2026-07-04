@@ -193,6 +193,7 @@ def test_wine_layout_contains_expected_component_ids():
         "toggle-regional-outlines-wine",
         "toggle-show-details-wine",
         "wine-map-graph",
+        "wine-map-ready",
         "wine-map-hover-overlay",
         "wine-map-hover-appellation",
         "wine-map-hover-region",

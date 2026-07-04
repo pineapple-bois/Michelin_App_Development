@@ -1,9 +1,11 @@
-import geopandas as gpd
+import math
+
 import plotly.graph_objects as go
 from dash import html
-from shapely.geometry import Point
+from pyproj import Transformer
 
 from app.components.shared import green_star, michelin_stars
+from app.utils.map_constraints import apply_france_split_bounds
 from app.utils.restaurant_cards import get_restaurant_details
 
 ANALYSIS_RATING_COLORS = {
@@ -22,6 +24,18 @@ ANALYSIS_CHOROPLETH_COLORSCALE = [
     [0.68, "#d95c54"],
     [1.0, "#a91f29"],
 ]
+ANALYSIS_FRANCE_MAP_ZOOM = 4.0
+
+WEB_MERCATOR_TO_WGS84 = Transformer.from_crs(
+    'EPSG:3857',
+    'EPSG:4326',
+    always_xy=True,
+)
+
+
+def _map_zoom_from_projection_scale(projection_scale):
+    """Translate the former geo projection scale to comparable MapLibre zoom."""
+    return math.log2(projection_scale) + 2
 
 def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
     """
@@ -169,7 +183,8 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
 
     # Add the choropleth map with hover info based on granularity
     fig.add_trace(
-        go.Choropleth(
+        go.Choroplethmap(
+            subplot='map',
             geojson=df.__geo_interface__,  # GeoJSON representation of the dataframe
             z=df['total_restaurants'],  # Use total restaurants for coloring
             locations=df.index,  # Match the locations via index
@@ -203,7 +218,7 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
         centroids = df.geometry.centroid
         for x, y, label in zip(centroids.x, centroids.y, df[label_column]):
             fig.add_trace(
-                go.Scattergeo(
+                go.Scattermap(
                     lon=[x],
                     lat=[y],
                     text=label,
@@ -232,8 +247,10 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
             zoom_level = 11
 
         # Convert the projected centroids back to geographic CRS (EPSG:4326)
-        centroids_geo = gpd.GeoSeries([Point(avg_x, avg_y)], crs='EPSG:3857').to_crs(epsg=4326)
-        avg_lat, avg_lon = centroids_geo[0].y, centroids_geo[0].x
+        avg_lon, avg_lat = WEB_MERCATOR_TO_WGS84.transform(
+            float(avg_x),
+            float(avg_y),
+        )
 
     elif granularity == 'arrondissement':
         # Re-project to Web Mercator (EPSG:3857) for accurate centroid calculation
@@ -251,29 +268,33 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
             zoom_level = 25  # Default zoom for other arrondissements
 
         # Convert the projected centroids back to geographic CRS (EPSG:4326)
-        centroids_geo = gpd.GeoSeries([Point(avg_x, avg_y)], crs='EPSG:3857').to_crs(epsg=4326)
-        avg_lat, avg_lon = centroids_geo[0].y, centroids_geo[0].x
+        avg_lon, avg_lat = WEB_MERCATOR_TO_WGS84.transform(
+            float(avg_x),
+            float(avg_y),
+        )
 
     else:
         # Default centering on France
         avg_lat, avg_lon = 46.603354, 1.888334
-        zoom_level = 6  # Default zoom for region-level map
+        map_zoom = ANALYSIS_FRANCE_MAP_ZOOM
 
-    # Update the layout for the figure, centering on France and adjusting size
+    # MapLibre is required here because layout.geo has no native maximum-bounds
+    # contract. Preserve the former relative framing by translating its
+    # projection scale to the corresponding tile-map zoom.
     fig.update_layout(
-        geo=dict(
-            scope='europe',  # Set the scope to Europe
-            resolution=50,
-            showcoastlines=False,
-            showland=True,
-            landcolor="#eeeeee",
-            center=dict(lat=avg_lat, lon=avg_lon),  # Custom center
-            projection_scale=zoom_level,  # Custom zoom
+        map=dict(
+            style='carto-positron',
+            center=dict(lat=avg_lat, lon=avg_lon),
+            zoom=(
+                map_zoom
+                if granularity == 'region'
+                else _map_zoom_from_projection_scale(zoom_level)
+            ),
         ),
         margin=dict(l=10, r=10, t=30, b=10),  # Reduce margins to reduce white space
     )
 
-    return fig
+    return apply_france_split_bounds(fig)
 
 def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=True):
     """

@@ -611,6 +611,10 @@ body {
     font-size: 12px;
 }
 
+.guide-page-sheet .guide-rating-button-hidden {
+    display: none !important;
+}
+
 .guide-page-sheet .guide-restaurant-panel {
     align-items: stretch;
     background-color: var(--color-surface);
@@ -1062,10 +1066,19 @@ body {
     line-height: 1.2;
 }
 
+.editorial-select {
+    font-size: 13px;
+}
+
 .editorial-select .Select-control {
     background-color: var(--color-surface) !important;
     border-color: var(--color-border-control) !important;
     box-sizing: border-box;
+    font-size: 13px;
+}
+
+.editorial-select .Select-menu-outer {
+    font-size: 13px;
 }
 
 .editorial-action-button,
@@ -1577,7 +1590,7 @@ body {
 /* Target the label inside each selected value to ensure bold red text */
 .dropdown-region-analysis .Select-value-label,
 .dropdown-category-demographics .Select-value-label {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--color-brand-red) !important; /* Bold red text */
     box-shadow: none !important; /* Remove blue shadow */
 }
@@ -1585,7 +1598,7 @@ body {
 /* Dropdown styling for region multi-select controls */
 .dropdown-region-analysis .Select-control,
 .dropdown-category-demographics .Select-control {
-    font-size: 14px; /* Adjust font size of labels */
+    font-size: 13px;
 }
 
 /* Customize the "x" button on hover */

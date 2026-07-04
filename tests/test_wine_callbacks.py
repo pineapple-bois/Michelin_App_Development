@@ -4,12 +4,11 @@ import pytest
 from dash import html, no_update
 
 from app.callbacks.wine import (
+    WINE_VIEW_GEOGRAPHY_KEY,
     build_wine_region_heading,
     build_wine_info_response,
     format_hectares,
     map_view_from_relayout,
-    map_view_patch,
-    region_navigation_response,
     restaurant_filter_style,
     restaurant_overlay_visible,
     reset_restaurant_star_clicks,
@@ -18,12 +17,17 @@ from app.callbacks.wine import (
     regional_outline_visibility_patch,
     regional_outlines_visible,
     resolve_wine_feature,
-    search_navigation_response,
+    selected_wine_map_view,
+    updated_wine_view_store,
+    wine_geography_key,
+    wine_view_revision,
     wine_hover_highlight_patch,
     wine_hover_overlay_response,
+    wine_navigation_patch,
 )
 from app.utils.wine_figures import RESTAURANT_TRACE_BELOW
 from app.utils.wine_search import build_wine_search_index, wine_search_lookup
+from app.utils.wine_search import map_view_for_feature, map_view_for_region
 
 
 @pytest.fixture
@@ -329,94 +333,109 @@ def test_restaurant_visibility_patch_updates_only_restaurant_traces(
     ]
 
 
-def test_search_navigation_response_updates_map_view_only(data_boundary):
+def test_selected_wine_map_view_uses_appellation_on_first_selection(data_boundary):
     records = build_wine_search_index(data_boundary.wine_df)
     search_lookup = wine_search_lookup(records)
-    selected_feature_id = records[0].feature_id
+    selected_record = records[0]
 
-    patch, stored_view = search_navigation_response(
-        selected_feature_id,
-        search_lookup,
-        {"unrelated": "kept"},
-    )
-    operations = patch.to_plotly_json()["operations"]
-
-    assert operations == [
-        {
-            "operation": "Assign",
-            "location": ["layout", "map", "center"],
-            "params": {"value": stored_view["center"]},
-        },
-        {
-            "operation": "Assign",
-            "location": ["layout", "map", "zoom"],
-            "params": {"value": stored_view["zoom"]},
-        },
-    ]
-    assert stored_view["unrelated"] == "kept"
-
-
-def test_search_navigation_response_fails_safely_for_unknown_feature(data_boundary):
-    records = build_wine_search_index(data_boundary.wine_df)
-    search_lookup = wine_search_lookup(records)
-
-    assert search_navigation_response("aoc-missing", search_lookup, {}) is None
-    assert search_navigation_response(None, search_lookup, {}) is None
-
-
-def test_region_navigation_response_updates_map_view_and_clears_appellation(data_boundary):
-    records = build_wine_search_index(data_boundary.wine_df)
-
-    patch, stored_view, selected_appellation = region_navigation_response(
-        "Bordeaux",
+    selected_view = selected_wine_map_view(
+        selected_record.region,
+        selected_record.feature_id,
         records,
-        {"unrelated": "kept"},
+        search_lookup,
     )
-    operations = patch.to_plotly_json()["operations"]
+    expected_view = map_view_for_feature(selected_record.feature_id, search_lookup)
 
-    assert operations == [
-        {
-            "operation": "Assign",
-            "location": ["layout", "map", "center"],
-            "params": {"value": stored_view["center"]},
-        },
-        {
-            "operation": "Assign",
-            "location": ["layout", "map", "zoom"],
-            "params": {"value": stored_view["zoom"]},
-        },
-    ]
-    assert stored_view["unrelated"] == "kept"
-    assert selected_appellation is None
+    assert selected_view == expected_view
 
 
-def test_region_navigation_response_fails_safely_for_unknown_region(data_boundary):
+def test_first_region_selection_builds_canonical_wine_patch(data_boundary):
     records = build_wine_search_index(data_boundary.wine_df)
+    search_lookup = wine_search_lookup(records)
+    expected_view = map_view_for_region("Bordeaux", records)
 
-    assert region_navigation_response("Missing", records, {}) is None
-    assert region_navigation_response(None, records, {}) is None
-
-
-def test_map_view_patch_updates_only_center_and_zoom():
-    patch = map_view_patch(
-        {
-            "center": {"lat": 45.0, "lon": 2.0},
-            "zoom": 9.25,
-        }
+    patch = wine_navigation_patch(
+        "Bordeaux",
+        None,
+        records,
+        search_lookup,
     ).to_plotly_json()
 
     assert patch["operations"] == [
         {
             "operation": "Assign",
+            "location": ["layout", "map", "uirevision"],
+            "params": {"value": "wine-aoc-map-v1:Bordeaux:all"},
+        },
+        {
+            "operation": "Assign",
             "location": ["layout", "map", "center"],
-            "params": {"value": {"lat": 45.0, "lon": 2.0}},
+            "params": {"value": expected_view["center"]},
         },
         {
             "operation": "Assign",
             "location": ["layout", "map", "zoom"],
-            "params": {"value": 9.25},
+            "params": {"value": expected_view["zoom"]},
         },
     ]
+
+
+def test_first_alsace_appellation_selection_builds_brand_patch(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+    search_lookup = wine_search_lookup(records)
+    brand = next(record for record in records if record.app == "Brand")
+    expected_view = map_view_for_feature(brand.feature_id, search_lookup)
+
+    patch = wine_navigation_patch(
+        "Alsace",
+        brand.feature_id,
+        records,
+        search_lookup,
+    ).to_plotly_json()
+
+    assert patch["operations"][0]["params"]["value"] == (
+        f"wine-aoc-map-v1:Alsace:{brand.feature_id}"
+    )
+    assert patch["operations"][1]["params"]["value"] == expected_view["center"]
+    assert patch["operations"][2]["params"]["value"] == expected_view["zoom"]
+
+
+def test_delayed_appellation_navigation_cannot_override_current_region(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+    search_lookup = wine_search_lookup(records)
+    selected_region = records[0].region
+    stale_record = next(
+        record for record in records if record.region != selected_region
+    )
+
+    selected_view = selected_wine_map_view(
+        selected_region,
+        stale_record.feature_id,
+        records,
+        search_lookup,
+    )
+
+    assert selected_view == map_view_for_region(selected_region, records)
+
+
+def test_selected_wine_map_view_uses_region_without_appellation(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+    search_lookup = wine_search_lookup(records)
+
+    selected_view = selected_wine_map_view(
+        "Bordeaux",
+        None,
+        records,
+        search_lookup,
+    )
+
+    assert selected_view == map_view_for_region("Bordeaux", records)
+
+
+def test_wine_view_revision_changes_for_geographic_navigation():
+    geography = {"region": "Bordeaux", "feature_id": None}
+
+    assert wine_view_revision(geography) == "wine-aoc-map-v1:Bordeaux:all"
 
 
 def test_manual_map_pan_and_zoom_persistence_stays_unchanged():
@@ -429,6 +448,107 @@ def test_manual_map_pan_and_zoom_persistence_stays_unchanged():
     assert updated_view == {"center": {"lat": 45.5, "lon": 2.5}, "zoom": 8.5}
     assert map_view_from_relayout({"autosize": True}, existing_view) is None
     assert map_view_from_relayout({}, existing_view) is None
+
+
+def test_region_navigation_reset_overrides_stale_wine_view(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+    search_lookup = wine_search_lookup(records)
+    selected_region = records[0].region
+    stale_record = next(
+        record for record in records if record.region != selected_region
+    )
+    stale_geography = wine_geography_key(
+        stale_record.region,
+        stale_record.feature_id,
+        search_lookup,
+    )
+    stale_view = {
+        "center": {"lat": 43.0, "lon": 1.0},
+        "zoom": 9,
+        WINE_VIEW_GEOGRAPHY_KEY: stale_geography,
+    }
+
+    updated_view = updated_wine_view_store(
+        {"wine-region-selector", "wine-map-graph"},
+        {"map.center": stale_view["center"], "map.zoom": stale_view["zoom"]},
+        selected_region,
+        stale_record.feature_id,
+        records,
+        search_lookup,
+        stale_view,
+    )
+    expected_view = map_view_for_region(selected_region, records)
+
+    assert updated_view["center"] == expected_view["center"]
+    assert updated_view["zoom"] == expected_view["zoom"]
+    assert updated_view[WINE_VIEW_GEOGRAPHY_KEY] == {
+        "region": selected_region,
+        "feature_id": None,
+    }
+
+
+def test_stale_relayout_is_rejected_after_wine_geography_change(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+    search_lookup = wine_search_lookup(records)
+    selected_region = records[0].region
+    previous_region = next(
+        record.region for record in records if record.region != selected_region
+    )
+    stale_view = {
+        "center": {"lat": 43.0, "lon": 1.0},
+        "zoom": 9,
+        WINE_VIEW_GEOGRAPHY_KEY: {
+            "region": previous_region,
+            "feature_id": None,
+        },
+    }
+
+    updated_view = updated_wine_view_store(
+        {"wine-map-graph"},
+        {"map.center": stale_view["center"], "map.zoom": stale_view["zoom"]},
+        selected_region,
+        None,
+        records,
+        search_lookup,
+        stale_view,
+    )
+
+    assert updated_view is None
+
+
+def test_manual_relayout_is_preserved_for_current_wine_geography(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+    search_lookup = wine_search_lookup(records)
+    selected_region = records[0].region
+    geography = {
+        "region": selected_region,
+        "feature_id": None,
+    }
+    existing_view = {
+        "center": {"lat": 44.0, "lon": 2.0},
+        "zoom": 7,
+        WINE_VIEW_GEOGRAPHY_KEY: geography,
+    }
+    manual_view = {
+        "map.center": {"lat": 44.5, "lon": 2.5},
+        "map.zoom": 8,
+    }
+
+    updated_view = updated_wine_view_store(
+        {"wine-map-graph"},
+        manual_view,
+        selected_region,
+        None,
+        records,
+        search_lookup,
+        existing_view,
+    )
+
+    assert updated_view == {
+        "center": manual_view["map.center"],
+        "zoom": manual_view["map.zoom"],
+        WINE_VIEW_GEOGRAPHY_KEY: geography,
+    }
 
 
 class FakeCache:
@@ -774,6 +894,7 @@ def test_wine_search_callback_is_isolated_from_info_callback(app_module):
             and callback_input["property"] == "value"
             for callback_input in metadata["inputs"]
         )
+        and "wine-map-graph" in str(metadata["output"])
     ]
     region_navigation_callbacks = [
         metadata
@@ -792,8 +913,19 @@ def test_wine_search_callback_is_isolated_from_info_callback(app_module):
     ]
     assert len(navigation_callbacks) == 1
     assert "llm-output-container" not in str(navigation_callbacks[0]["output"])
+    assert {
+        "id": "wine-map-ready",
+        "property": "data",
+    } in navigation_callbacks[0]["inputs"]
     assert len(region_navigation_callbacks) == 1
     assert "llm-output-container" not in str(region_navigation_callbacks[0]["output"])
+
+    appellation_value_callbacks = [
+        output
+        for output in callback_map
+        if "wine-appellation-search.value" in output
+    ]
+    assert appellation_value_callbacks == []
 
 
 def test_wine_hover_callback_is_isolated_from_openai_info_callback(app_module):

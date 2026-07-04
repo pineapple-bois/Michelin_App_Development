@@ -2,6 +2,8 @@ import json
 
 import plotly.graph_objects as go
 
+from app.utils.map_constraints import apply_metropolitan_france_bounds
+
 REGIONAL_OUTLINE_LAYER_INDEX = 0
 WINE_AOC_TRACE_INDEX = 0
 RESTAURANT_STAR_ORDER = (1, 2, 3)
@@ -94,6 +96,7 @@ def plot_wine_choropleth_plotly(
     regional_outline_df=None,
     restaurants_df=None,
     show_regional_outlines=False,
+    view_revision="wine-aoc-map-v1",
 ):
     """Render the complete AOC FeatureCollection as one MapLibre trace."""
     zoom_data = zoom_data or {}
@@ -142,7 +145,7 @@ def plot_wine_choropleth_plotly(
             "style": "carto-positron",
             "zoom": zoom,
             "center": center,
-            "uirevision": "wine-aoc-map-v1",
+            "uirevision": view_revision,
             "layers": [
                 _regional_outline_layer(
                     regional_outline_df,
@@ -154,4 +157,4 @@ def plot_wine_choropleth_plotly(
         hovermode="closest",
     )
 
-    return fig
+    return apply_metropolitan_france_bounds(fig)

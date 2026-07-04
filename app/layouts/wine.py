@@ -146,6 +146,7 @@ def get_wine_content():
                                 ],
                             ),
                             dcc.Store(id='map-view-store', data={}),    # Store to hold map view parameters
+                            dcc.Store(id='wine-map-ready', data=False),
                         ],
                         style={'width': '50%', 'display': 'inline-block'}
                     ),

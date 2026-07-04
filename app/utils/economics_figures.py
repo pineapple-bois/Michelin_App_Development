@@ -1,5 +1,10 @@
 import plotly.graph_objects as go
 
+from app.utils.map_constraints import (
+    apply_france_overview_bounds,
+    apply_france_split_bounds,
+)
+
 
 ECONOMICS_METRIC_COLORSCALE = [
     [0.0, "#EDF2F5"],
@@ -10,6 +15,8 @@ ECONOMICS_METRIC_COLORSCALE = [
 ECONOMICS_BAR_COLOR = "#4F7486"
 ECONOMICS_REFERENCE_RED = "#C2282D"
 ECONOMICS_REFERENCE_RED_DARK = "#A01F25"
+ECONOMICS_FRANCE_MAP_ZOOM = 4.0
+ECONOMICS_SPLIT_MAP_ZOOM = 4.25
 
 
 def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity='region', show_labels=True, cmap='Blues',
@@ -31,6 +38,8 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
     Returns:
         fig (Plotly Figure): The Plotly figure object.
     """
+    zoom_data = zoom_data or {}
+
     # Dictionary for metric titles
     metric_titles = {
         'GDP_millions(€)': 'GDP (Millions €)',
@@ -158,7 +167,12 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
             zoom = 4.5  # Fallback zoom level
             center = {'lat': 46.603354, 'lon': 1.888334}  # Default center on France
     else:
-        zoom = zoom_data.get('zoom', 4.5)
+        default_zoom = (
+            ECONOMICS_SPLIT_MAP_ZOOM
+            if metric
+            else ECONOMICS_FRANCE_MAP_ZOOM
+        )
+        zoom = zoom_data.get('zoom', default_zoom)
         center = zoom_data.get('center', {'lat': 46.603354, 'lon': 1.888334})
 
     fig.update_layout(
@@ -172,7 +186,9 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
         height=700
     )
 
-    return fig
+    if metric:
+        return apply_france_split_bounds(fig)
+    return apply_france_overview_bounds(fig)
 
 def calculate_weighted_mean(df, metric, weight_column='municipal_population'):
     """

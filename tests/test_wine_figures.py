@@ -4,6 +4,7 @@ from app.utils.wine_figures import (
     RESTAURANT_TRACE_INDICES,
     plot_wine_choropleth_plotly,
 )
+from app.utils.map_constraints import METROPOLITAN_FRANCE_MAP_BOUNDS
 
 
 def test_wine_figure_uses_one_feature_based_geography_trace(data_boundary):
@@ -67,6 +68,10 @@ def test_wine_figure_preserves_map_contract(data_boundary):
     assert fig.layout.map.center.lat == 46.603354
     assert fig.layout.map.center.lon == 1.888334
     assert fig.layout.map.uirevision == "wine-aoc-map-v1"
+    assert (
+        fig.layout.map.bounds.to_plotly_json()
+        == METROPOLITAN_FRANCE_MAP_BOUNDS
+    )
 
 
 def test_wine_figure_contains_non_interactive_regional_outline_layer(data_boundary):

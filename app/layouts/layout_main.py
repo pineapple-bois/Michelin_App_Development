@@ -12,6 +12,8 @@ from app.components.shared import (
     michelin_stars,
 )
 
+GUIDE_HIDDEN_RATING_BUTTON_CLASS = 'guide-rating-button-hidden'
+
 star_placeholder = (0.25, 0.5, 1, 2, 3)
 
 unique_regions = ['Auvergne-Rhône-Alpes',
@@ -143,7 +145,8 @@ def star_filter_section(available_stars=star_placeholder):
             n_clicks=1,
             className=(
                 "selected-toggle-button editorial-rating-button "
-                "guide-rating-button guide-rating-selected"
+                "guide-rating-button guide-rating-selected "
+                f"{GUIDE_HIDDEN_RATING_BUTTON_CLASS}"
             ),
             style={"display": "none"}
         )

@@ -27,6 +27,8 @@ from app.utils.wine_search import (
     wine_search_options,
 )
 
+WINE_VIEW_GEOGRAPHY_KEY = "geography"
+
 
 def resolve_wine_feature(click_data, feature_lookup):
     """Resolve an AOC click by stable feature ID, or fail closed."""
@@ -165,34 +167,82 @@ def restaurant_visibility_patch(n_clicks_rest, n_clicks_stars=None, ids=None):
     return patched_figure
 
 
-def map_view_patch(map_view):
+def wine_geography_key(selected_region, selected_feature_id, search_lookup):
+    """Identify the region/appellation that owns the current Wine viewport."""
+    record = search_lookup.get(selected_feature_id)
+    valid_feature_id = None
+    if record is not None and (
+        not selected_region or record.region == selected_region
+    ):
+        valid_feature_id = selected_feature_id
+
+    return {
+        "region": selected_region,
+        "feature_id": valid_feature_id,
+    }
+
+
+def wine_view_revision(geography_key):
+    """Return a stable Plotly view revision for one Wine geography."""
+    return "wine-aoc-map-v1:{region}:{feature_id}".format(
+        region=geography_key.get("region") or "all",
+        feature_id=geography_key.get("feature_id") or "all",
+    )
+
+
+def selected_wine_map_view(
+    selected_region,
+    selected_feature_id,
+    records,
+    search_lookup,
+):
+    """Return the canonical viewport for the active Wine geography."""
+    geography_key = wine_geography_key(
+        selected_region,
+        selected_feature_id,
+        search_lookup,
+    )
+    feature_id = geography_key["feature_id"]
+    if feature_id is not None:
+        return map_view_for_feature(feature_id, search_lookup)
+    return map_view_for_region(selected_region, records)
+
+
+def wine_navigation_patch(
+    selected_region,
+    selected_feature_id,
+    records,
+    search_lookup,
+):
+    """Return a small deterministic viewport patch for one Wine geography."""
+    selected_view = selected_wine_map_view(
+        selected_region,
+        selected_feature_id,
+        records,
+        search_lookup,
+    )
+    geography_key = wine_geography_key(
+        selected_region,
+        selected_feature_id,
+        search_lookup,
+    )
+    if selected_view is None:
+        return None
+
     patched_figure = Patch()
-    patched_figure["layout"]["map"]["center"] = map_view["center"]
-    patched_figure["layout"]["map"]["zoom"] = map_view["zoom"]
+    patched_figure["layout"]["map"]["uirevision"] = wine_view_revision(
+        geography_key
+    )
+    patched_figure["layout"]["map"]["center"] = selected_view["center"]
+    patched_figure["layout"]["map"]["zoom"] = selected_view["zoom"]
     return patched_figure
 
 
-def search_navigation_response(selected_feature_id, search_lookup, existing_data=None):
-    map_view = map_view_for_feature(selected_feature_id, search_lookup)
-    if map_view is None:
-        return None
-
-    stored_view = dict(existing_data or {})
-    stored_view.update(map_view)
-    return map_view_patch(map_view), stored_view
-
-
-def region_navigation_response(selected_region, records, existing_data=None):
-    map_view = map_view_for_region(selected_region, records)
-    if map_view is None:
-        return None
-
-    stored_view = dict(existing_data or {})
-    stored_view.update(map_view)
-    return map_view_patch(map_view), stored_view, None
-
-
-def map_view_from_relayout(relayout_data, existing_data=None):
+def map_view_from_relayout(
+    relayout_data,
+    existing_data=None,
+    geography_key=None,
+):
     existing_data = dict(existing_data or {})
 
     if not relayout_data:
@@ -202,6 +252,14 @@ def map_view_from_relayout(relayout_data, existing_data=None):
     if not user_interaction_keys.intersection(relayout_data.keys()):
         return None
 
+    stored_geography = existing_data.get(WINE_VIEW_GEOGRAPHY_KEY)
+    default_geography = {"region": None, "feature_id": None}
+    if geography_key is not None:
+        if stored_geography != geography_key and not (
+            geography_key == default_geography and stored_geography is None
+        ):
+            return None
+
     zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
     center = relayout_data.get('map.center', existing_data.get('center'))
     if zoom is None or center is None:
@@ -209,7 +267,52 @@ def map_view_from_relayout(relayout_data, existing_data=None):
 
     existing_data['zoom'] = zoom
     existing_data['center'] = center
+    if geography_key is not None:
+        existing_data[WINE_VIEW_GEOGRAPHY_KEY] = geography_key
     return existing_data
+
+
+def updated_wine_view_store(
+    triggered_ids,
+    relayout_data,
+    selected_region,
+    selected_feature_id,
+    records,
+    search_lookup,
+    existing_data=None,
+):
+    """Resolve navigation and manual Wine viewport updates deterministically."""
+    triggered_ids = set(triggered_ids or ())
+    geography_key = wine_geography_key(
+        selected_region,
+        selected_feature_id,
+        search_lookup,
+    )
+
+    if triggered_ids.intersection({
+        "wine-region-selector",
+        "wine-appellation-search",
+    }):
+        map_view = selected_wine_map_view(
+            selected_region,
+            selected_feature_id,
+            records,
+            search_lookup,
+        )
+    else:
+        return map_view_from_relayout(
+            relayout_data,
+            existing_data,
+            geography_key,
+        )
+
+    if map_view is None:
+        return None
+
+    stored_view = dict(existing_data or {})
+    stored_view.update(map_view)
+    stored_view[WINE_VIEW_GEOGRAPHY_KEY] = geography_key
+    return stored_view
 
 
 def format_hectares(source_area_m2):
@@ -502,20 +605,44 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         return False
 
     @app.callback(
-        Output('wine-map-graph', 'figure'),
+        [Output('wine-map-graph', 'figure'),
+         Output('wine-map-ready', 'data')],
         Input('url', 'pathname'),
-        State('map-view-store', 'data'),
+        State('map-view-store', 'data')
     )
-    def update_wine_map(pathname, map_view_data):
+    def initialize_wine_map(pathname, map_view_data):
         if pathname != '/wine':
             raise PreventUpdate
-
         return plot_wine_choropleth_plotly(
             wine_df=wine_df,
             zoom_data=map_view_data,
             regional_outline_df=region_df,
             restaurants_df=all_france,
+        ), True
+
+    @app.callback(
+        Output('wine-map-graph', 'figure', allow_duplicate=True),
+        [Input('wine-region-selector', 'value'),
+         Input('wine-appellation-search', 'value'),
+         Input('wine-map-ready', 'data')],
+        prevent_initial_call=True,
+    )
+    def navigate_wine_map(
+        selected_region,
+        selected_feature_id,
+        map_ready,
+    ):
+        if not map_ready:
+            raise PreventUpdate
+        patch = wine_navigation_patch(
+            selected_region,
+            selected_feature_id,
+            wine_search_records,
+            wine_feature_search_lookup,
         )
+        if patch is None:
+            raise PreventUpdate
+        return patch
 
     @app.callback(
         [Output('wine-map-graph', 'figure', allow_duplicate=True),
@@ -579,47 +706,33 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         )
 
     @app.callback(
-        [Output('wine-map-graph', 'figure', allow_duplicate=True),
-         Output('map-view-store', 'data', allow_duplicate=True),
-         Output('wine-appellation-search', 'value')],
-        Input('wine-region-selector', 'value'),
-        State('map-view-store', 'data'),
-        prevent_initial_call=True,
-    )
-    def navigate_to_wine_region(selected_region, existing_map_view):
-        response = region_navigation_response(
-            selected_region,
-            wine_search_records,
-            existing_map_view,
-        )
-        if response is None:
-            raise PreventUpdate
-        return response
-
-    @app.callback(
-        [Output('wine-map-graph', 'figure', allow_duplicate=True),
-         Output('map-view-store', 'data', allow_duplicate=True)],
-        Input('wine-appellation-search', 'value'),
-        State('map-view-store', 'data'),
-        prevent_initial_call=True,
-    )
-    def navigate_to_wine_appellation(selected_feature_id, existing_map_view):
-        response = search_navigation_response(
-            selected_feature_id,
-            wine_feature_search_lookup,
-            existing_map_view,
-        )
-        if response is None:
-            raise PreventUpdate
-        return response
-
-    @app.callback(
         Output('map-view-store', 'data'),
-        [Input('wine-map-graph', 'relayoutData')],
+        [Input('wine-map-graph', 'relayoutData'),
+         Input('wine-region-selector', 'value'),
+         Input('wine-appellation-search', 'value')],
         [State('map-view-store', 'data')]
     )
-    def store_map_view(relayout_data, existing_data):
-        map_view = map_view_from_relayout(relayout_data, existing_data)
+    def store_map_view(
+        relayout_data,
+        selected_region,
+        selected_feature_id,
+        existing_data,
+    ):
+        ctx = dash.callback_context
+        triggered_ids = {
+            item['prop_id'].split('.')[0]
+            for item in ctx.triggered
+            if item.get('prop_id')
+        }
+        map_view = updated_wine_view_store(
+            triggered_ids,
+            relayout_data,
+            selected_region,
+            selected_feature_id,
+            wine_search_records,
+            wine_feature_search_lookup,
+            existing_data,
+        )
         if map_view is not None:
             return map_view
         raise dash.exceptions.PreventUpdate

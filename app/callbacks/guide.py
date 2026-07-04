@@ -4,7 +4,10 @@ from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from app.components.shared import color_map
-from app.layouts.layout_main import star_filter_section
+from app.layouts.layout_main import (
+    GUIDE_HIDDEN_RATING_BUTTON_CLASS,
+    star_filter_section,
+)
 from app.utils.guide_figures import (
     default_map_figure,
     plot_arrondissement_outlines,
@@ -17,11 +20,151 @@ from app.utils.locationMatcher import LocationMatcher
 from app.utils.restaurant_cards import get_restaurant_details
 
 
+GUIDE_GEOGRAPHIC_INPUTS = frozenset({
+    'region-dropdown',
+    'department-dropdown',
+    'arrondissement-dropdown',
+})
+GUIDE_VIEW_GEOGRAPHY_KEY = 'geography'
+GUIDE_RATING_COUNT_COLUMNS = (
+    (3, '3_star'),
+    (2, '2_star'),
+    (1, '1_star'),
+    (0.5, 'bib_gourmand'),
+    (0.25, 'selected'),
+)
+
+
+def available_ratings_for_department(department_row):
+    """Return Guide ratings whose aggregate department count is positive."""
+    return [
+        rating
+        for rating, column in GUIDE_RATING_COUNT_COLUMNS
+        if department_row[column] > 0
+    ]
+
+
+def department_geographic_view(geo_df, department_code):
+    """Return the canonical Guide viewport for a department geometry."""
+    if not department_code:
+        return {}
+
+    filtered_geo = geo_df[geo_df['code'] == str(department_code)]
+    if filtered_geo.empty:
+        return {}
+
+    centroid = filtered_geo['geometry'].iloc[0].centroid
+    if department_code == '75':
+        zoom = 11
+    elif department_code == '98':
+        zoom = 13.5
+    else:
+        zoom = 8
+
+    return {
+        'zoom': zoom,
+        'center': {'lat': centroid.y, 'lon': centroid.x},
+    }
+
+
+def department_code_for_selection(geo_df, region, department):
+    """Resolve a department only when it belongs to the active region."""
+    if not region or not department:
+        return None
+    matches = geo_df[
+        (geo_df['region'] == region)
+        & (geo_df['department'] == department)
+    ]
+    if matches.empty:
+        return None
+    return matches.iloc[0]['code']
+
+
+def arrondissement_geographic_view(paris_df, arrondissement):
+    """Return the canonical Guide viewport for a Paris arrondissement."""
+    if not arrondissement or arrondissement == 'all':
+        return {}
+
+    filtered_geo = paris_df[paris_df['arrondissement'] == arrondissement]
+    if filtered_geo.empty:
+        return {}
+
+    centroid = filtered_geo['geometry'].iloc[0].centroid
+    return {
+        'zoom': 13,
+        'center': {'lat': centroid.y, 'lon': centroid.x},
+    }
+
+
+def guide_geography_key(region, department, arrondissement):
+    """Return the identity of the geography that owns a persisted viewport."""
+    return {
+        'region': region,
+        'department': department,
+        'arrondissement': (
+            arrondissement
+            if department == 'Paris' and arrondissement not in (None, 'all')
+            else None
+        ),
+    }
+
+
+def resolve_guide_view_data(
+    triggered_ids,
+    stored_view,
+    geographic_view,
+    geography_key,
+):
+    """Give geographic changes precedence; otherwise preserve manual view state."""
+    triggered_ids = set(triggered_ids or ())
+    if triggered_ids.intersection(GUIDE_GEOGRAPHIC_INPUTS):
+        return dict(geographic_view or {})
+
+    stored_view = dict(stored_view or {})
+    if stored_view.get(GUIDE_VIEW_GEOGRAPHY_KEY) != geography_key:
+        return dict(geographic_view or {})
+    if stored_view.get('zoom') is None or stored_view.get('center') is None:
+        return dict(geographic_view or {})
+    return stored_view
+
+
+def updated_guide_view_store(
+    triggered_ids,
+    relayout_data,
+    geography_key,
+    existing_data=None,
+):
+    """Return the next persisted Guide viewport, or ``None`` for no update."""
+    triggered_ids = set(triggered_ids or ())
+    if triggered_ids.intersection(GUIDE_GEOGRAPHIC_INPUTS):
+        return {GUIDE_VIEW_GEOGRAPHY_KEY: geography_key}
+    if not relayout_data:
+        return None
+
+    user_interaction_keys = {'map.zoom', 'map.center'}
+    if not user_interaction_keys.intersection(relayout_data):
+        return None
+
+    existing_data = dict(existing_data or {})
+    if existing_data.get(GUIDE_VIEW_GEOGRAPHY_KEY) != geography_key:
+        existing_data = {}
+
+    zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
+    center = relayout_data.get('map.center', existing_data.get('center'))
+    if zoom is None or center is None:
+        return None
+
+    return {
+        'zoom': zoom,
+        'center': center,
+        GUIDE_VIEW_GEOGRAPHY_KEY: geography_key,
+    }
+
+
 def register_guide_callbacks(app, data):
     all_france = data.all_france
     region_df = data.region_df
     paris_df = data.paris_df
-    dept_to_code = data.dept_to_code
     region_to_name = data.region_to_name
     get_combined_restaurant_data = data.get_combined_restaurant_data
     get_geo_df = data.get_geo_df
@@ -183,14 +326,7 @@ def register_guide_callbacks(app, data):
             department_row = department_row.iloc[0]
 
             # Determine which star ratings are present in the department
-            available_stars = []
-            for star_level in [3, 2, 1]:  # Ensure all levels are checked
-                if department_row[f'{int(star_level)}_star'] > 0:
-                    available_stars.append(star_level)
-            if department_row['bib_gourmand'] > 0:
-                available_stars.append(0.5)
-            if department_row['selected'] > 0:
-                available_stars.append(0.25)
+            available_stars = available_ratings_for_department(department_row)
 
             # Only show the filter if there are stars available
             if available_stars:
@@ -283,6 +419,8 @@ def register_guide_callbacks(app, data):
         )
         # Compute display: show the toggle button only if 0.25 is an available star rating
         toggle_display = "block" if 0.25 in available_stars else "none"
+        if toggle_display == "none":
+            selected_class += f" {GUIDE_HIDDEN_RATING_BUTTON_CLASS}"
         selected_style = {
             "display": toggle_display,
         }
@@ -383,52 +521,83 @@ def register_guide_callbacks(app, data):
     def update_map(selected_department, selected_region, selected_stars, paris_arrondissement,
                    mapview_data, dept_viewdata, arron_viewdata):
         ctx = callback_context
-        triggered_id, _ = ctx.triggered[0]['prop_id'].split('.') if ctx.triggered else (None, None)
+        triggered_ids = {
+            item['prop_id'].split('.')[0]
+            for item in ctx.triggered
+            if item.get('prop_id')
+        }
+        geography_changed = bool(triggered_ids.intersection(GUIDE_GEOGRAPHIC_INPUTS))
+        rating_changed = 'selected-stars' in triggered_ids and not geography_changed
 
         # Use combined restaurant + geo data for PACA
         include_monaco = selected_region == "Provence-Alpes-Côte d'Azur"
         restaurant_data = get_combined_restaurant_data(include_monaco=include_monaco)
         geo_df_dynamic = get_geo_df(include_monaco=include_monaco)
-        dept_to_code_dynamic = geo_df_dynamic.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
+        department_code = department_code_for_selection(
+            geo_df_dynamic,
+            selected_region,
+            selected_department,
+        )
+        active_department = selected_department if department_code else None
+        geography_key = guide_geography_key(
+            selected_region,
+            active_department,
+            paris_arrondissement,
+        )
 
-        # Set view_data once, then reuse it
-        view_data = mapview_data if mapview_data else dept_viewdata
+        if active_department:
+            department_view = department_geographic_view(
+                geo_df_dynamic,
+                department_code,
+            ) or dept_viewdata
 
-        # Handle Paris-specific logic first
-        if selected_department == 'Paris':
-            department_code = dept_to_code.get('Paris')
+            if active_department == 'Paris' and paris_arrondissement not in (None, 'all'):
+                arrondissement_view = arrondissement_geographic_view(
+                    paris_df,
+                    paris_arrondissement,
+                ) or arron_viewdata
+                view_data = resolve_guide_view_data(
+                    triggered_ids,
+                    mapview_data,
+                    arrondissement_view,
+                    geography_key,
+                )
+                if rating_changed and selected_stars:
+                    return plot_paris_arrondissement(
+                        restaurant_data,
+                        paris_df,
+                        paris_arrondissement,
+                        selected_stars,
+                        view_data,
+                    )
+                return plot_arrondissement_outlines(
+                    paris_df,
+                    paris_arrondissement,
+                    view_data,
+                )
 
-            # Handle arrondissement case
-            if paris_arrondissement and paris_arrondissement != 'all':
-                view_data = mapview_data if mapview_data else arron_viewdata
-                if triggered_id == 'selected-stars':
-                    # Plot selected arrondissement with stars
-                    if selected_stars:
-                        return plot_paris_arrondissement(restaurant_data, paris_df, paris_arrondissement, selected_stars, view_data)
-                    return plot_arrondissement_outlines(paris_df, paris_arrondissement, view_data)
+            view_data = resolve_guide_view_data(
+                triggered_ids,
+                mapview_data,
+                department_view,
+                geography_key,
+            )
+            if rating_changed and selected_stars:
+                return plot_interactive_department(
+                    restaurant_data,
+                    geo_df_dynamic,
+                    department_code,
+                    selected_stars,
+                    view_data,
+                )
+            return plot_department_outlines(
+                geo_df_dynamic,
+                department_code,
+                view_data,
+            )
 
-            # Plot entire Paris department when no arrondissement selected
-            view_data = mapview_data if mapview_data else dept_viewdata
-            if triggered_id == 'selected-stars':
-                if selected_stars:
-                    return plot_interactive_department(restaurant_data, geo_df_dynamic, department_code, selected_stars, view_data)
-                return plot_department_outlines(geo_df_dynamic, department_code, view_data)
-
-        # Case 1: Department selected (non-Paris)
-        if triggered_id == 'department-dropdown' and selected_department:
-            department_code = dept_to_code_dynamic.get(selected_department)
-            return plot_department_outlines(geo_df_dynamic, department_code, view_data)
-
-        # Case 2: Handle stars selection
-        if triggered_id == 'selected-stars' and selected_department:
-            department_code = dept_to_code_dynamic.get(selected_department)
-            if selected_stars:
-                return plot_interactive_department(restaurant_data, geo_df_dynamic, department_code, selected_stars, view_data)
-            else:
-                return plot_department_outlines(geo_df_dynamic, department_code, view_data)
-
-        # Case 3: Handle region selection
-        if selected_region or triggered_id == 'region-dropdown':
+        # Handle region selection when no valid department is active.
+        if selected_region:
             region_name = region_to_name.get(selected_region)
             if region_name:
                 return plot_regional_outlines(region_df, region_name)
@@ -449,68 +618,19 @@ def register_guide_callbacks(app, data):
         include_monaco = selected_region == "Provence-Alpes-Côte d'Azur"
         geo_df_dynamic = get_geo_df(include_monaco=include_monaco)
 
-        # Generate dept_to_code dynamically from the active geo_df
-        dept_to_code_dynamic = geo_df_dynamic.drop_duplicates(subset='department').set_index('department')[
-            'code'].to_dict()
-        department_code = dept_to_code_dynamic.get(selected_department)
-
-        if not department_code:
-            return {}
-
-        filtered_geo = geo_df_dynamic[geo_df_dynamic['code'] == str(department_code)]
-        if filtered_geo.empty:
-            return {}
-
-        specific_geometry = filtered_geo['geometry'].iloc[0]
-        centroid = specific_geometry.centroid
-
-        # Adjust zoom level
-        if department_code == '75':
-            zoom_level = 11  # Paris
-        elif department_code == '98':
-            zoom_level = 13.5  # Monaco
-        else:
-            zoom_level = 8
-
-        return {
-            'zoom': zoom_level,
-            'center': {
-                'lat': centroid.y,
-                'lon': centroid.x
-            }
-        }
+        department_code = department_code_for_selection(
+            geo_df_dynamic,
+            selected_region,
+            selected_department,
+        )
+        return department_geographic_view(geo_df_dynamic, department_code)
 
     @app.callback(
         Output('paris-arrondissement-centroid', 'data'),
         [Input('arrondissement-dropdown', 'value')]
     )
     def calculate_arrondissement_centroid(selected_arrondissement):
-        if not selected_arrondissement:
-            return {}
-
-        # Find the geometry for the selected arrondissement
-        filtered_geo = paris_df[paris_df['arrondissement'] == selected_arrondissement]
-
-        if filtered_geo.empty:
-            return {}  # Return empty if the arrondissement is not found
-
-        # Calculate the centroid of the selected arrondissement's geometry
-        specific_geometry = filtered_geo['geometry'].iloc[0]
-        centroid = specific_geometry.centroid
-
-        # Set a zoom level for Paris arrondissements
-        zoom_level = 13
-
-        # Create the dictionary to store
-        stored_data = {
-            'zoom': zoom_level,
-            'center': {
-                'lat': centroid.y,
-                'lon': centroid.x
-            }
-        }
-
-        return stored_data
+        return arrondissement_geographic_view(paris_df, selected_arrondissement)
 
     @app.callback(
         Output('map-view-store-mainpage', 'data'),
@@ -522,36 +642,30 @@ def register_guide_callbacks(app, data):
     )
     def store_map_view_mainpage(relayout_data, selected_region, selected_department, selected_arrondissement,
                                 existing_data):
-        # Initialize existing_data if it's None
-        if existing_data is None:
-            existing_data = {}
-
-        # Reset zoom data when region or department changes
+        include_monaco = selected_region == "Provence-Alpes-Côte d'Azur"
+        geo_df_dynamic = get_geo_df(include_monaco=include_monaco)
+        department_code = department_code_for_selection(
+            geo_df_dynamic,
+            selected_region,
+            selected_department,
+        )
+        geography_key = guide_geography_key(
+            selected_region,
+            selected_department if department_code else None,
+            selected_arrondissement,
+        )
         ctx = dash.callback_context
-        triggered_input = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
-
-        if triggered_input in ['region-dropdown', 'department-dropdown', 'arrondissement-dropdown']:
-            return {}
-
-        # If relayoutData is None or empty, do not update the store
-        if not relayout_data:
+        triggered_ids = {
+            item['prop_id'].split('.')[0]
+            for item in ctx.triggered
+            if item.get('prop_id')
+        }
+        next_view = updated_guide_view_store(
+            triggered_ids,
+            relayout_data,
+            geography_key,
+            existing_data,
+        )
+        if next_view is None:
             raise dash.exceptions.PreventUpdate
-
-        # Define the keys that indicate a user interaction
-        user_interaction_keys = {'map.zoom', 'map.center'}
-
-        # Check if relayoutData contains any of the user interaction keys
-        if user_interaction_keys.intersection(relayout_data.keys()):
-            # Extract zoom and center from relayoutData
-            zoom = relayout_data.get('map.zoom', existing_data.get('zoom'))
-            center = relayout_data.get('map.center', existing_data.get('center'))
-
-            if zoom is not None and center is not None:
-                # Update the existing_data with new zoom and center
-                existing_data['zoom'] = zoom
-                existing_data['center'] = center
-
-                return existing_data
-
-        # If no user interaction keys are present, prevent updating the store
-        raise dash.exceptions.PreventUpdate
+        return next_view
