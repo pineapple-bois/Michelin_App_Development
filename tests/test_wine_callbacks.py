@@ -369,13 +369,13 @@ def test_first_region_selection_builds_canonical_wine_patch(data_boundary):
         },
         {
             "operation": "Assign",
-            "location": ["layout", "map", "center"],
-            "params": {"value": expected_view["center"]},
+            "location": ["layout", "map", "zoom"],
+            "params": {"value": expected_view["zoom"]},
         },
         {
             "operation": "Assign",
-            "location": ["layout", "map", "zoom"],
-            "params": {"value": expected_view["zoom"]},
+            "location": ["layout", "map", "center"],
+            "params": {"value": expected_view["center"]},
         },
     ]
 
@@ -396,8 +396,8 @@ def test_first_alsace_appellation_selection_builds_brand_patch(data_boundary):
     assert patch["operations"][0]["params"]["value"] == (
         f"wine-aoc-map-v1:Alsace:{brand.feature_id}"
     )
-    assert patch["operations"][1]["params"]["value"] == expected_view["center"]
-    assert patch["operations"][2]["params"]["value"] == expected_view["zoom"]
+    assert patch["operations"][1]["params"]["value"] == expected_view["zoom"]
+    assert patch["operations"][2]["params"]["value"] == expected_view["center"]
 
 
 def test_delayed_appellation_navigation_cannot_override_current_region(data_boundary):

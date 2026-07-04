@@ -233,8 +233,8 @@ def wine_navigation_patch(
     patched_figure["layout"]["map"]["uirevision"] = wine_view_revision(
         geography_key
     )
-    patched_figure["layout"]["map"]["center"] = selected_view["center"]
     patched_figure["layout"]["map"]["zoom"] = selected_view["zoom"]
+    patched_figure["layout"]["map"]["center"] = selected_view["center"]
     return patched_figure
 
 
