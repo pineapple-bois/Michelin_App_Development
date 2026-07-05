@@ -21,11 +21,13 @@ Relevant platform baseline:
 - `requirements.txt:1-2,12` specifies Dash 2.18, Dash Bootstrap Components 1.4.2, and Plotly 5.24; the inspected environment resolved Dash 2.18.2 and Plotly 5.24.1.
 - Dash 2.18 `dcc.Dropdown` defaults to `searchable=True`, `clearable=True`, `optionHeight=35`, and `maxHeight=200` unless a layout overrides those properties.
 
+Confirmed product requirement: ordinary selectors must remain searchable for desktop mouse/physical-keyboard use, but opening them through a touchscreen on a phone or tablet must not automatically summon the software keyboard. The target is therefore adaptive input behaviour, not a viewport breakpoint and not a global `searchable=False` change.
+
 The findings fall into distinct implementation lanes:
 
 | Lane | Findings in this report |
 | --- | --- |
-| Shared application-wide | Header/menu/footer targets and semantics, default searchable dropdowns, 30–35 px control heights, breakpoint layering, safe-area/dynamic-viewport gaps. |
+| Shared application-wide | Header/menu/footer targets and semantics, adaptive dropdown input policy, 30–35 px control heights, breakpoint layering, safe-area/dynamic-viewport gaps. |
 | Page-specific | Economics chip overlap; Analysis chip density and long graph flow; Guide modebar/search/title; Wine hover, tap, and camera behaviour. |
 | Component configuration | `searchable`, `clearable`, Plotly `config`, semantic/pressed attributes, option height, and menu behaviour. |
 | CSS/layout | Hit-area dimensions, wrapping, max-height overlap, fixed map heights, top spacing, title clipping, and breakpoint-specific composition. |
@@ -124,8 +126,8 @@ Definitions: `app/layouts/wine.py:11-212`. Search, patch, hover, persistence, an
 
 Current touch-relevant behaviour:
 
-- Appellation text search is an intentional interaction. Its callback consumes `search_value` and scopes options by selected region, so disabling keyboard entry would change the feature (`app/callbacks/wine.py:685-706`; `app/utils/wine_search.py`). On-screen-keyboard behaviour, menu placement, and restoration of map visibility must be tested on iOS and Android.
-- Region search is explicitly enabled but its options are a bounded region list. It could mechanically become a non-searchable selector without changing value-selection semantics, but doing so would remove an explicitly configured convenience and should be treated as a product decision (`app/layouts/wine.py:50-77`).
+- Appellation text search is integral. Its callback consumes `search_value` and scopes options by selected region, so it remains searchable on touch and desktop (`app/callbacks/wine.py:685-706`; `app/utils/wine_search.py`). On-screen-keyboard behaviour, menu placement, and restoration of map visibility must be tested on iOS and Android.
+- The region selector is a bounded selection list. It should suppress text entry for touch interaction while retaining its explicitly configured desktop search convenience (`app/layouts/wine.py:50-77`).
 - AOC hover is not merely native Plotly decoration: it drives a fixed HTML overlay and a selected-polygon patch. Touch devices have no stable hover model, so the overlay/highlight path is not dependable as the sole preview (`app/callbacks/wine.py:49-107,740-756`; `assets/styles.css:2509-2539`). AOC tap/click is the durable path to generated information (`app/callbacks/wine.py:769-783`).
 - Restaurant markers are 8 px and provide hover text only. Their click payload intentionally fails closed in the AOC information callback, so touch users receive no persistent restaurant detail from a marker tap (`app/utils/wine_figures.py:66-90`; `app/callbacks/wine.py:33-46,769-783`).
 - The complete figure is produced once, then navigation, outline visibility, restaurant visibility, and hover selection patch separate owned fields. Touch changes must not add a second authority over these fields (`app/callbacks/wine.py:607-683,740-767`).
@@ -136,24 +138,146 @@ Current touch-relevant behaviour:
 
 Every current `dcc.Dropdown` renders a text input because Dash defaults `searchable` to true. In the rendered phone check, tapping `region-dropdown` focused an `<input type="text" role="combobox">`, confirming that omission of the property is not equivalent to a native non-editable select.
 
-| Page | Component ID | Definition | Intended choice | Can keyboard entry be disabled without changing selection semantics? |
+| Page | Component ID | Definition | Classification | Repository-specific reason |
 | --- | --- | --- | --- | --- |
-| Guide | `region-dropdown` | `app/layouts/layout_main.py:258-270` | One of 13 regions | Yes; set `searchable=False`. |
-| Guide | `department-dropdown` | `app/layouts/layout_main.py:272-281` | One callback-populated department | Yes; list selection remains unchanged. |
-| Guide | `arrondissement-dropdown` | `app/layouts/layout_main.py:283-300` | One Paris arrondissement | Yes; list selection remains unchanged. |
-| Analysis | `region-dropdown-analysis` | `app/layouts/analysis.py:60-87` | Multi-select regions plus Select All | Yes; multi-selection and chip removal remain, although chip usability still needs work. |
-| Analysis | `department-dropdown-analysis` | `app/layouts/analysis.py:147-175` | One region controlling department analysis | Yes. |
-| Analysis | `arrondissement-dropdown-analysis` | `app/layouts/analysis.py:233-263` | One dynamically populated department | Yes. |
-| Analysis | `granularity-dropdown` | `app/layouts/analysis.py:349-370` | One of three granularities | Yes. |
-| Analysis | `ranking-dropdown` | `app/layouts/analysis.py:371-389` | Top 3, Top 5, or Paris | Yes. |
-| Analysis | `star-dropdown-ranking` | `app/layouts/analysis.py:390-408` | One of three rating categories | Yes. |
-| Economics | `category-dropdown-demographics` | `app/layouts/economics.py:38-63` | One of seven metrics | Yes. |
-| Economics | `granularity-dropdown-demographics` | `app/layouts/economics.py:64-79` | All France or one region | Yes. |
-| Economics | `demographics-dropdown-analysis` | `app/layouts/economics.py:80-101` | Multi-select regions plus Select All | Yes; chip/clear targets remain a separate issue. |
-| Wine | `wine-region-selector` | `app/layouts/wine.py:50-64` | One wine region | Technically yes, but search is explicitly configured; confirm the intended convenience before changing it. |
-| Wine | `wine-appellation-search` | `app/layouts/wine.py:65-79` | Search many appellations | No. `search_value` is part of the intended callback contract. |
+| Guide | `region-dropdown` | `app/layouts/layout_main.py:258-270` | **Selection-only on touch, searchable on desktop** | Fixed 13-region list; typing is convenient but not part of the value contract. |
+| Guide | `department-dropdown` | `app/layouts/layout_main.py:272-281` | **Selection-only on touch, searchable on desktop** | Callback-populated list; callbacks consume only `value`. |
+| Guide | `arrondissement-dropdown` | `app/layouts/layout_main.py:283-300` | **Selection-only on touch, searchable on desktop** | Paris list; callbacks consume only `value`. |
+| Analysis | `region-dropdown-analysis` | `app/layouts/analysis.py:60-87` | **Selection-only on touch, searchable on desktop** | Multi-selection and chip removal do not require text input. |
+| Analysis | `department-dropdown-analysis` | `app/layouts/analysis.py:147-175` | **Selection-only on touch, searchable on desktop** | Despite its ID, this selects one region; callbacks consume only `value`. |
+| Analysis | `arrondissement-dropdown-analysis` | `app/layouts/analysis.py:233-263` | **Selection-only on touch, searchable on desktop** | Dynamically populated department list; callbacks consume only `value`. |
+| Analysis | `granularity-dropdown` | `app/layouts/analysis.py:349-370` | **Selection-only on touch, searchable on desktop** | Three fixed choices. |
+| Analysis | `ranking-dropdown` | `app/layouts/analysis.py:371-389` | **Selection-only on touch, searchable on desktop** | Three fixed choices. |
+| Analysis | `star-dropdown-ranking` | `app/layouts/analysis.py:390-408` | **Selection-only on touch, searchable on desktop** | Three fixed choices. |
+| Economics | `category-dropdown-demographics` | `app/layouts/economics.py:38-63` | **Selection-only on touch, searchable on desktop** | Seven fixed metrics. |
+| Economics | `granularity-dropdown-demographics` | `app/layouts/economics.py:64-79` | **Selection-only on touch, searchable on desktop** | All France or one region; callbacks consume only `value`. |
+| Economics | `demographics-dropdown-analysis` | `app/layouts/economics.py:80-101` | **Selection-only on touch, searchable on desktop** | Multi-selection and Select All remain available without typing. |
+| Wine | `wine-region-selector` | `app/layouts/wine.py:50-64` | **Selection-only on touch, searchable on desktop** | Bounded region list; preserve current desktop convenience. |
+| Wine | `wine-appellation-search` | `app/layouts/wine.py:65-79` | **Searchable on both touch and desktop because text search is integral to the feature** | `search_value` drives server-side option generation (`app/callbacks/wine.py:694-706`). |
 
-`city-input-mainpage` is the only standalone text input and should remain keyboard-enabled (`app/layouts/layout_main.py:64-82`). No `dcc.Tabs`, sliders, checklists, or radio-item controls are currently present.
+No dropdown is semantically uncertain from static inspection: only the Wine appellation control requires touch text entry. Hybrid-device switching and the exact keyboard behaviour of dynamically changing `searchable` remain uncertain and require real-device testing.
+
+`city-input-mainpage` is the only standalone text input and should remain keyboard-enabled on every device (`app/layouts/layout_main.py:64-82`). No `dcc.Tabs`, sliders, checklists, or radio-item controls are currently present.
+
+## Runtime input-capability model
+
+Viewport width is not an input-capability signal. A narrow desktop window still has a mouse and physical keyboard; a large tablet can still be touch-only. The browser signals should be recorded independently:
+
+- `matchMedia('(pointer: coarse)')` and `matchMedia('(hover: none)')` describe the primary input reported by the browser;
+- `matchMedia('(any-pointer: fine)')`, `(any-pointer: coarse)`, and `(any-hover: hover)` reveal additional attached capabilities;
+- `navigator.maxTouchPoints` indicates touch hardware, but not that touch is the current input;
+- `PointerEvent.pointerType` (`mouse`, `touch`, or `pen`) describes an actual pointer event and is more useful for active-modality changes;
+- captured keyboard-navigation activity such as Tab can move a hybrid device back into desktop-search mode before focus reaches a selector. Browsers do not reliably identify a `keydown` as physical versus software-keyboard input, so arbitrary typing events should not be treated as proof of desktop modality.
+
+None of these is sufficient alone. `maxTouchPoints > 0` also describes touch-enabled laptops; `(pointer: coarse)` can remain true when a tablet has a trackpad; `(any-pointer: fine)` says a mouse is available but not that the next interaction will use it. The capability state should therefore be descriptive rather than a permanent `isTouchscreen` boolean.
+
+A suitable root-store payload would contain fields such as:
+
+```text
+ready
+primary_coarse
+primary_hover
+any_coarse
+any_fine
+any_hover
+max_touch_points
+active_modality        # touch, pen, mouse, or physical_keyboard
+selection_searchable   # derived policy for ordinary selectors
+revision
+```
+
+The derived policy should be conservative before a modality is observed: a browser reporting touch capability should start ordinary selectors in selection-only mode, while a non-touch fine-pointer browser can start searchable. Genuine mouse movement/pointer use or physical-keyboard navigation can enable desktop search; touch or pen use can return ordinary selectors to selection-only mode. Pen should initially be treated like touch because it can focus a text input and summon a software keyboard, then verified on actual devices.
+
+## Practical approaches in the current Dash architecture
+
+### 1. Root `dcc.Store` plus clientside capability detection — preferred
+
+`michelin_app.py:58-66` already owns root stores that survive Dash Pages layout swaps. A memory-backed `dcc.Store` for input capabilities belongs at this same boundary. The app also already registers an `app.clientside_callback` in `app/callbacks/guide.py:172-185`, so this does not introduce a new execution model.
+
+A small clientside callback can run from a root input such as `url.pathname`, read `matchMedia(...)` and `navigator.maxTouchPoints`, register global listeners once, and write the initial snapshot to the root store. To keep the snapshot current, the registered listeners can observe:
+
+- media-query `change` events when primary/available pointer capabilities change;
+- `pointermove`/`pointerdown` with `pointerType` to track mouse, touch, and pen modality;
+- physical `keydown` before keyboard navigation activates a selector;
+- resize/orientation events to re-evaluate capability queries, without using width as the policy itself.
+
+The installed Dash 2.18.2 renderer exposes `window.dash_clientside.set_props`, so those browser events can update the root Store through Dash rather than mutating React Select nodes. Listener registration must be idempotent because `url.pathname` changes on every route; the root layout gives the listeners and Store a stable lifetime.
+
+Page-scoped clientside callbacks can then map `input-capabilities-store.data.selection_searchable` to the public `searchable` property of each selection-only dropdown. Wine's `wine-appellation-search.searchable` remains `True` and should not be an output of this policy callback.
+
+This is the preferred approach because it:
+
+- uses browser input capabilities rather than layout width;
+- uses Dash's public `dcc.Store.data` and `dcc.Dropdown.searchable` properties;
+- retains the existing component IDs and `value` callback contracts;
+- gives hybrid devices a route back to desktop search after mouse or physical-keyboard activity;
+- centralises capability policy while keeping page-specific dropdown outputs explicit.
+
+For strict first-interaction safety, ordinary selectors should have a non-searchable initial layout value until the capability Store is ready; the clientside policy then enables search immediately on a confirmed desktop modality. Otherwise a touch user can focus the default searchable input before the detection callback finishes. This causes only a hydration-time delay before desktop search becomes available and should be measured rather than assumed acceptable.
+
+The support boundary is:
+
+| Mechanism | Status for this app |
+| --- | --- |
+| `dcc.Store.data`, `dcc.Dropdown.searchable`, and `app.clientside_callback` | Public Dash component/callback configuration; preferred. |
+| `matchMedia`, `navigator.maxTouchPoints`, and Pointer Events | Standard browser capability/event APIs; still require cross-browser validation. |
+| `window.dash_clientside.set_props` | Exposed by the installed Dash 2.18.2 renderer and avoids DOM mutation; cover it with a version-sensitive integration test when Dash is upgraded. |
+| `.Select-input input`, `.Select-control`, `blur()`, `readOnly`, or focus interception | Internal React Select DOM behaviour; fallback only. |
+
+### 2. Configure existing dropdowns from the Store — preferred over conditional rendering
+
+Changing only `searchable` on the existing component is materially safer than replacing it. `value`, `options`, `multi`, `clearable`, component ID, and all current callback inputs remain unchanged. None of the ordinary selectors has a callback consuming `search_value`; only Wine appellation does, and that selector stays searchable (`app/callbacks/wine.py:694-706`).
+
+Dynamic `searchable` updates should nevertheless be tested for:
+
+- preservation of single and multi-selected `value` data;
+- preservation of callback behaviour after route swaps;
+- whether an open menu closes or focus moves when modality changes;
+- whether temporary desktop search text is cleared without changing the selected value;
+- no extra value callback caused merely by changing configuration.
+
+Because page components exist only on their routes, one multi-output callback spanning every page would target absent components. Prefer separate Guide, Analysis, Economics, and Wine clientside callbacks that all read the root Store, consistent with the existing callback registration boundaries (`michelin_app.py:71-75`; `app/layouts/analysis_shared.py:92-115`). Each should also depend on a page-local mounted sentinel/component so a root Store update cannot try to write dropdown outputs for a page that is not currently present.
+
+### 3. Conditional layouts or separate touch/desktop variants — not preferred
+
+Conditionally replacing dropdown subtrees from Store data introduces avoidable state-management problems:
+
+- duplicate IDs cannot coexist, while different IDs would require duplicated or pattern-matched callback wiring;
+- unmounting one variant can lose open state, search text, and possibly selected values unless every value is mirrored through another Store;
+- two variants create competing authorities for dynamically populated options such as Guide departments and Wine appellations;
+- page-level components already mount and unmount through Dash Pages, making another replacement layer harder to reason about;
+- the Wine region/appellation callbacks and Analysis/Economics multi-select values would need explicit synchronisation.
+
+The same component with a dynamic public property avoids those problems. Separate variants should be considered only if real-device testing proves that Dash/React Select does not honour runtime `searchable` changes reliably.
+
+### 4. Narrow DOM-level focus suppression — fallback only
+
+Dash exposes `dcc.Dropdown.searchable`; that is the supported configuration surface. By contrast, code that finds `.Select-input input`, intercepts focus/pointer events, calls `blur()`, changes `readOnly`, or relies on `.Select-control` is coupled to the internal React Select markup used by this Dash version. The stylesheet currently uses those classes (`assets/styles.css:424-477,1073-1082,2081-2146,2402-2423`), but CSS familiarity does not make them a stable JavaScript API.
+
+Capability-store changes are asynchronous. On a hybrid device already in mouse mode, the first direct touch on a searchable selector may focus the input before the Store update and `searchable=False` render complete. If real-device tests reproduce that race, a capture-phase, ID-scoped focus/pointer guard may be necessary for the thirteen selection-only controls. Such a guard should:
+
+- apply only to the listed component IDs and only for `pointerType` touch/pen;
+- leave `wine-appellation-search` and `city-input-mainpage` untouched;
+- avoid globally cancelling touch or keyboard events;
+- feature-detect the expected input node and fail open if the markup differs;
+- document the Dash/React Select version dependency;
+- be covered by iOS Safari, Android Chrome, mouse, keyboard, and hybrid regression checks.
+
+This DOM-level path is not the preferred implementation. It is justified only if public `searchable` updates cannot prevent the confirmed keyboard problem at event time.
+
+## Hybrid devices and active modality
+
+“Touchscreen” must not become a permanent category stored for the whole session. A Surface-style laptop, iPad with trackpad, Android tablet with keyboard, or convertible can expose coarse touch and fine pointer capabilities simultaneously. Orientation does not itself determine modality, and attaching a keyboard does not necessarily change `pointer` media queries.
+
+The policy should retain both capability and recent-modality information:
+
+- touch/pen interaction selects without search for ordinary dropdowns;
+- mouse activity enables their desktop search input;
+- physical-keyboard navigation such as Tab enables desktop search before focus reaches them; ordinary `keydown` events inside Wine appellation or Guide city search must not be assumed to come from attached hardware;
+- integral text inputs remain editable regardless of modality;
+- capability/media changes update the Store without clearing selected values.
+
+There is an unavoidable limit: browser capabilities describe what exists, not what the user's next finger or mouse will do. Switching `searchable` after a `pointerdown` may be too late to stop focus on that same event, and browsers do not reliably expose whether a key event came from virtual or physical hardware. The conservative initial state plus mouse movement and keyboard-navigation pre-arming should cover phones, touch-first tablets, and normal hybrid use; the remaining same-control mouse-to-touch race is the main reason real-device validation and a narrowly scoped fallback are still required.
 
 ## Shared touchscreen findings
 
@@ -242,31 +366,34 @@ Current automated coverage is strong for data and state contracts but does not e
 
 Realistic additions during implementation:
 
-1. Layout-unit tests for every intended `searchable` setting, graph config, semantic button property, and stable component ID.
-2. Callback-unit tests for cleared multi-select values, rapid toggle sequences, and preservation/reset of each page's viewport contract.
-3. A small rendered browser smoke suite at 320, 390, 820, and 1024 px checking `scrollWidth <= clientWidth`, no bounding-box overlap, visible controls, and expected stacking. The repository has no browser-test dependency today, so this should be introduced only if its maintenance cost is accepted.
-4. Manual iOS Safari and Android Chrome passes for keyboard, gesture, tap/hover, and MapLibre camera behaviour. These cannot be replaced by Python figure tests.
+1. Layout/callback-map tests for the root capability Store, the thirteen adaptive `searchable` outputs, the permanently searchable Wine appellation control, stable IDs, and the safe initial selector configuration.
+2. Unit tests for a pure capability-policy function using desktop-only, touch-only, and hybrid snapshots. Browser APIs themselves need browser tests, not Python mocks presented as device proof.
+3. Callback tests for cleared multi-select values, rapid toggle sequences, and preservation/reset of each page's viewport contract.
+4. A rendered browser smoke suite at 320, 390, 820, and 1024 px checking `scrollWidth <= clientWidth`, no bounding-box overlap, expected stacking, and selected values before/after `searchable` changes. The repository has no browser-test dependency today, so this should be introduced only if its maintenance cost is accepted.
+5. Manual iOS Safari and Android Chrome passes for software-keyboard invocation, orientation changes, gesture, tap/hover, and MapLibre camera behaviour. These cannot be replaced by Python figure tests.
 
 ## Practical device and viewport matrix
 
 Keep the routine matrix small; use physical devices where available and browser device emulation only as a supplement.
 
-| Priority | Browser/device class | Viewport or representative device | Orientation | Main purpose |
+| Priority | Browser/device class | Viewport or representative device | Orientation/input | Adaptive-dropdown checks |
 | --- | --- | --- | --- | --- |
-| Core | iOS Safari, modern small/standard iPhone | about 390×844 CSS px | Portrait | Header/menu, keyboard selectors, one-finger page/map scroll, AOC/restaurant taps, 390 px overlap checks. |
-| Core | Android Chrome, standard phone | about 360×800 CSS px | Portrait | Dropdown keyboard/menu behaviour, compact wrapping, MapLibre gestures, back navigation. |
-| Edge | iOS Safari or responsive browser | 320×568 CSS px | Portrait | Header clipping, chip growth, narrow Wine map, smallest supported width decision. |
-| Core | iOS Safari, iPad class | about 820×1180 CSS px | Portrait | Two-column-to-stack transitions, map heights, selector rows, long Analysis flow. |
-| Core | iOS Safari, iPad class | about 1024×768 CSS px | Landscape | Analysis split charts/maps, Wine one-row controls, fixed header and short-height scrolling. |
-| Secondary | Android Chrome, tablet class | about 800×1280 and 1280×800 CSS px | Portrait and landscape | Cross-engine MapLibre, dropdown, keyboard, and breakpoint confirmation. |
+| Core | Desktop Chrome or Safari | about 1440×900 | Mouse and physical keyboard | Ordinary selectors are searchable; typing filters; Tab/Enter work; values survive capability refresh. |
+| Core | Narrow desktop browser | 390×844 window | Mouse and physical keyboard | Width alone must not disable search; compare directly with a phone at the same CSS width. |
+| Core | iOS Safari, modern iPhone | about 390×844 | Portrait touch | Ordinary selectors open without software keyboard; Wine appellation and Guide city search still invoke it; selected values persist. |
+| Core | Android Chrome, standard phone | about 360×800 | Portrait touch | Same keyboard distinction, plus menu placement, back-button dismissal, and value preservation. |
+| Edge | iOS Safari or smallest supported phone | 320×568 | Portrait touch | Keyboard distinction plus header clipping, chip growth, narrow Wine map, and minimum-width decision. |
+| Core | iOS Safari, iPad class | about 820×1180 and 1024×768 | Portrait then landscape touch | Re-detect on orientation, retain values, suppress ordinary selector keyboard, and verify map/layout transitions. |
+| Core where feasible | iPad/Android tablet or convertible | representative tablet | Attached keyboard and/or trackpad/mouse | Touch opens selection-only; mouse/physical keyboard restores search; switching modality does not clear values or double-fire callbacks. |
+| Secondary | Android Chrome, tablet class | about 800×1280 and 1280×800 | Portrait and landscape touch | Cross-engine capability media queries, orientation changes, MapLibre, and dropdown behaviour. |
 
-For routine changes, test one phone in each engine plus one iPad orientation relevant to the change. Run the full matrix for shared shell, dropdown, or map-interaction changes.
+For every adaptive-dropdown check, select at least one single value and one multi-select set before changing orientation or modality, then verify that values, dependent options, maps, and ranking/economics callbacks remain correct. For routine changes, test desktop mouse/keyboard, one phone in each engine, and one tablet mode relevant to the change. Run the full matrix for capability-policy or dropdown changes.
 
 ## Priorities
 
 1. **Economics multi-select overlap on phones.** The 150 px wrapper cap overlaps the following controls while the selected chips grow beyond it.
 2. **Touch target sizes across the shared shell and controls.** Hamburger, footer link, selectors, buttons, rating controls, clear/chip targets, Guide modebar buttons, and map markers are too small for comfortable touch.
-3. **Unnecessary mobile keyboard invocation.** Twelve of fourteen dropdowns can retain their selection behaviour with search disabled; the Wine appellation search must remain editable, and Wine region needs an explicit decision.
+3. **Adaptive dropdown input without desktop regression.** Thirteen ordinary selectors must suppress software-keyboard focus for touch interaction while retaining desktop mouse/physical-keyboard search; Wine appellation remains searchable in both modes.
 4. **Touch-equivalent information for hover paths.** Wine AOC preview, restaurant hover text, chart values, and the Guide search explanation need durable tap/focus alternatives where the information matters.
 5. **Phone header clipping and mobile vertical rhythm.** The 320 px title clips; large top gaps and fixed map heights make short viewports inefficient.
 6. **Map gesture and viewport validation.** Guide/Wine persistence is well guarded in code, but touch pan, pinch, double-tap, page scroll, and Wine patch camera order remain browser-dependent.
@@ -274,59 +401,50 @@ For routine changes, test one phone in each engine plus one iPad orientation rel
 8. **404 and shared navigation edge behaviour.** Short-height layout, menu dismissal, route scroll, and safe-area behaviour are currently unverified.
 
 
-## Client-side interaction boundary
-
-Prefer native Dash component properties, semantic HTML, CSS media features, and supported Plotly or MapLibre configuration before adding custom JavaScript.
-
-Custom client-side JavaScript may be justified where real-device testing demonstrates behaviour that cannot be controlled reliably through those mechanisms. Possible cases include visual-viewport changes caused by the on-screen keyboard, focus and scroll restoration, outside-tap handling, orientation-specific browser behaviour, or touch gesture disambiguation.
-
-Any proposed JavaScript should be documented against a reproduced device-specific problem. The implementation plan should identify:
-
-* the exact browser behaviour being corrected;
-* why Dash, CSS, or graph configuration is insufficient;
-* the DOM element or browser API involved;
-* how the JavaScript communicates with Dash state, if necessary;
-* cleanup and event-listener ownership;
-* fallback behaviour when the browser API is unavailable;
-* regression checks for desktop pointer and keyboard interaction.
-
-Do not introduce a general touchscreen detection framework or globally override touch events. Keep client-side handling local to a demonstrated interaction defect.
-
-
 ## Proposed small implementation stages
 
-### Stage 1: configuration-only selector audit
+### Stage 1: capability Store and policy contract
 
-Set `searchable=False` only on confirmed list-selection dropdowns, keep Wine appellation search enabled, and decide Wine region explicitly. Add layout tests for every setting.
+Add the root memory Store, a pure policy contract, and the small clientside detector/listener owner. Record primary, available, and active input capabilities; do not change dropdown rendering in the same step.
 
-Validation: focused layout tests, then iOS Safari and Android Chrome checks that non-search selectors do not summon a keyboard and that multi-select/clear behaviour is unchanged.
+Validation: callback-map/layout tests; desktop-only, touch-only, and hybrid policy cases; route changes; orientation/media-query refresh; confirm listeners register once.
 
-### Stage 2: shared touch targets and semantics
+### Stage 2: adaptive public dropdown configuration
+
+Give the thirteen ordinary selectors a safe non-searchable initial state, then drive their public `searchable` properties from the Store through page-scoped clientside callbacks. Keep `wine-appellation-search` always searchable. Do not create duplicate component variants.
+
+Validation: desktop mouse filtering and physical-keyboard navigation; phone/tablet no-keyboard opening; integral Wine search; narrow desktop window; orientation and modality changes; single/multi-value and dependent-option preservation. If a hybrid first-touch race remains, reproduce it before considering DOM focus suppression.
+
+### Stage 3: shared touch targets and semantics
 
 Increase hamburger, navigation, footer, action, rating, selector, option, clear, and chip-remove hit areas. Convert or augment the hamburger as a semantic button and give rating controls accessible names/pressed state. Preserve IDs and callback contracts.
 
 Validation: layout tests for semantics and IDs; 320/390/820/1024 rendered measurements; keyboard/switch-control spot checks; navigation callback tests.
 
-### Stage 3: page layout defects
+### Stage 4: page layout defects
 
 Fix the Economics selector overlap first. Then handle 320 px header clipping and review page-specific top spacing and map heights without applying one global map rule.
 
 Validation: bounding-box overlap checks and screenshots at the four audit widths; all routes; portrait and landscape browser checks; full Python suite because shared CSS affects every page.
 
-### Stage 4: durable touch information paths
+### Stage 5: durable touch information paths
 
 Define which hover information must also be available by tap or persistent content. Start with Wine AOC preview and restaurant marker behaviour, then chart/map values and the Guide search explanation. Keep Wine click-to-generate safeguards and request limits intact.
 
 Validation: callback/figure tests for payload routing; accidental restaurant/AOC tap checks; cached and uncached Wine flows; iOS/Android tap-versus-pan testing.
 
-### Stage 5: map gesture and camera hardening
+### Stage 6: map gesture and camera hardening
 
 Only after real-device testing, adjust Plotly or MapLibre configuration and introduce narrowly scoped client-side JavaScript where supported component APIs cannot resolve a reproduced gesture, viewport, focus, or keyboard defect.
 
 ## Regression risks
 
 - Raising shared control heights can alter multi-select wrapping, Wine's narrowly fitting 1024 px control row, Guide's fixed desktop composition, and page length.
-- Changing `searchable` can alter React Select focus, typing, menu opening, and existing Wine search callbacks if applied too broadly.
+- Changing `searchable` at runtime can alter React Select focus, typing, menu opening, and selected/search values; applying the policy to Wine appellation would also break its option-generation contract.
+- A root capability Store can accidentally drive outputs on pages that are not mounted unless callbacks have page-local presence gates.
+- Capability listeners can duplicate across route changes, leave stale modality after orientation/device attachment, or misclassify software-keyboard events as physical input if their lifetime and event policy are loose.
+- A conservative non-searchable initial state can cause a brief desktop hydration delay; a searchable initial state can violate the first-touch requirement. This tradeoff must be measured.
+- Any DOM focus guard is coupled to React Select internals and may break on a Dash component upgrade even when Python tests pass.
 - Enlarging marker hit areas can increase overlap and change which point/polygon wins a tap, especially Wine AOCs versus restaurant traces.
 - Changing map config can break page scrolling, wheel behaviour, relayout payloads, or Guide/Economics/Wine viewport persistence.
 - Reworking responsive rules can accidentally expose legacy 1250 px declarations or disturb `:has(...)`-scoped sheet/gutter rules.
@@ -336,7 +454,12 @@ Only after real-device testing, adjust Plotly or MapLibre configuration and intr
 
 ## Open questions requiring real browsers or devices
 
-- Does opening each searchable dropdown on iOS Safari and Android Chrome resize, pan, or obscure the control/menu, and does closing the keyboard restore the prior scroll position?
+- Do all thirteen ordinary selectors avoid the software keyboard on iOS Safari and Android Chrome while Wine appellation and Guide city search still invoke it normally?
+- Does changing the public `searchable` property preserve single/multi values, dependent options, menu state, focus, and callbacks in the Dash 2.18 React Select implementation?
+- On hybrid devices, do mouse movement and Tab navigation enable search before selection, and can a direct touch immediately after mouse use still win the focus race?
+- Which capability media queries change when a keyboard, mouse, or trackpad is attached or removed on the target tablets, and are `change` events delivered consistently?
+- Does the conservative initial state produce a visible or usable delay before desktop search is enabled?
+- Do integral searchable inputs resize, pan, or obscure their menu on iOS Safari and Android Chrome, and does closing the keyboard restore the prior scroll position?
 - Can users reliably scroll the page when a one-finger gesture begins over each MapLibre map, or does the map trap the gesture? Is two-finger page scrolling discoverable?
 - How do Plotly/MapLibre distinguish tap, pan, pinch, and double-tap on each page? Does a tap after a small pan emit unwanted `clickData`?
 - Is Wine `hoverData` emitted on tap, long press, or not at all, and does the fixed overlay persist or conflict with the AOC information click?
