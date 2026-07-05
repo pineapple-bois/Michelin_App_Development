@@ -4,6 +4,8 @@
 
 This report records the touchscreen audit and the first implemented responsive-input stage for the current Michelin Dash application. It is not a redesign proposal. The live Dash Pages implementation is the baseline.
 
+This revision gives the Guide and Wine maps explicit smaller-screen interaction contracts. Map work now precedes generic shared touch-target work in the implementation sequence; the earlier shell and control findings remain evidence, not the active priority.
+
 The audit covered:
 
 - the shared header, navigation, footer, page shell, and 404 page;
@@ -130,11 +132,11 @@ Current touch-relevant behaviour:
 
 - Appellation text search remains available above 1250 px. At smaller widths, `searchable=False` prevents typed input and the existing options callback receives an empty/`None` `search_value`; `wine_search_options(...)` then returns the complete region-scoped record list rather than an empty suggestion set (`app/callbacks/wine.py:694-706`; `app/utils/wine_search.py:86-98`). Selecting a region therefore narrows a still-selectable appellation menu, and leaving the region clear exposes all appellations.
 - Both Wine selectors start with `searchable=False` and are driven from the root responsive Store by the Wine-scoped callback. Their IDs, values, options, clear behaviour, and the appellation `search_value` callback remain unchanged (`app/layouts/wine.py:54-78`; `app/callbacks/responsive.py`; `app/callbacks/wine.py:685-706`).
-- AOC hover is not merely native Plotly decoration: it drives a fixed HTML overlay and a selected-polygon patch. Touch devices have no stable hover model, so the overlay/highlight path is not dependable as the sole preview (`app/callbacks/wine.py:49-107,740-756`; `assets/styles.css:2509-2539`). AOC tap/click is the durable path to generated information (`app/callbacks/wine.py:769-783`).
+- AOC hover is not merely native Plotly decoration: it drives a fixed HTML overlay and owns the AOC trace's `selectedpoints` patch. Touch devices have no stable hover model, so the overlay/highlight path is not dependable as the sole preview (`app/callbacks/wine.py:49-107,740-756`; `assets/styles.css:2509-2539`). AOC `clickData` currently goes directly to generated information, which is precisely the path the smaller-screen two-step contract must separate (`app/callbacks/wine.py:769-783`).
 - Restaurant markers are 8 px and provide hover text only. Their click payload intentionally fails closed in the AOC information callback, so touch users receive no persistent restaurant detail from a marker tap (`app/utils/wine_figures.py:66-90`; `app/callbacks/wine.py:33-46,769-783`).
 - The complete figure is produced once, then navigation, outline visibility, restaurant visibility, and hover selection patch separate owned fields. Touch changes must not add a second authority over these fields (`app/callbacks/wine.py:607-683,740-767`).
 - Manual pan/zoom is stored only for the currently owned region/appellation. Selector navigation writes `uirevision`, then zoom, then centre. Bounds-derived minimum zoom depends on rendered canvas size (`app/callbacks/wine.py:170-315,623-645,708-738`; `app/utils/map_constraints.py:14-23`). Phone and tablet canvas sizes therefore need direct validation.
-- At 390×844, selectors and toggles stack and the map is 322×500 px. At 320×568 it is 252×500 px because the legacy tablet padding still contributes inside the phone sheet. At 820×1180 the two selectors share a row, toggles occupy the next row, and the map is 740×620 px. At 1024×768 all four primary control groups fit on one row, but only narrowly; text zoom or longer localisation would force a different wrap (`assets/styles.css:2337-2408,2738-2788,2841-3094`).
+- Wine's map/content columns stack below 1050 px. The current graph remains fixed at 620 px high in that layout and 500 px below 600 px; recent Wine-only rules remove the legacy right indent and align the phone sheet with the 70 px header, but the map still remains inside the editorial sheet gutters (`assets/styles.css:2484-2554,2738-2788,3096-3100`). At 1024 px the controls remain close to their wrap threshold, so text zoom and tablet landscape still require direct checks.
 
 ## Dropdown and keyboard-entry audit
 
@@ -193,6 +195,141 @@ Hybrid devices are not classified by active modality. A tablet at 1024 px remain
 
 Orientation and window resizing may cross 1250 px, so the Store and dropdown configuration update at runtime. Selected values and callback wiring should survive because only `searchable` changes, but open-menu/focus behaviour during the transition remains a browser-level validation item. No future dropdown work should add coarse-pointer, hover, `maxTouchPoints`, pen, or recent-modality detection unless the product requirement is explicitly changed.
 
+## Guide map smaller-screen contract
+
+### Current interaction state
+
+The Guide map is the application's principal restaurant-browsing surface. `map-display` is a responsive `dcc.Graph` with `scrollZoom=True` and a customised visible modebar (`app/layouts/layout_main.py:315-343`). The map figure is rebuilt in full when geography or rating state changes. A region displays an outline; a valid department or Paris arrondissement displays its outline, and a subsequent rating-state update supplies restaurant traces (`app/callbacks/guide.py:511-606`). Restaurant traces carry the source row index in `customdata` and `meta`; `clickData` resolves that index and renders `restaurant-details` (`app/utils/guide_figures.py:231-266`; `app/callbacks/guide.py:430-485`).
+
+Selection is currently persistent only in the details content. There is no selected-restaurant Store and no selected marker trace or `selectedpoints` styling. Panning or zooming does not itself clear details, but a region, department, or rating callback does. Marker sizes are 9 px for Selected restaurants and 11 px for Bib/starred restaurants; Green Star underlays are 11 or 15 px (`app/utils/guide_figures.py:215-266,318-359,443-484`).
+
+Camera state has a stronger contract. `map-view-store-mainpage` stores `map.zoom`, `map.center`, and its owning region/department/arrondissement key. Geography changes restore the canonical geography view; rating-only figure rebuilds preserve a valid manually changed camera; stale camera data is rejected (`app/callbacks/guide.py:99-161,511-671`). The smaller-screen design should retain that boundary.
+
+Current responsive CSS stacks search, geography, ratings, map, and details in that order. The map is still inside the padded editorial sheet and uses `clamp(460px, 58vh, 640px)` up to 1250 px, then `clamp(420px, 65vh, 560px)` up to 768 px (`assets/styles.css:3661-3806`). Details already follow the map in source and grid order, which is the right association point.
+
+### Proposed state machine at no more than 1250 px
+
+| State | Visible result | Transition |
+| --- | --- | --- |
+| `geography-only` | Canonical region/department/arrondissement view; no selected restaurant. | Geography selection resets camera ownership and restaurant selection. |
+| `browsing` | Restaurant markers for the active rating filters; no details selection. | Tap a valid restaurant marker to enter `restaurant-selected`. Pan/pinch changes only camera state. |
+| `restaurant-selected` | The selected marker has a persistent visual treatment and the corresponding details panel sits immediately below the map. | Tap another valid marker to replace the selection; pan/pinch/orientation retain it; geography or a rating change that removes the restaurant clears it. |
+
+A tap on an outline or empty map area should not fabricate a restaurant selection. A small movement that MapLibre interprets as a pan must not replace the current selection. These are behavioural requirements, but the tap-versus-pan threshold is renderer-owned and must be validated rather than inferred from Python callbacks.
+
+### Proposed layout and gesture contract
+
+| Concern | Smaller-screen contract | Implementation boundary |
+| --- | --- | --- |
+| Horizontal gutters | Keep normal sheet padding around search, selectors, filters, prose, details, and the rating legend. Let only `.guide-map-panel` break out to the viewport edges. The full-bleed rule must not alter desktop or the other pages. | Guide-scoped CSS at `max-width: 1250px`; a calculated full-viewport width/negative inline margin is sufficient. Check vertical-scrollbar and safe-area behaviour before fixing exact values. |
+| Height | Give the map a stable, substantial working area: prototype approximately 65–75% of the small viewport with sensible phone/landscape minima and tablet maxima. Prefer an `svh`-based primary height with a `vh` fallback; `svh` avoids repeated jumps as mobile browser chrome expands or collapses. Use `dvh` only if device testing shows the resizing is desirable rather than distracting. | CSS. Candidate values such as `height: clamp(28rem, 72svh, 46rem)` are starting hypotheses, not a committed cross-device constant. Short landscape needs its own check and may need a lower minimum. |
+| One-finger gesture | A gesture beginning on the map pans the map. The map is the principal surface, so one-finger panning should not be disabled merely to make page scrolling easier. | Existing MapLibre/Plotly interaction; real iOS Safari and Android Chrome testing required. |
+| Pinch/double tap | Pinch zoom remains available. Observe double-tap behaviour before deciding whether it should zoom; no application callback currently requires double-click. | Renderer behaviour and supported Plotly configuration where exposed; device testing required. |
+| Page scroll | A one-finger gesture beginning outside the map scrolls the document. Users must be able to reach details immediately below and then return to the map without a trapped page. Do not apply a broad `touch-action` override until the rendered MapLibre canvas is tested. | Mostly browser/renderer behaviour. CSS can provide clear space immediately before/after the map but cannot prove gesture arbitration. |
+| Wheel/trackpad | At no more than 1250 px, wheel/trackpad scrolling should favour page movement rather than unexpectedly zooming the map. | A page-scoped responsive update to the public `dcc.Graph.config.scrollZoom` property is supported; verify that changing config does not remount or reset the figure. |
+| Modebar | Hide the current Plotly modebar at no more than 1250 px. Its small desktop controls duplicate pan/pinch and geography-reset paths, and the present button set is not a coherent touch toolbar. If testing reveals a real need for reset, add one explicit application-level “Reset map view” action later rather than retaining the desktop modebar. | Public `dcc.Graph.config.displayModeBar`; page-scoped responsive callback. Desktop configuration remains unchanged. |
+| Marker selection | A marker tap selects by the existing stable restaurant index, never by curve number. The selected restaurant must gain a persistent visual treatment that survives camera changes. Do not enlarge every marker indiscriminately; dense departments need testing for overlap and wrong-marker activation. | Callback/state and supported Plotly trace configuration or a dedicated selection-overlay trace. CSS alone cannot style one Plotly point. |
+| Details | Keep details directly after the full-bleed map but inside normal content gutters. Add an explicit selected heading/summary if needed; do not place the full card as a floating map overlay that obscures geography. | Existing layout order plus Guide-scoped CSS; selection content remains callback-owned. |
+| Viewport persistence | Preserve the current geography-owned `map-view-store-mainpage` rules. Orientation/resize should resize the canvas without changing the stored centre/zoom or claiming a new geography. | Existing callbacks plus browser validation. Bounds-derived effective minimum zoom can change with canvas aspect ratio. |
+
+### Callback and state ownership
+
+The current `restaurant-details` callback is not enough for persistent visual state because its output is rendered content rather than a stable selection contract. A later implementation should add one page-level selected-restaurant Store keyed by the existing restaurant index. One selection callback should own that Store from validated `map-display.clickData` plus geography/rating reset inputs. Details and marker-highlight callbacks should read the Store; they should not independently interpret clicks and become competing selection authorities.
+
+The complete-figure callback should continue to own geography, ratings, traces, and camera application. A selected-marker overlay or selected-point patch must be reapplied from the Store after a full figure rebuild. The map-view Store remains camera-only and must not be overloaded with restaurant selection. The existing hover cursor clientside callback is desktop decoration, not selection state (`app/callbacks/guide.py:164-185`).
+
+Desktop remains unchanged in the first implementation: fixed Guide composition, visible current modebar, wheel zoom, hover labels, click-to-details, and geography-owned viewport persistence at 1251 px and wider. Persistent selected-marker styling could later be shared with desktop, but the smaller-screen prototype must not require that expansion.
+
+### Risks, minimal prototype, and device validation
+
+Likely regressions are horizontal overflow from the full-bleed calculation, the fixed header or safe areas covering map edges, orientation changes producing an unusable minimum height, MapLibre bounds recentering after resize, wheel/config changes resetting the figure, and selection styling targeting the wrong trace after complete figure reconstruction. Enlarging marker hit areas may make dense points harder rather than easier to select.
+
+The minimal Guide prototype should therefore be layout-only: make the existing map full-bleed at no more than 1250 px and replace fixed `vh`-based sizing with one `svh`-backed height rule, while leaving callbacks, gestures, selection, and desktop untouched. This independently reviewable CSS stage answers whether the larger surface improves browsing before callback/config work is layered onto it.
+
+Real-device acceptance criteria:
+
+- iOS Safari and Android Chrome, phone portrait/landscape and tablet portrait/landscape, show no horizontal document overflow and no clipped attribution;
+- browser chrome expansion/collapse does not repeatedly jump the map height or lose the camera;
+- one-finger pan and pinch zoom work, while swiping before/after the map scrolls the page normally;
+- a small pan does not emit a false marker selection, and realistic markers can be selected in dense and sparse departments;
+- selected marker and details stay associated through pan, pinch, orientation, and browser-chrome changes, then reset on the documented geography/rating transitions;
+- the modebar/config decision is tested with touch and a narrow desktop window, not inferred from viewport emulation alone.
+
+## Wine map smaller-screen contract
+
+### Current interaction and callback ownership
+
+The complete Wine figure has one AOC `Choroplethmap` trace at index 0, fixed one-/two-/three-star restaurant traces at indices 1–3, and regional outline layer 0 (`app/utils/wine_figures.py:7-19,93-160`). The AOC trace starts with `selectedpoints=[]`; its selected style lowers opacity to 0.58 while unselected polygons remain at 1.0 (`app/utils/wine_figures.py:111-131`).
+
+The current hover callback has sole practical ownership of `selectedpoints`: validated AOC `hoverData` populates the fixed HTML overlay and patches the hovered feature index; unhover clears the list (`app/callbacks/wine.py:49-107,740-756`). This is transient desktop preview, not durable selection.
+
+The current API event is unequivocally `wine-map-graph.clickData`. `update_wine_info(...)` passes it directly to `build_wine_info_response(...)`, which resolves the stable `location` feature ID, checks the appellation cache, then consumes the per-session request count and calls `gpt-4.1-mini` for an uncached valid AOC (`app/callbacks/wine.py:33-46,484-575,769-783`). Restaurant clicks and malformed payloads fail closed, but an AOC click is both selection-like input and submission; there is no confirmation boundary.
+
+Camera ownership is separate and should remain so. Dropdown values drive a geography-specific `uirevision`, then zoom, then centre patch. `map-view-store` accepts manual `map.zoom`/`map.center` only for the currently owned region/appellation (`app/callbacks/wine.py:170-315,623-645,708-738`). Outline visibility, restaurant visibility, and hover each own separate figure fields through `Patch`; a new selection path must not add another writer to those same fields without consolidation.
+
+### Proposed state machine at no more than 1250 px
+
+| State | Visible result | Allowed events |
+| --- | --- | --- |
+| `none` | No persistent AOC highlight. Selection panel is empty/hidden and no request action is enabled. | Tap a valid AOC or choose an appellation to enter `selected`. Region change, appellation clear, or route unmount remains `none`. |
+| `selected(feature_id)` | Exactly one AOC is persistently highlighted. A visible panel names its appellation and region and exposes an explicit “Get appellation details” action. No API request has occurred. | Tap another AOC or choose another appellation to replace selection; clear/change region to reset; press the explicit action to enter `requesting`. Pan/zoom changes camera only. |
+| `requesting(feature_id, request_id)` | Selection remains highlighted; action is disabled and loading is visible. | Completion for the same feature/request enters `ready` or `error`. A later selection may replace the visible selection, but the old response must not render against it. |
+| `ready(feature_id)` | Generated information is displayed and visibly labelled with the submitted appellation. | Tap/select another appellation to return to `selected`; resubmit only through the action. |
+| `error(feature_id)` | A scoped error appears for that selected appellation and the explicit action can retry. | Change selection or retry. |
+
+The critical invariant is: map `clickData` never invokes the API in smaller-screen mode. It may only update validated selection state. A pan, pinch, or tap that does not resolve an AOC therefore cannot consume a request.
+
+### Selection, hover, dropdown, and reset ownership
+
+Add one page-level memory Store, conceptually `wine-selected-appellation-store`, containing at least the stable `feature_id`. It must be distinct from `map-view-store`, because selection and camera have different reset/persistence rules. One selection reducer callback should own it:
+
+- at no more than 1250 px, a valid AOC map tap selects that feature without requesting information;
+- at no more than 1250 px, `wine-appellation-search.value` selects the same feature and retains its existing camera navigation;
+- clearing the appellation, changing `wine-region-selector`, or leaving `/wine` clears selection and any pending selection panel;
+- page-level placement means route unmount naturally discards state;
+- restaurant clicks and malformed/stale AOC IDs leave selection unchanged or fail closed according to a tested contract.
+
+The region dropdown currently scopes appellation options and camera navigation; it does not filter polygons out of the figure. The selection panel must therefore always show the selected feature's actual region. The first prototype should not force a map tap back into `wine-appellation-search.value`, because doing so would also trigger the existing canonical camera jump. Map-tap selection and dropdown navigation can share the selected Store while retaining those distinct camera effects. If product testing finds that divergence confusing, synchronising the dropdown is a later explicit decision, not an incidental callback side effect.
+
+Persistent and hover styling must have one figure-field authority. Refactor the existing highlight patch so it reads both hover data and selected Store state and remains the only callback writing AOC `selectedpoints`:
+
+- at no more than 1250 px, ignore hover for styling and patch the persistent selected feature index;
+- on desktop, preserve the current behaviour exactly: validated hover supplies the temporary feature index and unhover clears it; desktop map click does not populate the smaller-screen selection Store;
+- the fixed desktop hover overlay remains hover-owned and can stay hidden/unused on smaller screens;
+- region/appellation reset patches `selectedpoints=[]` through the same authority.
+
+This uses supported Dash Stores, Plotly `clickData`/`hoverData`, and `Patch`. No DOM-level JavaScript is justified by the static inspection.
+
+### Explicit submission and stale-request protection
+
+The selection panel should sit immediately below or adjacent to the map in the stacked Wine layout, before the generated-information area. It identifies the current appellation/region and contains the only smaller-screen submission action. The LLM callback should take that button's `n_clicks` as its request Input and the selected Store as State. The existing `build_wine_info_response` logic can be narrowed to accept a validated feature ID/feature rather than pretending submission still originated from map `clickData`.
+
+Submission should retain the current cache-before-request-limit order. The action should be disabled while its callback is running using supported Dash callback `running` output if retained by the installed Dash version. API results should be stored/rendered with the submitted `feature_id` (and, if necessary, a monotonically increasing request token); the rendering callback displays a result only when that ID still matches current selection. This prevents a slow response for A from being presented after the user selects B. Disabling during the request plus the existing cache handles ordinary duplicate taps; true cross-worker in-flight deduplication would require a shared backend or lock and is not provided by the current process-local `SimpleCache`, so it must not be claimed by client tests.
+
+Changing region or clearing selection should immediately hide the selection panel's action/result association. A result arriving later may remain cacheable but must fail the selected-ID render check. No request should be made when the selected ID is absent, stale, outside the lookup, or produced by a restaurant trace.
+
+For the first smaller-screen implementation, desktop remains unchanged at 1251 px and wider: hover overlay/highlight and direct AOC click-to-request continue. The submission callback can distinguish the responsive Store and triggering input so desktop `clickData` follows the existing path while smaller-screen `clickData` is selection-only. Sharing the explicit-action model across desktop would be cleaner long term and reduce accidental API calls, but it is a product change beyond the minimum touchscreen stage and should be decided after the two-step model is validated.
+
+### Layout, gestures, risks, prototype, and validation
+
+Wine remains a stacked map-then-information composition below 1050 px (`assets/styles.css:2738-2762`). The map does not need the Guide's browsing-scale full-bleed contract by default: its primary smaller-screen task is selecting a large polygon, then acting in the adjacent selection panel. Keep the map within the Wine sheet for the prototype, retain the hidden modebar, and place the persistent selection panel directly after the map so it stays visible in reading order. Reassess the fixed 500/620 px heights only after the selection flow is usable.
+
+Pan and pinch remain navigation gestures. They may update `map-view-store`, but must not select, submit, clear the panel, or overwrite selected styling. A tap after a small pan is the key real-device ambiguity; even if Plotly emits `clickData`, the two-step contract limits the consequence to selection rather than an API call.
+
+Likely regressions are competing `selectedpoints` patches, hover clearing a persistent selection, changing fixed trace indices, full initial figures overwriting later patches, selector navigation and map selection disagreeing, region changes leaving stale dropdown/selection values, slow responses rendering under a newer selection, and rapid action taps issuing duplicate uncached requests. Camera regressions remain possible because selection/dropdown changes and manual relayout are separate authorities.
+
+The minimal Wine prototype should include only: the page Store, map-tap/appellation-dropdown selection reducer, persistent `selectedpoints` patch, compact selection panel, and explicit action replacing map-click submission at no more than 1250 px. Keep restaurant/outline patches, prompt/rendering, camera ownership, and desktop direct-click behaviour otherwise unchanged. Tests should prove that selection alone never calls OpenAI before visual polish is added.
+
+Real-device acceptance criteria:
+
+- first tap selects/highlights exactly one AOC and shows its correct name/region without an API request;
+- tapping another AOC replaces selection and still makes no request;
+- only the explicit action produces one request, becomes disabled while pending, and preserves cache-before-limit behaviour;
+- pan, pinch, small pan-then-lift, restaurant-marker taps, and empty-map taps never submit;
+- selection survives pan/zoom/orientation, while region change, appellation clear, and route navigation reset it;
+- a stale response cannot appear beneath a newer selection, and rapid double taps do not produce duplicate ordinary requests;
+- desktop hover, unhover, click-to-request, camera patches, outline toggles, and restaurant trace indices remain unchanged.
+
 ## Shared touchscreen findings
 
 ### Touch targets and spacing
@@ -248,7 +385,7 @@ Consequences and gaps:
 
 - The same token values are redefined at 1366, 1250, 1200, 1024, 900, and 600 px. Final behaviour depends on source order and page-specific specificity.
 - The 1250 px legacy block still applies page padding and older Guide layout rules; later Guide rules deliberately supersede it. Removing or consolidating either block without full-page checks would be risky (`assets/styles.css:2841-3094,3653-3834`).
-- Phone layout relies on large page-specific top margins such as `clamp(148px, calc(268px - 20vw), 190px)` for Analysis, Economics, and Wine. In rendered phone checks content began around 190–214 px below the viewport top despite a 70 px header (`assets/styles.css:2764-2768,3349-3354,3522-3531`).
+- Analysis and Economics still use large phone top-margin clamps. Wine now aligns its sheet with the 70 px small-screen header, so map work should not reintroduce a second vertical offset there (`assets/styles.css:2764-2768,3355-3360,3528-3537`).
 - There are no active `pointer: coarse` or `hover: none` queries. This is now intentional for dropdown searchability, whose policy is viewport-based; safe-area, dynamic-viewport, and reduced-motion gaps remain separate concerns.
 - The fixed header does not use safe-area insets, and fixed-height/`100vh` rules do not use dynamic viewport units. iOS browser chrome, notches, and landscape safe areas remain untested (`assets/styles.css:54-73,314-343`).
 - No general rule raises controls, options, chip removers, map controls, or links to touch-sized targets.
@@ -281,40 +418,38 @@ Current automated coverage is strong for data and state contracts but does not p
 
 Remaining realistic additions:
 
-1. A browser integration test at 1250 and 1251 px that reads Store data and rendered combobox editability, then resizes across the boundary and verifies selected values.
-2. Callback tests for cleared multi-select values, rapid toggle sequences, and preservation/reset of each page's viewport contract.
-3. A rendered browser smoke suite at 320, 390, 820, 1024, 1250, and 1251 px checking `scrollWidth <= clientWidth`, no bounding-box overlap, expected stacking, and selected values before/after `searchable` changes. The repository has no browser-test dependency today, so this should be introduced only if its maintenance cost is accepted.
-4. Manual iOS Safari and Android Chrome passes for software-keyboard invocation, orientation changes, gesture, tap/hover, and MapLibre camera behaviour. Python component tests cannot prove the software keyboard stays closed.
+1. Guide helper/callback tests for valid restaurant selection, invalid outline clicks, rating/geography reset, full-figure reselection, and strict separation between selected-restaurant and camera Stores.
+2. Wine helper/callback tests for `none → selected → requesting → ready/error`, region/appellation resets, one `selectedpoints` writer, zero request calls from map selection, explicit-action submission, stale-result rejection, and ordinary duplicate-action suppression.
+3. A rendered browser smoke suite at 320, 390, 820, 1024, 1250, and 1251 px checking Guide full-bleed width/height/overflow, details order, responsive config, Wine selection-panel order, and state survival across resize. The repository has no browser-test dependency today, so this should be introduced only if its maintenance cost is accepted.
+4. Manual iOS Safari and Android Chrome passes for pan/page-scroll arbitration, pinch/double-tap, tap-after-pan payloads, marker/polygon selection, orientation/browser chrome, camera persistence, and Wine request counts. Python figure tests cannot prove these renderer behaviours.
 
 ## Practical device and viewport matrix
 
 Keep the routine matrix small; use physical devices where available and browser device emulation only as a supplement.
 
-| Priority | Browser/device class | Viewport or representative device | Orientation/input | Responsive-dropdown checks |
+| Priority | Browser/device class | Viewport or representative device | Orientation/input | Guide and Wine map checks |
 | --- | --- | --- | --- | --- |
-| Core | Desktop Chrome or Safari | about 1440×900 | Mouse and physical keyboard | All dropdowns are searchable; typed Wine search filters; Tab/Enter work; Guide location remains editable. |
-| Core | Narrow desktop browser | 390×844 window | Mouse and physical keyboard | All dropdowns are selection-only because width controls the policy; Guide location remains editable. |
-| Core | iOS Safari, modern iPhone | about 390×844 | Portrait touch | Every dropdown opens without software keyboard; Guide location is the only text-entry control; Wine lists selectable appellations. |
-| Core | Android Chrome, standard phone | about 360×800 | Portrait touch | Same keyboard distinction, plus menu placement, back-button dismissal, and selected-value preservation. |
-| Edge | iOS Safari or smallest supported phone | 320×568 | Portrait touch | Keyboard distinction plus header clipping, chip growth, narrow Wine map, and minimum-width decision. |
-| Core | iOS Safari, iPad class | about 820×1180 and 1024×768 | Portrait then landscape touch | Both orientations stay selection-only; retain values and verify Wine options and layout transitions. |
-| Core where feasible | iPad/Android tablet or convertible | representative tablet ≤1250 px | Attached keyboard and/or trackpad/mouse | Dropdowns remain selection-only under the viewport rule; keyboard/mouse use must not clear values or double-fire callbacks. |
-| Boundary | Desktop Chrome or Safari | 1250 px then 1251 px | Mouse and physical keyboard | Resize both directions; searchability changes, selected single/multi values persist, dependent options remain populated, and desktop typing returns at 1251 px. |
-| Boundary | Tablet/browser orientation crossing 1250 px, if available | representative portrait/landscape widths | Orientation change | Store refreshes, open dropdown transition is usable, and selected values survive. |
-| Secondary | Android Chrome, tablet class | about 800×1280 and 1280×800 | Portrait and landscape touch | At 800/1280 the policy changes across orientation; verify keyboard suppression below and search above the boundary. |
+| Core | Desktop Chrome or Safari | about 1440×900 | Mouse and physical keyboard | Guide fixed layout, modebar, wheel zoom, hover, click-to-details, and Wine hover/direct click-to-request remain unchanged. |
+| Core | Narrow desktop browser | 390×844 window | Mouse and physical keyboard | Exercise the same ≤1250 px map contract without pretending mouse input makes it desktop layout: full-bleed Guide, page scroll, selection persistence, and Wine explicit action. |
+| Core | iOS Safari, modern iPhone | about 390×844 | Portrait touch | Guide full-bleed height, pan/pinch/page scroll, marker selection/details; Wine select-highlight-action flow and zero gesture-triggered requests. |
+| Core | Android Chrome, standard phone | about 360×800 | Portrait touch | Same map contracts, with particular attention to tap-after-pan payloads, browser back gestures, and dynamic browser chrome. |
+| Edge | iOS Safari or smallest supported phone | 320×568 | Portrait and landscape touch | Guide full-bleed overflow/attribution and short-height rule; Wine panel visibility and ability to reach the explicit action without obscuring the map. |
+| Core | iOS Safari, iPad class | about 820×1180 and 1024×768 | Portrait then landscape touch | Guide useful map area and camera survival; Wine stacked layout, polygon selection, explicit request, and orientation persistence. |
+| Core where feasible | iPad/Android tablet or convertible | representative tablet ≤1250 px | Touch plus attached keyboard/trackpad | Page/wheel/pan arbitration follows the smaller-screen contract and does not clear selection or double-submit. |
+| Boundary | Desktop Chrome or Safari | 1250 px then 1251 px | Mouse and physical keyboard | Resize both directions: Guide bleed/height/modebar/config transition without camera or selection loss; Wine smaller-screen action versus desktop direct-click path remains unambiguous. |
+| Boundary | Tablet/browser orientation crossing 1250 px, if available | representative portrait/landscape widths | Orientation change | Responsive Store refreshes without stale patches, duplicate API events, lost selection, or camera ownership changes. |
+| Secondary | Android Chrome, tablet class | about 800×1280 and 1280×800 | Portrait and landscape touch | At 800/1280 the responsive policy changes across orientation; verify both map state machines and Wine request gating on each side. |
 
-For every responsive-dropdown check, select at least one single value and one multi-select set before resizing or changing orientation, then verify values, dependent options, Wine appellation options, maps, and ranking/economics callbacks remain correct. Also cross the boundary with a menu open. For routine changes, test desktop mouse/keyboard, one phone in each engine, and one tablet mode relevant to the change.
+For each map-state check, establish a manual camera and a persistent selection before resizing or rotating. Verify the camera, selection, details/panel, and request count afterward. Test at least one dense Guide department, one sparse department, Wine AOC versus restaurant clicks, and the Wine action while uncached and cached. Browser emulation is useful for layout but cannot replace physical-device gesture or software-keyboard evidence.
 
 ## Priorities
 
-1. **Economics multi-select overlap on phones.** The 150 px wrapper cap overlaps the following controls while the selected chips grow beyond it.
-2. **Touch target sizes across the shared shell and controls.** Hamburger, footer link, selectors, buttons, rating controls, clear/chip targets, Guide modebar buttons, and map markers are too small for comfortable touch.
-3. **Validate the implemented responsive dropdown policy on real devices.** All 14 dropdowns are selection-only at ≤1250 px and searchable at ≥1251 px; unit tests do not prove software-keyboard suppression, open-menu transitions, or value survival in the browser.
-4. **Touch-equivalent information for hover paths.** Wine AOC preview, restaurant hover text, chart values, and the Guide search explanation need durable tap/focus alternatives where the information matters.
-5. **Phone header clipping and mobile vertical rhythm.** The 320 px title clips; large top gaps and fixed map heights make short viewports inefficient.
-6. **Map gesture and viewport validation.** Guide/Wine persistence is well guarded in code, but touch pan, pinch, double-tap, page scroll, and Wine patch camera order remain browser-dependent.
-7. **Analysis chip density and long phone flow.** No horizontal overflow was observed, but the default multi-select and 450 px graph pairs create a very long interaction path.
-8. **404 and shared navigation edge behaviour.** Short-height layout, menu dismissal, route scroll, and safe-area behaviour are currently unverified.
+1. **Guide map usable space and gesture evidence.** Prototype a full-bleed, `svh`-backed map without changing interaction callbacks, then test page scroll, pan, pinch, orientation, browser chrome, and camera persistence on real devices.
+2. **Wine two-step selection before submission.** Separate AOC selection from the paid/request-limited API event, add persistent selection and an explicit action, and prove that map gestures cannot submit.
+3. **Guide persistent restaurant selection.** Give the selected marker and its immediately following details one Store-backed state contract that survives camera changes and resets predictably on geography/rating changes.
+4. **Smaller-screen graph configuration.** Hide the Guide modebar and prefer page scrolling over wheel zoom at no more than 1250 px only after the larger map prototype is tested; leave Wine's hidden modebar unchanged.
+5. **Rendered camera and patch validation.** Validate Guide and Wine bounds, first view, resize/orientation behaviour, and Wine patch ownership at phone/tablet aspect ratios.
+6. **Previously identified non-map cleanup.** Economics overlap, shared target sizing, header/footer/navigation, and other generic touchscreen work follow these map stages rather than leading them.
 
 
 ## Proposed small implementation stages
@@ -325,58 +460,61 @@ The root `responsive-input-mode-store`, 1250 px viewport listener, safe `searcha
 
 Validation completed in source/unit tests: Store/default presence, callback output coverage, stable dropdown contracts, Guide text input, Wine no-query and typed-query paths, focused layout/callback suites, and the full Python suite. A local desktop Chromium check also confirmed rendered searchability on both sides of 1250 px and Wine's selectable no-query menu. Still required: broader desktop interaction, iOS Safari, and Android Chrome checks at representative widths, orientation changes, an open menu during transition, and selected-value preservation. Software-keyboard suppression must be confirmed on physical devices.
 
-### Stage 2: shared touch targets and semantics
+### Stage 2: Guide full-bleed map prototype
 
-Increase hamburger, navigation, footer, action, rating, selector, option, clear, and chip-remove hit areas. Convert or augment the hamburger as a semantic button and give rating controls accessible names/pressed state. Preserve IDs and callback contracts.
+Change only Guide smaller-screen CSS: selectors/prose/details keep their gutters, while the map breaks out to viewport width and uses one `svh`-backed height rule with a fallback. Do not change marker callbacks, modebar config, camera state, or desktop in this stage.
 
-Validation: layout tests for semantics and IDs; 320/390/820/1024 rendered measurements; keyboard/switch-control spot checks; navigation callback tests.
+Validation: rendered width/overflow checks at 320, 390, 768, 820, 1024, and 1250/1251 px; iOS Safari and Android Chrome pan/pinch/page-scroll passes; portrait/landscape and browser-chrome changes; Guide map view persistence tests remain green.
 
-### Stage 3: page layout defects
+### Stage 3: Wine two-step selection prototype
 
-Fix the Economics selector overlap first. Then handle 320 px header clipping and review page-specific top spacing and map heights without applying one global map rule.
+Add the page-level selected-appellation Store, selection reducer, single `selectedpoints` authority, compact selection panel, and explicit submission action at no more than 1250 px. Preserve desktop click-to-request for this prototype. Keep camera, outline, restaurant-overlay, prompt, cache, and trace-index contracts separate.
 
-Validation: bounding-box overlap checks and screenshots at the four audit widths; all routes; portrait and landscape browser checks; full Python suite because shared CSS affects every page.
+Validation: pure helper and callback-map tests for map/dropdown selection and resets; zero OpenAI calls from selection/gesture payloads; one call from explicit action; stale-result ID checks; cache/request-limit tests; fixed trace/layer tests; iOS/Android tap-versus-pan checks.
 
-### Stage 4: durable touch information paths
+### Stage 4: Guide persistent restaurant state and responsive config
 
-Define which hover information must also be available by tap or persistent content. Start with Wine AOC preview and restaurant marker behaviour, then chart/map values and the Guide search explanation. Keep Wine click-to-generate safeguards and request limits intact.
+Add one selected-restaurant Store, persistent marker styling, and details rendering from that Store. Then use the existing responsive mode to hide the Guide modebar and disable wheel zoom at no more than 1250 px. Keep the geography-owned view Store as the only camera state.
 
-Validation: callback/figure tests for payload routing; accidental restaurant/AOC tap checks; cached and uncached Wine flows; iOS/Android tap-versus-pan testing.
+Validation: marker-index resolution, full-figure rebuild/reselection, filter/geography reset, camera persistence, invalid outline clicks, dense-marker device tests, and desktop modebar/wheel regression checks.
 
-### Stage 5: map gesture and camera hardening
+### Stage 5: map gesture and camera hardening from device evidence
 
-Only after real-device testing, adjust Plotly or MapLibre configuration and introduce narrowly scoped client-side JavaScript where supported component APIs cannot resolve a reproduced gesture, viewport, focus, or keyboard defect.
+Adjust only reproduced defects in page scroll, pan/pinch, double-tap, orientation resize, bounds, or first-visible Wine camera order. Prefer public Plotly/Dash configuration and existing Store/`Patch` paths. DOM-level JavaScript remains unjustified unless supported events/configuration prove insufficient.
 
-## Regression risks
+### Stage 6: non-map touchscreen backlog
 
-- Raising shared control heights can alter multi-select wrapping, Wine's narrowly fitting 1024 px control row, Guide's fixed desktop composition, and page length.
-- Changing `searchable` at runtime can alter React Select focus, typing, menu opening, and selected/search values. Wine is additionally sensitive because `search_value` drives its option callback, although the no-query branch intentionally supplies all available records.
-- A root responsive Store can accidentally drive outputs on pages that are not mounted unless callbacks retain their page-local presence inputs.
-- Resize/orientation listeners can duplicate across route changes or leave stale width state if their cleanup/ownership changes.
-- A conservative non-searchable initial state can cause a brief desktop hydration delay; a searchable initial state can violate the first-touch requirement. This tradeoff must be measured.
-- `window.dash_clientside.set_props` and runtime `searchable` updates should be revalidated when Dash is upgraded.
-- Enlarging marker hit areas can increase overlap and change which point/polygon wins a tap, especially Wine AOCs versus restaurant traces.
-- Changing map config can break page scrolling, wheel behaviour, relayout payloads, or Guide/Economics/Wine viewport persistence.
-- Reworking responsive rules can accidentally expose legacy 1250 px declarations or disturb `:has(...)`-scoped sheet/gutter rules.
-- Changing click-count toggles to boolean state would be a callback-contract change, not a CSS refinement.
-- Wine figure changes risk conflicting full-figure and patch authorities, fixed trace indices, outline layer index 0, or API-triggering click resolution.
-- Mobile header changes can affect all routes, smooth-scroll targets, and desktop fixed-height Guide behaviour.
+Return to Economics overlap, shared control targets and semantics, header/navigation, and other page-specific findings after the two principal map surfaces have coherent behaviour.
+
+## Cross-map regression risks
+
+- Full-bleed Guide CSS can introduce horizontal overflow, interfere with safe areas/scrollbars, or accidentally escape the 1250 px scope and alter the fixed desktop composition.
+- `svh`/`dvh` choices can make maps jump with browser chrome, dominate short landscape screens, or change MapLibre's bounds-derived minimum zoom.
+- Graph config changes can remount or reset figures, alter wheel/page scrolling, or cause relayout payloads that overwrite geography-owned camera state.
+- Persistent Guide selection can point at a trace/index removed by rating or geography changes unless selection is validated and reset before reapplying styling.
+- Enlarged or overlaid marker styling can change which dense marker wins a tap; point size should follow observed selection failures rather than a global target rule.
+- Wine `selectedpoints` cannot remain independently owned by hover and persistent selection. Two patch callbacks writing it would race or clear each other.
+- Wine full-figure initialisation can supersede selection, outline, restaurant, or hover patches; each field still needs one explicit authority and tests.
+- Changing Wine trace construction can invalidate `WINE_AOC_TRACE_INDEX == 0`, restaurant indices 1–3, outline layer 0, click validation, and existing tests.
+- Region/appellation navigation, map selection, and manual camera storage can disagree if selected feature state is folded into `map-view-store` or dropdown values implicitly.
+- Slow or duplicate Wine requests can consume session limits or show content for the wrong selection unless action running state and feature-keyed result rendering are enforced.
+- Responsive callbacks must stay page-scoped so root Store changes do not target absent Guide/Wine components.
 
 ## Open questions requiring real browsers or devices
 
-- Do all 14 dropdowns avoid the software keyboard at ≤1250 px on iOS Safari and Android Chrome while Guide `city-input-mainpage` still invokes it normally?
-- At ≥1251 px, do all dropdowns regain mouse/physical-keyboard search, including Wine typed filtering?
-- Does changing the public `searchable` property preserve single/multi values, dependent options, menu state, focus, and callbacks in the Dash 2.18 React Select implementation, including when a menu is open during the transition?
-- Do resize and orientation events cross the policy boundary reliably in iOS Safari and Android Chrome, including visual-viewport/browser-chrome changes?
-- On a tablet with an attached keyboard or pointing device, is the intentionally selection-only ≤1250 px experience still practical?
-- Does the conservative initial state produce a visible or usable delay before desktop search is enabled?
-- Does the Guide location input resize, pan, or obscure the interface on iOS Safari and Android Chrome, and does closing its keyboard restore the prior scroll position?
-- Can users reliably scroll the page when a one-finger gesture begins over each MapLibre map, or does the map trap the gesture? Is two-finger page scrolling discoverable?
-- How do Plotly/MapLibre distinguish tap, pan, pinch, and double-tap on each page? Does a tap after a small pan emit unwanted `clickData`?
-- Is Wine `hoverData` emitted on tap, long press, or not at all, and does the fixed overlay persist or conflict with the AOC information click?
-- Are 8–11 px restaurant markers tappable at realistic zooms in dense areas, and which trace wins where a marker overlaps an AOC polygon?
+- Does a full-bleed Guide map need safe-area inset padding for attribution or controls in iOS landscape, or is edge-to-edge content safe on the supported devices?
+- Which `svh` height range gives useful Guide browsing space without making short landscape page navigation awkward, and does `dvh` produce visible resize jumps?
+- Does one-finger interaction beginning over the Guide map consistently pan rather than scroll, while gestures immediately outside it scroll the document?
+- Does MapLibre emit Guide restaurant `clickData` after a small pan, and are 9–11 px markers practically selectable in Paris and other dense departments?
+- Can Guide selected-marker styling survive complete figure updates without changing trace ordering or losing the stored manual camera?
+- Does hiding the Guide modebar and disabling smaller-screen wheel zoom improve touch/narrow-window behaviour, or is an explicit reset action needed?
+- On Wine, what `hoverData`/`clickData` sequence is emitted for tap, long press, small pan, and pinch on iOS Safari and Android Chrome?
+- Does the single Wine `selectedpoints` authority reliably restore persistent selection after desktop unhover and after full initial figure creation?
+- Should map-tap selection remain independent of the appellation dropdown/canonical camera, or do users expect the dropdown value and camera to synchronise immediately?
+- Can Dash callback `running` state suppress practical duplicate action taps across the supported deployment, and is a stronger shared in-flight lock required for multi-worker production?
 - Does the Wine zoom-then-centre patch show the requested first view at phone/tablet canvas sizes, particularly at the bounds-derived minimum zoom?
-- Do Guide and Wine manual views persist after pinch gestures exactly as they do after desktop pan/wheel input?
-- How do iOS safe areas, dynamic browser chrome, text zoom, and landscape keyboards affect the fixed header, 100vh areas, and short-height pages?
-- Does the navigation menu dismiss naturally after route changes, back navigation, outside taps, and orientation changes?
-- What is the project's minimum supported phone width? The current layout avoids horizontal overflow at 320 px but clips the title and is severely compressed.
+- Do Guide and Wine manual views persist after pinch and orientation changes exactly as they do after desktop pan/wheel input?
+
+## Recommended first implementation stage
+
+Implement **Stage 2: Guide full-bleed map prototype** first. It is a small, Guide-only CSS change with no callback, API, trace, or state migration. It will establish the real-device evidence needed for height and gesture decisions before the more consequential Guide selection/config work. The Wine two-step prototype should follow as its own review because it changes API-trigger ownership and needs dedicated callback, stale-result, cache, and request-limit coverage. The two implementations do not currently share code beyond the already implemented responsive-mode Store, so combining them would make review and regression diagnosis harder.
