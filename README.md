@@ -69,6 +69,17 @@ python -m pytest
 
 The tests do not send OpenAI requests, but application import still requires `OPENAI_API_KEY` to be configured.
 
+For remote LAN binding to test changes on smaller devices locally set:
+
+```python
+if __name__ == '__main__':
+    app.run_server(
+        debug=CONFIG.debug,
+        host="0.0.0.0",
+        port=8050,
+    )
+```
+
 ## Deployment
 
 The production process declared in `Procfile` is:
