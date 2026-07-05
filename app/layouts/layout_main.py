@@ -265,6 +265,7 @@ def get_main_content_with_city_match(unique_regions):
                     options=[{'label': region, 'value': region} for region in unique_regions],
                     value=unique_regions[0],
                     className='dropdown-style editorial-select guide-select',
+                    searchable=False,
                     clearable=False
                 )
             ], className='dropdown-block editorial-control-group guide-control-group'),
@@ -276,7 +277,8 @@ def get_main_content_with_city_match(unique_regions):
                 ),
                 dcc.Dropdown(
                     id='department-dropdown',
-                    className='dropdown-style editorial-select guide-select'
+                    className='dropdown-style editorial-select guide-select',
+                    searchable=False,
                 )
             ], className='dropdown-block editorial-control-group guide-control-group'),
 
@@ -294,6 +296,7 @@ def get_main_content_with_city_match(unique_regions):
                     dcc.Dropdown(
                         id='arrondissement-dropdown',
                         className='dropdown-style editorial-select guide-select',
+                        searchable=False,
                         clearable=False
                     )
                 ],

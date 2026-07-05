@@ -212,10 +212,10 @@ def test_wine_layout_contains_expected_component_ids():
     wine_map = find_component_by_id(layout, "wine-map-graph")
     hover_overlay = find_component_by_id(layout, "wine-map-hover-overlay")
 
-    assert getattr(region_selector, "searchable", False) is True
+    assert region_selector.searchable is False
     assert getattr(region_selector, "clearable", False) is True
     assert region_selector.placeholder == "Select region..."
-    assert getattr(appellation_search, "searchable", False) is True
+    assert appellation_search.searchable is False
     assert getattr(appellation_search, "clearable", False) is True
     assert appellation_search.placeholder == "Search by appellation..."
     assert outline_toggle.children == "Regional outlines"

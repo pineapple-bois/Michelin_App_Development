@@ -119,6 +119,28 @@ def test_wine_region_filter_scopes_appellation_records(data_boundary):
     assert wine_records_for_region(records, None) == records
 
 
+def test_wine_appellation_options_remain_complete_without_typed_search(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+    bordeaux_records = wine_records_for_region(records, "Bordeaux")
+
+    options = wine_search_options(bordeaux_records, search_value=None)
+
+    assert options
+    assert len(options) == len(bordeaux_records)
+    assert [option["value"] for option in options] == [
+        record.feature_id for record in bordeaux_records
+    ]
+
+
+def test_wine_appellation_options_still_filter_typed_desktop_search(data_boundary):
+    records = build_wine_search_index(data_boundary.wine_df)
+
+    options = wine_search_options(records, search_value="saint emilion")
+
+    assert options
+    assert options[0]["label"] == "Saint-Emilion"
+
+
 def test_wine_polygon_bounds_produce_valid_center_and_zoom():
     view = map_view_from_bounds(_polygon(2.0, 43.0, 2.2, 43.2).bounds)
 

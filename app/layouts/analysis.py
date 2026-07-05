@@ -72,6 +72,7 @@ def get_regions_section():
                                 value=unique_regions,  # All regions selected by default
                                 className='dropdown-region-analysis editorial-select editorial-chip-select',
                                 multi=True,  # Multi-select enabled
+                                searchable=False,
                                 clearable=True
                             ),
                         ],
@@ -158,6 +159,7 @@ def get_departments_section():
                                 options=[{'label': region, 'value': region} for region in unique_regions],
                                 className='dropdown-department-analysis editorial-select',
                                 multi=False,  # Single selection enabled
+                                searchable=False,
                                 clearable=True
                             ),
                         ],
@@ -247,6 +249,7 @@ def get_arrondissements_section():
                                 options=[],  # Will be populated dynamically
                                 className='dropdown-arrondissement-analysis editorial-select',
                                 multi=False,  # Single selection enabled
+                                searchable=False,
                                 clearable=True
                             ),
                         ],
@@ -364,6 +367,7 @@ def get_top_ranking_section():
                                 ],
                                 className='dropdown-granularity editorial-select',  # Class for styling
                                 multi=False,  # Single selection
+                                searchable=False,
                                 clearable=True
                             )
                         ],
@@ -383,6 +387,7 @@ def get_top_ranking_section():
                                 value=3,  # Default to Top 3
                                 className='dropdown-ranking editorial-select',  # Class for styling
                                 multi=False,  # Single selection
+                                searchable=False,
                                 clearable=False
                             )
                         ],
@@ -402,6 +407,7 @@ def get_top_ranking_section():
                                 value=2,  # Default selection
                                 className='dropdown-star-ranking editorial-select',
                                 multi=False,  # Single selection
+                                searchable=False,
                                 clearable=False
                             )
                         ]

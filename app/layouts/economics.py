@@ -57,6 +57,7 @@ def get_demographics_content():
                                 ],
                                 className='dropdown-category-demographics-selector editorial-select',
                                 multi=False,
+                                searchable=False,
                                 clearable=True
                             )
                         ],
@@ -73,6 +74,7 @@ def get_demographics_content():
                                 value='All France',  # Default selection
                                 className='dropdown-granularity-demographics editorial-select',
                                 multi=False,
+                                searchable=False,
                                 clearable=False
                             )
                         ],
@@ -92,6 +94,7 @@ def get_demographics_content():
                                         value=unique_regions,  # All regions selected by default
                                         className='dropdown-category-demographics editorial-select editorial-chip-select',
                                         multi=True,  # Multi-select enabled
+                                        searchable=False,
                                         clearable=True,
                                     ),
                                 ]

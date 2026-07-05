@@ -56,7 +56,7 @@ def get_wine_content():
                                         options=[],
                                         value=None,
                                         className='dropdown-region-wine editorial-select',
-                                        searchable=True,
+                                        searchable=False,
                                         clearable=True,
                                         placeholder="Select region...",
                                     )
@@ -71,7 +71,7 @@ def get_wine_content():
                                         options=[],
                                         value=None,
                                         className='dropdown-appellation-wine editorial-select',
-                                        searchable=True,
+                                        searchable=False,
                                         clearable=True,
                                         placeholder="Search by appellation...",
                                     )

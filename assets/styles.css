@@ -2763,7 +2763,7 @@ body {
 
 @media screen and (max-width: 600px) {
     .analysis-container:has(#wine-content-top) {
-        margin-top: clamp(148px, calc(268px - 20vw), 190px);
+        margin-top: 70px;
         padding: 24px var(--analysis-sheet-padding);
     }
 
@@ -3090,6 +3090,12 @@ body {
 
     .wine-text-paragraph {
         font-size: 15px;
+    }
+}
+
+@media screen and (max-width: 1050px) {
+    .wine-container {
+        padding-right: 0;
     }
 }
 
@@ -3703,6 +3709,10 @@ body {
         overflow: visible;
         position: relative;
         z-index: 2;
+    }
+
+    .guide-page-sheet .dropdown-block:has(.guide-select.is-open) {
+        z-index: 1001;
     }
 
     .guide-page-sheet .guide-control-group,

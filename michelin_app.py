@@ -13,6 +13,11 @@ from app.callbacks.analysis import register_analysis_callbacks
 from app.callbacks.economics import register_economics_callbacks
 from app.callbacks.guide import register_guide_callbacks
 from app.callbacks.navigation import register_navigation_callbacks
+from app.callbacks.responsive import (
+    RESPONSIVE_INPUT_MODE_STORE_ID,
+    initial_responsive_input_mode,
+    register_responsive_input_callbacks,
+)
 from app.callbacks.wine import register_wine_callbacks
 
 
@@ -61,6 +66,10 @@ app.layout = html.Div([
     dcc.Store(id='department-centroid-store', data={}),
     dcc.Store(id='paris-arrondissement-centroid', data={}),
     dcc.Store(id='region-demographics-centroid', data={}),
+    dcc.Store(
+        id=RESPONSIVE_INPUT_MODE_STORE_ID,
+        data=initial_responsive_input_mode(),
+    ),
     dcc.Location(id='url', refresh=False),
     dash.page_container
 ])
@@ -69,6 +78,7 @@ app.layout = html.Div([
 cache = Cache(app.server, config=CONFIG.cache_config)
 
 register_navigation_callbacks(app)
+register_responsive_input_callbacks(app)
 register_guide_callbacks(app, DATA)
 register_analysis_callbacks(app, DATA)
 register_economics_callbacks(app, DATA)
