@@ -15,6 +15,7 @@ from app.utils.guide_figures import (
     plot_interactive_department,
     plot_paris_arrondissement,
     plot_regional_outlines,
+    region_geographic_view,
 )
 from app.utils.locationMatcher import LocationMatcher
 from app.utils.restaurant_cards import get_restaurant_details
@@ -600,7 +601,18 @@ def register_guide_callbacks(app, data):
         if selected_region:
             region_name = region_to_name.get(selected_region)
             if region_name:
-                return plot_regional_outlines(region_df, region_name)
+                region_view = region_geographic_view(region_df, region_name)
+                view_data = resolve_guide_view_data(
+                    triggered_ids,
+                    mapview_data,
+                    region_view,
+                    geography_key,
+                )
+                return plot_regional_outlines(
+                    region_df,
+                    region_name,
+                    view_data,
+                )
 
         # Default fallback case: Show entire country map if no specific input
         return default_map_figure()

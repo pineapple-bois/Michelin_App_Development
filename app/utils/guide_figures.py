@@ -1,3 +1,5 @@
+import math
+
 import plotly.graph_objects as go
 
 from app.components.shared import color_map
@@ -13,6 +15,27 @@ GUIDE_FRANCE_MAP_BOUNDS = METROPOLITAN_FRANCE_MAP_BOUNDS
 def apply_guide_map_bounds(fig):
     """Apply the Guide's declarative MapLibre viewport constraint."""
     return apply_metropolitan_france_bounds(fig)
+
+
+def region_geographic_view(region_df, region):
+    """Return a padded canonical Guide viewport for a region geometry."""
+    filtered_region = region_df[region_df['region'] == region]
+    if filtered_region.empty:
+        return {}
+
+    min_lon, min_lat, max_lon, max_lat = filtered_region.total_bounds
+    lon_span = max(float(max_lon - min_lon), 0.0001)
+    lat_span = max(float(max_lat - min_lat), 0.0001)
+    padded_span = max(lon_span, lat_span * 1.45) * 1.35
+    zoom = math.log2(360 / padded_span) - 1.1
+
+    return {
+        'zoom': round(min(max(zoom, 5.0), 6.0), 2),
+        'center': {
+            'lat': round(float((min_lat + max_lat) / 2), 6),
+            'lon': round(float((min_lon + max_lon) / 2), 6),
+        },
+    }
 
 
 # Hover-tip text
@@ -62,13 +85,14 @@ def plot_geometry_outline(fig, geometry, line_width=0.5):
                 showlegend=False
             ))
 
-def plot_regional_outlines(region_df, region):
+def plot_regional_outlines(region_df, region, zoom_data=None):
     """
     Plot the outlines of a selected region on a map.
 
     Args:
         region_df (GeoDataFrame): A GeoDataFrame containing geometries of regions with a 'region' column.
         region (str): The name of the region to plot.
+        zoom_data (dict, optional): Contains zoom and centre information.
 
     Returns:
         fig (plotly.graph_objs.Figure): A Plotly Figure object with the region outlines plotted.
@@ -85,6 +109,8 @@ def plot_regional_outlines(region_df, region):
         # Handle case when the region is not found
         raise ValueError(f"Region '{region}' not found in the provided GeoDataFrame.")
 
+    zoom_data = zoom_data or region_geographic_view(region_df, region)
+
     # Loop through the filtered GeoDataFrame
     for _, row in filtered_region.iterrows():
         specific_geometry = row['geometry']
@@ -93,9 +119,9 @@ def plot_regional_outlines(region_df, region):
     # Update map layout settings
     fig.update_layout(
         map_style="carto-positron",
-        map_zoom=5,  # Zoom level to show all of France
-        map_center_lat=46.603354,  # Approximate latitude for France center
-        map_center_lon=1.888334,  # Approximate longitude for France center
+        map_zoom=zoom_data['zoom'],
+        map_center_lat=zoom_data['center']['lat'],
+        map_center_lon=zoom_data['center']['lon'],
         margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
         showlegend=False
     )

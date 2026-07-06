@@ -1,3 +1,5 @@
+import pytest
+
 from app.utils.guide_figures import (
     GUIDE_FRANCE_MAP_BOUNDS,
     default_map_figure,
@@ -6,6 +8,7 @@ from app.utils.guide_figures import (
     plot_interactive_department,
     plot_paris_arrondissement,
     plot_regional_outlines,
+    region_geographic_view,
 )
 
 
@@ -20,6 +23,28 @@ def test_default_guide_map_has_native_france_bounds():
     assert fig.layout.map.center.lat == 46.603354
     assert fig.layout.map.center.lon == 1.888334
     assert fig.layout.map.zoom == 5
+
+
+@pytest.mark.parametrize(
+    ("region", "expected_center", "expected_zoom"),
+    [
+        ("Corse", {"lat": 42.186888, "lon": 9.055756}, 5.71),
+        ("Bretagne", {"lat": 48.075404, "lon": -3.060902}, 5.0),
+    ],
+)
+def test_guide_region_camera_uses_deployed_geometry(
+    data_boundary,
+    region,
+    expected_center,
+    expected_zoom,
+):
+    view = region_geographic_view(data_boundary.region_df, region)
+    fig = plot_regional_outlines(data_boundary.region_df, region)
+
+    assert view == {"center": expected_center, "zoom": expected_zoom}
+    assert fig.layout.map.center.to_plotly_json() == expected_center
+    assert fig.layout.map.zoom == expected_zoom
+    _assert_guide_bounds(fig)
 
 
 def test_all_guide_map_rebuild_paths_keep_native_bounds(data_boundary):

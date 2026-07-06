@@ -1,14 +1,15 @@
 """Shared declarative viewport constraints for interactive application maps."""
 
 
-# Padded metropolitan-France extent including Corsica and Monaco. MapLibre uses
-# this as maxBounds: users can still zoom in and pan, but cannot escape the
-# useful France-wide map area or zoom out beyond it.
+# Guide-only envelope padded for geometry-centred regional cameras, including
+# Corsica and edge regions on the widest stacked layout. MapLibre uses this as
+# maxBounds: users can still zoom in and pan, but cannot escape the useful
+# France-and-neighbours area or zoom out to world scale.
 METROPOLITAN_FRANCE_MAP_BOUNDS = {
-    "west": -6.0,
-    "east": 10.5,
-    "south": 40.5,
-    "north": 52.0,
+    "west": -17.0,
+    "east": 20.0,
+    "south": 37.0,
+    "north": 55.0,
 }
 
 # Plotly exposes no separate MapLibre minZoom layout property: the effective
