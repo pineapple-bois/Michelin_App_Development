@@ -203,9 +203,67 @@ The Guide map is the application's principal restaurant-browsing surface. `map-d
 
 Selection is currently persistent only in the details content. There is no selected-restaurant Store and no selected marker trace or `selectedpoints` styling. Panning or zooming does not itself clear details, but a region, department, or rating callback does. Marker sizes are 9 px for Selected restaurants and 11 px for Bib/starred restaurants; Green Star underlays are 11 or 15 px (`app/utils/guide_figures.py:215-266,318-359,443-484`).
 
-Camera state has a stronger contract. `map-view-store-mainpage` stores `map.zoom`, `map.center`, and its owning region/department/arrondissement key. Geography changes restore the canonical geography view; rating-only figure rebuilds preserve a valid manually changed camera; stale camera data is rejected (`app/callbacks/guide.py:99-161,511-671`). The smaller-screen design should retain that boundary.
+### Guide and Wine camera constraints below 1050 px
 
-Current responsive CSS stacks search, geography, ratings, map, and details in that order. The map is still inside the padded editorial sheet and uses `clamp(460px, 58vh, 640px)` up to 1250 px, then `clamp(420px, 65vh, 560px)` up to 768 px (`assets/styles.css:3661-3806`). Details already follow the map in source and grid order, which is the right association point.
+#### Rendered map dimensions
+
+Neither map receives its narrow-layout dimensions from its figure builder. The dimensions come from the layout/CSS cascade and therefore exist only in the browser:
+
+| Map | Width at no more than 1050 px | Height at no more than 1050 px |
+| --- | --- | --- |
+| Guide `map-display` | `.guide-map-panel` is `width: 100%` of the padded Guide sheet; `.map-display` fills that wrapper. It is not full viewport width (`assets/styles.css:2917-2931,3706-3712`; `app/layouts/layout_main.py:321-346`). | `clamp(28rem, 72svh, 46rem)`, with a `72vh` fallback, throughout the existing no-more-than-1250 px layout. There is no later phone-height override (`assets/styles.css:3706-3709,3741-3789`). |
+| Wine `wine-map-graph` | The layout's inline 50% map width is overridden below 1050 px: the flex composition stacks and `.wine-map` becomes `width: 100%` of its padded editorial sheet (`app/layouts/wine.py:119-151`; `assets/styles.css:2479-2502,2733-2744`). | `620px` with `min-height: 520px` from 601–1050 px; `500px` with `min-height: 420px` at no more than 600 px. These `!important` rules override the graph's inline `700px` and the desktop CSS `760px` (`app/layouts/wine.py:127-132`; `assets/styles.css:2498-2502,2753-2756,2779-2781`). |
+
+The Guide explicitly sets `dcc.Graph(responsive=True)`. Wine leaves `responsive` at the Dash default and supplies no figure width, while its wrapper width and CSS height change responsively (`app/layouts/layout_main.py:323-333`; `app/layouts/wine.py:127-132`; `app/utils/wine_figures.py:143-158`). Source inspection can establish the requested sizes, but final canvas resize timing remains browser-owned.
+
+#### Two different minimum-zoom mechanisms
+
+`layout.map.bounds` is a MapLibre maximum-panning envelope, not a request to fit that envelope. Plotly exposes no separate `layout.map.minzoom` property here. MapLibre derives an effective minimum zoom from the envelope and the rendered canvas: the entire visible canvas must remain inside the bounds. A taller or wider canvas therefore changes the effective minimum even though the Python dictionary is unchanged (`app/utils/map_constraints.py:1-23,44-53`). Every Guide figure applies `METROPOLITAN_FRANCE_MAP_BOUNDS` (`west=-6`, `east=10.5`, `south=40.5`, `north=52`); every Wine figure applies the wider `WINE_MAP_BOUNDS` (`app/utils/guide_figures.py:4-15`; `app/utils/wine_figures.py:160`; `app/utils/map_constraints.py:7-23`).
+
+Guide canonical zooms are constants, not fits. MapLibre may raise a requested constant when the canvas-derived minimum is higher. Wine has an additional application clamp before rendering: `map_view_from_bounds(...)` clamps its heuristic result to `MIN_WINE_APPELLATION_ZOOM = 5.0` and `MAX_WINE_APPELLATION_ZOOM = 11.5`; region navigation then adds a `0.75` zoom boost and clamps only to the same maximum (`app/utils/wine_search.py:9-12,196-230,244-264`). Those Wine constants constrain generated canonical views, not subsequent user zoom gestures. The MapLibre bounds remain the actual interactive minimum and can clamp the generated view again if their canvas-derived minimum exceeds it.
+
+Static Web-Mercator calculations using the deployed region geometry and current CSS dimensions illustrate the Guide contradiction. These are diagnostics, not substitutes for renderer checks:
+
+| Approximate Guide canvas | Bounds-derived minimum | Largest zoom that still fits metropolitan France and Corsica | Result |
+| --- | ---: | ---: | --- |
+| 284×448 (320 px phone) | 4.24 | 3.77 | No zoom can both fit France and satisfy the current bounds. |
+| 354×608 (390 px phone) | 4.68 | 4.09 | No valid fit. The requested zoom 5 is closer still. |
+| 772×736 (820 px tablet) | 5.04 | 5.20 | A narrow valid range exists; MapLibre may raise the requested zoom 5 slightly. |
+| 994×736 (near 1050 px) | 5.40 | 5.20 | The canvas/bounds aspect ratios again leave no valid full-France fit. |
+
+The deployed regional extent is approximately `(-5.10, 41.37, 9.56, 51.09)`, whereas the constraint is only modestly larger. On a tall narrow canvas, zooming out enough to include France's east-west extent makes the visible north-south extent exceed the constraint; MapLibre must honour the constraint and crops the geography instead. This is why changing only the constant `map_zoom=5` cannot solve the phone case.
+
+#### Canonical camera selection
+
+Guide uses four distinct paths:
+
+- France/default: fixed centre `46.603354, 1.888334`, zoom `5` (`app/utils/guide_figures.py:505-526`).
+- Region: the selected region outline changes, but the camera still uses the same France centre and zoom `5`; no region bounds or centroid participate (`app/utils/guide_figures.py:65-102`; `app/callbacks/guide.py:599-606`).
+- Department: geometry centroid plus zoom `8`, except Paris `11` and Monaco code `98` at `13.5` (`app/callbacks/guide.py:47-67`). The outline/restaurant builders consume that view, with their own legacy defaults only when it is absent (`app/utils/guide_figures.py:104-141,268-391`).
+- Paris arrondissement: geometry centroid and zoom `13` (`app/callbacks/guide.py:83-96`; `app/utils/guide_figures.py:143-187,393-503`).
+
+Corsica has no special canonical view. A `Corse` region selection therefore remains centred near mainland central France at zoom 5. At a roughly 390 px viewport, zoom 5 exposes too little longitude to reach geometry beginning around 8.55°E; Corsica is outside the view. Corsica itself is compact and would fit easily if centred from its own bounds. Its failure is primarily the region-camera path, while the full-France failure is the incompatible fixed zoom/bounds/canvas combination. Fixed zoom 8 also gives no source-level guarantee that every large or unusually shaped department fits.
+
+Wine region and appellation views are geometry-informed but not canvas fits. Each search record stores the complete feature bounds. `map_view_for_feature(...)` passes one feature's bounds to `map_view_from_bounds(...)`; `map_view_for_region(...)` unions every appellation bound in the selected region, calculates the same view, then applies the `0.75` region boost (`app/utils/wine_search.py:33-54,196-264`). The centre is the arithmetic bounds midpoint. Zoom uses the larger of longitude span and `latitude span × 1.45`, adds a fixed `1.35` padding multiplier, applies `log2(360 / padded_span) - 1.1`, and clamps to 5.0–11.5. Canvas width, canvas height, Web-Mercator latitude distortion, and orientation are not inputs. Consequently the result is a useful heuristic but cannot promise that a region/appellation fits a 296×500 phone map and a 772×620 tablet map. The initial all-Wine figure is another fixed France-centred zoom-5 view (`app/utils/wine_figures.py:137-160`).
+
+#### Resize, orientation, and persistence ownership
+
+There is no Guide or Wine callback whose input is map dimensions, browser resize, or orientation. CSS/Plotly resize the canvas; MapLibre then recalculates its bounds-derived minimum against the new aspect ratio. The Python canonical centre/zoom is not recalculated. Crossing 600 px also changes the Wine height from 620 to 500 px, and crossing 1050 px changes both its width composition and height (`assets/styles.css:2733-2781`). Guide `svh` height can change with orientation or browser chrome even without crossing a media query (`assets/styles.css:3706-3709`).
+
+For Guide, `map-view-store-mainpage` records relayout `map.zoom` and `map.center` with a region/department/arrondissement ownership key. Geography input clears stored camera values; department and arrondissement rating-only rebuilds reuse a valid stored manual view and reject stale geography (`app/callbacks/guide.py:99-161,511-597,635-671`). The region path always rebuilds its fixed France-centred view and does not consume the stored camera (`app/callbacks/guide.py:599-606`). An autosize-only relayout is ignored; if a browser resize/bounds clamp emits `map.zoom` or `map.center`, the current code can record that result as though it were manual. Whether Plotly emits those fields on orientation change requires browser validation.
+
+For Wine, region/appellation dropdowns independently generate the canonical `uirevision`, zoom, then centre patch and update `map-view-store` with the same geography ownership. Manual relayout is accepted only for that owner; stale relayout is rejected. Route initialisation rebuilds the full figure from the Store, while unrelated outline/restaurant/hover patches do not own camera fields (`app/callbacks/wine.py:170-315,607-645,708-738`; `tests/test_wine_callbacks.py:336-551`). Autosize-only relayout is likewise ignored, but a resize event containing map camera fields can enter the Store. No static test proves the renderer's final camera after a resize.
+
+#### Recommended smallest first implementation: Guide canonical fitting only
+
+Do not start by lowering zoom 5 or deleting `METROPOLITAN_FRANCE_MAP_BOUNDS`: the former still fails at some aspect ratios, while the latter removes useful pan/zoom-out containment. The smallest coherent first stage is Guide-only and should make canonical fitting and interaction constraints two explicit calculations:
+
+1. Add one pure Web-Mercator fit helper that accepts geography bounds, rendered map width/height, and a modest pixel padding, and returns centre/zoom. Use the deployed union bounds for France, selected geometry bounds for every region (including Corse), department bounds, and arrondissement bounds. This replaces the current Guide constants only for canonical views.
+2. Supply the actual `.guide-map-panel` content-box width and height through one Guide page-level memory Store updated initially and by a narrowly scoped `ResizeObserver`. The existing boolean responsive-input Store is insufficient because fit depends on both dimensions and aspect ratio, not merely the 1250 px mode.
+3. Retain a finite France-wide MapLibre bounds constraint, but aspect-pad that constraint enough for the calculated canonical France fit at the current canvas. The fit target and the interaction envelope must be separate: the former includes the selected geometry; the latter still prevents users panning or zooming out into irrelevant world space. Tests should assert that the requested fitted zoom is not below the effective minimum produced by that envelope at supported dimensions.
+4. Preserve `map-view-store-mainpage` as the sole post-fit camera owner. Geography change and a resize while still in canonical mode may calculate a new fit; a stored manual view for the same geography must survive resize/orientation. Do not let a programmatic resize relayout silently reclassify the canonical view as manual—this transition needs an explicit flag/token or verified event gate.
+
+This stage can be reviewed independently of Wine and without changing gestures. Pure tests can cover every deployed region/department/arrondissement at representative 320×448, 354×608, 772×736, and 994×736 canvases, including Corse and full France. Real-browser checks must still verify ResizeObserver timing, MapLibre's final clamped camera, orientation changes, and manual-view survival. Once that contract works, the same fit helper can replace Wine's span heuristic in a separate stage; Wine's region boost should then be reconsidered because deliberately zooming in after a fit conflicts with a strict “entire geography visible” contract.
 
 ### Proposed state machine at no more than 1250 px
 
