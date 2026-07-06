@@ -109,7 +109,7 @@ def create_michelin_bar_chart(filtered_df, select_stars, granularity, title):
         plot_bgcolor='white',
         margin=dict(l=20, r=20, t=60, b=20),
         font=dict(color="#333333"),
-        legend=dict(font=dict(size=12), bgcolor="rgba(255, 255, 255, 0)"),
+        showlegend=False,
         xaxis=dict(
             title_standoff=15,
             gridcolor="rgba(0, 0, 0, 0.08)",
@@ -190,7 +190,6 @@ def plot_single_choropleth_plotly(df, selected_stars, granularity='region', show
             locations=df.index,  # Match the locations via index
             colorscale=colorscale,
             colorbar=dict(
-                title=dict(text='Restaurants', font=dict(size=12, color="#444444")),
                 tickfont=dict(size=11, color="#555555"),
                 thickness=10,
                 len=0.72,
