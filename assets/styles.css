@@ -3226,7 +3226,7 @@ body {
     }
 
     .editorial-page-frame .editorial-page-title {
-        font-size: 22px;
+        font-size: clamp(14px, calc(4.5vw - 0.5px), 18px);
         line-height: 1.24;
     }
 
@@ -3256,7 +3256,6 @@ body {
     }
 
     .editorial-page-frame .editorial-page-title {
-        font-size: 20px;
         line-height: 1.22;
     }
 }
@@ -3316,7 +3315,7 @@ body {
 
 @media screen and (max-width: 600px) {
     .analysis-container:has(#demographics-content-top) {
-        margin-top: clamp(148px, calc(268px - 20vw), 190px);
+        margin-top: 70px;
         padding-top: 24px;
         padding-bottom: 24px;
     }
@@ -3489,7 +3488,7 @@ body {
     }
 
     #analysis-content-top {
-        margin-top: clamp(148px, calc(268px - 20vw), 190px);
+        margin-top: 70px;
         padding-top: 24px;
         padding-bottom: 32px;
     }
