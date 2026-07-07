@@ -35,6 +35,13 @@ def reset_demographics_star_clicks(n_clicks_rest, ids):
     return [0] * len(ids)
 
 
+def map_view_for_demographics_update(mapview_data, triggered_input):
+    """Ignore persisted camera state when the geography selector changes."""
+    if triggered_input == 'granularity-dropdown-demographics':
+        return {}
+    return mapview_data or {}
+
+
 def register_economics_callbacks(app, data):
     all_france = data.all_france
     region_df = data.region_df
@@ -58,6 +65,10 @@ def register_economics_callbacks(app, data):
     )
     def update_demographics_map(selected_metric, selected_dropdown, selected_regions, n_clicks_rest, n_clicks_stars,
                                 mapview_data):
+        ctx = dash.callback_context
+        triggered_input = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+        active_mapview_data = map_view_for_demographics_update(mapview_data, triggered_input)
+
         # Handle "Select All"
         if 'all' in selected_regions:
             selected_regions = unique_regions  # Select all regions if "Select All" is chosen
@@ -118,7 +129,7 @@ def register_economics_callbacks(app, data):
                 cmap='Blues',
                 restaurants=show_restaurants,  # Show restaurants based on button press
                 selected_stars=selected_stars,  # Filter based on selected stars
-                zoom_data=mapview_data
+                zoom_data=active_mapview_data
             )
             empty_fig = go.Figure()  # Return empty figure for bar chart
             return (selected_regions, fig_map, empty_fig, region_selector_style,
@@ -146,7 +157,7 @@ def register_economics_callbacks(app, data):
             cmap='Blues',
             restaurants=show_restaurants,
             selected_stars=selected_stars,
-            zoom_data=mapview_data
+            zoom_data=active_mapview_data
         )
 
         fig_bar = plot_demographics_barchart(

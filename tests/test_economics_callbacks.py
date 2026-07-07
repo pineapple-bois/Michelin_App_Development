@@ -3,6 +3,7 @@ import pytest
 from app.callbacks.economics import (
     demographics_chart_hidden,
     demographics_region_selector_style,
+    map_view_for_demographics_update,
     reset_demographics_star_clicks,
     restaurant_overlay_active,
 )
@@ -46,3 +47,16 @@ def test_demographics_star_clicks_reset_only_when_overlay_closes():
     assert reset_demographics_star_clicks(1, ids) is None
     assert reset_demographics_star_clicks(2, ids) == [0, 0, 0]
     assert reset_demographics_star_clicks(2, []) is None
+
+
+def test_demographics_region_change_ignores_persisted_map_view():
+    persisted_view = {"zoom": 7, "center": {"lat": 48.0, "lon": 2.0}}
+
+    assert map_view_for_demographics_update(
+        persisted_view,
+        "granularity-dropdown-demographics",
+    ) == {}
+    assert map_view_for_demographics_update(
+        persisted_view,
+        "category-dropdown-demographics",
+    ) == persisted_view
