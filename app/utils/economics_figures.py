@@ -17,6 +17,37 @@ ECONOMICS_REFERENCE_RED = "#C2282D"
 ECONOMICS_REFERENCE_RED_DARK = "#A01F25"
 ECONOMICS_FRANCE_MAP_ZOOM = 4.0
 ECONOMICS_SPLIT_MAP_ZOOM = 4.25
+ECONOMICS_METRIC_TITLES = {
+    "gdp_current_prices_million_eur": "GDP (Millions EUR)",
+    "gdp_per_capita_eur": "GDP per Capita (EUR)",
+    "poverty_rate_percent": "Poverty Rate (%)",
+    "census_unemployment_rate_15_64_percent": "Unemployment Rate, Ages 15-64 (%)",
+    "average_net_monthly_wage_fte_eur": "Monthly Net Wage, FTE (EUR)",
+    "median_living_standard_eur": "Median Living Standard (EUR)",
+    "municipal_population": "Municipal Population",
+    "population_density_per_sq_km": "Population Density (inhabitants/km²)",
+    "area_sq_km": "Area (km²)",
+}
+ECONOMICS_METRIC_UNITS = {
+    "gdp_current_prices_million_eur": "EUR",
+    "gdp_per_capita_eur": "EUR",
+    "poverty_rate_percent": "%",
+    "census_unemployment_rate_15_64_percent": "%",
+    "average_net_monthly_wage_fte_eur": "EUR",
+    "median_living_standard_eur": "EUR",
+    "municipal_population": "",
+    "population_density_per_sq_km": "",
+    "area_sq_km": "",
+}
+ECONOMICS_WEIGHTED_MEAN_EXCLUDED_METRICS = {
+    "municipal_population",
+    "population_density_per_sq_km",
+    "area_sq_km",
+}
+ECONOMICS_METRIC_OPTIONS = [
+    {"label": title, "value": metric}
+    for metric, title in ECONOMICS_METRIC_TITLES.items()
+]
 
 
 def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity='region', show_labels=True, cmap='Blues',
@@ -40,17 +71,6 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
     """
     zoom_data = zoom_data or {}
 
-    # Dictionary for metric titles
-    metric_titles = {
-        'GDP_millions(€)': 'GDP (Millions €)',
-        'GDP_per_capita(€)': 'GDP per Capita (€)',
-        'poverty_rate(%)': 'Poverty Rate (%)',
-        'average_annual_unemployment_rate(%)': 'Unemployment Rate (%)',
-        'average_net_hourly_wage(€)': 'Hourly Net Wage (€)',
-        'municipal_population': 'Municipal Population',
-        'population_density(inhabitants/sq_km)': 'Population Density (inhabitants/km²)'
-    }
-
     # Color mapping for star ratings
     star_colors = {
         0.5: "#640A64",  # Bib Gourmand
@@ -68,7 +88,7 @@ def plot_demographic_choropleth_plotly(df, all_france, metric=None, granularity=
     if metric:
         hovertemplate = (
             f'<b>Region:</b> %{{customdata[0]}}<br>'
-            f'<b>{metric_titles.get(metric, metric)}:</b> %{{z:.2f}}<extra></extra>'
+            f'<b>{ECONOMICS_METRIC_TITLES.get(metric, metric)}:</b> %{{z:.2f}}<extra></extra>'
         )
         customdata = df[['region']].values if granularity == 'region' else df[['department', 'code']].values
 
@@ -220,30 +240,9 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
     Returns:
         fig (go.Figure): The Plotly figure object with the bar chart and the weighted mean line (if applicable).
     """
-    # Dictionary to map data science metric names to display-friendly titles
-    metric_titles = {
-        'GDP_millions(€)': 'GDP (Millions €)',
-        'GDP_per_capita(€)': 'GDP per Capita (€)',
-        'poverty_rate(%)': 'Poverty Rate (%)',
-        'average_annual_unemployment_rate(%)': 'Unemployment Rate (%)',
-        'average_net_hourly_wage(€)': 'Hourly Net Wage (€)',
-        'municipal_population': 'Municipal Population',
-        'population_density(inhabitants/sq_km)': 'Population Density (inhabitants/km²)'
-    }
-
-    # Dictionary for adding the appropriate symbol to the weighted mean
-    metric_units = {
-        'GDP_millions(€)': '€',
-        'GDP_per_capita(€)': '€',
-        'poverty_rate(%)': '%',
-        'average_annual_unemployment_rate(%)': '%',
-        'average_net_hourly_wage(€)': '€',
-        'municipal_population': '',
-        'population_density(inhabitants/sq_km)': ''
-    }
-
-    metric_title = metric_titles.get(metric, metric)  # Fallback to raw metric if not found in the dictionary
-    metric_unit = metric_units.get(metric, '')
+    metric_title = ECONOMICS_METRIC_TITLES.get(metric, metric)
+    metric_unit = ECONOMICS_METRIC_UNITS.get(metric, '')
+    unit_suffix = f" {metric_unit}" if metric_unit else ""
 
     # Create a horizontal bar chart
     fig = go.Figure()
@@ -256,7 +255,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
         marker=dict(color=ECONOMICS_BAR_COLOR),
         hovertemplate=(
             f'<b>{granularity.capitalize()}:</b> %{{y}}<br>'
-            f'<b>{metric_title}:</b> %{{x:.2f}}{metric_unit}<extra></extra>'
+            f'<b>{metric_title}:</b> %{{x:.2f}}{unit_suffix}<extra></extra>'
         )
     ))
 
@@ -268,7 +267,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
     x_axis_range = [min_value - padding, max_value + padding]  # Dynamic range
 
     # Add the weighted mean as a red dashed vertical line if it's provided and within range
-    if weighted_mean is not None and metric not in ['municipal_population', 'population_density(inhabitants/sq_km)']:
+    if weighted_mean is not None and metric not in ECONOMICS_WEIGHTED_MEAN_EXCLUDED_METRICS:
         # Adjust the x-axis range if the weighted mean is outside the range
         if weighted_mean < x_axis_range[0]:
             x_axis_range[0] = weighted_mean - padding  # Extend to include the mean
@@ -293,7 +292,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
                 y=1,  # Position at the top of the chart
                 xref="x",
                 yref="paper",
-                text=f"French Mean: {weighted_mean:.2f} {metric_unit}",  # Add unit to the mean
+                text=f"French Mean: {weighted_mean:.2f}{unit_suffix}",
                 showarrow=True,
                 arrowhead=2,
                 ax=-30,  # Horizontal offset for the annotation
@@ -308,7 +307,7 @@ def plot_demographics_barchart(df, metric, granularity, weighted_mean):
                 y=1,  # Top of the chart
                 xref="x",
                 yref="paper",
-                text=f"French Mean: {weighted_mean:.2f} {metric_unit} (off-scale)",  # Indicate that it's off-scale
+                text=f"French Mean: {weighted_mean:.2f}{unit_suffix} (off-scale)",
                 showarrow=False,  # No arrow needed
                 font=dict(color=ECONOMICS_REFERENCE_RED_DARK, size=11)
             )

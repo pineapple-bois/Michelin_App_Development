@@ -7,6 +7,7 @@ from app.layouts.analysis_shared import (
     star_placeholder,
     unique_regions,
 )
+from app.utils.economics_figures import ECONOMICS_METRIC_OPTIONS
 
 
 def get_demographics_content():
@@ -46,15 +47,7 @@ def get_demographics_content():
                             html.H6("Select a Socio-Economic Metric", className='editorial-control-label'),
                             dcc.Dropdown(
                                 id='category-dropdown-demographics',
-                                options=[
-                                    {'label': 'GDP (millions of €)', 'value': 'GDP_millions(€)'},
-                                    {'label': 'GDP (per capita) (€)', 'value': 'GDP_per_capita(€)'},
-                                    {'label': 'Poverty Rate (%)', 'value': 'poverty_rate(%)'},
-                                    {'label': 'Average Unemployment Rate (%)', 'value': 'average_annual_unemployment_rate(%)'},
-                                    {'label': 'Average Hourly Net Wage (€)', 'value': 'average_net_hourly_wage(€)'},
-                                    {'label': 'Municipal Population', 'value': 'municipal_population'},
-                                    {'label': 'Population Density (inhabitants/km²)', 'value': 'population_density(inhabitants/sq_km)'}
-                                ],
+                                options=ECONOMICS_METRIC_OPTIONS,
                                 className='dropdown-category-demographics-selector editorial-select',
                                 multi=False,
                                 searchable=False,

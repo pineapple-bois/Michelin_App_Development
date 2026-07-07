@@ -40,14 +40,15 @@ AGGREGATE_COUNT_COLUMNS = (
 )
 
 DEMOGRAPHIC_COLUMNS = (
-    "GDP_millions(€)",
-    "GDP_per_capita(€)",
-    "poverty_rate(%)",
-    "average_annual_unemployment_rate(%)",
-    "average_net_hourly_wage(€)",
+    "gdp_current_prices_million_eur",
+    "gdp_per_capita_eur",
+    "poverty_rate_percent",
+    "census_unemployment_rate_15_64_percent",
+    "average_net_monthly_wage_fte_eur",
+    "median_living_standard_eur",
     "municipal_population",
-    "population_density(inhabitants/sq_km)",
-    "area(sq_km)",
+    "population_density_per_sq_km",
+    "area_sq_km",
 )
 
 REGION_COLUMNS = ("region", *AGGREGATE_COUNT_COLUMNS, *DEMOGRAPHIC_COLUMNS, "locations", "geometry")
@@ -69,10 +70,6 @@ ARRONDISSEMENT_COLUMNS = (
     "capital",
     "region",
     *AGGREGATE_COUNT_COLUMNS,
-    "municipal_population",
-    "population_density(inhabitants/sq_km)",
-    "poverty_rate(%)",
-    "average_net_hourly_wage(€)",
     "locations",
     "geometry",
 )
@@ -91,6 +88,15 @@ PARIS_COLUMNS = (
     "3_star",
     "total_stars",
     "starred_restaurants",
+    "locations",
+    "geometry",
+)
+MONACO_COLUMNS = (
+    "code",
+    "department",
+    "capital",
+    "region",
+    *AGGREGATE_COUNT_COLUMNS,
     "locations",
     "geometry",
 )
@@ -142,8 +148,8 @@ def _require_non_numeric(frame, name, columns):
         raise RuntimeError(f"{name} columns must preserve string-like identifiers: {', '.join(numeric_columns)}")
 
 
-def _read_restaurants(config: RuntimeConfig, filename, name):
-    frame = pd.read_csv(config.data_path(filename), dtype={"department_num": str})
+def _read_annual_restaurants(config: RuntimeConfig, filename, name):
+    frame = pd.read_csv(config.annual_data_path(filename), dtype={"department_num": str})
     _require_columns(frame, name, RESTAURANT_COLUMNS)
     _require_non_numeric(frame, name, ("department_num",))
     return frame
@@ -151,6 +157,12 @@ def _read_restaurants(config: RuntimeConfig, filename, name):
 
 def _read_geojson(config: RuntimeConfig, filename, name, required_columns):
     frame = gpd.read_file(config.data_path(filename), engine="pyogrio")
+    _require_columns(frame, name, required_columns)
+    return frame
+
+
+def _read_annual_geojson(config: RuntimeConfig, filename, name, required_columns):
+    frame = gpd.read_file(config.annual_data_path("geodata", filename), engine="pyogrio")
     _require_columns(frame, name, required_columns)
     return frame
 
@@ -228,14 +240,18 @@ def _validate_wine_data(frame: gpd.GeoDataFrame):
 
 
 def load_michelin_data(config: RuntimeConfig = CONFIG):
-    all_france = _read_restaurants(config, "all_restaurants(arrondissements).csv", "all_france")
-    all_monaco = _read_restaurants(config, "monaco_restaurants.csv", "all_monaco")
+    all_france = _read_annual_restaurants(
+        config,
+        "all_restaurants(arrondissements).csv",
+        "all_france",
+    )
+    all_monaco = _read_annual_restaurants(config, "monaco_restaurants.csv", "all_monaco")
 
-    region_df = _read_geojson(config, "region_restaurants.geojson", "region_df", REGION_COLUMNS)
-    department_df = _read_geojson(config, "department_restaurants.geojson", "department_df", DEPARTMENT_COLUMNS)
-    arron_df = _read_geojson(config, "arrondissement_restaurants.geojson", "arron_df", ARRONDISSEMENT_COLUMNS)
-    paris_df = _read_geojson(config, "paris_restaurants.geojson", "paris_df", PARIS_COLUMNS)
-    monaco_df = _read_geojson(config, "monaco_restaurants.geojson", "monaco_df", DEPARTMENT_COLUMNS)
+    region_df = _read_annual_geojson(config, "region_restaurants.geojson", "region_df", REGION_COLUMNS)
+    department_df = _read_annual_geojson(config, "department_restaurants.geojson", "department_df", DEPARTMENT_COLUMNS)
+    arron_df = _read_annual_geojson(config, "arrondissement_restaurants.geojson", "arron_df", ARRONDISSEMENT_COLUMNS)
+    paris_df = _read_annual_geojson(config, "paris_restaurants.geojson", "paris_df", PARIS_COLUMNS)
+    monaco_df = _read_annual_geojson(config, "monaco_restaurants.geojson", "monaco_df", MONACO_COLUMNS)
 
     wine_df = _read_geojson(config, "wine_regions_aoc_area.geojson", "wine_df", WINE_COLUMNS)
     wine_df = _validate_wine_data(wine_df)

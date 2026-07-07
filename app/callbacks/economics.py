@@ -4,6 +4,7 @@ from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from app.utils.economics_figures import (
+    ECONOMICS_WEIGHTED_MEAN_EXCLUDED_METRICS,
     calculate_weighted_mean,
     plot_demographic_choropleth_plotly,
     plot_demographics_barchart,
@@ -128,11 +129,8 @@ def register_economics_callbacks(app, data):
         else:
             dataframe = department_df
 
-        # List of metrics to exclude from weighted mean
-        excluded_metrics = ['municipal_population', 'population_density(inhabitants/sq_km)']
-
         # Only calculate weighted mean if the metric is not in the excluded list
-        if selected_metric not in excluded_metrics:
+        if selected_metric not in ECONOMICS_WEIGHTED_MEAN_EXCLUDED_METRICS:
             weighted_mean = calculate_weighted_mean(dataframe, selected_metric, weight_column='municipal_population')
             weighted_mean_style = {'display': 'block'}  # Show the weighted mean section
         else:

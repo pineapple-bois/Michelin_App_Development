@@ -11,6 +11,7 @@ PACKAGE_DIR = Path(__file__).resolve().parent
 BASE_DIR = PACKAGE_DIR.parent
 ASSETS_DIR = BASE_DIR / "assets"
 DATA_DIR = ASSETS_DIR / "data"
+DEFAULT_DATA_YEAR = "2026"
 PAGES_DIR = PACKAGE_DIR / "pages"
 
 LOGGER = logging.getLogger(__name__)
@@ -74,6 +75,7 @@ class RuntimeConfig:
     package_dir: Path
     assets_dir: Path
     data_dir: Path
+    data_year: str
     pages_dir: Path
     is_production: bool
     force_https: bool
@@ -97,6 +99,9 @@ class RuntimeConfig:
     def data_path(self, *parts):
         return self.data_dir.joinpath(*parts)
 
+    def annual_data_path(self, *parts):
+        return self.data_dir.joinpath(self.data_year, *parts)
+
 
 def load_config():
     load_dotenv(BASE_DIR / ".env")
@@ -107,6 +112,7 @@ def load_config():
         package_dir=PACKAGE_DIR,
         assets_dir=ASSETS_DIR,
         data_dir=DATA_DIR,
+        data_year=os.getenv("MICHELIN_DATA_YEAR", DEFAULT_DATA_YEAR),
         pages_dir=PAGES_DIR,
         is_production=is_production,
         force_https=_env_bool("FORCE_HTTPS", default=is_production),

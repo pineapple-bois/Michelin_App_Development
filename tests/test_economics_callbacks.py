@@ -23,7 +23,7 @@ def test_restaurant_overlay_active_tracks_toggle_clicks(n_clicks, expected):
 
 @pytest.mark.parametrize(
     ("selected_metric", "expected"),
-    [(None, True), ("", True), ("GDP_per_capita(€)", False)],
+    [(None, True), ("", True), ("gdp_per_capita_eur", False)],
 )
 def test_demographics_chart_hidden_tracks_metric_selection(selected_metric, expected):
     assert demographics_chart_hidden(selected_metric) is expected
