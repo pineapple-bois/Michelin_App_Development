@@ -261,7 +261,7 @@ def load_michelin_data(config: RuntimeConfig = CONFIG):
     paris_df = _read_annual_geojson(config, "paris_restaurants.geojson", "paris_df", PARIS_COLUMNS)
     monaco_df = _read_annual_geojson(config, "monaco_restaurants.geojson", "monaco_df", MONACO_COLUMNS)
 
-    wine_df = _read_geojson(config, "wine_regions_aoc_area_v2.geojson", "wine_df", WINE_COLUMNS)
+    wine_df = _read_geojson(config, "wine_regions_aoc_area.geojson", "wine_df", WINE_COLUMNS)
     wine_df = _validate_wine_data(wine_df)
 
     _require_non_numeric(department_df, "department_df", ("code",))
