@@ -35,7 +35,9 @@ def feature_lookup():
     return {
         "aoc-known": {
             "region": "Bourgogne",
-            "app": "Known appellation",
+            "app": "Known appellation protected designation",
+            "display_name": "Known appellation",
+            "categorie": "Vin tranquille",
             "colour": "#123456",
             "source_area_m2": 18_000_000,
         }
@@ -383,7 +385,7 @@ def test_first_region_selection_builds_canonical_wine_patch(data_boundary):
 def test_first_alsace_appellation_selection_builds_brand_patch(data_boundary):
     records = build_wine_search_index(data_boundary.wine_df)
     search_lookup = wine_search_lookup(records)
-    brand = next(record for record in records if record.app == "Brand")
+    brand = next(record for record in records if record.display_name == "Brand")
     expected_view = map_view_for_feature(brand.feature_id, search_lookup)
 
     patch = wine_navigation_patch(
@@ -620,6 +622,8 @@ def _feature_lookup_for_regions(data_boundary):
         row["feature_id"]: {
             "region": row["region"],
             "app": row["app"],
+            "display_name": row["display_name"],
+            "categorie": row["categorie"],
             "colour": row["colour"],
             "source_area_m2": row["source_area_m2"],
         }
@@ -679,24 +683,32 @@ def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_bound
     assert [key for key, _ in cache.set_calls] == cache.get_calls
     assert all(isinstance(value["content"], dict) for _, value in cache.set_calls)
     assert len(openai_client.requests) == 3
+    assert [
+        request["messages"][0]["content"]
+        for request in openai_client.requests
+    ] == [
+        f"prompt:{first_region}:{first_bourgogne['app']}",
+        f"prompt:{first_region}:{second_bourgogne['app']}",
+        f"prompt:{other_parent_region}:{other_region['app']}",
+    ]
     assert request_limit.calls == 3
 
     assert isinstance(first_response[0], html.Div)
     assert isinstance(second_response[0], html.Div)
     assert isinstance(other_response[0], html.Div)
     assert first_response[2].children[0].children == first_region
-    assert first_response[2].children[1].children.startswith(first_bourgogne["app"])
+    assert first_response[2].children[1].children.startswith(first_bourgogne["display_name"])
     assert second_response[2].children[0].children == first_region
-    assert second_response[2].children[1].children.startswith(second_bourgogne["app"])
+    assert second_response[2].children[1].children.startswith(second_bourgogne["display_name"])
     assert other_response[2].children[0].children == other_parent_region
-    assert other_response[2].children[1].children.startswith(other_region["app"])
+    assert other_response[2].children[1].children.startswith(other_region["display_name"])
     assert first_response[0].children[0].children != second_response[0].children[0].children
     assert other_response[0].children[0].children != first_response[0].children[0].children
 
 
 def test_wine_info_uses_cached_response_without_openai_or_request_limit(feature_lookup):
     cache = FakeCache()
-    cache.values["wine_info_v2_Known appellation_Bourgogne"] = {
+    cache.values["wine_info_v2_Known appellation protected designation_Bourgogne"] = {
         "content": {
             "summary": "Cached regional Bourgogne content",
             "editorial_note": "Cached editorial note",

@@ -16,6 +16,7 @@ REGION_SELECTION_ZOOM_BOOST = 0.75
 class WineSearchRecord:
     feature_id: str
     app: str
+    display_name: str
     region: str
     label: str
     search_text: str
@@ -31,19 +32,27 @@ def normalize_wine_search_text(value) -> str:
 
 
 def build_wine_search_index(wine_df) -> list[WineSearchRecord]:
-    app_counts = wine_df["app"].astype(str).value_counts().to_dict()
+    display_name_counts = wine_df["display_name"].astype(str).value_counts().to_dict()
     records = []
 
-    for row in wine_df[["feature_id", "app", "region", "geometry"]].itertuples(index=False):
+    for row in wine_df[
+        ["feature_id", "app", "display_name", "region", "geometry"]
+    ].itertuples(index=False):
         app = str(row.app)
+        display_name = str(row.display_name)
         region = str(row.region)
         feature_id = str(row.feature_id)
-        label = f"{app} — {region}" if app_counts.get(app, 0) > 1 else app
-        search_text = normalize_wine_search_text(f"{app} {region}")
+        label = (
+            f"{display_name} — {region}"
+            if display_name_counts.get(display_name, 0) > 1
+            else display_name
+        )
+        search_text = normalize_wine_search_text(f"{display_name} {region}")
         records.append(
             WineSearchRecord(
                 feature_id=feature_id,
                 app=app,
+                display_name=display_name,
                 region=region,
                 label=label,
                 search_text=search_text,
@@ -161,7 +170,7 @@ def _fuzzy_score_threshold(normalized_query: str) -> int:
 
 
 def _fuzzy_record_score(normalized_query: str, record: WineSearchRecord) -> int:
-    app_text = normalize_wine_search_text(record.app)
+    app_text = normalize_wine_search_text(record.display_name)
     score = max(
         fuzz.ratio(normalized_query, app_text),
         fuzz.token_sort_ratio(normalized_query, app_text),
@@ -181,7 +190,7 @@ def _exact_match_rank(
     normalized_query: str,
     tokens: list[str],
 ) -> int:
-    app_text = normalize_wine_search_text(record.app)
+    app_text = normalize_wine_search_text(record.display_name)
     if app_text == normalized_query:
         return 0
     if app_text.startswith(normalized_query):

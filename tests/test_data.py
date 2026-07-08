@@ -63,7 +63,12 @@ def test_derived_data_collections_are_available(data_boundary):
 
 def _wine_frame(rows, geometries):
     rows_with_area = [
-        {"source_area_m2": 1.0, **row}
+        {
+            "source_area_m2": 1.0,
+            "display_name": row["app"],
+            "categorie": "Vin tranquille",
+            **row,
+        }
         for row in rows
     ]
     return gpd.GeoDataFrame(rows_with_area, geometry=geometries, crs="EPSG:4326")
@@ -74,6 +79,14 @@ def test_wine_source_areas_are_finite_and_positive(data_boundary):
 
     assert source_areas.map(math.isfinite).all()
     assert (source_areas > 0).all()
+
+
+def test_wine_display_and_prompt_fields_are_complete(data_boundary):
+    wine_df = data_boundary.wine_df
+
+    assert wine_df["display_name"].map(lambda value: isinstance(value, str) and bool(value.strip())).all()
+    assert wine_df["app"].map(lambda value: isinstance(value, str) and bool(value.strip())).all()
+    assert wine_df["categorie"].notna().all()
 
 
 @pytest.mark.parametrize("invalid_area", [None, float("nan"), float("inf"), 0, -1])

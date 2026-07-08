@@ -43,7 +43,8 @@ def test_wine_search_records_retain_stable_feature_ids():
         [
             {
                 "feature_id": "aoc-stable",
-                "app": "Pauillac",
+                "app": "Pauillac protected designation",
+                "display_name": "Pauillac",
                 "region": "Bordeaux",
                 "geometry": _polygon(-0.8, 45.1, -0.6, 45.3),
             }
@@ -61,13 +62,15 @@ def test_wine_search_duplicate_display_labels_are_disambiguated():
         [
             {
                 "feature_id": "aoc-one",
-                "app": "Village",
+                "app": "Village protected designation one",
+                "display_name": "Village",
                 "region": "Bordeaux",
                 "geometry": _polygon(0, 0, 1, 1),
             },
             {
                 "feature_id": "aoc-two",
-                "app": "Village",
+                "app": "Village protected designation two",
+                "display_name": "Village",
                 "region": "Rhône",
                 "geometry": _polygon(2, 2, 3, 3),
             },
@@ -91,7 +94,7 @@ def test_wine_search_exact_and_fuzzy_suggestions_resolve_to_feature_ids(data_bou
     fuzzy_labels = {option["label"] for option in fuzzy_options}
     altenberg_labels = {option["label"] for option in altenberg_options}
 
-    assert exact_record.app == "Saint-Emilion"
+    assert exact_record.display_name == "Saint-Emilion"
     assert "Châteauneuf-du-Pape" in fuzzy_labels
     assert any(
         option["label"] == "Châteauneuf-du-Pape"
@@ -188,7 +191,7 @@ def test_wine_unknown_or_malformed_feature_ids_fail_safely(data_boundary):
 def test_wine_region_bounds_produce_wider_view_than_compact_appellation(data_boundary):
     records = build_wine_search_index(data_boundary.wine_df)
     region_view = map_view_for_region("Bordeaux", records)
-    appellation = next(record for record in records if record.app == "Pauillac")
+    appellation = next(record for record in records if record.display_name == "Pauillac")
     appellation_view = map_view_for_feature(
         appellation.feature_id,
         wine_search_lookup(records),

@@ -100,7 +100,15 @@ MONACO_COLUMNS = (
     "locations",
     "geometry",
 )
-WINE_COLUMNS = ("region", "app", "colour", "source_area_m2", "geometry")
+WINE_COLUMNS = (
+    "region",
+    "app",
+    "display_name",
+    "colour",
+    "categorie",
+    "source_area_m2",
+    "geometry",
+)
 WINE_GEOMETRY_TYPES = frozenset({"Polygon", "MultiPolygon"})
 
 
@@ -185,7 +193,7 @@ def _validate_wine_data(frame: gpd.GeoDataFrame):
     if frame.geometry.isna().any() or frame.geometry.is_empty.any():
         raise RuntimeError("wine_df contains missing or empty geometries")
 
-    required_values = ("region", "app", "colour")
+    required_values = ("region", "app", "display_name", "colour", "categorie")
     missing_values = [
         column
         for column in required_values
@@ -253,7 +261,7 @@ def load_michelin_data(config: RuntimeConfig = CONFIG):
     paris_df = _read_annual_geojson(config, "paris_restaurants.geojson", "paris_df", PARIS_COLUMNS)
     monaco_df = _read_annual_geojson(config, "monaco_restaurants.geojson", "monaco_df", MONACO_COLUMNS)
 
-    wine_df = _read_geojson(config, "wine_regions_aoc_area.geojson", "wine_df", WINE_COLUMNS)
+    wine_df = _read_geojson(config, "wine_regions_aoc_area_v2.geojson", "wine_df", WINE_COLUMNS)
     wine_df = _validate_wine_data(wine_df)
 
     _require_non_numeric(department_df, "department_df", ("code",))

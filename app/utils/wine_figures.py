@@ -120,7 +120,7 @@ def plot_wine_choropleth_plotly(
             zmax=colour_count - 0.5,
             colorscale=colorscale,
             showscale=False,
-            customdata=wine_df[["region", "app", "feature_id"]].to_numpy(),
+            customdata=wine_df[["region", "display_name", "feature_id"]].to_numpy(),
             hoverinfo="none",
             selected={"marker": {"opacity": 0.58}},
             unselected={"marker": {"opacity": 1.0}},

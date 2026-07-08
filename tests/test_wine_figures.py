@@ -40,7 +40,7 @@ def test_wine_figure_exposes_semantic_hover_data_without_native_label(data_bound
 
     assert len(trace.customdata) == expected_count
     assert list(trace.customdata[0]) == data_boundary.wine_df.iloc[0][
-        ["region", "app", "feature_id"]
+        ["region", "display_name", "feature_id"]
     ].tolist()
     assert trace.hoverinfo == "none"
     assert trace.hovertemplate is None

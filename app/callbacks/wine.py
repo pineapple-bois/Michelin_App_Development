@@ -63,11 +63,11 @@ def resolve_wine_hover(hover_data, feature_lookup):
     if not isinstance(customdata, (list, tuple)) or len(customdata) != 3:
         return None
 
-    region, appellation, custom_feature_id = customdata
+    region, display_name, custom_feature_id = customdata
     location = point.get("location")
     if not all(
         isinstance(value, str) and value
-        for value in (region, appellation, custom_feature_id, location)
+        for value in (region, display_name, custom_feature_id, location)
     ):
         return None
     if location != custom_feature_id:
@@ -76,7 +76,10 @@ def resolve_wine_hover(hover_data, feature_lookup):
     feature = feature_lookup.get(location)
     if feature is None:
         return None
-    if feature.get("region") != region or feature.get("app") != appellation:
+    if (
+        feature.get("region") != region
+        or feature.get("display_name") != display_name
+    ):
         return None
 
     return point, feature
@@ -89,7 +92,7 @@ def wine_hover_overlay_response(hover_data, feature_lookup):
         return "", "", True
 
     _, feature = resolved_hover
-    return feature["app"], feature["region"], False
+    return feature["display_name"], feature["region"], False
 
 
 def wine_hover_highlight_patch(hover_data, feature_lookup, feature_indices):
@@ -335,7 +338,7 @@ def build_wine_region_heading(wine_feature, colour):
                 style={"color": colour},
             ),
             html.P(
-                f"{wine_feature['app']} · {area} hectares",
+                f"{wine_feature['display_name']} · {area} hectares",
                 className="wine-appellation-area",
             ),
         ],
@@ -580,7 +583,16 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
     wine_df = data.wine_df
     region_df = data.region_df
     wine_feature_lookup = (
-        wine_df.set_index("feature_id")[["region", "app", "colour", "source_area_m2"]]
+        wine_df.set_index("feature_id")[
+            [
+                "region",
+                "app",
+                "display_name",
+                "colour",
+                "categorie",
+                "source_area_m2",
+            ]
+        ]
         .to_dict("index")
     )
     wine_feature_indices = {
