@@ -507,8 +507,9 @@ def build_wine_info_response(
 
     wine_region = wine_feature["region"]
     appellation = wine_feature["app"]
+    prompt_signals = wine_feature["prompt_signals"]
 
-    cache_key = f"wine_info_v2_{appellation}_{wine_region}"
+    cache_key = f"wine_info_v3_{appellation}_{wine_region}"
     cached_content = cache.get(cache_key)
     if isinstance(cached_content, dict) and isinstance(
         cached_content.get("content"), dict
@@ -535,8 +536,8 @@ def build_wine_info_response(
 
     region_color = wine_feature["colour"]
 
-    prompt = prompt_builder(wine_region, appellation)
     try:
+        prompt = prompt_builder(wine_region, appellation, prompt_signals)
         response = openai_client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[{"role": "user", "content": prompt}],
@@ -590,6 +591,7 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
                 "display_name",
                 "colour",
                 "categorie",
+                "prompt_signals",
                 "source_area_m2",
             ]
         ]

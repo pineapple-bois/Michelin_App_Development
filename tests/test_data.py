@@ -67,6 +67,7 @@ def _wine_frame(rows, geometries):
             "source_area_m2": 1.0,
             "display_name": row["app"],
             "categorie": "Vin tranquille",
+            "prompt_signals": [],
             **row,
         }
         for row in rows
@@ -87,6 +88,51 @@ def test_wine_display_and_prompt_fields_are_complete(data_boundary):
     assert wine_df["display_name"].map(lambda value: isinstance(value, str) and bool(value.strip())).all()
     assert wine_df["app"].map(lambda value: isinstance(value, str) and bool(value.strip())).all()
     assert wine_df["categorie"].notna().all()
+    assert wine_df["prompt_signals"].map(lambda value: isinstance(value, list)).all()
+
+
+def test_wine_prompt_signals_parse_json_strings():
+    frame = _wine_frame(
+        [
+            {
+                "region": "Test",
+                "app": "Area",
+                "colour": "#123456",
+                "prompt_signals": '["late_harvest", "successive_pickings"]',
+            }
+        ],
+        [Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])],
+    )
+
+    validated = _validate_wine_data(frame)
+
+    assert validated.loc[0, "prompt_signals"] == [
+        "late_harvest",
+        "successive_pickings",
+    ]
+
+
+@pytest.mark.parametrize(
+    "prompt_signals",
+    ['not-json', {"late_harvest"}, ["late_harvest", "late_harvest"], [""]],
+)
+def test_wine_prompt_signals_must_be_unique_non_empty_string_lists(
+    prompt_signals,
+):
+    frame = _wine_frame(
+        [
+            {
+                "region": "Test",
+                "app": "Area",
+                "colour": "#123456",
+                "prompt_signals": prompt_signals,
+            }
+        ],
+        [Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])],
+    )
+
+    with pytest.raises(RuntimeError, match="prompt_signals"):
+        _validate_wine_data(frame)
 
 
 @pytest.mark.parametrize("invalid_area", [None, float("nan"), float("inf"), 0, -1])

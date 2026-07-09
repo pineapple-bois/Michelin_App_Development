@@ -38,6 +38,7 @@ def feature_lookup():
             "app": "Known appellation protected designation",
             "display_name": "Known appellation",
             "categorie": "Vin tranquille",
+            "prompt_signals": ["late_harvest"],
             "colour": "#123456",
             "source_area_m2": 18_000_000,
         }
@@ -624,6 +625,7 @@ def _feature_lookup_for_regions(data_boundary):
             "app": row["app"],
             "display_name": row["display_name"],
             "categorie": row["categorie"],
+            "prompt_signals": row["prompt_signals"],
             "colour": row["colour"],
             "source_area_m2": row["source_area_m2"],
         }
@@ -632,8 +634,9 @@ def _feature_lookup_for_regions(data_boundary):
     return rows, lookup
 
 
-def _prompt_builder(region, appellation):
-    return f"prompt:{region}:{appellation}"
+def _prompt_builder(region, appellation, prompt_signals):
+    signals = ",".join(prompt_signals)
+    return f"prompt:{region}:{appellation}:{signals}"
 
 
 def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_boundary):
@@ -676,9 +679,9 @@ def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_bound
     other_parent_region = other_region["region"]
 
     assert cache.get_calls == [
-        f"wine_info_v2_{first_bourgogne['app']}_{first_region}",
-        f"wine_info_v2_{second_bourgogne['app']}_{first_region}",
-        f"wine_info_v2_{other_region['app']}_{other_parent_region}",
+        f"wine_info_v3_{first_bourgogne['app']}_{first_region}",
+        f"wine_info_v3_{second_bourgogne['app']}_{first_region}",
+        f"wine_info_v3_{other_region['app']}_{other_parent_region}",
     ]
     assert [key for key, _ in cache.set_calls] == cache.get_calls
     assert all(isinstance(value["content"], dict) for _, value in cache.set_calls)
@@ -687,9 +690,18 @@ def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_bound
         request["messages"][0]["content"]
         for request in openai_client.requests
     ] == [
-        f"prompt:{first_region}:{first_bourgogne['app']}",
-        f"prompt:{first_region}:{second_bourgogne['app']}",
-        f"prompt:{other_parent_region}:{other_region['app']}",
+        (
+            f"prompt:{first_region}:{first_bourgogne['app']}:"
+            + ",".join(first_bourgogne["prompt_signals"])
+        ),
+        (
+            f"prompt:{first_region}:{second_bourgogne['app']}:"
+            + ",".join(second_bourgogne["prompt_signals"])
+        ),
+        (
+            f"prompt:{other_parent_region}:{other_region['app']}:"
+            + ",".join(other_region["prompt_signals"])
+        ),
     ]
     assert request_limit.calls == 3
 
@@ -708,7 +720,7 @@ def test_wine_info_uses_appellation_specific_cache_for_different_aocs(data_bound
 
 def test_wine_info_uses_cached_response_without_openai_or_request_limit(feature_lookup):
     cache = FakeCache()
-    cache.values["wine_info_v2_Known appellation protected designation_Bourgogne"] = {
+    cache.values["wine_info_v3_Known appellation protected designation_Bourgogne"] = {
         "content": {
             "summary": "Cached regional Bourgogne content",
             "editorial_note": "Cached editorial note",

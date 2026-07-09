@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import hashlib
+import json
 import math
 
 import geopandas as gpd
@@ -106,6 +107,7 @@ WINE_COLUMNS = (
     "display_name",
     "colour",
     "categorie",
+    "prompt_signals",
     "source_area_m2",
     "geometry",
 )
@@ -193,7 +195,14 @@ def _validate_wine_data(frame: gpd.GeoDataFrame):
     if frame.geometry.isna().any() or frame.geometry.is_empty.any():
         raise RuntimeError("wine_df contains missing or empty geometries")
 
-    required_values = ("region", "app", "display_name", "colour", "categorie")
+    required_values = (
+        "region",
+        "app",
+        "display_name",
+        "colour",
+        "categorie",
+        "prompt_signals",
+    )
     missing_values = [
         column
         for column in required_values
@@ -203,6 +212,32 @@ def _validate_wine_data(frame: gpd.GeoDataFrame):
         raise RuntimeError(
             f"wine_df contains missing values in: {', '.join(missing_values)}"
         )
+
+    frame = frame.copy()
+    parsed_prompt_signals = []
+    for value in frame["prompt_signals"]:
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError as error:
+                raise RuntimeError(
+                    "wine_df prompt_signals contains invalid JSON"
+                ) from error
+
+        if (
+            not isinstance(value, list)
+            or any(
+                not isinstance(signal, str) or not signal.strip()
+                for signal in value
+            )
+            or len(value) != len(set(value))
+        ):
+            raise RuntimeError(
+                "wine_df prompt_signals values must be lists of unique, "
+                "non-empty strings"
+            )
+        parsed_prompt_signals.append(value)
+    frame["prompt_signals"] = parsed_prompt_signals
 
     source_areas = frame["source_area_m2"]
     if (
@@ -236,7 +271,6 @@ def _validate_wine_data(frame: gpd.GeoDataFrame):
             f"{', '.join(inconsistent_colour_regions)}"
         )
 
-    frame = frame.copy()
     frame["feature_id"] = [
         wine_feature_id(region, app)
         for region, app in frame[["region", "app"]].itertuples(index=False, name=None)

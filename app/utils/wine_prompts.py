@@ -1,38 +1,88 @@
-def generate_optimized_prompt(wine_region, appellation):
+PROMPT_SIGNAL_CONTEXT = {
+    "sparkling": "Sparkling wine styles may be relevant.",
+    "cremant": "Crémant sparkling wine may be relevant.",
+    "ancestral_method": (
+        "The ancestral method of sparkling-wine production may be relevant."
+    ),
+    "noble_rot_botrytis": (
+        "Noble rot or botrytis may be relevant to the wine's style."
+    ),
+    "late_harvest": (
+        "Late harvesting may increase sweetness, ripeness, and concentration."
+    ),
+    "successive_pickings": (
+        "Grapes may be harvested through successive selective pickings."
+    ),
+    "fortified_sweet": "A sweet fortified wine style may be relevant.",
+    "fortified_or_liqueur_wine": (
+        "A fortified or liqueur-wine style may be relevant."
+    ),
+    "oxidative_speciality": (
+        "An oxidative speciality wine style may be relevant."
+    ),
+    "straw_wine": (
+        "A straw-wine style made from dried grapes may be relevant."
+    ),
+    "primeur": "A wine intended for early release may be relevant.",
+    "sur_lie": "Lees ageing or bottling sur lie may be relevant.",
+}
+
+
+def prompt_signal_instructions(prompt_signals):
+    """Return trusted prompt context for ordered machine-readable signals."""
+    unknown_signals = [
+        signal for signal in prompt_signals
+        if signal not in PROMPT_SIGNAL_CONTEXT
+    ]
+    if unknown_signals:
+        raise ValueError(
+            "Unknown Wine prompt signals: "
+            + ", ".join(dict.fromkeys(unknown_signals))
+        )
+    return [PROMPT_SIGNAL_CONTEXT[signal] for signal in prompt_signals]
+
+
+def curated_signals_for_appellation(wine_region, appellation):
+    """Return hand-maintained hierarchy, geography, and estate signals."""
+    appellation_key = appellation.casefold()
+    curated_signals = []
+
+    if wine_region == "Bordeaux":
+        if appellation in {"Margaux", "Pauillac", "Saint-Julien", "Saint-Estèphe"}:
+            curated_signals.append("1855_rules")
+        if appellation in {"Pomerol", "Saint-Émilion", "Saint-Emilion"}:
+            curated_signals.extend(["right_bank", "estate_required"])
+        if appellation in {"Sauternes", "Barsac"}:
+            curated_signals.extend(["sweet_wine", "estate_required"])
+
+    if (
+        wine_region in {"Bourgogne", "Alsace"}
+        and "grand cru" in appellation_key
+    ):
+        curated_signals.append("grand_cru")
+
+    if wine_region == "Bourgogne" and appellation in {
+        "Romanée-Conti",
+        "La Tâche",
+        "Richebourg",
+        "Chambertin",
+        "Clos de Vougeot",
+        "Clos de Vougeot ou Clos Vougeot",
+        "Montrachet",
+    }:
+        curated_signals.extend(["grand_cru", "renowned_vineyards"])
+
+    return list(dict.fromkeys(curated_signals))
+
+
+def generate_optimized_prompt(wine_region, appellation, prompt_signals=()):
     """
     Generate a concise, context-aware prompt for a French wine appellation.
 
-    This is an intentionally lightweight semantic layer. It uses broad regional
-    rules and a small number of appellation-name signals without attempting to
-    encode a complete French wine classification system.
+    Dataset-backed prompt signals own production and style context. Curated
+    signals are restricted to hierarchy, geography, classification, and estate
+    guidance that the dataset does not provide.
     """
-
-    common_signals = {
-        "sparkling": (
-            "Prioritise production method, principal grapes, sweetness level, and how "
-            "the sparkling style differs from still wines of the region."
-        ),
-        "muscat": (
-            "Clarify whether the appellation produces dry, sweet, or fortified Muscat, "
-            "and do not infer one style from the name alone."
-        ),
-        "vin_doux_naturel": (
-            "Explain the fortified sweet-wine style, principal grapes, and relevant "
-            "ageing approach."
-        ),
-        "vin_jaune": (
-            "Explain the oxidative Vin Jaune style, the role of Savagnin, and the "
-            "production method that distinguishes the appellation."
-        ),
-        "fortified": (
-            "Explain the fortified production method and distinguish the wine from "
-            "ordinary still or sparkling wines of the same region."
-        ),
-        "multi_style": (
-            "State clearly that the appellation permits several wine styles, and do "
-            "not describe one style as though it defines the whole appellation."
-        ),
-    }
 
     region_rules = {
         "Bordeaux": {
@@ -165,47 +215,10 @@ def generate_optimized_prompt(wine_region, appellation):
         },
     }
 
-    appellation_key = appellation.casefold()
-    semantic_signals = []
-
-    if wine_region == "Bordeaux":
-        if appellation in {"Margaux", "Pauillac", "Saint-Julien", "Saint-Estèphe"}:
-            semantic_signals.append("1855_rules")
-        if appellation in {"Pomerol", "Saint-Émilion", "Saint-Emilion"}:
-            semantic_signals.extend(["right_bank", "estate_required"])
-        if appellation in {"Sauternes", "Barsac"}:
-            semantic_signals.extend(["sweet_wine", "estate_required"])
-
-    if "crémant" in appellation_key or "cremant" in appellation_key:
-        semantic_signals.append("sparkling")
-
-    if "muscat" in appellation_key:
-        semantic_signals.append("muscat")
-
-    if appellation in {"Banyuls", "Maury", "Rivesaltes", "Grand Roussillon"}:
-        semantic_signals.append("vin_doux_naturel")
-
-    if appellation == "Macvin du Jura":
-        semantic_signals.append("fortified")
-
-    if appellation == "Château-Chalon":
-        semantic_signals.append("vin_jaune")
-
-    if appellation in {"Vouvray", "Montlouis-sur-Loire", "Limoux"}:
-        semantic_signals.append("multi_style")
-
-    if wine_region in {"Bourgogne", "Alsace"} and "grand cru" in appellation_key:
-        semantic_signals.append("grand_cru")
-
-    if wine_region == "Bourgogne" and appellation in {
-        "Romanée-Conti",
-        "La Tâche",
-        "Richebourg",
-        "Chambertin",
-        "Clos de Vougeot",
-        "Montrachet",
-    }:
-        semantic_signals.extend(["grand_cru", "renowned_vineyards"])
+    curated_signals = curated_signals_for_appellation(
+        wine_region,
+        appellation,
+    )
 
     context = region_rules.get(
         wine_region,
@@ -219,16 +232,21 @@ def generate_optimized_prompt(wine_region, appellation):
     )
 
     signal_instructions = []
-    for signal in dict.fromkeys(semantic_signals):
-        if signal in context["signals"]:
-            signal_instructions.append(context["signals"][signal])
-        elif signal in common_signals:
-            signal_instructions.append(common_signals[signal])
+    for signal in curated_signals:
+        signal_instructions.append(context["signals"][signal])
 
     semantic_instruction = " ".join(signal_instructions)
     if not semantic_instruction:
         semantic_instruction = (
             "Do not force a classification or prestige narrative if it is not clearly relevant."
+        )
+
+    source_context = prompt_signal_instructions(prompt_signals)
+    source_context_section = ""
+    if source_context:
+        source_context_section = (
+            "\n\nAdditional source context:\n"
+            + "\n".join(f"- {instruction}" for instruction in source_context)
         )
 
     estate_regions = {"Bordeaux", "Rhône", "Alsace"}
@@ -238,7 +256,7 @@ def generate_optimized_prompt(wine_region, appellation):
             f"Return an empty renowned_estates array for {wine_region}. "
             "Estate recommendations are not enabled for this region."
         )
-    elif "estate_required" in semantic_signals:
+    elif "estate_required" in curated_signals:
         estates_instruction = (
             "Return 2 or 3 widely recognised estates unambiguously associated with "
             "this exact appellation. Estate identity is important here, so do not "
@@ -261,7 +279,7 @@ Region: {wine_region}
 
 Focus:
 - {context["default_focus"]}
-- {semantic_instruction}
+- {semantic_instruction}{source_context_section}
 
 Estate policy:
 - {estates_instruction}
@@ -289,7 +307,7 @@ Field limits:
 - principal_grapes: Maximum 3 grapes central to the appellation's recognised wines.
 - supporting_grapes: Maximum 3 commonly relevant supporting grapes. Exclude
   marginal or merely permitted varieties.
-- wine_styles: Maximum 3 concise labels such as "Dry red", "Sweet white", or
+- wine_styles: Maximum 4 concise labels such as "Dry red", "Sweet white", or
   "Traditional-method sparkling".
 - food_pairings: Maximum 3 pairings with a strong, widely recognised connection
   to the appellation's principal wine styles. Do not infer pairings from the
