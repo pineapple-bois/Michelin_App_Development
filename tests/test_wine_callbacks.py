@@ -23,6 +23,7 @@ from app.callbacks.wine import (
     wine_view_revision,
     wine_hover_highlight_patch,
     wine_hover_overlay_response,
+    wine_navigation_command,
     wine_navigation_patch,
 )
 from app.utils.wine_figures import RESTAURANT_TRACE_BELOW
@@ -381,6 +382,17 @@ def test_first_region_selection_builds_canonical_wine_patch(data_boundary):
             "params": {"value": expected_view["center"]},
         },
     ]
+
+    assert wine_navigation_command(
+        "Bordeaux",
+        None,
+        records,
+        search_lookup,
+    ) == {
+        "uirevision": "wine-aoc-map-v1:Bordeaux:all",
+        "zoom": expected_view["zoom"],
+        "center": expected_view["center"],
+    }
 
 
 def test_first_alsace_appellation_selection_builds_brand_patch(data_boundary):

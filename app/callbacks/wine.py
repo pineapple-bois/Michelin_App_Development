@@ -241,6 +241,34 @@ def wine_navigation_patch(
     return patched_figure
 
 
+def wine_navigation_command(
+    selected_region,
+    selected_feature_id,
+    records,
+    search_lookup,
+):
+    """Return the trusted camera target used for browser-side sequencing."""
+    selected_view = selected_wine_map_view(
+        selected_region,
+        selected_feature_id,
+        records,
+        search_lookup,
+    )
+    if selected_view is None:
+        return None
+
+    geography_key = wine_geography_key(
+        selected_region,
+        selected_feature_id,
+        search_lookup,
+    )
+    return {
+        "uirevision": wine_view_revision(geography_key),
+        "zoom": selected_view["zoom"],
+        "center": selected_view["center"],
+    }
+
+
 def map_view_from_relayout(
     relayout_data,
     existing_data=None,
@@ -604,6 +632,45 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
     wine_search_records = build_wine_search_index(wine_df)
     wine_feature_search_lookup = wine_search_lookup(wine_search_records)
 
+    app.clientside_callback(
+        """
+        async function(command) {
+            if (
+                !command ||
+                !command.center ||
+                typeof command.zoom !== "number"
+            ) {
+                return window.dash_clientside.no_update;
+            }
+
+            const graph = document.querySelector(
+                "#wine-map-graph .js-plotly-plot"
+            );
+            if (!graph || !window.Plotly) {
+                return window.dash_clientside.no_update;
+            }
+
+            await window.Plotly.relayout(
+                graph,
+                {"map.zoom": command.zoom}
+            );
+            await new Promise(function(resolve) {
+                window.requestAnimationFrame(function() {
+                    window.requestAnimationFrame(resolve);
+                });
+            });
+            await window.Plotly.relayout(
+                graph,
+                {"map.center": command.center}
+            );
+            return command.uirevision;
+        }
+        """,
+        Output('wine-navigation-correction-output', 'children'),
+        Input('wine-navigation-command', 'data'),
+        prevent_initial_call=True,
+    )
+
     def is_request_limit_exceeded():
         # Request limit for OpenAi API calls
         request_limit = config.openai_request_limit
@@ -635,7 +702,8 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         ), True
 
     @app.callback(
-        Output('wine-map-graph', 'figure', allow_duplicate=True),
+        [Output('wine-map-graph', 'figure', allow_duplicate=True),
+         Output('wine-navigation-command', 'data')],
         [Input('wine-region-selector', 'value'),
          Input('wine-appellation-search', 'value'),
          Input('wine-map-ready', 'data')],
@@ -656,7 +724,13 @@ def register_wine_callbacks(app, data, config, cache, openai_client):
         )
         if patch is None:
             raise PreventUpdate
-        return patch
+        command = wine_navigation_command(
+            selected_region,
+            selected_feature_id,
+            wine_search_records,
+            wine_feature_search_lookup,
+        )
+        return patch, command
 
     @app.callback(
         [Output('wine-map-graph', 'figure', allow_duplicate=True),
