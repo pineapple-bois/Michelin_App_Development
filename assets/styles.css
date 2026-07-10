@@ -532,13 +532,30 @@ body {
 }
 
 .guide-page-sheet .guide-rating-filters {
+    --guide-rating-button-gap: 11px;
+    --guide-rating-button-width: 68px;
     margin-bottom: 0;
 }
 
 .guide-page-sheet .guide-rating-filter-row {
-    flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--guide-rating-button-gap);
+    justify-content: flex-start;
     margin-bottom: 8px;
+}
+
+.guide-page-sheet .selected-toggle-wrapper,
+.guide-page-sheet .selected-toggle-inner {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    margin-right: 0;
+}
+
+.guide-page-sheet .selected-toggle-spacer {
+    display: none;
 }
 
 .guide-page-sheet .guide-rating-button {
@@ -546,7 +563,14 @@ body {
     --guide-rating-icon-filter: var(--rating-three-stars-filter);
     border-color: var(--guide-rating-accent) !important;
     border-bottom-color: var(--color-border-editorial) !important;
+    box-sizing: border-box;
     color: var(--color-text-primary) !important;
+    flex: 0 0 var(--guide-rating-button-width) !important;
+    height: 30px;
+    margin-right: 0 !important;
+    min-height: 30px;
+    min-width: var(--guide-rating-button-width) !important;
+    width: var(--guide-rating-button-width) !important;
 }
 
 .guide-page-sheet .guide-rating-button:has(.bib-image-invert) {
@@ -607,6 +631,7 @@ body {
 
 .guide-page-sheet .guide-rating-selected {
     --guide-rating-accent: #808080;
+    border-bottom-width: 2px !important;
     color: var(--color-text-primary) !important;
     font-size: 12px;
 }
@@ -3559,7 +3584,7 @@ body {
 
 /* Guide desktop viewport: retain the fixed application composition on larger
    screens while tablet and mobile continue to use the existing scroll layout. */
-@media screen and (min-width: 1251px) {
+@media screen and (min-width: 1401px) {
     .main-layout:has(.guide-page-frame) {
         height: 100vh;
         min-height: 100vh;
@@ -3600,12 +3625,6 @@ body {
     }
 }
 
-@media screen and (min-width: 1251px) and (max-width: 1400px) {
-    .body.guide-page-frame {
-        padding-top: 72px;
-    }
-}
-
 @media screen and (min-width: 1401px) {
     .body.guide-page-frame {
         padding-top: 82px;
@@ -3614,7 +3633,11 @@ body {
 
 /* Guide Phase 3: content-driven tablet/mobile composition. These overrides
    supersede the legacy 1250px Guide stacking rules without changing desktop. */
-@media screen and (max-width: 1250px) {
+@media screen and (max-width: 1400px) {
+    .main-layout:has(.guide-page-frame) {
+        --guide-page-padding: var(--analysis-page-padding);
+    }
+
     .body.guide-page-frame {
         padding-top: 72px;
     }
@@ -3623,6 +3646,8 @@ body {
         height: auto;
         overflow: visible;
         padding-bottom: 20px;
+        padding-left: var(--guide-page-padding);
+        padding-right: var(--guide-page-padding);
         padding-top: 16px;
     }
 
@@ -3739,6 +3764,10 @@ body {
 }
 
 @media screen and (max-width: 768px) {
+    .main-layout:has(.guide-page-frame) {
+        --guide-page-padding: var(--analysis-page-padding);
+    }
+
     .body.guide-page-frame {
         padding-top: 72px;
     }
@@ -3763,6 +3792,14 @@ body {
 }
 
 @media screen and (max-width: 600px) {
+    .main-layout:has(.guide-page-frame) {
+        --guide-page-padding: 8px;
+    }
+
+    .guide-page-sheet .guide-rating-filters {
+        --guide-rating-button-gap: 8px;
+    }
+
     .guide-page-sheet .guide-search-toggle {
         width: 100%;
     }
@@ -3784,11 +3821,20 @@ body {
     }
 
     .guide-page-sheet .guide-rating-button {
+        flex-basis: var(--guide-rating-button-width) !important;
         min-width: 68px;
     }
 }
 
-@media screen and (max-width: 380px) {
+@media screen and (max-width: 387px) {
+    .main-layout:has(.guide-page-frame) {
+        --guide-page-padding: 4px;
+    }
+
+    .guide-page-sheet .guide-rating-filters {
+        --guide-rating-button-gap: 3px;
+    }
+
     .guide-page-sheet .guide-rating-legend {
         grid-template-columns: minmax(0, 1fr);
     }

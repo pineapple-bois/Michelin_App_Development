@@ -204,8 +204,9 @@ def star_filter_section(available_stars=star_placeholder):
             'star-filter-section editorial-rating-filters guide-rating-filters'
         ), id='star-filter', style={'display': 'none'})
 
-    # Case 4: selected on a new row, wrapped in its own aligned container
+    # Case 4: full rating set, including selected, stays in one row.
     elif has_selected:
+        star_buttons.append(toggle_button)
         return html.Div([
             title,
             html.Div(
@@ -214,15 +215,6 @@ def star_filter_section(available_stars=star_placeholder):
                     'star-filter-buttons editorial-rating-filter-row '
                     'guide-rating-filter-row'
                 )
-            ),
-            html.Div(
-                [
-                    html.Div(toggle_button, className='selected-toggle-inner'),
-                    html.Div(className='selected-toggle-spacer'),
-                    html.Div(className='selected-toggle-spacer'),
-                    html.Div(className='selected-toggle-spacer')
-                ],
-                className='selected-toggle-wrapper'
             )
         ], className=(
             'star-filter-section editorial-rating-filters guide-rating-filters'
