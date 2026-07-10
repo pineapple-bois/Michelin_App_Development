@@ -21,8 +21,8 @@ Built with Python 3.12, Dash, Flask, Plotly, pandas, GeoPandas, Flask-Caching, a
 ## Local setup
 
 ```bash
-git clone https://github.com/pineapple-bois/Michelin_App_Development.git
-cd Michelin_App_Development
+git clone https://github.com/pineapple-bois/michelin-guide-france.git
+cd michelin-guide-france
 
 python3.12 -m venv .venv
 source .venv/bin/activate
