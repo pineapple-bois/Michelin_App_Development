@@ -1,5 +1,6 @@
 import dash
 
+from app.app_config import CONFIG
 from app.layouts.layout_404 import get_404_layout
 
 
@@ -7,7 +8,7 @@ dash.register_page(
     __name__,
     path="/404",
     name="404",
-    title="404 - Gastronomic Guide to France",
+    title=CONFIG.browser_title("404"),
     order=99,
 )
 

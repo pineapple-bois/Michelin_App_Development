@@ -1,5 +1,6 @@
 import dash
 
+from app.app_config import CONFIG
 from app.layouts.layout_main import get_main_layout
 
 
@@ -7,7 +8,7 @@ dash.register_page(
     __name__,
     path="/",
     name="Guide",
-    title="Gastronomic Guide to France - pineapple-bois",
+    title=CONFIG.browser_title(),
     order=0,
 )
 

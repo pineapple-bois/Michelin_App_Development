@@ -1,5 +1,6 @@
 import dash
 
+from app.app_config import CONFIG
 from app.layouts.economics import get_economics_layout
 
 
@@ -7,7 +8,7 @@ dash.register_page(
     __name__,
     path="/economics",
     name="Economics",
-    title="Economics - Gastronomic Guide to France",
+    title=CONFIG.browser_title("Economics"),
     order=3,
 )
 

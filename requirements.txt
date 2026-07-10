@@ -1,3 +1,6 @@
+# Install the local package metadata used to derive the active Guide year.
+-e .
+
 dash~=2.18.1
 dash-bootstrap-components==1.4.2
 dash-table==5.0.0

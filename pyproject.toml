@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "michelin-guide-france"
+version = "2026.0"
+description = "Dash application for exploring Michelin-rated restaurants, French socioeconomic data, and wine appellations."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+[tool.setuptools]
+py-modules = ["michelin_app"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]

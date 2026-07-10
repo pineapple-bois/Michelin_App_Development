@@ -1,4 +1,5 @@
 from app.components.shared import get_footer
+from app.app_config import GUIDE_YEAR
 from app.layouts.analysis import get_analysis_layout
 from app.layouts.economics import get_economics_layout
 from app.layouts.layout_main import get_main_layout
@@ -65,7 +66,7 @@ def test_shared_footer_contains_only_credit_and_linked_github_image():
 
     assert footer.className == "footer-main"
     assert content.className == "footer-content"
-    assert credit.children == "pineapple-bois 2026"
+    assert credit.children == f"pineapple-bois {GUIDE_YEAR}"
     assert github_link.href == (
         "https://github.com/pineapple-bois/Michelin_Rated_Restaurants"
     )

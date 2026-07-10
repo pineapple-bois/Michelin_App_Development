@@ -11,10 +11,11 @@ Begin every task by checking the working tree and reading the implementation tha
 - `Procfile` exposes the Flask server with `gunicorn michelin_app:server`.
 - `.python-version` specifies Python `3.12`.
 - `Aptfile` installs the deployment GIS packages `gdal-bin` and `libgdal-dev`.
-- Production dependencies are pinned or constrained in `requirements.txt`; `requirements_dev.txt` currently adds pytest only.
+- Production dependencies are pinned or constrained in `requirements.txt`; it also installs this repository as an editable local package so package metadata is available. `requirements_dev.txt` currently adds pytest only.
 - GeoPandas reads repository GeoJSON through Pyogrio. Fiona is not a direct dependency.
 - Local development runs with `.venv/bin/python michelin_app.py` or `python michelin_app.py` in an activated environment.
 - `app/app_config.py` loads a root `.env` file when present and exposes a frozen `RuntimeConfig` through `CONFIG`.
+- `pyproject.toml` owns the application package version. The major version is the active Michelin Guide year, so version `2026.0` selects `assets/data/2026/`.
 
 Current environment variables:
 
@@ -67,7 +68,7 @@ Do not recreate root-level `pages/`, `callbacks/`, `layouts/`, `components/`, or
 
 `app/components/shared.py` owns the visible navigation contract, shared header/footer builders, Michelin rating colours, and icon helpers. `app/callbacks/navigation.py` owns the hamburger state and active navigation classes; `/home` is treated as an active Guide path.
 
-`app/app_config.py` owns repository-relative paths, environment parsing, production detection, HTTPS/debug flags, secret-key handling, cache configuration, and OpenAI request limits.
+`app/app_config.py` owns repository-relative paths, package-version lookup, active Guide-year derivation, environment parsing, production detection, HTTPS/debug flags, secret-key handling, cache configuration, and OpenAI request limits.
 
 `app/app_data.py` is the runtime data boundary. It loads and validates restaurant CSVs and deployed GeoJSON, preserves string-like department codes, normalises Wine geometry to EPSG:4326, creates stable Wine feature IDs, and builds shared derived collections. `MichelinData` provides the France/Monaco combination helpers used by Guide callbacks.
 
@@ -205,20 +206,45 @@ Other runtime assets:
 
 ### Runtime-loaded data
 
-`app/app_data.py` loads:
+Annual Michelin restaurant and aggregate geography data live under `assets/data/<GUIDE_YEAR>/`, where `<GUIDE_YEAR>` is derived from the installed application package version. The application normally contains only the active Guide-year directory; historical annual Michelin data is retained in the upstream ET repository.
 
-- `assets/data/all_restaurants(arrondissements).csv`;
-- `assets/data/monaco_restaurants.csv`;
-- `assets/data/region_restaurants.geojson`;
-- `assets/data/department_restaurants.geojson`;
-- `assets/data/arrondissement_restaurants.geojson`;
-- `assets/data/paris_restaurants.geojson`;
-- `assets/data/monaco_restaurants.geojson`;
+The annual application directory contains three CSV files and five GeoJSON files:
+
+- `assets/data/<GUIDE_YEAR>/all_restaurants(arrondissements).csv`;
+- `assets/data/<GUIDE_YEAR>/all_restaurants.csv`;
+- `assets/data/<GUIDE_YEAR>/monaco_restaurants.csv`;
+- `assets/data/<GUIDE_YEAR>/geodata/arrondissement_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/department_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/monaco_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/paris_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/region_restaurants.geojson`.
+
+`app/app_data.py` is the runtime validation boundary. It currently loads:
+
+- `assets/data/<GUIDE_YEAR>/all_restaurants(arrondissements).csv`;
+- `assets/data/<GUIDE_YEAR>/monaco_restaurants.csv`;
+- `assets/data/<GUIDE_YEAR>/geodata/region_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/department_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/arrondissement_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/paris_restaurants.geojson`;
+- `assets/data/<GUIDE_YEAR>/geodata/monaco_restaurants.geojson`;
 - `assets/data/wine_regions_aoc_area.geojson`.
 
-`assets/data/wine_regions_cleaned.geojson` is tracked as an older comparison baseline for development tooling but is not loaded by the application. `assets/data/wine_regions.geojson` is ignored as a local master/source file and is not a runtime path.
+Wine geography has a separate lifecycle and remains at `assets/data/wine_regions_aoc_area.geojson`. Wine data is not part of the annual Michelin restaurant import. `assets/data/wine_regions.geojson` is ignored as a local master/source file and is not a runtime path.
 
-`Development/aoc_simplification/` contains tracked, tested geometry experiment and diagnostics code. Its generated candidates, datasets, invalid diagnostics, and several source/inspection directories are ignored by `.gitignore`; they must not be promoted to `assets/data/` without an explicit data-path decision. Other `Development/` material is a mixture of tracked documentation/scripts and ignored local source or experiment artifacts, not runtime code.
+The upstream canonical Michelin ET products are maintained at:
+
+```text
+https://github.com/pineapple-bois/Michelin_Rated_Restaurants
+```
+
+Canonical annual France products are published in that repository under:
+
+```text
+data/products/france/<YEAR>/
+```
+
+The application consumes approved ET products from a separately supplied local checkout. It does not clone the upstream repository, call the GitHub API, import ET implementation code, execute the ET pipeline, or modify the ET repository. `scripts/load_annual_data.py` prepares the annual application release from that local checkout; its explicit source-to-destination manifest is the contract between the repositories. The loader does not commit, tag, push, deploy, or run the application deployment process.
 
 ### Data contracts
 
@@ -276,6 +302,7 @@ Do not rename component IDs, move stores between root and page layouts, or chang
 - Dash Pages owns routing, and separately registered callbacks depend on `suppress_callback_exceptions=True` because page layouts are mounted dynamically.
 - Keep the HTTPS hook before session work and preserve `ProxyFix` assumptions when changing deployment handling.
 - A generated local `FLASK_SECRET_KEY` invalidates sessions on process restart.
+- The active Guide year is derived from installed package metadata. Refresh the editable install after changing `pyproject.toml` version metadata.
 - The default cache is in-process. Cached Wine summaries and session request counts are not shared application-wide across workers or dynos.
 - Wine checks its appellation-specific cache before consuming a request-limit count. Invalid clicks and restaurant clicks fail closed without invoking OpenAI.
 - The Guide includes Monaco only for Provence-Alpes-Côte d'Azur; Analysis, Economics, and Wine otherwise use France-only datasets.
@@ -293,6 +320,12 @@ Do not rename component IDs, move stores between root and page layouts, or chang
 ## Quick Local Checks
 
 Use the repository environment when available.
+
+After cloning or changing package metadata, install the local package metadata and dependencies:
+
+```bash
+.venv/bin/python -m pip install -r requirements.txt
+```
 
 Compile runtime Python after architecture, callback, layout, or utility changes:
 

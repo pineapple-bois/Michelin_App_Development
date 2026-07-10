@@ -58,7 +58,7 @@ def ensure_session():
         session['request_count'] = 0  # Initialize request count for new session
 
 
-app.title = 'Gastronomic Guide to France - pineapple-bois'
+app.title = CONFIG.browser_title()
 app.index_string = CONFIG.asset_path("custom_header.html").read_text(encoding="utf-8")
 app.layout = html.Div([
     dcc.Store(id='selected-stars', data=[]),

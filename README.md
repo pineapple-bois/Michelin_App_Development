@@ -31,6 +31,8 @@ pip install -r requirements.txt
 pip install -r requirements_dev.txt
 ```
 
+`requirements.txt` installs the application itself in editable mode. This is required because the active Michelin Guide year is derived from the installed package version.
+
 On Windows, activate the environment with `.venv\Scripts\activate`.
 
 ## Environment variables
@@ -68,6 +70,22 @@ python -m pytest
 ```
 
 The tests do not send OpenAI requests, but application import still requires `OPENAI_API_KEY` to be configured.
+
+## Versioning and annual data
+
+The package version in `pyproject.toml` is the source for the active Michelin Guide year. Version `2026.0` selects Guide year `2026` and runtime data under `assets/data/2026/`. Annual data releases reset the version to `<YEAR>.0`; maintenance releases against the same Guide data may use `<YEAR>.1`, `<YEAR>.2`, and so on.
+
+Annual Michelin restaurant and aggregate geography products come from the public ET repository:
+
+[https://github.com/pineapple-bois/Michelin_Rated_Restaurants](https://github.com/pineapple-bois/Michelin_Rated_Restaurants)
+
+The app consumes approved France products from a local checkout under `data/products/france/<YEAR>/`. The manual release-preparation command is:
+
+```bash
+python scripts/load_annual_data.py --et-root ../Michelin_Rated_Restaurants
+```
+
+The loader is disabled before 1 April of the current calendar year. It copies only the explicit annual manifest into `assets/data/<YEAR>/`, leaves `assets/data/wine_regions_aoc_area.geojson` untouched, refreshes the package version to `<YEAR>.0`, imports the app, and runs the full test suite. It does not clone, download, run the ET pipeline, commit, tag, push, deploy, or modify the ET repository.
 
 For remote LAN binding to test changes on smaller devices locally set:
 

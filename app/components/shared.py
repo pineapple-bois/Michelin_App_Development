@@ -1,5 +1,7 @@
 from dash import html
 
+from app.app_config import GUIDE_YEAR
+
 
 MICHELIN_RATING_COLORS = {
     0.25: "#808080",
@@ -118,7 +120,10 @@ def get_header_with_buttons():
             html.Div(
                 [
                     html.H1(
-                        ["Michelin Guide to France. ", html.Span("2026", className="year-text")],
+                        [
+                            "Michelin Guide to France. ",
+                            html.Span(str(GUIDE_YEAR), className="year-text"),
+                        ],
                         className="title-section",
                     ),
                 ],
@@ -156,7 +161,7 @@ def get_footer():
     return html.Footer(
         html.Div(
             children=[
-                html.Span("pineapple-bois 2026", className="footer-credit"),
+                html.Span(f"pineapple-bois {GUIDE_YEAR}", className="footer-credit"),
                 html.A(
                     html.Img(
                         src="/assets/images/github-mark.png",

@@ -2,16 +2,17 @@ import logging
 import os
 import secrets
 from dataclasses import dataclass
+from importlib import metadata
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 
+APP_DISTRIBUTION_NAME = "michelin-guide-france"
 PACKAGE_DIR = Path(__file__).resolve().parent
 BASE_DIR = PACKAGE_DIR.parent
 ASSETS_DIR = BASE_DIR / "assets"
 DATA_DIR = ASSETS_DIR / "data"
-DEFAULT_DATA_YEAR = "2026"
 PAGES_DIR = PACKAGE_DIR / "pages"
 
 LOGGER = logging.getLogger(__name__)
@@ -39,6 +40,28 @@ def _env_int(name, default):
 
 def _cache_type(name):
     return CACHE_TYPE_ALIASES.get(name.strip().lower(), name)
+
+
+def _get_application_version():
+    try:
+        return metadata.version(APP_DISTRIBUTION_NAME)
+    except metadata.PackageNotFoundError as exc:
+        raise RuntimeError(
+            f"{APP_DISTRIBUTION_NAME!r} is not installed. Install the application "
+            "from the repository root with `python -m pip install -r requirements.txt` "
+            "or `python -m pip install -e .` so the active Michelin Guide year can "
+            "be derived from package metadata."
+        ) from exc
+
+
+def _guide_year_from_version(version):
+    major = version.split(".", maxsplit=1)[0]
+    if not (major.isdigit() and len(major) == 4):
+        raise RuntimeError(
+            f"{APP_DISTRIBUTION_NAME!r} version {version!r} must start with a "
+            "four-digit Michelin Guide year."
+        )
+    return int(major)
 
 
 def _detect_production():
@@ -75,7 +98,8 @@ class RuntimeConfig:
     package_dir: Path
     assets_dir: Path
     data_dir: Path
-    data_year: str
+    application_version: str
+    guide_year: int
     pages_dir: Path
     is_production: bool
     force_https: bool
@@ -99,20 +123,33 @@ class RuntimeConfig:
     def data_path(self, *parts):
         return self.data_dir.joinpath(*parts)
 
+    @property
+    def data_year(self):
+        return str(self.guide_year)
+
     def annual_data_path(self, *parts):
-        return self.data_dir.joinpath(self.data_year, *parts)
+        return self.data_dir.joinpath(str(self.guide_year), *parts)
+
+    def browser_title(self, section=None):
+        base_title = f"Gastronomic Guide to France {self.guide_year}"
+        if section:
+            return f"{section} - {base_title}"
+        return f"{base_title} - pineapple-bois"
 
 
 def load_config():
     load_dotenv(BASE_DIR / ".env")
 
     is_production = _detect_production()
+    application_version = _get_application_version()
+    guide_year = _guide_year_from_version(application_version)
     return RuntimeConfig(
         base_dir=BASE_DIR,
         package_dir=PACKAGE_DIR,
         assets_dir=ASSETS_DIR,
         data_dir=DATA_DIR,
-        data_year=os.getenv("MICHELIN_DATA_YEAR", DEFAULT_DATA_YEAR),
+        application_version=application_version,
+        guide_year=guide_year,
         pages_dir=PAGES_DIR,
         is_production=is_production,
         force_https=_env_bool("FORCE_HTTPS", default=is_production),
@@ -126,3 +163,5 @@ def load_config():
 
 
 CONFIG = load_config()
+APPLICATION_VERSION = CONFIG.application_version
+GUIDE_YEAR = CONFIG.guide_year
