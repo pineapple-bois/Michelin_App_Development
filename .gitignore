@@ -25,3 +25,6 @@ __pycache__/
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# Development work - agent docs
+/docs/
