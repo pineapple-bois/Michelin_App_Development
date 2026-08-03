@@ -28,7 +28,7 @@ Current environment variables:
 - `DASH_DEBUG`: controls the local Dash debug flag; default false.
 - `DYNO`, or production values in `APP_ENV`, `FLASK_ENV`, or `DASH_ENV`: mark the process as production.
 
-`michelin_app.py` wraps Flask with `ProxyFix(x_proto=1, x_host=1)`, so HTTPS checks use trusted proxy headers. The HTTPS `before_request` hook runs before session initialisation. Each session receives a UUID `user_id` and a `request_count`. The default `SimpleCache` is process-local and is not shared between Gunicorn workers or dynos.
+`michelin_app.py` wraps Flask with `ProxyFix(x_proto=1)` so HTTPS checks use the proxy protocol header without trusting `X-Forwarded-Host`. Production requests allow only the apex and `www` custom domains. Host and path rejection run before HTTPS redirection and session initialisation; unknown paths bypass the Dash catch-all shell and return HTTP 404. Public page and callback requests initialise a session UUID and `request_count`, while framework/static requests do not. The default `SimpleCache` is process-local and is not shared between Gunicorn workers or dynos.
 
 The OpenAI client, Flask server, Dash app, cache, and central data object are constructed during module import. OpenAI configuration can therefore affect application import, while request-time API and response errors are handled by the Wine information callback.
 
@@ -39,7 +39,7 @@ The OpenAI client, Flask server, Dash app, cache, and central data object are co
 `michelin_app.py` is the deployment entrypoint and composition root. It:
 
 - creates and exports the Flask `server`;
-- applies `ProxyFix`, session hooks, and optional HTTPS redirection;
+- applies `ProxyFix`, production host and route guards, security headers, session hooks, and optional HTTPS redirection;
 - creates the Dash app with Dash Pages and `suppress_callback_exceptions=True`;
 - points `pages_folder` at `CONFIG.pages_dir` (`app/pages/`);
 - loads `assets/custom_header.html` as the Dash index template;
@@ -60,9 +60,9 @@ Dash Pages owns routing. Page modules are deliberately thin:
 | `/analysis` | `app/pages/analysis.py` | `app/layouts/analysis.py` |
 | `/economics` | `app/pages/economics.py` | `app/layouts/economics.py` |
 | `/wine` | `app/pages/wine.py` | `app/layouts/wine.py` |
-| `/404` and unmatched routes | `app/pages/not_found_404.py` | `app/layouts/layout_404.py` |
+| Client-side 404 fallback | `app/pages/not_found_404.py` | `app/layouts/layout_404.py` |
 
-Do not recreate root-level `pages/`, `callbacks/`, `layouts/`, `components/`, or `utils/` packages. Runtime imports use `app.*` paths, and page/callback modules must not import `michelin_app.py`.
+Direct requests outside the five public page paths are rejected by the Flask request guard before Dash serves its catch-all HTML shell. Do not recreate root-level `pages/`, `callbacks/`, `layouts/`, `components/`, or `utils/` packages. Runtime imports use `app.*` paths, and page/callback modules must not import `michelin_app.py`.
 
 ### Shared components, configuration, and data
 
@@ -300,7 +300,7 @@ Do not rename component IDs, move stores between root and page layouts, or chang
 ## Gotchas
 
 - Dash Pages owns routing, and separately registered callbacks depend on `suppress_callback_exceptions=True` because page layouts are mounted dynamically.
-- Keep the HTTPS hook before session work and preserve `ProxyFix` assumptions when changing deployment handling.
+- Keep production host/path rejection and the HTTPS hook before session work. `ProxyFix` trusts only one `X-Forwarded-Proto` value and deliberately does not trust `X-Forwarded-Host`.
 - A generated local `FLASK_SECRET_KEY` invalidates sessions on process restart.
 - The active Guide year is derived from installed package metadata. Refresh the editable install after changing `pyproject.toml` version metadata.
 - The default cache is in-process. Cached Wine summaries and session request counts are not shared application-wide across workers or dynos.
