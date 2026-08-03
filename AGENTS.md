@@ -60,9 +60,10 @@ Dash Pages owns routing. Page modules are deliberately thin:
 | `/analysis` | `app/pages/analysis.py` | `app/layouts/analysis.py` |
 | `/economics` | `app/pages/economics.py` | `app/layouts/economics.py` |
 | `/wine` | `app/pages/wine.py` | `app/layouts/wine.py` |
+| `/robots.txt` | `michelin_app.py` | Plain-text crawler policy; no session |
 | Client-side 404 fallback | `app/pages/not_found_404.py` | `app/layouts/layout_404.py` |
 
-Direct requests outside the five public page paths are rejected by the Flask request guard before Dash serves its catch-all HTML shell. Do not recreate root-level `pages/`, `callbacks/`, `layouts/`, `components/`, or `utils/` packages. Runtime imports use `app.*` paths, and page/callback modules must not import `michelin_app.py`.
+Direct requests outside the five public page paths, the explicit `robots.txt` endpoint, and registered framework/static routes are rejected by the Flask request guard before Dash serves its catch-all HTML shell. Do not recreate root-level `pages/`, `callbacks/`, `layouts/`, `components/`, or `utils/` packages. Runtime imports use `app.*` paths, and page/callback modules must not import `michelin_app.py`.
 
 ### Shared components, configuration, and data
 

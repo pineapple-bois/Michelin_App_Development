@@ -98,6 +98,16 @@ app = dash.Dash(
     server=server)
 
 
+@server.get("/robots.txt")
+def robots_txt():
+    response = server.response_class(
+        "User-agent: *\nDisallow: /\n",
+        mimetype="text/plain",
+    )
+    response.headers["Cache-Control"] = "public, max-age=86400"
+    return response
+
+
 @server.before_request
 def reject_invalid_request():
     if CONFIG.is_production and not is_allowed_production_host(request.host):

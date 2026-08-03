@@ -21,7 +21,6 @@ def test_public_routes_return_dash_html_shell(app_module, path):
     [
         "/missing",
         "/404",
-        "/robots.txt",
         "/shell.php",
         "/.env",
         "/.git/config",
@@ -35,6 +34,16 @@ def test_unknown_and_impossible_routes_return_404_without_session(app_module, pa
     response = app_module.server.test_client().get(path)
 
     assert response.status_code == 404
+    assert "Set-Cookie" not in response.headers
+
+
+def test_robots_txt_is_plain_text_cacheable_and_session_free(app_module):
+    response = app_module.server.test_client().get("/robots.txt")
+
+    assert response.status_code == 200
+    assert response.get_data(as_text=True) == "User-agent: *\nDisallow: /\n"
+    assert response.content_type == "text/plain; charset=utf-8"
+    assert response.headers["Cache-Control"] == "public, max-age=86400"
     assert "Set-Cookie" not in response.headers
 
 
